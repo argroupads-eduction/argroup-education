@@ -1,0 +1,24 @@
+{
+  "name": "ar-education",
+  "version": "1.0.0",
+  "description": "Premium educational consultancy platform - Monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write .",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "install-all": "npm install && npm install -w apps/frontend && npm install -w apps/backend"
+  },
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ],
+  "devDependencies": {
+    "turbo": "^1.10.16",
+    "prettier": "^3.1.0"
+  }
+}

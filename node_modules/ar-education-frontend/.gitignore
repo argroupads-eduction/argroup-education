@@ -1,0 +1,13 @@
+.env.local
+.env.production.local
+node_modules/
+.next/
+out/
+dist/
+.DS_Store
+*.pem
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
