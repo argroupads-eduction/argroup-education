@@ -1,14 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/Button';
 import { MBBS_ABROAD_HERO_COUNTRY_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOptions';
-import {
-  buildHeroMbbsFormInitialValues,
-  loadHeroMbbsFormDefinition,
-  peekHeroMbbsFormDefinition,
-} from '@/lib/mbbsHeroFormDefinitionsCache';
+import { useHeroMbbsFormDefinition } from '@/lib/useHeroMbbsFormDefinition';
 
 type FormFieldBlock = {
   id?: string | null;
@@ -62,47 +58,18 @@ export function MbbsAbroadHeroPayloadForm({
   layout = 'stacked',
   className: outerClassName,
 }: MbbsAbroadHeroPayloadFormProps) {
-  const [form, setForm] = useState<PayloadFormDoc | null>(() => {
-    const c = peekHeroMbbsFormDefinition('abroad');
-    return c?.ok ? (c.doc as PayloadFormDoc) : null;
-  });
-  const [loadError, setLoadError] = useState<string | null>(() => {
-    const c = peekHeroMbbsFormDefinition('abroad');
-    return c && !c.ok ? c.message : null;
-  });
-  const [loading, setLoading] = useState(() => !peekHeroMbbsFormDefinition('abroad'));
-  const [values, setValues] = useState<Record<string, string>>(() => {
-    const c = peekHeroMbbsFormDefinition('abroad');
-    return c?.ok ? buildHeroMbbsFormInitialValues(c.doc) : {};
-  });
+  const { form: loadedForm, loadError, loading, retrying, values, setValues } =
+    useHeroMbbsFormDefinition('abroad');
+  const form = loadedForm as PayloadFormDoc | null;
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    loadHeroMbbsFormDefinition('abroad').then((r) => {
-      if (cancelled) return;
-      if (r.ok) {
-        setForm(r.doc as PayloadFormDoc);
-        setValues(buildHeroMbbsFormInitialValues(r.doc));
-        setLoadError(null);
-      } else {
-        setForm(null);
-        setLoadError(r.message);
-      }
-      setLoading(false);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const fields = useMemo(() => (form?.fields || []).filter(isInputField), [form?.fields]);
 
   const setField = useCallback((name: string, value: string) => {
     setValues((prev) => ({ ...prev, [name]: value }));
-  }, []);
+  }, [setValues]);
 
   const onSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -163,10 +130,12 @@ export function MbbsAbroadHeroPayloadForm({
     outerClassName
   );
 
-  if (loading) {
+  if (loading || retrying) {
     return (
       <div className={panelClass}>
-        <div className="py-8 text-center text-sm text-white/90 md:py-10">Loading enquiry form…</div>
+        <div className="py-8 text-center text-sm text-white/90 md:py-10">
+          {retrying ? 'Connecting to CMS…' : 'Loading enquiry form…'}
+        </div>
       </div>
     );
   }

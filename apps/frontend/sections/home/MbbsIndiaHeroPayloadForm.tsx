@@ -60,7 +60,7 @@ export function MbbsIndiaHeroPayloadForm({
 
   const setField = useCallback((name: string, value: string) => {
     setValues((prev) => ({ ...prev, [name]: value }));
-  }, []);
+  }, [setValues]);
 
   const onSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -128,7 +128,9 @@ export function MbbsIndiaHeroPayloadForm({
   if (loading || retrying) {
     return (
       <div className={panelClass}>
-        <div className="py-8 text-center text-sm text-white/90 md:py-10">Loading enquiry form…</div>
+        <div className="py-8 text-center text-sm text-white/90 md:py-10">
+          {retrying ? 'Connecting to CMS…' : 'Loading enquiry form…'}
+        </div>
       </div>
     );
   }
