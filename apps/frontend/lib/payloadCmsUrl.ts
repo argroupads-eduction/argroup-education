@@ -4,7 +4,7 @@ export function getPayloadCmsBaseUrl(): string {
     process.env.PAYLOAD_CMS_URL?.replace(/\/$/, '') ||
     process.env.NEXT_PUBLIC_CMS_URL?.replace(/\/$/, '') ||
     '';
-  return fromEnv || 'http://localhost:8000';
+  return fromEnv || 'http://127.0.0.1:8000';
 }
 
 /**
