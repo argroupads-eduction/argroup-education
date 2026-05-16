@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { readPayloadCms } from '@/lib/payloadCmsRead';
 import { getPayloadCmsServerFetchUrl } from '@/lib/payloadCmsUrl';
 
 export const dynamic = 'force-dynamic';
@@ -10,37 +11,6 @@ type FormsListResponse = { docs?: FormDoc[] };
 
 function normalizeTitle(s: string | null | undefined): string {
   return (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
-}
-
-function cmsHeaders(): HeadersInit {
-  const headers: Record<string, string> = { Accept: 'application/json' };
-  const key =
-    process.env.PAYLOAD_CMS_API_KEY ||
-    process.env.PAYLOAD_FORMS_READ_API_KEY ||
-    process.env.PAYLOAD_PREVIEW_API_KEY;
-  if (key) {
-    headers.Authorization = `users API-Key ${key}`;
-  }
-  return headers;
-}
-
-async function readPayload(url: string): Promise<{
-  status: number;
-  responseOk: boolean;
-  json: unknown | null;
-  rawPreview: string;
-}> {
-  const res = await fetch(url, { cache: 'no-store', headers: cmsHeaders() });
-  const raw = await res.text();
-  const trimmed = raw.trim();
-  if (!trimmed) {
-    return { status: res.status, responseOk: res.ok, json: null, rawPreview: '' };
-  }
-  try {
-    return { status: res.status, responseOk: res.ok, json: JSON.parse(trimmed) as unknown, rawPreview: trimmed.slice(0, 200) };
-  } catch {
-    return { status: res.status, responseOk: res.ok, json: null, rawPreview: trimmed.slice(0, 200) };
-  }
 }
 
 /**
@@ -55,7 +25,7 @@ export async function GET() {
 
   try {
     if (formIdEnv && /^\d+$/.test(formIdEnv)) {
-      const r = await readPayload(`${base}/api/forms/${formIdEnv}?depth=0`);
+      const r = await readPayloadCms(`${base}/api/forms/${formIdEnv}?depth=0`);
       if (!r.json) {
         return NextResponse.json(
           {
@@ -81,7 +51,7 @@ export async function GET() {
       limit: '1',
       depth: '0',
     });
-    const byTitle = await readPayload(`${base}/api/forms?${qs.toString()}`);
+    const byTitle = await readPayloadCms(`${base}/api/forms?${qs.toString()}`);
 
     if (!byTitle.json) {
       return NextResponse.json(
@@ -107,7 +77,7 @@ export async function GET() {
     let docs = (byTitle.json as FormsListResponse).docs ?? [];
     if (!docs.length) {
       const listQs = new URLSearchParams({ limit: '50', depth: '0', sort: '-updatedAt' });
-      const listed = await readPayload(`${base}/api/forms?${listQs.toString()}`);
+      const listed = await readPayloadCms(`${base}/api/forms?${listQs.toString()}`);
       if (listed.json && listed.responseOk && typeof listed.json === 'object' && 'docs' in listed.json) {
         const all = ((listed.json as FormsListResponse).docs || []).filter((d) => d?.id);
         const target = normalizeTitle(configuredTitle);

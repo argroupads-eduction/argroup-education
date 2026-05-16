@@ -1,14 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/Button';
-import {
-  buildHeroMbbsFormInitialValues,
-  loadHeroMbbsFormDefinition,
-  peekHeroMbbsFormDefinition,
-} from '@/lib/mbbsHeroFormDefinitionsCache';
 import { MBBS_INDIA_HERO_STATE_OPTIONS } from '@/lib/mbbsIndiaHeroStateOptions';
+import { useHeroMbbsFormDefinition } from '@/lib/useHeroMbbsFormDefinition';
 
 type FormFieldBlock = {
   id?: string | null;
@@ -50,41 +46,12 @@ export function MbbsIndiaHeroPayloadForm({
   layout = 'stacked',
   className: outerClassName,
 }: MbbsIndiaHeroPayloadFormProps) {
-  const [form, setForm] = useState<PayloadFormDoc | null>(() => {
-    const c = peekHeroMbbsFormDefinition('india');
-    return c?.ok ? (c.doc as PayloadFormDoc) : null;
-  });
-  const [loadError, setLoadError] = useState<string | null>(() => {
-    const c = peekHeroMbbsFormDefinition('india');
-    return c && !c.ok ? c.message : null;
-  });
-  const [loading, setLoading] = useState(() => !peekHeroMbbsFormDefinition('india'));
-  const [values, setValues] = useState<Record<string, string>>(() => {
-    const c = peekHeroMbbsFormDefinition('india');
-    return c?.ok ? buildHeroMbbsFormInitialValues(c.doc) : {};
-  });
+  const { form: loadedForm, loadError, loading, retrying, values, setValues } =
+    useHeroMbbsFormDefinition('india');
+  const form = loadedForm as PayloadFormDoc | null;
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    loadHeroMbbsFormDefinition('india').then((r) => {
-      if (cancelled) return;
-      if (r.ok) {
-        setForm(r.doc as PayloadFormDoc);
-        setValues(buildHeroMbbsFormInitialValues(r.doc));
-        setLoadError(null);
-      } else {
-        setForm(null);
-        setLoadError(r.message);
-      }
-      setLoading(false);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const fields = useMemo(
     () => (form?.fields || []).filter(isInputField),
@@ -158,7 +125,7 @@ export function MbbsIndiaHeroPayloadForm({
     outerClassName
   );
 
-  if (loading) {
+  if (loading || retrying) {
     return (
       <div className={panelClass}>
         <div className="py-8 text-center text-sm text-white/90 md:py-10">Loading enquiry form…</div>

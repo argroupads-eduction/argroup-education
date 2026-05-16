@@ -3,6 +3,9 @@
  * Survives component unmount so switching slides does not refetch or flash "Loading…".
  */
 
+import { sleep } from '@/lib/fetchWithRetry';
+import { isTransientHeroCmsError } from '@/lib/heroCmsConnection';
+
 export type HeroMbbsFormFieldBlock = {
   id?: string | null;
   blockName?: string | null;
@@ -35,20 +38,27 @@ export type HeroMbbsFormDefinitionResult =
 
 type Kind = 'india' | 'abroad';
 
-const bucket: Record<
-  Kind,
-  { inflight?: Promise<HeroMbbsFormDefinitionResult>; done?: HeroMbbsFormDefinitionResult }
-> = {
+type BucketEntry = {
+  inflight?: Promise<HeroMbbsFormDefinitionResult>;
+  /** Cached only on success — failures are not pinned for the session. */
+  done?: HeroMbbsFormDoc;
+  lastError?: string;
+};
+
+const bucket: Record<Kind, BucketEntry> = {
   india: {},
   abroad: {},
 };
+
+const CLIENT_FETCH_ATTEMPTS = 3;
+const CLIENT_FETCH_DELAY_MS = 500;
 
 function formPath(kind: Kind): string {
   return kind === 'india' ? '/api/cms/forms/mbbs-india' : '/api/cms/forms/mbbs-abroad';
 }
 
-async function fetchDefinition(kind: Kind): Promise<HeroMbbsFormDefinitionResult> {
-  const res = await fetch(formPath(kind), { cache: 'force-cache' });
+async function fetchDefinitionOnce(kind: Kind): Promise<HeroMbbsFormDefinitionResult> {
+  const res = await fetch(formPath(kind), { cache: 'no-store' });
   const raw = await res.text();
   let data: (FormsListResponse & { message?: string }) | null = null;
   try {
@@ -80,20 +90,66 @@ async function fetchDefinition(kind: Kind): Promise<HeroMbbsFormDefinitionResult
   return { ok: true, doc };
 }
 
-/** Resolved result after a completed load (success or failure). */
+async function fetchDefinition(kind: Kind): Promise<HeroMbbsFormDefinitionResult> {
+  let delay = CLIENT_FETCH_DELAY_MS;
+  let last: HeroMbbsFormDefinitionResult = { ok: false, message: 'Could not load form.' };
+
+  for (let i = 0; i < CLIENT_FETCH_ATTEMPTS; i++) {
+    last = await fetchDefinitionOnce(kind);
+    if (last.ok) return last;
+    if (!isTransientHeroCmsError(last.message) || i === CLIENT_FETCH_ATTEMPTS - 1) {
+      return last;
+    }
+    await sleep(delay);
+    delay = Math.round(delay * 1.5);
+  }
+
+  return last;
+}
+
+/** Resolved result after a completed load (success or last failure). */
 export function peekHeroMbbsFormDefinition(kind: Kind): HeroMbbsFormDefinitionResult | undefined {
-  return bucket[kind].done;
+  const b = bucket[kind];
+  if (b.done) return { ok: true, doc: b.done };
+  if (b.lastError) return { ok: false, message: b.lastError };
+  return undefined;
+}
+
+export function clearHeroMbbsFormDefinitionCache(kind?: Kind): void {
+  if (kind) {
+    bucket[kind] = {};
+    return;
+  }
+  bucket.india = {};
+  bucket.abroad = {};
 }
 
 /**
- * Single shared request per kind; result is cached for the session.
+ * Single shared request per kind; successful results are cached for the session.
+ * Pass `{ force: true }` to bypass cache after CMS was temporarily down.
  */
-export function loadHeroMbbsFormDefinition(kind: Kind): Promise<HeroMbbsFormDefinitionResult> {
+export function loadHeroMbbsFormDefinition(
+  kind: Kind,
+  options?: { force?: boolean }
+): Promise<HeroMbbsFormDefinitionResult> {
   const b = bucket[kind];
-  if (b.done) return Promise.resolve(b.done);
+  if (options?.force) {
+    delete b.inflight;
+    delete b.done;
+    delete b.lastError;
+  } else if (b.done) {
+    return Promise.resolve({ ok: true, doc: b.done });
+  }
+
   if (!b.inflight) {
     b.inflight = fetchDefinition(kind).then((result) => {
-      b.done = result;
+      delete b.inflight;
+      if (result.ok) {
+        b.done = result.doc;
+        delete b.lastError;
+      } else {
+        b.lastError = result.message;
+      }
       return result;
     });
   }
