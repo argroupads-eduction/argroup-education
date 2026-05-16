@@ -1,4 +1,4 @@
-import { fetchWithRetry, sleep } from '@/lib/fetchWithRetry';
+import { sleep } from '@/lib/fetchWithRetry';
 
 export type PayloadCmsReadResult = {
   status: number;
@@ -23,10 +23,7 @@ function isTransientPayloadStatus(status: number): boolean {
   return status === 502 || status === 503 || status === 504;
 }
 
-function parsePayloadBody(
-  res: Response,
-  raw: string
-): Omit<PayloadCmsReadResult, 'status' | 'responseOk'> {
+function parsePayloadBody(raw: string): Omit<PayloadCmsReadResult, 'status' | 'responseOk'> {
   const trimmed = raw.trim();
   if (!trimmed) {
     return { json: null, rawPreview: '' };
@@ -51,16 +48,9 @@ export async function readPayloadCms(url: string): Promise<PayloadCmsReadResult>
 
   for (let i = 0; i < attempts; i++) {
     try {
-      const res = await fetchWithRetry(
-        url,
-        { cache: 'no-store', headers: cmsHeaders() },
-        {
-          attempts: 1,
-          shouldRetry: () => false,
-        }
-      );
+      const res = await fetch(url, { cache: 'no-store', headers: cmsHeaders() });
       const raw = await res.text();
-      const parsed = parsePayloadBody(res, raw);
+      const parsed = parsePayloadBody(raw);
       const emptyUnreachable = !parsed.json && !parsed.rawPreview && !res.ok;
       const transient =
         emptyUnreachable || isTransientPayloadStatus(res.status);
