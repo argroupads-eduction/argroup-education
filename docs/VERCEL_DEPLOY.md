@@ -1,5 +1,42 @@
 # Vercel deployment (AR Group monorepo)
 
+## Mandatory: Root Directory = `apps/frontend`
+
+**This is required.** Without it, Vercel builds from the repository root, where `package.json` has no `next` dependency (only Turbo workspaces). You will see a failed build like:
+
+```text
+Warning: Could not identify Next.js version, ensure it is defined as a project dependency.
+Error: No Next.js version detected. Make sure your package.json has "next" in either "dependencies" or "devDependencies".
+```
+
+### Dashboard steps (project **argroup-education**)
+
+1. Open [Vercel Dashboard](https://vercel.com) → **argroup-education** → **Settings** → **General**.
+2. Find **Root Directory** → click **Edit**.
+3. Enter exactly: `apps/frontend` (no leading slash).
+4. Confirm **Include source files outside of the Root Directory in the Build Step** is **enabled** (recommended for npm workspaces so `cd ../.. && npm ci` can see the monorepo root).
+5. Click **Save**.
+6. Go to **Deployments** → latest deployment → **⋮** → **Redeploy** (use “Redeploy with existing Build Cache” only if the build already succeeded once with the new root).
+
+After this, Vercel reads `apps/frontend/package.json` (which includes `next`) and `apps/frontend/vercel.json`. The repo root `vercel.json` is **ignored** when Root Directory is set correctly — that is expected.
+
+| Setting | Required value |
+|--------|----------------|
+| **Root Directory** | `apps/frontend` |
+| **Framework Preset** | Next.js |
+| **Install Command** | *(empty — uses `apps/frontend/vercel.json`)* → `cd ../.. && npm ci` |
+| **Build Command** | *(empty — uses `apps/frontend/vercel.json`)* → `npm run build` |
+| **Output Directory** | *(default — leave empty)* |
+| **Node.js Version** | 20.x |
+
+---
+
+## Fallback: Root Directory left empty (not recommended)
+
+If Root Directory cannot be changed yet, the repository root includes `vercel.json` and `next` in root `devDependencies` so Vercel can detect the framework and run `npm run build --workspace=ar-education-frontend`. Prefer setting **Root Directory** to `apps/frontend` instead — it matches how Next.js and this monorepo are meant to deploy.
+
+---
+
 ## Why you see `404: NOT_FOUND`
 
 Vercel returns **404: NOT_FOUND** when the deployment has **no Next.js app** at the configured root. This repo is a **monorepo**: the site lives in `apps/frontend`, not the repository root.
@@ -15,20 +52,12 @@ No extra redirect from `/` to `/home` is required.
 
 ---
 
-## Required Vercel project settings
+## Quick checklist before every production deploy
 
-In [Vercel Dashboard](https://vercel.com) → project **argroup-education** → **Settings** → **General**:
-
-| Setting | Value |
-|--------|--------|
-| **Root Directory** | `apps/frontend` |
-| **Framework Preset** | Next.js |
-| **Install Command** | `cd ../.. && npm ci` (or leave empty to use `apps/frontend/vercel.json`) |
-| **Build Command** | `npm run build` |
-| **Output Directory** | *(leave default — Next.js on Vercel uses `.next` automatically)* |
-| **Node.js Version** | 20.x (recommended) |
-
-After changing **Root Directory**, trigger **Redeploy** on the latest production deployment (Deployments → ⋮ → Redeploy).
+- [ ] **Root Directory** = `apps/frontend`
+- [ ] Latest commit on `main` includes `apps/frontend/package.json` with `"next"` in `dependencies`
+- [ ] **Redeploy** triggered after any Root Directory change
+- [ ] `NEXT_PUBLIC_API_URL` and CMS URLs set under **Environment Variables**
 
 ### Linking the repo
 
