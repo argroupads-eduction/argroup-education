@@ -136,7 +136,32 @@ The Vercel **project** must use Root Directory `apps/frontend` in the dashboard;
 
 ---
 
+## `npm ci` / lockfile out of sync (sharp optional deps)
+
+Vercel runs `cd ../.. && npm ci` from `apps/frontend`. If the build fails with **Missing: @img/sharp-…** or similar, the root `package-lock.json` is out of sync with `package.json` (often after a Next.js upgrade that pulls in `sharp` with platform-specific optional packages).
+
+**Fix at repo root:**
+
+```bash
+npm install          # regenerates package-lock.json
+npm ci --dry-run     # should exit 0 when lockfile is in sync
+cd apps/frontend && npm run build
+```
+
+Commit the updated `package-lock.json` on `main`. No `.npmrc` override is required unless you use non-default install flags locally.
+
+---
+
 ## Verify locally
+
+```bash
+# From monorepo root (recommended — matches Vercel install)
+npm ci
+cd apps/frontend
+npm run build
+```
+
+Or from `apps/frontend` only (after root `npm ci`):
 
 ```bash
 cd apps/frontend
