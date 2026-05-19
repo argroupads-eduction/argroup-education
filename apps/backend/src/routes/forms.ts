@@ -9,7 +9,7 @@ router.post(
   [
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Invalid email'),
-    body('phone').matches(/^[0-9\s\-\+\(\)]{10,}$/).withMessage('Invalid phone'),
+    body('phone').matches(/^[0-9\s\-+()]{10,}$/).withMessage('Invalid phone'),
     body('course').notEmpty().withMessage('Course is required'),
     body('countryPreference').notEmpty().withMessage('Country preference is required'),
   ],
@@ -20,7 +20,20 @@ router.post(
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const { name, email, phone, course, neetScore, countryPreference } = req.body;
+      const {
+        name: _name,
+        email: _email,
+        phone: _phone,
+        course: _course,
+        neetScore: _neetScore,
+        countryPreference: _countryPreference,
+      } = req.body;
+      void _name;
+      void _email;
+      void _phone;
+      void _course;
+      void _neetScore;
+      void _countryPreference;
 
       // TODO: Save to database via Prisma
       // TODO: Send confirmation email

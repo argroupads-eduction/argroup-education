@@ -50,16 +50,35 @@ const bucket: Record<Kind, BucketEntry> = {
   abroad: {},
 };
 
-const CLIENT_FETCH_ATTEMPTS = 3;
-const CLIENT_FETCH_DELAY_MS = 500;
+const CLIENT_FETCH_ATTEMPTS = 2;
+const CLIENT_FETCH_DELAY_MS = 400;
 
 function formPath(kind: Kind): string {
   return kind === 'india' ? '/api/cms/forms/mbbs-india' : '/api/cms/forms/mbbs-abroad';
 }
 
 async function fetchDefinitionOnce(kind: Kind): Promise<HeroMbbsFormDefinitionResult> {
-  const res = await fetch(formPath(kind), { cache: 'no-store' });
-  const raw = await res.text();
+  let res: Response;
+  try {
+    res = await fetch(formPath(kind), { cache: 'default' });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return {
+      ok: false,
+      message:
+        /failed to fetch|network error|load failed/i.test(msg)
+          ? 'Cannot reach form API. Run the frontend on port 3000 and start Payload on port 8000 for CMS forms.'
+          : msg,
+    };
+  }
+
+  let raw: string;
+  try {
+    raw = await res.text();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { ok: false, message: msg || 'Could not read form API response.' };
+  }
   let data: (FormsListResponse & { message?: string }) | null = null;
   try {
     data = raw.trim() ? (JSON.parse(raw) as FormsListResponse & { message?: string }) : null;
@@ -115,6 +134,25 @@ export function peekHeroMbbsFormDefinition(kind: Kind): HeroMbbsFormDefinitionRe
   return undefined;
 }
 
+/** Pre-populate session cache from server-rendered definitions (first paint). */
+export function seedHeroMbbsFormDefinitions(
+  entries: Partial<Record<Kind, HeroMbbsFormDoc | null | undefined>>
+): void {
+  for (const kind of ['india', 'abroad'] as const) {
+    const doc = entries[kind];
+    if (doc?.id) {
+      bucket[kind].done = doc;
+      delete bucket[kind].lastError;
+      delete bucket[kind].inflight;
+    }
+  }
+}
+
+/** Start parallel client fetches for the given kinds (deduped via loadHeroMbbsFormDefinition). */
+export function prefetchMbbsHeroFormDefinitions(kinds: Kind[]): void {
+  void Promise.all(kinds.map((kind) => loadHeroMbbsFormDefinition(kind)));
+}
+
 export function clearHeroMbbsFormDefinitionCache(kind?: Kind): void {
   if (kind) {
     bucket[kind] = {};
@@ -142,16 +180,24 @@ export function loadHeroMbbsFormDefinition(
   }
 
   if (!b.inflight) {
-    b.inflight = fetchDefinition(kind).then((result) => {
-      delete b.inflight;
-      if (result.ok) {
-        b.done = result.doc;
-        delete b.lastError;
-      } else {
-        b.lastError = result.message;
-      }
-      return result;
-    });
+    b.inflight = fetchDefinition(kind)
+      .then((result) => {
+        delete b.inflight;
+        if (result.ok) {
+          b.done = result.doc;
+          delete b.lastError;
+        } else {
+          b.lastError = result.message;
+        }
+        return result;
+      })
+      .catch((e: unknown) => {
+        delete b.inflight;
+        const message =
+          e instanceof Error ? e.message : 'Could not load form definition.';
+        b.lastError = message;
+        return { ok: false as const, message };
+      });
   }
   return b.inflight;
 }

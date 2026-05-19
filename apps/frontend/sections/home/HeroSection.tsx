@@ -1,10 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { loadHeroMbbsFormDefinition } from '@/lib/mbbsHeroFormDefinitionsCache';
+import {
+  prefetchMbbsHeroFormDefinitions,
+  seedHeroMbbsFormDefinitions,
+  type HeroMbbsFormDoc,
+} from '@/lib/mbbsHeroFormDefinitionsCache';
 import { MbbsAbroadHeroPayloadForm } from '@/sections/home/MbbsAbroadHeroPayloadForm';
 import { MbbsIndiaHeroPayloadForm } from '@/sections/home/MbbsIndiaHeroPayloadForm';
 
@@ -36,7 +40,20 @@ const ABROAD_SHOW_MS = 12_000;
 const BANNER_INDIA = '/india-homepage.jpg';
 const BANNER_ABROAD = '/abroad-homepage.jpg';
 
-export const HeroSection = () => {
+export type HeroSectionProps = {
+  initialForms?: {
+    india?: HeroMbbsFormDoc | null;
+    abroad?: HeroMbbsFormDoc | null;
+  };
+};
+
+export const HeroSection = ({ initialForms }: HeroSectionProps) => {
+  const seeded = useRef(false);
+  if (initialForms && !seeded.current) {
+    seedHeroMbbsFormDefinitions(initialForms);
+    seeded.current = true;
+  }
+
   const [variant, setVariant] = useState<HeroVariant>('india');
   const [text, setText] = useState('');
   const [collegeIndex, setCollegeIndex] = useState(0);
@@ -47,10 +64,9 @@ export const HeroSection = () => {
     [variant]
   );
 
-  // Warm both hero form definitions so switching slides does not wait on CMS.
+  // Warm both hero form definitions in parallel (no carousel delay).
   useEffect(() => {
-    void loadHeroMbbsFormDefinition('india');
-    void loadHeroMbbsFormDefinition('abroad');
+    prefetchMbbsHeroFormDefinitions(['india', 'abroad']);
   }, []);
 
   // Auto-rotate India -> Abroad -> India

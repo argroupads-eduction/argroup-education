@@ -14,7 +14,8 @@ router.post(
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const { email } = req.body;
+      const { email: _email } = req.body;
+      void _email;
 
       // TODO: Save to database via Prisma
       // TODO: Send welcome email
@@ -23,8 +24,13 @@ router.post(
         success: true,
         message: 'Successfully subscribed to newsletter!',
       });
-    } catch (error: any) {
-      if (error.code === 'P2002') {
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error as { code: string }).code === 'P2002'
+      ) {
         return res
           .status(400)
           .json({ success: false, message: 'Email already subscribed' });

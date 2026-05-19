@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Button } from '@/components/ui/Button';
 import { MBBS_INDIA_HERO_STATE_OPTIONS } from '@/lib/mbbsIndiaHeroStateOptions';
 import { useHeroMbbsFormDefinition } from '@/lib/useHeroMbbsFormDefinition';
+import { HeroFormSkeleton } from '@/sections/home/HeroFormSkeleton';
 
 type FormFieldBlock = {
   id?: string | null;
@@ -46,7 +47,7 @@ export function MbbsIndiaHeroPayloadForm({
   layout = 'stacked',
   className: outerClassName,
 }: MbbsIndiaHeroPayloadFormProps) {
-  const { form: loadedForm, loadError, loading, retrying, values, setValues } =
+  const { form: loadedForm, loadError, cmsStarting, debugMessage, values, setValues } =
     useHeroMbbsFormDefinition('india');
   const form = loadedForm as PayloadFormDoc | null;
   const [submitting, setSubmitting] = useState(false);
@@ -125,27 +126,18 @@ export function MbbsIndiaHeroPayloadForm({
     outerClassName
   );
 
-  if (loading || retrying) {
+  if (!form) {
+    const devDetails =
+      process.env.NODE_ENV === 'development' ? debugMessage || loadError : null;
     return (
-      <div className={panelClass}>
-        <div className="py-8 text-center text-sm text-white/90 md:py-10">
-          {retrying ? 'Connecting to CMS…' : 'Loading enquiry form…'}
-        </div>
-      </div>
+      <HeroFormSkeleton
+        title="Quick enquiry (MBBS India)"
+        panelClass={panelClass}
+        hint={cmsStarting ? 'Starting CMS…' : 'Form temporarily unavailable'}
+        details={devDetails}
+      />
     );
   }
-
-  if (loadError) {
-    return (
-      <div className={panelClass}>
-        <div className="rounded-lg border border-red-400/30 bg-red-950/40 px-4 py-4 text-sm text-red-100">
-          {loadError}
-        </div>
-      </div>
-    );
-  }
-
-  if (!form) return null;
 
   if (submitted) {
     return (

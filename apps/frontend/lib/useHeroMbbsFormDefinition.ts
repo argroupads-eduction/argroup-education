@@ -11,20 +11,37 @@ import {
 
 type Kind = 'india' | 'abroad';
 
-const POLL_MS = 3000;
-const MAX_POLL_ATTEMPTS = 20;
+const POLL_MS_FAST = 1500;
+const POLL_MS_SLOW = 3000;
+const POLL_MS_IDLE = 10_000;
+const FAST_POLL_WINDOW_MS = 10_000;
+
+function pollDelayMs(startedAt: number, idle: boolean): number {
+  if (idle) return POLL_MS_IDLE;
+  return Date.now() - startedAt < FAST_POLL_WINDOW_MS ? POLL_MS_FAST : POLL_MS_SLOW;
+}
+
+function logCmsDevWarning(kind: Kind, message: string): void {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(`[hero-form:${kind}]`, message);
+  }
+}
 
 export function useHeroMbbsFormDefinition(kind: Kind) {
   const [form, setForm] = useState<HeroMbbsFormDoc | null>(() => {
     const c = peekHeroMbbsFormDefinition(kind);
     return c?.ok ? c.doc : null;
   });
+  /** Non-transient failure only — never shown as a harsh banner in hero UI. */
   const [loadError, setLoadError] = useState<string | null>(() => {
     const c = peekHeroMbbsFormDefinition(kind);
-    return c && !c.ok ? c.message : null;
+    if (!c || c.ok) return null;
+    return isTransientHeroCmsError(c.message) ? null : c.message;
   });
   const [loading, setLoading] = useState(() => !peekHeroMbbsFormDefinition(kind)?.ok);
   const [retrying, setRetrying] = useState(false);
+  /** Last CMS message (any) — for collapsed dev details only. */
+  const [debugMessage, setDebugMessage] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, string>>(() => {
     const c = peekHeroMbbsFormDefinition(kind);
     return c?.ok ? buildHeroMbbsFormInitialValues(c.doc) : {};
@@ -34,6 +51,14 @@ export function useHeroMbbsFormDefinition(kind: Kind) {
     let cancelled = false;
     let pollTimer: ReturnType<typeof setTimeout> | undefined;
     let pollAttempts = 0;
+    const startedAt = Date.now();
+
+    const schedulePoll = (force: boolean, idle: boolean) => {
+      pollTimer = setTimeout(() => {
+        pollAttempts += 1;
+        void run(force);
+      }, pollDelayMs(startedAt, idle));
+    };
 
     const apply = (r: Awaited<ReturnType<typeof loadHeroMbbsFormDefinition>>) => {
       if (cancelled) return;
@@ -41,22 +66,29 @@ export function useHeroMbbsFormDefinition(kind: Kind) {
         setForm(r.doc);
         setValues(buildHeroMbbsFormInitialValues(r.doc));
         setLoadError(null);
+        setDebugMessage(null);
         setLoading(false);
         setRetrying(false);
         return;
       }
+
       setForm(null);
+      setDebugMessage(r.message);
+
+      if (isTransientHeroCmsError(r.message)) {
+        logCmsDevWarning(kind, r.message);
+        setLoadError(null);
+        setLoading(true);
+        setRetrying(true);
+        const idle = pollAttempts >= 40;
+        schedulePoll(true, idle);
+        return;
+      }
+
       setLoadError(r.message);
       setLoading(false);
-      if (isTransientHeroCmsError(r.message) && pollAttempts < MAX_POLL_ATTEMPTS) {
-        setRetrying(true);
-        pollTimer = setTimeout(() => {
-          pollAttempts += 1;
-          void run(true);
-        }, POLL_MS);
-      } else {
-        setRetrying(false);
-      }
+      setRetrying(false);
+      logCmsDevWarning(kind, r.message);
     };
 
     const run = (force = false) => {
@@ -75,5 +107,7 @@ export function useHeroMbbsFormDefinition(kind: Kind) {
     };
   }, [kind]);
 
-  return { form, loadError, loading, retrying, values, setValues };
+  const cmsStarting = !form && (loading || retrying || !loadError);
+
+  return { form, loadError, loading, retrying, cmsStarting, debugMessage, values, setValues };
 }

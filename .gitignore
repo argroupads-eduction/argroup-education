@@ -1,2 +1,18 @@
 node_modules
 .history/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Next.js
+.next/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Turbo and dev logs
+.turbo/
+frontend-dev.log

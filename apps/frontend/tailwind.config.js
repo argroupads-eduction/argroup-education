@@ -76,6 +76,7 @@ module.exports = {
         bounce: 'bounce 1s infinite',
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         float: 'float 3s ease-in-out infinite',
+        testimonialMarquee: 'testimonial-marquee-ltr 80s linear infinite',
       },
       keyframes: {
         fadeIn: {
@@ -101,6 +102,10 @@ module.exports = {
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-20px)' },
+        },
+        'testimonial-marquee-ltr': {
+          '0%': { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0)' },
         },
       },
       backdropBlur: {

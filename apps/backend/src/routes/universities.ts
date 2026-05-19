@@ -5,7 +5,7 @@ const router = Router();
 // GET /api/universities - Get all universities with pagination
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 10, country } = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
     // TODO: Implement with Prisma
     res.json({
@@ -23,7 +23,8 @@ router.get('/', async (req: Request, res: Response) => {
 // GET /api/universities/featured - Get featured universities
 router.get('/featured', async (req: Request, res: Response) => {
   try {
-    const { limit = 6 } = req.query;
+    const { limit: _limit = 6 } = req.query;
+    void _limit;
     // TODO: Implement with Prisma
     res.json({
       success: true,
@@ -37,7 +38,8 @@ router.get('/featured', async (req: Request, res: Response) => {
 // GET /api/universities/:slug - Get university by slug
 router.get('/:slug', async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params;
+    const { slug: _slug } = req.params;
+    void _slug;
     // TODO: Implement with Prisma
     res.json({
       success: true,

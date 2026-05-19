@@ -38,17 +38,24 @@ function parsePayloadBody(raw: string): Omit<PayloadCmsReadResult, 'status' | 'r
   }
 }
 
+/** Per-attempt timeout — fail fast when Payload is down instead of hanging. */
+const CMS_FETCH_TIMEOUT_MS = 7000;
+
 /**
  * Reads JSON from Payload with retries when CMS is still starting or unreachable.
  */
 export async function readPayloadCms(url: string): Promise<PayloadCmsReadResult> {
-  const attempts = 3;
-  const delayMs = 500;
+  const attempts = 2;
+  const delayMs = 400;
   let delay = delayMs;
 
   for (let i = 0; i < attempts; i++) {
     try {
-      const res = await fetch(url, { cache: 'no-store', headers: cmsHeaders() });
+      const res = await fetch(url, {
+        cache: 'no-store',
+        headers: cmsHeaders(),
+        signal: AbortSignal.timeout(CMS_FETCH_TIMEOUT_MS),
+      });
       const raw = await res.text();
       const parsed = parsePayloadBody(raw);
       const emptyUnreachable = !parsed.json && !parsed.rawPreview && !res.ok;
