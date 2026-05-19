@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getMbbsHeroFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import {
   loadMbbsHeroFormDefinitionServer,
   MBBS_HERO_FORM_DEFINITION_CACHE_CONTROL,
@@ -17,10 +18,14 @@ export async function GET() {
   }
 
   return NextResponse.json(
-    { message: result.message, docs: [] },
     {
-      status: result.status,
-      headers: { 'Cache-Control': MBBS_HERO_FORM_DEFINITION_CACHE_CONTROL },
+      docs: [getMbbsHeroFallbackForm('india')],
+      _fallback: true,
+      _cmsMessage: result.message,
+    },
+    {
+      status: 200,
+      headers: { 'Cache-Control': 'no-store' },
     }
   );
 }
