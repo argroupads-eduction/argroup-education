@@ -41,8 +41,17 @@ function normalizeTitle(s: string | null | undefined): string {
 }
 
 function toHeroDoc(doc: FormDoc): HeroMbbsFormDoc | null {
-  if (!doc?.id) return null;
+  if (doc == null || typeof doc.id !== 'number') return null;
   return doc as HeroMbbsFormDoc;
+}
+
+/** Detects non-Payload JSON (e.g. another API bound to port 8000). */
+function isWrongCmsService(json: unknown): boolean {
+  if (!json || typeof json !== 'object') return false;
+  const o = json as Record<string, unknown>;
+  if ('detail' in o && !('docs' in o) && !('id' in o)) return true;
+  if ('app' in o && !('docs' in o)) return true;
+  return false;
 }
 
 /** Loads a hero MBBS form definition from Payload (server-only, no HTTP loopback). */
@@ -57,13 +66,15 @@ export async function loadMbbsHeroFormDefinitionServer(
   try {
     if (formIdEnv && /^\d+$/.test(formIdEnv)) {
       const r = await readPayloadCms(`${base}/api/forms/${formIdEnv}?depth=0`);
-      if (!r.json) {
+      if (!r.json || isWrongCmsService(r.json)) {
         return {
           ok: false,
           status: r.responseOk ? 502 : r.status || 502,
-          message: r.rawPreview
-            ? 'CMS returned non-JSON. Check NEXT_PUBLIC_CMS_URL points to Payload.'
-            : 'Empty response from CMS (is Payload running?)',
+          message: isWrongCmsService(r.json)
+            ? `Port ${base} is not Payload CMS (wrong service on PAYLOAD_CMS_URL). Run npm run dev from repo root.`
+            : r.rawPreview
+              ? 'CMS returned non-JSON. Check NEXT_PUBLIC_CMS_URL points to Payload.'
+              : 'Empty response from CMS (is Payload running?)',
         };
       }
       const doc = toHeroDoc(r.json as FormDoc);
@@ -82,13 +93,15 @@ export async function loadMbbsHeroFormDefinitionServer(
     });
     const byTitle = await readPayloadCms(`${base}/api/forms?${qs.toString()}`);
 
-    if (!byTitle.json) {
+    if (!byTitle.json || isWrongCmsService(byTitle.json)) {
       return {
         ok: false,
         status: byTitle.responseOk ? 502 : byTitle.status || 502,
-        message: byTitle.rawPreview
-          ? 'CMS returned non-JSON (wrong URL or HTML error page).'
-          : `Cannot reach Payload at ${base} (empty response).`,
+        message: isWrongCmsService(byTitle.json)
+          ? `Port ${base} is not Payload CMS. Stop other apps on port 8000 and run: npm run dev`
+          : byTitle.rawPreview
+            ? 'CMS returned non-JSON (wrong URL or HTML error page).'
+            : `Cannot reach Payload at ${base} (empty response).`,
       };
     }
 
@@ -97,7 +110,13 @@ export async function loadMbbsHeroFormDefinitionServer(
         typeof byTitle.json === 'object' && byTitle.json !== null && 'message' in byTitle.json
           ? String((byTitle.json as { message?: string }).message)
           : `Payload returned ${byTitle.status}`;
-      return { ok: false, status: byTitle.status || 502, message: err };
+      return {
+        ok: false,
+        status: byTitle.status || 502,
+        message: /404|not found/i.test(err)
+          ? `${err}. Ensure Payload is running and Forms collection is seeded (npm run dev).`
+          : err,
+      };
     }
 
     let docs = (byTitle.json as FormsListResponse).docs ?? [];
@@ -105,7 +124,9 @@ export async function loadMbbsHeroFormDefinitionServer(
       const listQs = new URLSearchParams({ limit: '50', depth: '0', sort: '-updatedAt' });
       const listed = await readPayloadCms(`${base}/api/forms?${listQs.toString()}`);
       if (listed.json && listed.responseOk && typeof listed.json === 'object' && 'docs' in listed.json) {
-        const all = ((listed.json as FormsListResponse).docs || []).filter((d) => d?.id);
+        const all = ((listed.json as FormsListResponse).docs || []).filter(
+          (d) => d != null && typeof d.id === 'number'
+        );
         const target = normalizeTitle(configuredTitle);
         const match = all.find((d) => normalizeTitle(d.title ?? '') === target);
         if (match) docs = [match];

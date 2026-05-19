@@ -1,13 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { isTransientHeroCmsError } from '@/lib/heroCmsConnection';
+import { isTransientHeroCmsError, shouldUseHeroMbbsFallback } from '@/lib/heroCmsConnection';
 import {
   buildHeroMbbsFormInitialValues,
+  cacheHeroMbbsFallbackDefinition,
   loadHeroMbbsFormDefinition,
   peekHeroMbbsFormDefinition,
   type HeroMbbsFormDoc,
 } from '@/lib/mbbsHeroFormDefinitionsCache';
+import { isHeroMbbsFallbackForm } from '@/lib/mbbsHeroFormFallback';
 
 type Kind = 'india' | 'abroad';
 
@@ -27,12 +29,31 @@ function logCmsDevWarning(kind: Kind, message: string): void {
   }
 }
 
+function applyFallback(
+  kind: Kind,
+  setForm: (doc: HeroMbbsFormDoc) => void,
+  setValues: (v: Record<string, string>) => void,
+  setLoadError: (e: string | null) => void,
+  setDebugMessage: (m: string | null) => void,
+  setLoading: (l: boolean) => void,
+  setRetrying: (r: boolean) => void,
+  setUsingFallback: (f: boolean) => void
+) {
+  const fallback = cacheHeroMbbsFallbackDefinition(kind);
+  setForm(fallback);
+  setValues(buildHeroMbbsFormInitialValues(fallback));
+  setLoadError(null);
+  setDebugMessage(null);
+  setLoading(false);
+  setRetrying(false);
+  setUsingFallback(true);
+}
+
 export function useHeroMbbsFormDefinition(kind: Kind) {
   const [form, setForm] = useState<HeroMbbsFormDoc | null>(() => {
     const c = peekHeroMbbsFormDefinition(kind);
     return c?.ok ? c.doc : null;
   });
-  /** Non-transient failure only — never shown as a harsh banner in hero UI. */
   const [loadError, setLoadError] = useState<string | null>(() => {
     const c = peekHeroMbbsFormDefinition(kind);
     if (!c || c.ok) return null;
@@ -40,7 +61,7 @@ export function useHeroMbbsFormDefinition(kind: Kind) {
   });
   const [loading, setLoading] = useState(() => !peekHeroMbbsFormDefinition(kind)?.ok);
   const [retrying, setRetrying] = useState(false);
-  /** Last CMS message (any) — for collapsed dev details only. */
+  const [usingFallback, setUsingFallback] = useState(false);
   const [debugMessage, setDebugMessage] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, string>>(() => {
     const c = peekHeroMbbsFormDefinition(kind);
@@ -69,11 +90,30 @@ export function useHeroMbbsFormDefinition(kind: Kind) {
         setDebugMessage(null);
         setLoading(false);
         setRetrying(false);
+        setUsingFallback(false);
+        return;
+      }
+
+      setDebugMessage(r.message);
+
+      if (shouldUseHeroMbbsFallback(r.message, pollAttempts)) {
+        logCmsDevWarning(kind, `Using offline form fields: ${r.message}`);
+        applyFallback(
+          kind,
+          setForm,
+          setValues,
+          setLoadError,
+          setDebugMessage,
+          setLoading,
+          setRetrying,
+          setUsingFallback
+        );
+        const idle = pollAttempts >= 40;
+        schedulePoll(true, idle);
         return;
       }
 
       setForm(null);
-      setDebugMessage(r.message);
 
       if (isTransientHeroCmsError(r.message)) {
         logCmsDevWarning(kind, r.message);
@@ -85,14 +125,25 @@ export function useHeroMbbsFormDefinition(kind: Kind) {
         return;
       }
 
-      setLoadError(r.message);
-      setLoading(false);
-      setRetrying(false);
       logCmsDevWarning(kind, r.message);
+      applyFallback(
+        kind,
+        setForm,
+        setValues,
+        setLoadError,
+        setDebugMessage,
+        setLoading,
+        setRetrying,
+        setUsingFallback
+      );
+      const idle = pollAttempts >= 40;
+      schedulePoll(true, idle);
     };
 
     const run = (force = false) => {
-      if (!peekHeroMbbsFormDefinition(kind)?.ok) {
+      const cached = peekHeroMbbsFormDefinition(kind);
+      const upgradingFallback = force && cached?.ok && isHeroMbbsFallbackForm(cached.doc);
+      if (!cached?.ok && !upgradingFallback) {
         setLoading(true);
         if (force) setRetrying(true);
       }
@@ -107,7 +158,17 @@ export function useHeroMbbsFormDefinition(kind: Kind) {
     };
   }, [kind]);
 
-  const cmsStarting = !form && (loading || retrying || !loadError);
+  const cmsStarting = !form && !usingFallback && (loading || retrying);
 
-  return { form, loadError, loading, retrying, cmsStarting, debugMessage, values, setValues };
+  return {
+    form,
+    loadError,
+    loading,
+    retrying,
+    cmsStarting,
+    usingFallback,
+    debugMessage,
+    values,
+    setValues,
+  };
 }

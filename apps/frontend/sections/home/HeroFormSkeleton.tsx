@@ -30,7 +30,11 @@ export function HeroFormSkeleton({ title, panelClass, hint, details }: HeroFormS
             <input type="text" disabled className={clsx(inputClass, 'opacity-70')} placeholder="…" />
           </div>
         ))}
-        {hint && <p className="sm:col-span-2 text-center text-xs text-white/75">{hint}</p>}
+        {hint && (
+          <p className="sm:col-span-2 text-center text-xs text-white/75" role="status">
+            {hint}
+          </p>
+        )}
         {details && (
           <details className="sm:col-span-2 text-xs text-white/45">
             <summary className="cursor-pointer text-center hover:text-white/65">Technical details</summary>

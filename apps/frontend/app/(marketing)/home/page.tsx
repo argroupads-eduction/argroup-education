@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { getMbbsHeroFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { loadMbbsHeroFormDefinitionsServer } from '@/lib/mbbsHeroFormDefinitionServer';
 import { HeroSection } from '@/sections/home/HeroSection';
 import { MBBSIndiaStateSection } from '@/sections/home/MBBSIndiaStateSection';
@@ -38,8 +39,8 @@ export default async function HomePage() {
     <>
       <HeroSection
         initialForms={{
-          india: forms.india.ok ? forms.india.doc : null,
-          abroad: forms.abroad.ok ? forms.abroad.doc : null,
+          india: forms.india.ok ? forms.india.doc : getMbbsHeroFallbackForm('india'),
+          abroad: forms.abroad.ok ? forms.abroad.doc : getMbbsHeroFallbackForm('abroad'),
         }}
       />
       <MBBSIndiaStateSection />

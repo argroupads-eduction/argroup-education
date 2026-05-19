@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/Button';
 import { MBBS_INDIA_HERO_STATE_OPTIONS } from '@/lib/mbbsIndiaHeroStateOptions';
+import { isHeroMbbsFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { useHeroMbbsFormDefinition } from '@/lib/useHeroMbbsFormDefinition';
 import { HeroFormSkeleton } from '@/sections/home/HeroFormSkeleton';
 
@@ -47,8 +48,7 @@ export function MbbsIndiaHeroPayloadForm({
   layout = 'stacked',
   className: outerClassName,
 }: MbbsIndiaHeroPayloadFormProps) {
-  const { form: loadedForm, loadError, cmsStarting, debugMessage, values, setValues } =
-    useHeroMbbsFormDefinition('india');
+  const { form: loadedForm, debugMessage, values, setValues } = useHeroMbbsFormDefinition('india');
   const form = loadedForm as PayloadFormDoc | null;
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -80,14 +80,19 @@ export function MbbsIndiaHeroPayloadForm({
           field: f.name,
           value: values[f.name] ?? '',
         }));
-        const res = await fetch('/api/cms/form-submissions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            form: form.id,
-            submissionData,
-          }),
-        });
+        const useOffline = isHeroMbbsFallbackForm(form);
+        const res = await fetch(
+          useOffline ? '/api/cms/hero-enquiry' : '/api/cms/form-submissions',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(
+              useOffline
+                ? { kind: 'india', submissionData }
+                : { form: form.id, submissionData }
+            ),
+          }
+        );
         const raw = await res.text();
         let data: { errors?: { message?: string }[]; message?: string } = {};
         try {
@@ -127,13 +132,12 @@ export function MbbsIndiaHeroPayloadForm({
   );
 
   if (!form) {
-    const devDetails =
-      process.env.NODE_ENV === 'development' ? debugMessage || loadError : null;
+    const devDetails = process.env.NODE_ENV === 'development' ? debugMessage : null;
     return (
       <HeroFormSkeleton
         title="Quick enquiry (MBBS India)"
         panelClass={panelClass}
-        hint={cmsStarting ? 'Starting CMS…' : 'Form temporarily unavailable'}
+        hint="Loading enquiry form…"
         details={devDetails}
       />
     );

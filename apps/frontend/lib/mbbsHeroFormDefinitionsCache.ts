@@ -5,6 +5,7 @@
 
 import { sleep } from '@/lib/fetchWithRetry';
 import { isTransientHeroCmsError } from '@/lib/heroCmsConnection';
+import { getMbbsHeroFallbackForm, isHeroMbbsFallbackForm } from '@/lib/mbbsHeroFormFallback';
 
 export type HeroMbbsFormFieldBlock = {
   id?: string | null;
@@ -97,7 +98,7 @@ async function fetchDefinitionOnce(kind: Kind): Promise<HeroMbbsFormDefinitionRe
     return { ok: false, message: data.message || `Could not load form (${res.status})` };
   }
   const doc = data.docs?.[0];
-  if (!doc?.id) {
+  if (doc == null || typeof doc.id !== 'number') {
     return {
       ok: false,
       message:
@@ -107,6 +108,15 @@ async function fetchDefinitionOnce(kind: Kind): Promise<HeroMbbsFormDefinitionRe
     };
   }
   return { ok: true, doc };
+}
+
+/** Cache fallback definition so hero forms render without waiting on client retry. */
+export function cacheHeroMbbsFallbackDefinition(kind: Kind): HeroMbbsFormDoc {
+  const doc = getMbbsHeroFallbackForm(kind);
+  bucket[kind].done = doc;
+  delete bucket[kind].lastError;
+  delete bucket[kind].inflight;
+  return doc;
 }
 
 async function fetchDefinition(kind: Kind): Promise<HeroMbbsFormDefinitionResult> {
@@ -140,7 +150,7 @@ export function seedHeroMbbsFormDefinitions(
 ): void {
   for (const kind of ['india', 'abroad'] as const) {
     const doc = entries[kind];
-    if (doc?.id) {
+    if (doc != null && typeof doc.id === 'number') {
       bucket[kind].done = doc;
       delete bucket[kind].lastError;
       delete bucket[kind].inflight;
@@ -176,7 +186,11 @@ export function loadHeroMbbsFormDefinition(
     delete b.done;
     delete b.lastError;
   } else if (b.done) {
-    return Promise.resolve({ ok: true, doc: b.done });
+    if (!options?.force || !isHeroMbbsFallbackForm(b.done)) {
+      return Promise.resolve({ ok: true, doc: b.done });
+    }
+    delete b.done;
+    delete b.lastError;
   }
 
   if (!b.inflight) {
