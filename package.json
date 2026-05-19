@@ -13,6 +13,7 @@
     "dev:turbo": "turbo run dev --parallel",
     "dev:all": "npx concurrently -k -n cms,backend,frontend -c blue,yellow,cyan \"npm run dev:cms\" \"npm run dev -w apps/backend\" \"npm run dev -w apps/frontend\"",
     "build": "turbo run build",
+    "build:frontend": "npm run build --workspace=ar-education-frontend",
     "start": "turbo run start",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
