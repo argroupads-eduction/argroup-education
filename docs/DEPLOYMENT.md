@@ -90,25 +90,12 @@ npm run dev
 
 ### Frontend (Vercel)
 
-1. **Connect Repository**
-```bash
-vercel link
-```
+**Monorepo:** the Next.js app is in `apps/frontend`. See **[VERCEL_DEPLOY.md](./VERCEL_DEPLOY.md)** for Root Directory, env vars, and fixing `404: NOT_FOUND`.
 
-2. **Configure Build Settings**
-- Build Command: `npm run build`
-- Output Directory: `.next`
-- Install Command: `npm ci`
-
-3. **Set Environment Variables**
-- NEXT_PUBLIC_API_URL
-- NEXT_PUBLIC_SITE_URL
-- NEXT_PUBLIC_GA_ID
-
-4. **Deploy**
-```bash
-vercel --prod
-```
+1. **Connect Repository** and set **Root Directory** to `apps/frontend`.
+2. **Build:** `npm run build` (install from repo root: `cd ../.. && npm ci` — see `apps/frontend/vercel.json`).
+3. **Set Environment Variables** (`NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`, CMS URLs, etc.).
+4. **Deploy:** push to `main` or `vercel --prod` from `apps/frontend`.
 
 ### Backend (Railway)
 
