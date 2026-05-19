@@ -5,7 +5,7 @@ const router = Router();
 // GET /api/blogs - Get all blogs with pagination
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 10, category } = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
     // TODO: Implement with Prisma
     res.json({
@@ -23,7 +23,8 @@ router.get('/', async (req: Request, res: Response) => {
 // GET /api/blogs/:slug - Get blog by slug
 router.get('/:slug', async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params;
+    const { slug: _slug } = req.params;
+    void _slug;
 
     // TODO: Implement with Prisma
     res.json({

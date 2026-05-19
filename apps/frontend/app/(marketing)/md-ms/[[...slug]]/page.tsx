@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 
 type PageProps = {
-  params: {
+  params: Promise<{
     slug?: string[];
-  };
+  }>;
 };
 
 function formatSlug(parts?: string[]) {
@@ -19,15 +19,17 @@ function formatSlug(parts?: string[]) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const section = formatSlug(params.slug);
+  const { slug } = await params;
+  const section = formatSlug(slug);
   return {
     title: `${section} | AR Group of Education`,
     description: `Explore guidance and counselling resources for ${section}.`,
   };
 }
 
-export default function MdMsPage({ params }: PageProps) {
-  const section = formatSlug(params.slug);
+export default async function MdMsPage({ params }: PageProps) {
+  const { slug } = await params;
+  const section = formatSlug(slug);
 
   return (
     <section className="max-w-5xl mx-auto px-4 py-16">

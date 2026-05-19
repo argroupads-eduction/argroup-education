@@ -450,6 +450,30 @@
     animation: float 3s ease-in-out infinite;
   }
 
+  @keyframes testimonial-marquee-ltr {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  .testimonial-marquee-track {
+    animation: testimonial-marquee-ltr 80s linear infinite;
+    will-change: transform;
+  }
+
+  .testimonial-marquee-track.marquee-paused {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .testimonial-marquee-track {
+      animation: none;
+    }
+  }
+
   /* Responsive utilities */
   @media (max-width: 640px) {
     .hide-mobile {

@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { loadMbbsHeroFormDefinitionsServer } from '@/lib/mbbsHeroFormDefinitionServer';
 import { HeroSection } from '@/sections/home/HeroSection';
 import { MBBSIndiaStateSection } from '@/sections/home/MBBSIndiaStateSection';
 import { AboutSection } from '@/sections/home/AboutSection';
@@ -19,10 +20,28 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  let forms: Awaited<ReturnType<typeof loadMbbsHeroFormDefinitionsServer>>;
+  try {
+    forms = await loadMbbsHeroFormDefinitionsServer();
+  } catch (e) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[home] Hero form prefetch failed; client will retry.', e);
+    }
+    forms = {
+      india: { ok: false, message: 'Prefetch skipped', status: 503 },
+      abroad: { ok: false, message: 'Prefetch skipped', status: 503 },
+    };
+  }
+
   return (
     <>
-      <HeroSection />
+      <HeroSection
+        initialForms={{
+          india: forms.india.ok ? forms.india.doc : null,
+          abroad: forms.abroad.ok ? forms.abroad.doc : null,
+        }}
+      />
       <MBBSIndiaStateSection />
       <AboutSection />
       <MbbsAbroadScrollSection />

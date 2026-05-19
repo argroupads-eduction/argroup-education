@@ -148,7 +148,9 @@ export const removeFromStorage = (key: string): void => {
 };
 
 // API Utilities
-export const createQueryString = (params: Record<string, any>): string => {
+export const createQueryString = (
+  params: Record<string, string | number | boolean | null | undefined>
+): string => {
   const searchParams = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {

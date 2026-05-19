@@ -55,7 +55,7 @@ app.use((_req: Request, res: Response) => {
 });
 
 // Error Handler
-app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error & { status?: number }, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Error:', err);
   res.status(err.status || 500).json({
     success: false,

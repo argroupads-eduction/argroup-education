@@ -18,7 +18,8 @@ router.get('/', async (req: Request, res: Response) => {
 // GET /api/countries/:slug - Get country by slug
 router.get('/:slug', async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params;
+    const { slug: _slug } = req.params;
+    void _slug;
     // TODO: Implement with Prisma
     res.json({
       success: true,
