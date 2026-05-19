@@ -124,7 +124,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
         <motion.div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `${overlayIndia}, url(${BANNER_INDIA})`,
+            backgroundImage: `${overlayIndia}, url('${BANNER_INDIA}')`,
           }}
           initial={false}
           animate={{ opacity: variant === 'india' ? 1 : 0 }}
@@ -134,7 +134,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
         <motion.div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `${overlayAbroad}, url(${BANNER_ABROAD})`,
+            backgroundImage: `${overlayAbroad}, url('${BANNER_ABROAD}')`,
           }}
           initial={false}
           animate={{ opacity: variant === 'abroad' ? 1 : 0 }}

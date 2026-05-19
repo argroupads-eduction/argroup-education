@@ -83,8 +83,8 @@ export const AboutSection = () => {
                 <Image
                   src="/about-counsellor.png"
                   alt="AR Group of Education counsellor — trusted MBBS admission guidance"
-                  width={560}
-                  height={680}
+                  width={640}
+                  height={800}
                   className="aspect-[4/5] w-full object-cover object-top"
                   priority={false}
                 />
