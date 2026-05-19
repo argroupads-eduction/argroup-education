@@ -85,7 +85,7 @@ export const Navbar = () => {
           <Link href="/" className="flex items-center">
             <motion.div animate={{ scale: logoScale }} transition={{ type: 'spring', stiffness: 260, damping: 24 }}>
               <Image
-                src="/ar-group-logo.png"
+                src="/ar-group-logo.webp"
                 alt="AR Group of Education"
                 width={96}
                 height={96}
@@ -406,15 +406,15 @@ export const Navbar = () => {
                               )
                             )
                           : link.submenu.map((item: { href: string; label: string }) => (
-                              <Link
-                                key={item.href}
-                                href={item.href}
+                        <Link
+                          key={item.href}
+                          href={item.href}
                                 className="block text-sm font-body text-navy-800 hover:text-gold-600 py-1.5 pl-2"
-                                onClick={() => setIsOpen(false)}
-                              >
-                                {item.label}
-                              </Link>
-                            ))}
+                          onClick={() => setIsOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
                     </motion.div>
                   )}
                 </div>
