@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
@@ -25,22 +24,8 @@ import {
   loadHeroMbbsFormDefinition,
 } from '@/lib/mbbsHeroFormDefinitionsCache';
 
-const DESKTOP_SHOW_DELAY_MS = 1500;
-/** Match desktop cadence so the form is the first meaningful interaction after load */
-const MOBILE_SHOW_DELAY_MS = 1500;
-
-/**
- * Mobile popup visibility (sessionStorage):
- * - `ar-lead-mobile-submitted`: user submitted successfully this session — no more auto-opens.
- * - `ar-lead-mobile-dismissed-<pathname>`: user closed on this path — won't auto-open again until
- *   a full reload on another URL or they clear storage. This mirrors desktop "once per visit per path"
- *   without firing the sheet on every client-side navigation (which would feel spammy in the SPA).
- */
-const MOBILE_SUBMITTED_SESSION_KEY = 'ar-lead-mobile-submitted';
-
-function mobileDismissStorageKey(pathname: string) {
-  return `ar-lead-mobile-dismissed-${pathname}`;
-}
+/** Brief delay so layout paints before the modal animates in */
+const AUTO_OPEN_DELAY_MS = 300;
 
 const PROMO_BADGES = [
   { icon: GraduationCap, label: 'WHO-listed universities' },
@@ -227,7 +212,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
     <div
       className={clsx(
         'relative flex flex-col overflow-hidden bg-navy-900 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white',
-        isMobileSheet && 'px-3.5 pb-2.5 pt-3.5 pr-12',
+        isMobileSheet && 'px-3.5 pb-2.5 pt-3.5 pl-3.5 pr-[3.25rem]',
         variant === 'compact' && 'px-5 py-6',
         variant === 'default' && 'px-7 py-9 md:px-9 md:py-10'
       )}
@@ -249,8 +234,8 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
         AR Group of Education
       </p>
       {isMobileSheet ? (
-        <div className="relative mt-2 pr-9">
-          <LeadCapturePromoBanner compact />
+        <div className="relative mt-2 w-full">
+          <LeadCapturePromoBanner compact className="mx-auto w-full max-w-full" />
         </div>
       ) : (
         <h2 className="relative mt-2.5 font-serif text-[1.35rem] font-bold leading-tight text-white md:text-[1.65rem]">
@@ -629,7 +614,6 @@ function LeadCaptureFormPanel({
 }
 
 export function LeadCapturePopup() {
-  const pathname = usePathname();
   const formId = useId();
   const reduceMotion = useReducedMotion();
   const firstFieldRef = useRef<HTMLInputElement>(null);
@@ -644,8 +628,6 @@ export function LeadCapturePopup() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [payloadForm, setPayloadForm] = useState<HeroMbbsFormDoc | null>(null);
-
-  const desktopAutoScheduledRef = useRef(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -667,52 +649,33 @@ export function LeadCapturePopup() {
 
   useEffect(() => {
     if (isMobile !== false) return;
-    if (desktopAutoScheduledRef.current) return;
-    desktopAutoScheduledRef.current = true;
-    const t = window.setTimeout(() => setDesktopOpen(true), DESKTOP_SHOW_DELAY_MS);
+    setValues(EMPTY_VALUES);
+    setSubmitError(null);
+    setSubmitted(false);
+    setDesktopOpen(false);
+    const t = window.setTimeout(() => setDesktopOpen(true), AUTO_OPEN_DELAY_MS);
     return () => window.clearTimeout(t);
   }, [isMobile]);
 
   useEffect(() => {
     if (isMobile !== true) return;
 
-    let shouldShow = true;
-    try {
-      if (sessionStorage.getItem(MOBILE_SUBMITTED_SESSION_KEY) === '1') {
-        shouldShow = false;
-      } else if (sessionStorage.getItem(mobileDismissStorageKey(pathname)) === '1') {
-        shouldShow = false;
-      }
-    } catch {
-      shouldShow = true;
-    }
-
-    if (!shouldShow) {
-      setMobileOpen(false);
-      return;
-    }
-
     setValues(EMPTY_VALUES);
     setSubmitError(null);
     setSubmitted(false);
 
     setMobileOpen(false);
-    const t = window.setTimeout(() => setMobileOpen(true), MOBILE_SHOW_DELAY_MS);
+    const t = window.setTimeout(() => setMobileOpen(true), AUTO_OPEN_DELAY_MS);
     return () => window.clearTimeout(t);
-  }, [pathname, isMobile]);
+  }, [isMobile]);
 
   const dismissDesktop = useCallback(() => {
     setDesktopOpen(false);
   }, []);
 
   const dismissMobile = useCallback(() => {
-    try {
-      sessionStorage.setItem(mobileDismissStorageKey(pathname), '1');
-    } catch {
-      /* private mode */
-    }
     setMobileOpen(false);
-  }, [pathname]);
+  }, []);
 
   const handleMobileOpenChange = useCallback(
     (next: boolean) => {
@@ -787,13 +750,6 @@ export function LeadCapturePopup() {
         return;
       }
       setSubmitted(true);
-      if (isMobileRef.current) {
-        try {
-          sessionStorage.setItem(MOBILE_SUBMITTED_SESSION_KEY, '1');
-        } catch {
-          /* noop */
-        }
-      }
     } catch {
       setSubmitError('Network error. Please try again.');
     } finally {
