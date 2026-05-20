@@ -9,6 +9,9 @@ node_modules
 # Next.js
 .next/
 
+# Synced by scripts/sync-vercel-monorepo-output.mjs (root-directory-empty Vercel builds)
+/public/
+
 # Build output
 dist/
 *.tsbuildinfo

@@ -1,7 +1,20 @@
+const path = require('path');
+
+/** Marketing images referenced as plain /filename paths in components. */
+const PUBLIC_MARKETING_ASSETS = [
+  'ar-group-logo.webp',
+  'india-homepage.jpg',
+  'abroad-homepage.jpg',
+  'about-counsellor.png',
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  
+
+  // Monorepo: trace dependencies from repo root (Vercel + local).
+  outputFileTracingRoot: path.join(__dirname, '../..'),
+
   images: {
     // Serve /public assets directly — matches local dev and avoids Vercel
     // /_next/image 400s for widths outside imageSizes (e.g. logo 56px/80px).
@@ -22,7 +35,6 @@ const nextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    // 2× retina (e.g. 192 for 96px logo) and About section widths.
     imageSizes: [16, 32, 48, 64, 96, 128, 192, 256, 384, 560, 640, 800],
   },
 
@@ -63,6 +75,11 @@ const nextConfig = {
   },
 
   rewrites: async () => {
+    const publicAssetFallbacks = PUBLIC_MARKETING_ASSETS.map((file) => ({
+      source: `/${file}`,
+      destination: `/api/public-asset/${file}`,
+    }));
+
     return {
       beforeFiles: [
         {
@@ -74,15 +91,20 @@ const nextConfig = {
           destination: '/api/robots',
         },
       ],
+      // After public/ — serves from bundled public/ when Vercel omits static files.
+      fallback: publicAssetFallbacks,
     };
   },
 
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     return config;
   },
 
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
+    outputFileTracingIncludes: {
+      '/api/public-asset/[...path]': ['./public/**/*'],
+    },
   },
 
   productionBrowserSourceMaps: false,
