@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -122,25 +123,46 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
       {/* Cross-fading full-bleed backgrounds */}
       <div className="pointer-events-none absolute inset-0">
         <motion.div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `${overlayIndia}, url('${BANNER_INDIA}')`,
-          }}
+          className="absolute inset-0"
           initial={false}
           animate={{ opacity: variant === 'india' ? 1 : 0 }}
           transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
           aria-hidden
-        />
+        >
+          <Image
+            src={BANNER_INDIA}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <motion.div
+            className="absolute inset-0"
+            style={{ backgroundImage: overlayIndia }}
+            aria-hidden
+          />
+        </motion.div>
         <motion.div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `${overlayAbroad}, url('${BANNER_ABROAD}')`,
-          }}
+          className="absolute inset-0"
           initial={false}
           animate={{ opacity: variant === 'abroad' ? 1 : 0 }}
           transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
           aria-hidden
-        />
+        >
+          <Image
+            src={BANNER_ABROAD}
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <motion.div
+            className="absolute inset-0"
+            style={{ backgroundImage: overlayAbroad }}
+            aria-hidden
+          />
+        </motion.div>
       </div>
 
       {variant === 'india' && (
