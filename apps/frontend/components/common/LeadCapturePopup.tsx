@@ -60,13 +60,14 @@ const LEAD_MAP_PINS = [
   { label: 'India', value: 'India' },
 ] as const;
 
+/** Pin order matches LEAD_MAP_PINS; India sits south-central on the stylized map. */
 const LEAD_MAP_PIN_POSITIONS = [
   { top: '18%', left: '22%' },
-  { top: '48%', left: '42%' },
-  { top: '32%', left: '52%' },
-  { top: '22%', left: '48%' },
-  { top: '38%', left: '28%' },
-  { top: '58%', left: '55%' },
+  { top: '28%', left: '48%' },
+  { top: '22%', left: '72%' },
+  { top: '42%', left: '18%' },
+  { top: '44%', left: '58%' },
+  { top: '54%', left: '62%' },
 ] as const;
 
 const INDIAN_CITY_SUGGESTIONS = [
@@ -248,12 +249,9 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
         AR Group of Education
       </p>
       {isMobileSheet ? (
-        <p
-          aria-hidden
-          className="relative mt-0.5 pr-9 font-serif text-[14px] font-bold leading-tight text-white"
-        >
-          MBBS abroad experts
-        </p>
+        <div className="relative mt-2 pr-9">
+          <LeadCapturePromoBanner compact />
+        </div>
       ) : (
         <h2 className="relative mt-2.5 font-serif text-[1.35rem] font-bold leading-tight text-white md:text-[1.65rem]">
           Your MBBS abroad journey starts here
@@ -266,11 +264,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
         </p>
       )}
 
-      {isMobileSheet ? (
-        <p className="relative mt-1 text-[11px] font-medium leading-snug text-gold-200">
-          MBBS Abroad · WHO-listed · Low fees
-        </p>
-      ) : (
+      {isMobileSheet ? null : (
         <ul className="relative mt-5 flex flex-wrap gap-2">
           {PROMO_BADGES.map(({ icon: Icon, label }) => (
             <li
@@ -343,9 +337,14 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       </motion.div>
       )}
 
-      <div className={clsx('relative', isMobileSheet ? 'mt-2.5' : 'mt-5')}>
-        <LeadCapturePromoBanner compact={isMobileSheet} />
-      </div>
+      {!isMobileSheet && (
+        <div className="relative mt-5 flex w-full flex-col items-stretch gap-2 rounded-xl border border-gold-500/25 bg-gradient-to-r from-navy-900/60 via-gold-500/10 to-navy-900/60 px-3 py-2.5">
+          <p className="text-center text-[11px] font-bold uppercase tracking-wider text-gold-200/95">
+            Limited seats
+          </p>
+          <LeadCapturePromoBanner className="w-full shadow-sm" />
+        </div>
+      )}
 
       {!isMobileSheet && (
         <ul className="relative mt-4 space-y-1.5">
