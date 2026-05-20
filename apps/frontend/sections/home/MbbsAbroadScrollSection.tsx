@@ -399,14 +399,14 @@ function MbbsAbroadScrollSectionDesktop({
 
   const progressWidth = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
 
-  const scrollSteps = Math.max(1, count - 1)
-
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
-    const clamped = Math.min(0.999999, Math.max(0, v))
+    const clamped = Math.min(1, Math.max(0, v))
     const idx =
       count <= 1
         ? 0
-        : Math.min(count - 1, Math.floor(clamped * scrollSteps))
+        : clamped >= 1
+          ? count - 1
+          : Math.min(count - 1, Math.floor(clamped * count))
     if (idx !== prevIndexRef.current) {
       setDirection(idx > prevIndexRef.current ? 1 : -1)
       prevIndexRef.current = idx
@@ -414,13 +414,13 @@ function MbbsAbroadScrollSectionDesktop({
     setActiveIndex(idx)
   })
 
-  /** One viewport per transition (N countries → N−1 steps), no white tail after last slide */
+  /** Pin height + one viewport per country transition (N slides → N×pin scroll track) */
   const sectionHeight = useMemo(
     () =>
       count <= 1
         ? 'calc(100dvh - var(--mbbs-abroad-header-offset, 4.5rem))'
-        : `calc(${scrollSteps} * (100dvh - var(--mbbs-abroad-header-offset, 4.5rem)))`,
-    [count, scrollSteps],
+        : `calc(${count} * (100dvh - var(--mbbs-abroad-header-offset, 4.5rem)))`,
+    [count],
   )
   const country = countries[activeIndex]
 
@@ -432,7 +432,7 @@ function MbbsAbroadScrollSectionDesktop({
       aria-label="MBBS Abroad destinations"
     >
       <motion.div
-        className={`mbbs-abroad-scroll-pin sticky z-10 flex w-full flex-col overflow-hidden ${MBBS_ABROAD_PIN_BG}`}
+        className={`mbbs-abroad-scroll-pin sticky z-10 flex min-h-0 w-full flex-col overflow-hidden ${MBBS_ABROAD_PIN_BG}`}
       >
         <motion.div
           className="pointer-events-none absolute inset-0 bg-gradient-to-r from-navy-900/40 via-transparent to-navy-700/25"
@@ -461,13 +461,13 @@ function MbbsAbroadScrollSectionDesktop({
           aria-hidden
         />
 
-        <motion.div className="relative z-[1] mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-4 py-6 md:px-8 md:py-8 lg:py-10">
-          <motion.div className="mb-5 shrink-0 md:mb-6 lg:mb-8">
+        <motion.div className="relative z-[1] mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col justify-between px-4 py-6 pb-7 md:px-8 md:py-8 md:pb-8 lg:py-10 lg:pb-10">
+          <motion.div className="shrink-0">
             <MbbsAbroadIntro count={count} />
           </motion.div>
 
-          <motion.div className="grid min-h-0 flex-1 items-center gap-6 md:gap-8 lg:grid-cols-2 lg:gap-10 xl:gap-14">
-            <motion.div className="order-1 flex flex-col" aria-live="polite" aria-atomic="true">
+          <motion.div className="grid min-h-0 flex-1 items-center gap-6 py-4 md:gap-8 md:py-5 lg:grid-cols-2 lg:gap-10 lg:py-6 xl:gap-14">
+            <motion.div className="order-1 flex min-h-0 flex-col justify-center" aria-live="polite" aria-atomic="true">
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={country.slug}
@@ -510,13 +510,9 @@ function MbbsAbroadScrollSectionDesktop({
                   </Link>
                 </motion.div>
               </AnimatePresence>
-
-              <div className="mt-6 md:mt-8">
-                <CountryProgress countries={countries} activeIndex={activeIndex} />
-              </div>
             </motion.div>
 
-            <div className="order-2">
+            <div className="order-2 flex min-h-0 items-center">
               <CountryVisualCard
                 country={country}
                 activeIndex={activeIndex}
@@ -525,10 +521,14 @@ function MbbsAbroadScrollSectionDesktop({
               />
             </div>
           </motion.div>
+
+          <motion.div className="shrink-0 pb-6">
+            <CountryProgress countries={countries} activeIndex={activeIndex} />
+          </motion.div>
         </motion.div>
 
         <motion.div
-          className="pointer-events-none absolute bottom-0 left-0 right-0 z-[2] h-1 bg-white/10"
+          className="pointer-events-none absolute bottom-0 left-0 right-0 z-[2] h-1 shrink-0 bg-white/10"
           aria-hidden
         >
           <motion.div
