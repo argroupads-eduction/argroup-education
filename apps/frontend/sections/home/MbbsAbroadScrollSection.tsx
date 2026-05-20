@@ -2,7 +2,6 @@
 
 import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   AnimatePresence,
   motion,
@@ -234,12 +233,12 @@ export function MbbsAbroadScrollSection() {
                   className={`relative aspect-[4/3] w-full overflow-hidden rounded-[1.75rem] border border-white/20 bg-gradient-to-br shadow-2xl shadow-black/30 ${country.gradient} md:aspect-[5/4] lg:rounded-[2rem]`}
                 >
                   {country.imageSrc ? (
-                    <Image
+                    <img
                       src={country.imageSrc}
                       alt={`MBBS in ${country.name}`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="absolute inset-0 h-full w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : null}
 

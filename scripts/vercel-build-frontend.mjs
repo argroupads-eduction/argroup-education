@@ -1,7 +1,7 @@
 /**
- * Run `next build` for apps/frontend from the monorepo root (npm run vercel-build).
- * For Vercel: set project Root Directory to apps/frontend — there is no root vercel.json.
- * Use this script locally or in custom CI when cwd is the repo root.
+ * Build apps/frontend from monorepo root (npm run vercel-build).
+ * Used by root vercel.json when Vercel Root Directory is empty.
+ * Prefer Vercel Root Directory = apps/frontend — see docs/VERCEL_DEPLOY.md.
  */
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -10,11 +10,22 @@ import path from 'node:path';
 const repoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const frontendDir = path.join(repoRoot, 'apps', 'frontend');
 
-const result = spawnSync('npm', ['run', 'build'], {
+const build = spawnSync('npm', ['run', 'build'], {
   cwd: frontendDir,
   stdio: 'inherit',
   shell: true,
   env: process.env,
 });
 
-process.exit(result.status === null ? 1 : result.status);
+if (build.status !== 0) {
+  process.exit(build.status === null ? 1 : build.status);
+}
+
+const sync = spawnSync('node', ['scripts/sync-vercel-monorepo-output.mjs'], {
+  cwd: repoRoot,
+  stdio: 'inherit',
+  shell: true,
+  env: process.env,
+});
+
+process.exit(sync.status === null ? 1 : sync.status);
