@@ -13,11 +13,10 @@
     "dev:turbo": "turbo run dev --parallel",
     "dev:all": "npx concurrently -k -n cms,backend,frontend -c blue,yellow,cyan \"npm run dev:cms\" \"npm run dev -w apps/backend\" \"npm run dev -w apps/frontend\"",
     "build": "turbo run build",
-    "vercel-build": "node scripts/vercel-build-frontend.mjs",
     "build:frontend": "npm run build --workspace=ar-education-frontend",
     "start": "turbo run start",
-    "lint": "turbo run lint",
-    "type-check": "turbo run type-check",
+    "lint": "npx turbo run lint",
+    "type-check": "npx turbo run type-check",
     "format": "prettier --write .",
     "clean": "turbo run clean && rm -rf node_modules",
     "install-all": "npm install && npm install -w apps/frontend && npm install -w apps/backend"
@@ -26,6 +25,9 @@
     "apps/frontend",
     "apps/backend"
   ],
+  "overrides": {
+    "@swc/helpers": "0.5.15"
+  },
   "devDependencies": {
     "next": "^15.0.0",
     "turbo": "^1.10.16",
