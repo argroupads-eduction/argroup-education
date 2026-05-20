@@ -12,20 +12,20 @@ export const FAQSection = () => {
   }));
 
   return (
-    <section className="section bg-white">
-      <div className="max-w-4xl mx-auto px-4">
+    <section className="section overflow-x-hidden bg-white">
+      <div className="max-w-4xl mx-auto min-w-0 px-4 sm:px-6">
         {/* Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-10 md:mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-navy-900 mb-6">
+          <h2 className="text-balance text-2xl sm:text-3xl md:text-5xl font-bold text-navy-900 mb-4 md:mb-6">
             Frequently Asked <span className="text-gold-500">Questions</span>
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-1">
             Find answers to common questions about studying MBBS abroad
           </p>
         </motion.div>
@@ -42,7 +42,7 @@ export const FAQSection = () => {
 
         {/* CTA */}
         <motion.div
-          className="text-center mt-12 bg-navy-50 rounded-lg p-8"
+          className="text-center mt-8 md:mt-12 bg-navy-50 rounded-lg p-6 sm:p-8"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
@@ -56,7 +56,7 @@ export const FAQSection = () => {
           </p>
           <a
             href="tel:+918001234567"
-            className="inline-block bg-gold-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gold-600 transition-colors"
+            className="inline-flex min-h-11 items-center justify-center touch-manipulation bg-gold-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gold-600 transition-colors"
           >
             Call Us Now
           </a>

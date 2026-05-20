@@ -27,7 +27,7 @@ export function FooterAccordion({ title, href, children, nested }: FooterAccordi
         <Link
           href={href}
           className={[
-            'min-w-0 flex-1 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:text-gold-400',
+            'min-w-0 flex-1 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:text-gold-400 min-h-11 flex items-center',
             nested ? 'py-2 text-[13px]' : '',
           ].join(' ')}
         >
@@ -39,7 +39,7 @@ export function FooterAccordion({ title, href, children, nested }: FooterAccordi
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls={panelId}
-            className="flex shrink-0 items-center justify-center border-l border-gold-500/20 px-2.5 text-gold-400 transition-colors hover:bg-navy-700/80 hover:text-gold-300"
+            className="flex min-h-11 min-w-11 shrink-0 items-center justify-center border-l border-gold-500/20 px-2.5 text-gold-400 transition-colors hover:bg-navy-700/80 hover:text-gold-300 touch-manipulation"
           >
             <ChevronDown
               className={`h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}

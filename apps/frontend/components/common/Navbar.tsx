@@ -79,7 +79,7 @@ export const Navbar = () => {
         initial={{ y: 0 }}
         animate={{ y: 0 }}
       >
-        <div className="max-w-6xl mx-auto px-4 py-1.5 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto min-w-0 px-3 sm:px-4 py-1.5 flex justify-between items-center gap-2">
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <motion.div animate={{ scale: logoScale }} transition={{ type: 'spring', stiffness: 260, damping: 24 }}>
@@ -169,11 +169,13 @@ export const Navbar = () => {
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button — min 44×44 touch target */}
           <button
-            className="md:hidden"
+            type="button"
+            className="md:hidden inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-navy-900 touch-manipulation"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
+            aria-expanded={isOpen}
           >
             {isOpen ? (
               <X className="w-6 h-6" />
@@ -191,13 +193,14 @@ export const Navbar = () => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
           >
-            <div className="px-4 py-4 space-y-2">
+            <div className="max-h-[min(85dvh,calc(100dvh-4rem))] overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-1">
               {NAV_LINKS.map((link: any) => (
                 <div key={link.href}>
                   {link.submenu ? (
                     <button
+                      type="button"
                       onClick={() => setOpenSubmenu(openSubmenu === link.href ? null : link.href)}
-                      className="w-full text-left text-navy-900 font-body font-medium hover:text-gold-500 py-2 flex items-center justify-between"
+                      className="w-full min-h-11 text-left text-navy-900 font-body font-medium hover:text-gold-500 py-2.5 flex items-center justify-between touch-manipulation"
                     >
                       {link.label}
                       <ChevronDown
@@ -209,7 +212,7 @@ export const Navbar = () => {
                   ) : (
                     <Link
                       href={link.href}
-                      className="block text-navy-900 font-body font-medium hover:text-gold-500 py-2"
+                      className="block min-h-11 text-navy-900 font-body font-medium hover:text-gold-500 py-2.5 leading-snug touch-manipulation"
                       onClick={() => setIsOpen(false)}
                     >
                       {link.label}
@@ -218,7 +221,7 @@ export const Navbar = () => {
 
                   {link.submenu && openSubmenu === link.href && (
                     <motion.div
-                      className="pl-2 py-2 max-h-[70vh] overflow-y-auto"
+                      className="pl-2 py-2 max-h-[min(50vh,22rem)] overflow-y-auto overscroll-contain touch-pan-y"
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
@@ -419,7 +422,11 @@ export const Navbar = () => {
                   )}
                 </div>
               ))}
-              <Button variant="primary" className="w-full mt-4" onClick={() => setIsOpen(false)}>
+              <Button
+                variant="primary"
+                className="w-full mt-4 min-h-11 touch-manipulation"
+                onClick={() => setIsOpen(false)}
+              >
                 Free Counselling
               </Button>
             </div>
@@ -432,7 +439,7 @@ export const Navbar = () => {
         href="https://wa.me/919999999999"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 text-white rounded-full shadow-lg flex items-center justify-center z-40 hover:bg-green-600 transition-colors"
+        className="fixed z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition-colors hover:bg-green-600 bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] right-[calc(1.5rem+env(safe-area-inset-right,0px))] touch-manipulation"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >

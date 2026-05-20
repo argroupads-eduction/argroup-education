@@ -122,7 +122,7 @@ export const CounsellingFormSection = () => {
 
             <div
               id="counselling-form"
-              className="rounded-2xl border border-navy-100/90 bg-white p-4 shadow-xl shadow-navy-900/12 ring-1 ring-gold-200/40 md:p-5 lg:sticky lg:top-24"
+              className="min-w-0 rounded-2xl border border-navy-100/90 bg-white p-4 shadow-xl shadow-navy-900/12 ring-1 ring-gold-200/40 md:p-5 lg:sticky lg:top-24 lg:max-h-[min(32rem,calc(100dvh-7rem))] lg:overflow-y-auto lg:overscroll-contain"
             >
               <div className="mb-3 border-l-4 border-gold-500 pl-3">
                 <h3 className="font-serif text-lg font-bold text-navy-900">

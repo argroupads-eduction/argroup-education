@@ -36,7 +36,7 @@ function isInputField(f: FormFieldBlock): f is FormFieldBlock & { name: string }
 }
 
 const inputClass =
-  'w-full rounded-lg border border-white/40 bg-white/95 px-3 py-2.5 text-sm text-navy-900 placeholder:text-navy-400 shadow-sm outline-none ring-0 focus:border-gold-400 focus:ring-2 focus:ring-gold-400/40';
+  'w-full min-w-0 max-w-full rounded-lg border border-white/40 bg-white/95 px-3 py-2.5 text-sm text-navy-900 placeholder:text-navy-400 shadow-sm outline-none ring-0 focus:border-gold-400 focus:ring-2 focus:ring-gold-400/40';
 
 export type MbbsIndiaHeroPayloadFormProps = {
   /** `heroSide`: right-column panel in home hero (no top margin, stronger card). */
@@ -126,7 +126,7 @@ export function MbbsIndiaHeroPayloadForm({
   const panelClass = clsx(
     isSide ? 'mt-0 w-full' : 'mt-8',
     isSide
-      ? 'rounded-2xl border border-white/35 bg-gradient-to-b from-white/[0.22] to-white/[0.07] p-5 shadow-2xl shadow-black/35 ring-1 ring-white/20 backdrop-blur-xl md:p-6'
+      ? 'rounded-2xl border border-white/35 bg-gradient-to-b from-white/[0.22] to-white/[0.07] p-4 shadow-2xl shadow-black/35 ring-1 ring-white/20 backdrop-blur-xl sm:p-5 md:p-6'
       : 'rounded-xl border border-white/30 bg-white/10 p-4 backdrop-blur-md md:p-6',
     outerClassName
   );
@@ -161,7 +161,7 @@ export function MbbsIndiaHeroPayloadForm({
           Quick enquiry (MBBS India)
         </p>
       </div>
-      <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+      <form onSubmit={onSubmit} className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         {fields.map((field) => {
           const label = field.label || field.name;
           const req = field.required ? ' *' : '';
@@ -322,7 +322,7 @@ export function MbbsIndiaHeroPayloadForm({
             type="submit"
             variant="primary"
             size="md"
-            className={isSide ? 'w-full' : 'w-full sm:w-auto'}
+            className={isSide ? 'w-full touch-manipulation' : 'w-full touch-manipulation sm:w-auto'}
             disabled={submitting}
             isLoading={submitting}
           >
