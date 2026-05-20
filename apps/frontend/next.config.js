@@ -15,6 +15,10 @@ const nextConfig = {
   // Monorepo: trace dependencies from repo root (Vercel + local).
   outputFileTracingRoot: path.join(__dirname, '../..'),
 
+  outputFileTracingIncludes: {
+    '/api/public-asset/[...path]': ['./public/**/*'],
+  },
+
   images: {
     // Serve /public assets directly — matches local dev and avoids Vercel
     // /_next/image 400s for widths outside imageSizes (e.g. logo 56px/80px).
@@ -102,9 +106,6 @@ const nextConfig = {
 
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
-    outputFileTracingIncludes: {
-      '/api/public-asset/[...path]': ['./public/**/*'],
-    },
   },
 
   productionBrowserSourceMaps: false,

@@ -26,7 +26,7 @@ Known projects:
 
 ---
 
-## Dashboard settings (canonical — do this first)
+## Dashboard settings (required)
 
 Open **Vercel → Project → Settings**.
 
@@ -53,6 +53,8 @@ Click **Save**.
 
 If **Output Directory** is set to `.next`, Vercel deploys only the build folder and **`public/` is not served** → all `/logo.webp`-style URLs return **404**.
 
+Do **not** leave Root Directory empty. There is no root `vercel.json`; building from the repo root breaks Next/SWC file tracing (`ENOENT` on `@swc/helpers`).
+
 ### Environment variables
 
 Copy from **`apps/frontend/.env.example`**. Set at least:
@@ -62,16 +64,14 @@ Copy from **`apps/frontend/.env.example`**. Set at least:
 
 ---
 
-## Which `vercel.json` applies?
+## `vercel.json` (only in `apps/frontend`)
 
-| Vercel Root Directory | Config file used | Build |
-|----------------------|------------------|--------|
-| **`apps/frontend`** (recommended) | `apps/frontend/vercel.json` | `cd ../.. && npm ci` then `npm run build` in `apps/frontend` |
-| **Empty** (repo root) | Root `vercel.json` | `npm ci` then `npm run vercel-build` (builds frontend + syncs `public/` + `.next` to repo root) |
+| Command | Value |
+|---------|--------|
+| **Install** | `cd ../.. && npm ci` |
+| **Build** | `npm run build` |
 
-**Recommendation:** set Root Directory to **`apps/frontend`** and ignore root `vercel.json` for day-to-day deploys.
-
-Root `vercel.json` exists only for projects that cannot set Root Directory yet.
+Monorepo dependencies are hoisted at the repo root; `outputFileTracingRoot` in `next.config.js` points there so `@swc/helpers` and other packages resolve correctly.
 
 ---
 
@@ -106,7 +106,6 @@ Build runs `scripts/verify-public-assets.mjs` and **fails** if any are missing.
 
 1. **Plain `<img>` / CSS `url('/…')`** for logo, hero, about — no `next/image` for those assets (`images.unoptimized: true` globally).
 2. **Fallback API** — `app/api/public-asset/[...path]` + `next.config.js` `fallback` rewrites serve marketing images from bundled `public/` when the static layer is missing.
-3. **`npm run vercel-build`** — builds `apps/frontend` and syncs `public/` + `.next` to repo root for empty Root Directory.
 
 ---
 
@@ -117,13 +116,6 @@ From repo root:
 ```bash
 npm ci
 cd apps/frontend && npm run build
-```
-
-Or monorepo root build (same as root `vercel.json`):
-
-```bash
-npm ci
-npm run vercel-build
 ```
 
 List assets after build:
@@ -140,7 +132,8 @@ ls apps/frontend/public
 | Symptom | Cause | Fix |
 |---------|--------|-----|
 | `/ar-group-logo.webp` → 404, HTML pages work | Output Directory = `.next` or wrong root | Clear Output Directory; set Root Directory = `apps/frontend`; redeploy without cache |
-| Build: “`.next` was not found” | Root Directory = repo root but build only in subfolder | Set Root Directory = `apps/frontend` **or** use root `vercel.json` + `npm run vercel-build` |
+| `ENOENT` on `@swc/helpers` | Root Directory empty or root sync copied `.next` | Set Root Directory = `apps/frontend`; clear Output Directory; redeploy without cache |
+| Build: “`.next` was not found” | Root Directory = repo root | Set Root Directory = `apps/frontend` |
 | `npm ci` fails on Vercel | Lockfile out of sync | `npm install` at repo root, commit `package-lock.json`, redeploy |
 | Images work locally, 404 on Vercel | `public/` not in git | `git add apps/frontend/public/*` and push |
 | `/_next/image` 400 | `next/image` with wrong sizes | Use `<img src="/…">` or keep `images.unoptimized: true` |
