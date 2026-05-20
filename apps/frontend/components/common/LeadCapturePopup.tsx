@@ -227,7 +227,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
     <div
       className={clsx(
         'relative flex flex-col overflow-hidden bg-navy-900 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white',
-        isMobileSheet && 'px-3.5 pb-2.5 pt-8',
+        isMobileSheet && 'px-3.5 pb-2.5 pt-3.5 pr-12',
         variant === 'compact' && 'px-5 py-6',
         variant === 'default' && 'px-7 py-9 md:px-9 md:py-10'
       )}
