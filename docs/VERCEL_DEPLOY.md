@@ -2,7 +2,9 @@
 
 ## **Deploy mode (required)**
 
-This monorepo deploys **only** with **Root Directory = `apps/frontend`**. There is no root `vercel.json` — building from the repo root without Root Directory fails because `.next` is created at `apps/frontend/.next`, not at the repository root.
+This monorepo deploys **only** with **Root Directory = `apps/frontend`**. Building from the repo root without that setting fails because `.next` is created at `apps/frontend/.next`, not at the repository root.
+
+A root `vercel.json` exists as a **fallback** (`npm run vercel-build` → `scripts/vercel-build-frontend.mjs`). It still cannot deploy correctly until **Root Directory** is `apps/frontend` — do not rely on repo-root deploys.
 
 | Setting | Required value |
 |--------|----------------|
@@ -47,15 +49,25 @@ That happens because `npm run build` writes `.next` under `apps/frontend/`, whil
 5. Click **Save**.
 6. Go to **Deployments** → latest deployment → **⋮** → **Redeploy** (use “Redeploy with existing Build Cache” only if the build already succeeded once with the new root).
 
-After this, Vercel reads `apps/frontend/package.json` (which includes `next`) and `apps/frontend/vercel.json`. There is **no** root `vercel.json` in this repo.
+After this, Vercel reads `apps/frontend/package.json` (which includes `next`) and `apps/frontend/vercel.json`. Root `vercel.json` applies only when Root Directory is empty (avoid).
+
+### Do not use root `npm run build` on Vercel
+
+Root `package.json` defines `"build": "turbo run build"`. Vercel auto-detects that when Root Directory is empty or when the dashboard **Build Command** is `turbo run build`. Turbo writes `.next` under `apps/frontend/`, but Vercel looks for `/vercel/path0/.next` at the **project root** → **“The Next.js output directory `.next` was not found”**.
+
+| Build command | Where `.next` is created | Works on Vercel? |
+|---------------|--------------------------|------------------|
+| `turbo run build` (repo root) | `apps/frontend/.next` | No (unless Root Directory = `apps/frontend` **and** cwd is still wrong) |
+| `npm run build` (Root Directory = `apps/frontend`) | `apps/frontend/.next` (= path0/.next) | **Yes** |
+| `npm run vercel-build` (root fallback script) | `apps/frontend/.next` | No without Root Directory = `apps/frontend` |
 
 | Setting | Required value |
 |--------|----------------|
 | **Root Directory** | `apps/frontend` |
 | **Framework Preset** | Next.js |
 | **Install Command** | *(empty — uses `apps/frontend/vercel.json`)* → `cd ../.. && npm ci` |
-| **Build Command** | *(empty — uses `apps/frontend/vercel.json`)* → `npm run build` |
-| **Output Directory** | *(default — leave empty)* |
+| **Build Command** | *(empty — uses `apps/frontend/vercel.json`)* → `npm run build` (runs `next build`, **not** turbo) |
+| **Output Directory** | *(default — leave empty; repo sets `.next` in `apps/frontend/vercel.json` only when Root Directory is `apps/frontend`)* |
 | **Node.js Version** | 20.x |
 
 ---
