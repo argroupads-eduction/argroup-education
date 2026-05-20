@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -129,13 +128,10 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
           transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
           aria-hidden
         >
-          <Image
-            src={BANNER_INDIA}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
+          <motion.div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url('${BANNER_INDIA}')` }}
+            aria-hidden
           />
           <motion.div
             className="absolute inset-0"
@@ -150,12 +146,10 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
           transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
           aria-hidden
         >
-          <Image
-            src={BANNER_ABROAD}
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover object-center"
+          <motion.div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url('${BANNER_ABROAD}')` }}
+            aria-hidden
           />
           <motion.div
             className="absolute inset-0"

@@ -76,11 +76,40 @@ No extra redirect from `/` to `/home` is required.
 
 ---
 
+## Broken images on Vercel (logo, hero, about)
+
+If images work on `localhost:3000` but return **404** on production (e.g. `argroup-education-beta.vercel.app/ar-group-logo.webp`), the **`apps/frontend/public` folder is not in the deployment** — not a `next/image` issue.
+
+### Root causes (this repo)
+
+1. **Wrong Output Directory** — Dashboard or root `vercel.json` must **not** set Output Directory to `apps/frontend/.next` only. That deploys the build cache without `public/`. Leave Output Directory **empty** (Next.js default).
+2. **Wrong Root Directory** — Without `apps/frontend`, Vercel may build from repo root and miss `public/`.
+3. **Stale deploy** — Beta project still on an old commit before assets were added to git.
+
+### Fix (beta + production)
+
+1. **Settings** → **General** → **Root Directory** = `apps/frontend` → **Save**.
+2. **Include source files outside of the Root Directory** = **enabled** (monorepo `npm ci` from `cd ../..`).
+3. **Build & Development Settings** → **Output Directory** = **empty** (clear any override to `.next`).
+4. **Deployments** → latest on `main` → **Redeploy** → **uncheck** “Use existing Build Cache”.
+5. After deploy, verify (should be **200**, not HTML 404):
+
+   ```bash
+   curl.exe -sI https://argroup-education-beta.vercel.app/ar-group-logo.webp
+   curl.exe -sI https://argroup-education-beta.vercel.app/india-homepage.jpg
+   curl.exe -sI https://argroup-education-beta.vercel.app/about-counsellor.png
+   ```
+
+Critical paths are served as plain static files (`<img>` / CSS `background-image`), with `images.unoptimized: true` in `next.config.js` for any remaining `next/image` usage.
+
+---
+
 ## Quick checklist before every production deploy
 
 - [ ] **Root Directory** = `apps/frontend`
-- [ ] Latest commit on `main` includes `apps/frontend/package.json` with `"next"` in `dependencies`
-- [ ] **Redeploy** triggered after any Root Directory change
+- [ ] **Output Directory** = empty (never `apps/frontend/.next` alone)
+- [ ] Latest commit on `main` includes `apps/frontend/public/*` (`git ls-files apps/frontend/public`)
+- [ ] **Redeploy** triggered after any Root Directory or Output Directory change (**without** build cache)
 - [ ] `NEXT_PUBLIC_API_URL` and CMS URLs set under **Environment Variables**
 
 ### Linking the repo
