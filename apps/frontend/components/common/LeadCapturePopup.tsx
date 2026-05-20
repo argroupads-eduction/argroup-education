@@ -434,7 +434,7 @@ export function LeadCapturePopup() {
 
             <Dialog.Content asChild forceMount aria-describedby="lead-capture-desc">
               <motion.div
-                className="fixed inset-0 z-[101] flex items-end justify-center p-0 sm:items-center sm:p-4"
+                className="fixed inset-0 z-[101] flex items-stretch justify-center p-0 sm:items-center sm:p-4"
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
@@ -442,13 +442,13 @@ export function LeadCapturePopup() {
               >
                 <motion.div
                   role="document"
-                  className="relative flex max-h-[95dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl shadow-navy-900/30 sm:max-h-[90vh] sm:rounded-2xl md:flex-row"
+                  className="relative flex h-[100dvh] max-h-[100dvh] min-h-0 w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl shadow-navy-900/30 sm:h-auto sm:max-h-[90vh] sm:rounded-2xl md:flex-row"
                   layout={!reduceMotion}
                 >
                   <Dialog.Close asChild>
                     <button
                       type="button"
-                      className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-slate-200/80 bg-white/95 text-navy-800 shadow-md transition-colors hover:bg-navy-50 hover:text-navy-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+                      className="absolute right-[max(0.75rem,env(safe-area-inset-right,0px))] top-[max(0.75rem,env(safe-area-inset-top,0px))] z-10 flex h-11 w-11 items-center justify-center rounded-full border border-slate-200/80 bg-white/95 text-navy-800 shadow-md transition-colors hover:bg-navy-50 hover:text-navy-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 touch-manipulation"
                       aria-label="Close lead form"
                       onClick={dismiss}
                     >
@@ -457,7 +457,7 @@ export function LeadCapturePopup() {
                   </Dialog.Close>
 
                   <motion.div
-                    className="w-full shrink-0 md:w-[40%]"
+                    className="max-h-[40vh] w-full shrink-0 overflow-y-auto overscroll-contain sm:max-h-none md:w-[40%]"
                     initial={reduceMotion ? false : { opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.05, duration: 0.35 }}
@@ -465,9 +465,9 @@ export function LeadCapturePopup() {
                     <PromoPanel />
                   </motion.div>
 
-                  <div className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-white md:w-[60%]">
+                  <div className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white md:w-[60%] md:overflow-y-visible">
                     <motion.div
-                      className="min-w-0 w-full px-5 py-6 sm:px-7 sm:py-8"
+                      className="min-w-0 w-full px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pt-14 sm:px-7 sm:py-8 sm:pb-8 sm:pt-6"
                       initial={reduceMotion ? false : { opacity: 0, x: 12 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.08, duration: 0.35 }}
@@ -650,7 +650,7 @@ export function LeadCapturePopup() {
                               type="submit"
                               variant="primary"
                               size="md"
-                              className="w-full rounded-lg bg-navy-900 py-3 font-bold text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500"
+                              className="w-full touch-manipulation rounded-lg bg-navy-900 py-3.5 font-bold text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500"
                               disabled={submitting}
                               isLoading={submitting}
                             >

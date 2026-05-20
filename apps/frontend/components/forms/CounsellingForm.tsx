@@ -95,8 +95,8 @@ export const CounsellingForm = ({
   const gridGap = compact ? 'gap-3' : 'gap-6';
 
   const submitBtnClass = compact
-    ? 'counselling-form-submit flex w-full items-center justify-center gap-2 rounded-lg bg-gold-500 py-2.5 font-body text-sm font-bold text-white shadow-md shadow-gold-600/25 transition-all hover:bg-gold-600 active:scale-[0.99] disabled:opacity-60'
-    : 'counselling-form-submit flex w-full items-center justify-center gap-3 rounded-xl bg-gold-500 py-4 font-body text-lg font-bold text-white shadow-lg shadow-gold-600/30 transition-all hover:bg-gold-600 active:scale-[0.99] disabled:opacity-60';
+    ? 'counselling-form-submit flex w-full min-h-11 items-center justify-center gap-2 rounded-lg bg-gold-500 py-2.5 font-body text-sm font-bold text-white shadow-md shadow-gold-600/25 transition-all hover:bg-gold-600 active:scale-[0.99] disabled:opacity-60 touch-manipulation'
+    : 'counselling-form-submit flex w-full min-h-11 items-center justify-center gap-3 rounded-xl bg-gold-500 py-4 font-body text-lg font-bold text-white shadow-lg shadow-gold-600/30 transition-all hover:bg-gold-600 active:scale-[0.99] disabled:opacity-60 touch-manipulation';
 
   const inner = (
     <div className={embedded ? 'w-full' : 'p-8 md:p-12'}>

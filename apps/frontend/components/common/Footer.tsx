@@ -101,7 +101,7 @@ export const Footer = () => {
       <FooterMbbsIndiaGrid />
 
       <div className="border-t border-gold-500/30 py-12">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12">
             {/* Brand */}
             <div className="lg:col-span-4">
@@ -161,7 +161,7 @@ export const Footer = () => {
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
               Follow us
             </span>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {SOCIAL_LINKS.map((social) => {
                 const Icon = socialIcon(social.platform)
                 if (!Icon || social.platform === 'whatsapp') return null
@@ -171,7 +171,7 @@ export const Footer = () => {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-gold-500/30 text-gray-300 transition-colors hover:border-gold-500 hover:bg-gold-500/10 hover:text-gold-400"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-gold-500/30 text-gray-300 transition-colors hover:border-gold-500 hover:bg-gold-500/10 hover:text-gold-400 touch-manipulation"
                     aria-label={social.platform}
                   >
                     <Icon className="h-4 w-4" />
@@ -185,7 +185,7 @@ export const Footer = () => {
 
       {/* Bottom bar */}
       <div className="border-t border-gold-500/20 bg-navy-950 py-5">
-        <div className="max-w-7xl mx-auto flex flex-col items-center justify-between gap-3 px-4 text-center text-sm text-gray-500 md:flex-row md:text-left">
+        <div className="max-w-7xl mx-auto flex flex-col items-center justify-between gap-3 px-4 sm:px-6 text-center text-sm text-gray-500 md:flex-row md:text-left">
           <p>
             &copy; {year} {SITE_NAME}. All rights reserved.
           </p>

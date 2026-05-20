@@ -478,7 +478,7 @@ export const AchievementsSection = () => {
       />
 
       <motion.div
-        className="relative z-10 mx-auto max-w-7xl px-4"
+        className="relative z-10 mx-auto max-w-7xl min-w-0 px-4 sm:px-6"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
@@ -491,7 +491,7 @@ export const AchievementsSection = () => {
           </span>
           <h2
             id="achievements-heading"
-            className="mt-5 font-serif text-3xl font-bold leading-tight text-navy-900 md:text-4xl lg:text-[2.65rem]"
+            className="mt-5 text-balance font-serif text-3xl font-bold leading-tight text-navy-900 md:text-4xl lg:text-[2.65rem]"
           >
             Our{' '}
             <span className="bg-gradient-to-r from-gold-500 to-gold-700 bg-clip-text text-transparent">

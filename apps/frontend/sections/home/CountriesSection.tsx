@@ -21,8 +21,8 @@ export const CountriesSection = () => {
   };
 
   return (
-    <section className="section bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
+    <section className="section overflow-x-hidden bg-gray-50">
+      <div className="max-w-7xl mx-auto min-w-0 px-4 sm:px-6">
         {/* Header */}
         <motion.div
           className="text-center mb-16"
@@ -31,17 +31,17 @@ export const CountriesSection = () => {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-navy-900 mb-6">
+          <h2 className="text-balance text-2xl sm:text-4xl md:text-5xl font-bold text-navy-900 mb-4 sm:mb-6">
             Study <span className="text-gold-500">Across Global</span> Universities
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-1">
             Explore top medical universities in 9+ countries with proven track record
           </p>
         </motion.div>
 
         {/* Countries Grid */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
           variants={container}
           initial="hidden"
           whileInView="visible"
