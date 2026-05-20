@@ -1,7 +1,7 @@
 /**
- * Vercel root-directory fallback: run Next.js build inside apps/frontend.
- * Use as root buildCommand when the project Root Directory is not yet apps/frontend.
- * Preferred: set Root Directory to apps/frontend and use apps/frontend/vercel.json (npm run build).
+ * Run `next build` for apps/frontend from the monorepo root (npm run vercel-build).
+ * For Vercel: set project Root Directory to apps/frontend — there is no root vercel.json.
+ * Use this script locally or in custom CI when cwd is the repo root.
  */
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
