@@ -9,12 +9,10 @@
 
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
   }
 
   body {
     @apply bg-white text-navy-900 antialiased font-sans;
-    text-rendering: optimizeLegibility;
   }
 
   /* Typography - Headings use Playfair Display */
@@ -28,7 +26,7 @@
   }
 
   h1 {
-    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-balance;
+    @apply text-4xl md:text-5xl lg:text-6xl font-black;
   }
 
   h2 {
@@ -163,18 +161,6 @@
     height: 6px;
   }
 
-  /* Lead capture mobile sheet — single scroll area; hide gold global scrollbar thumb */
-  .lead-capture-mobile-scroll {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .lead-capture-mobile-scroll::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-
   .mbbs-abroad-mega-menu::-webkit-scrollbar-thumb {
     border-radius: 9999px;
     background-color: rgb(203 213 225);
@@ -192,7 +178,6 @@
   }
 
   .mbbs-abroad-scroll-pin {
-    position: sticky;
     top: var(--mbbs-abroad-header-offset);
     height: calc(100dvh - var(--mbbs-abroad-header-offset));
   }

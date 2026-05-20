@@ -59,8 +59,8 @@ export const AboutSection = () => {
         aria-hidden
       />
 
-      <div className="relative mx-auto max-w-7xl min-w-0 px-4 sm:px-6">
-        <div className="grid min-w-0 items-center gap-12 lg:grid-cols-12 lg:gap-14">
+      <div className="relative mx-auto max-w-7xl px-4">
+        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-14">
           {/* Visual column */}
           <motion.div
             className="relative lg:col-span-5"
@@ -135,7 +135,7 @@ export const AboutSection = () => {
               About us
             </span>
 
-            <h2 className="mt-5 text-balance font-serif text-2xl font-bold leading-tight text-navy-900 sm:text-3xl md:text-4xl lg:text-[2.65rem]">
+            <h2 className="mt-5 font-serif text-3xl font-bold leading-tight text-navy-900 md:text-4xl lg:text-[2.65rem]">
               AR Group of Education — guiding{' '}
               <span className="bg-gradient-to-r from-gold-500 to-gold-600 bg-clip-text text-transparent">
                 future doctors
@@ -200,9 +200,9 @@ export const AboutSection = () => {
               </div>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 min-w-0 sm:flex-row sm:flex-wrap">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link href="/contact">
-                <Button variant="primary" size="lg" className="group w-full touch-manipulation sm:w-auto">
+                <Button variant="primary" size="lg" className="group w-full sm:w-auto">
                   Schedule free counselling
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
@@ -211,7 +211,7 @@ export const AboutSection = () => {
                 href="https://wa.me/919999999999"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-lg border-2 border-navy-900/15 bg-white px-6 py-3 text-base font-semibold text-navy-900 touch-manipulation transition hover:border-gold-400 hover:bg-gold-50 sm:w-auto sm:py-4"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-navy-900/15 bg-white px-8 py-4 text-base font-semibold text-navy-900 transition hover:border-gold-400 hover:bg-gold-50 sm:w-auto"
               >
                 <MessageCircle className="h-5 w-5 text-green-600" />
                 Chat on WhatsApp
