@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
@@ -212,7 +213,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
     <div
       className={clsx(
         'relative flex flex-col overflow-hidden bg-navy-900 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white',
-        isMobileSheet && 'px-3.5 pb-2.5 pt-3.5 pl-3.5 pr-[3.25rem]',
+        isMobileSheet && 'px-3.5 pb-2.5 pt-3.5 text-center',
         variant === 'compact' && 'px-5 py-6',
         variant === 'default' && 'px-7 py-9 md:px-9 md:py-10'
       )}
@@ -230,7 +231,12 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
         transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
       />
 
-      <p className="relative text-[10px] font-bold uppercase tracking-[0.22em] text-gold-300/95">
+      <p
+        className={clsx(
+          'relative text-[10px] font-bold uppercase tracking-[0.22em] text-gold-300/95',
+          isMobileSheet && 'mx-auto max-w-full text-center'
+        )}
+      >
         AR Group of Education
       </p>
       {isMobileSheet ? (
@@ -614,6 +620,7 @@ function LeadCaptureFormPanel({
 }
 
 export function LeadCapturePopup() {
+  const pathname = usePathname();
   const formId = useId();
   const reduceMotion = useReducedMotion();
   const firstFieldRef = useRef<HTMLInputElement>(null);
@@ -655,7 +662,7 @@ export function LeadCapturePopup() {
     setDesktopOpen(false);
     const t = window.setTimeout(() => setDesktopOpen(true), AUTO_OPEN_DELAY_MS);
     return () => window.clearTimeout(t);
-  }, [isMobile]);
+  }, [isMobile, pathname]);
 
   useEffect(() => {
     if (isMobile !== true) return;
@@ -667,7 +674,7 @@ export function LeadCapturePopup() {
     setMobileOpen(false);
     const t = window.setTimeout(() => setMobileOpen(true), AUTO_OPEN_DELAY_MS);
     return () => window.clearTimeout(t);
-  }, [isMobile]);
+  }, [isMobile, pathname]);
 
   const dismissDesktop = useCallback(() => {
     setDesktopOpen(false);
