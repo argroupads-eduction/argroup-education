@@ -212,7 +212,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
   return (
     <div
       className={clsx(
-        'relative flex flex-col overflow-hidden bg-gradient-to-br from-navy-950 via-navy-900 to-navy-950 text-white',
+        'relative flex flex-col overflow-hidden bg-navy-900 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white',
         isMobileSheet && 'px-3.5 pb-2.5 pt-8',
         variant === 'compact' && 'px-5 py-6',
         variant === 'default' && 'px-7 py-9 md:px-9 md:py-10'
@@ -252,8 +252,8 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       )}
 
       {isMobileSheet ? (
-        <p className="relative mt-1 text-[10px] font-medium leading-snug text-gold-100/90">
-          WHO-listed · Low fees · Visa support
+        <p className="relative mt-1 text-[11px] font-medium leading-snug text-gold-200">
+          MBBS Abroad · WHO-listed · Low fees
         </p>
       ) : (
         <ul className="relative mt-5 flex flex-wrap gap-2">
@@ -271,7 +271,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
 
       {!isMobileSheet && (
       <motion.div
-        className="relative mt-7 min-h-[7.5rem] flex-1 rounded-xl border border-white/12 bg-gradient-to-b from-navy-950/50 to-navy-900/30 p-3.5 shadow-inner shadow-black/20 backdrop-blur-sm"
+        className="relative mt-7 min-h-[7.5rem] flex-1 rounded-xl border border-white/12 bg-gradient-to-b from-navy-800/60 to-navy-900/40 p-3.5 shadow-inner shadow-black/20 backdrop-blur-sm"
         aria-hidden
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -557,14 +557,11 @@ function LeadCaptureFormPanel({
 
   const submitBlock = (
     <>
-      <div
-        className={clsx(
-          'flex items-center justify-center',
-          isMobile ? 'py-0.5' : 'rounded-lg border border-emerald-100/80 bg-emerald-50/40 py-2'
-        )}
-      >
-        <LeadCaptureFreeOfferBadge compact={isMobile} />
-      </div>
+      {isMobile && (
+        <div className="flex items-center justify-center py-0.5">
+          <LeadCaptureFreeOfferBadge compact />
+        </div>
+      )}
       <Button
         type="submit"
         variant="primary"
@@ -630,9 +627,6 @@ function LeadCaptureFormPanel({
       <Dialog.Description id="lead-capture-desc" className="mt-1.5 text-[13px] leading-relaxed text-slate-600 md:text-sm">
         Share your details — AR Group counsellors will call you with tailored university options.
       </Dialog.Description>
-      <div className="mt-3 flex justify-start">
-        <LeadCaptureFreeOfferBadge />
-      </div>
 
       <form id={formId} onSubmit={onSubmit} className="mt-4 w-full min-w-0 space-y-3.5" noValidate>
         {fieldsBlock}
@@ -873,7 +867,7 @@ export function LeadCapturePopup() {
               <Dialog.Portal forceMount>
                 <Dialog.Overlay asChild forceMount>
                   <motion.div
-                    className="fixed inset-0 z-[100] bg-navy-950/70 backdrop-blur-sm"
+                    className="fixed inset-0 z-[100] bg-navy-900/70 backdrop-blur-sm"
                     initial="hidden"
                     animate="visible"
                     exit="hidden"
@@ -907,7 +901,7 @@ export function LeadCapturePopup() {
                       </Dialog.Close>
 
                       <motion.div
-                        className="max-h-[40vh] w-full shrink-0 overflow-hidden sm:max-h-none md:w-[42%]"
+                        className="max-h-[40vh] w-full shrink-0 overflow-hidden bg-navy-900 sm:max-h-none md:w-[42%]"
                         initial={reduceMotion ? false : { opacity: 0, x: -12 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.05, duration: 0.35 }}
