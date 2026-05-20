@@ -125,8 +125,8 @@ export const MBBSIndiaStateSection = () => {
   const currentState = MBBS_INDIA_STATES.find((state) => state.id === activeState)
 
   return (
-    <section className="section min-w-0 bg-slate-50 py-12 md:py-16" id="mbbs-india-colleges">
-      <div className="max-w-7xl mx-auto min-w-0 px-4 sm:px-6">
+    <section className="section bg-slate-50 py-12 md:py-16" id="mbbs-india-colleges">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="mx-auto max-w-4xl text-center mb-10 md:mb-12">
           <p className="text-xs md:text-sm uppercase tracking-[0.32em] text-primary font-semibold">MBBS in India</p>
           <h2 className="mt-3 md:mt-4 text-3xl md:text-5xl font-bold text-navy-900">State-wise Top Medical Colleges</h2>
@@ -135,14 +135,14 @@ export const MBBSIndiaStateSection = () => {
           </p>
         </div>
 
-        <div className="mb-8 md:mb-10 overflow-x-auto overscroll-x-contain pb-2 scroll-px-4 snap-x snap-mandatory [-webkit-overflow-scrolling:touch]">
-          <div className="inline-flex w-max min-w-0 gap-2 md:gap-3 px-1">
+        <div className="mb-8 md:mb-10 overflow-x-auto pb-2">
+          <div className="inline-flex gap-2 md:gap-3 px-2">
             {MBBS_INDIA_STATES.map((state) => (
               <button
                 key={state.id}
                 type="button"
                 onClick={() => handleStateClick(state.id)}
-                className={`shrink-0 snap-start rounded-full border px-3 md:px-5 py-2.5 md:py-3 text-xs md:text-sm font-medium transition touch-manipulation ${
+                className={`shrink-0 rounded-full border px-3 md:px-5 py-2 md:py-3 text-xs md:text-sm font-medium transition ${
                   activeState === state.id
                     ? 'bg-navy-900 text-white border-transparent'
                     : 'bg-white text-slate-700 border-slate-200 hover:border-navy-900'

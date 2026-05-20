@@ -118,7 +118,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
     'linear-gradient(90deg, rgba(6, 33, 63, 0.82) 0%, rgba(8, 52, 90, 0.68) 35%, rgba(12, 97, 161, 0.42) 100%)';
 
   return (
-    <section className="relative min-h-[24rem] min-w-0 overflow-hidden pt-14 sm:min-h-[28rem] md:min-h-[32rem] md:pt-20 lg:min-h-[36rem]">
+    <section className="relative min-h-[28rem] overflow-hidden pt-16 md:min-h-[32rem] md:pt-20 lg:min-h-[36rem]">
       {/* Cross-fading full-bleed backgrounds */}
       <div className="pointer-events-none absolute inset-0">
         <motion.div
@@ -183,32 +183,32 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
         </button>
       )}
 
-      <div className="relative z-10 mx-auto max-w-6xl min-w-0 px-3 sm:px-4 py-12 sm:py-16 md:py-24 lg:py-28">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 md:py-24 lg:py-28">
         <motion.div
           initial={{ opacity: 0, rotateY: -18, x: 40, scale: 0.96 }}
           animate={{ opacity: 1, rotateY: 0, x: 0, scale: 1 }}
           transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-          className="grid min-w-0 gap-8 sm:gap-10 lg:grid-cols-2 lg:items-stretch lg:gap-12"
+          className="grid gap-10 lg:grid-cols-2 lg:items-stretch lg:gap-12"
         >
           {/* India: copy left, enquiry form right (vertically centred in column) */}
           {variant === 'india' && (
             <>
-              <div className="min-w-0 max-w-3xl lg:pr-4 lg:text-left">
+              <div className="max-w-3xl lg:pr-4 lg:text-left">
                 <span className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm md:text-sm">
                   <Sparkles className="h-4 w-4 text-gold-400" />
                   MBBS in India - Leading Colleges
                 </span>
 
-                <h1 className="mt-4 text-balance text-3xl font-black leading-[1.12] text-white sm:text-4xl md:text-5xl lg:text-6xl">
+                <h1 className="mt-4 text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
                   Study MBBS in
                   <span className="mt-2 block text-gold-400">India&apos;s Top Colleges</span>
                 </h1>
 
-                <div className="mt-6 min-w-0 rounded-xl border border-white/30 bg-white/10 px-3 py-3 backdrop-blur-sm sm:px-4 md:px-5 lg:max-w-md">
+                <div className="mt-6 rounded-xl border border-white/30 bg-white/10 px-4 py-4 backdrop-blur-sm md:px-5 lg:max-w-md">
                   <p className="text-xs font-semibold uppercase tracking-wider text-blue-100">
                     Featured college (India)
                   </p>
-                  <p className="mt-2 min-h-[2.5rem] break-words text-base font-semibold text-white sm:min-h-[2.75rem] sm:text-lg md:min-h-[3.25rem] md:text-2xl">
+                  <p className="mt-2 min-h-[2.75rem] text-lg font-semibold text-white md:min-h-[3.25rem] md:text-2xl">
                     {text}
                     <span className="ml-1 inline-block h-6 w-[2px] animate-pulse bg-gold-400 align-middle" />
                   </p>
@@ -218,25 +218,25 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                   Admission guidance for MBBS across India - counseling, college shortlisting, and documentation support.
                 </p>
 
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Button variant="primary" size="lg" className="group w-full touch-manipulation sm:w-auto">
+                <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                  <Button variant="primary" size="lg" className="group">
                     Get Free Counselling
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                   <Button
                     variant="secondary"
                     size="lg"
-                    className="w-full touch-manipulation border-white/60 bg-white/15 text-white hover:bg-white/25 sm:w-auto"
+                    className="border-white/60 bg-white/15 text-white hover:bg-white/25"
                   >
                     Explore States
                   </Button>
                 </div>
               </div>
 
-              <div className="flex min-h-0 w-full min-w-0 flex-col items-center justify-center pt-8 sm:pt-10 lg:min-h-full lg:pt-0">
+              <div className="flex min-h-0 w-full flex-col items-center justify-center pt-10 lg:min-h-full lg:pt-0">
                 <MbbsIndiaHeroPayloadForm
                   layout="heroSide"
-                  className="w-full max-w-full sm:max-w-md lg:max-w-[20.5rem] xl:max-w-md"
+                  className="w-full max-w-md lg:max-w-[20.5rem] xl:max-w-md"
                 />
               </div>
             </>
@@ -245,29 +245,29 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
           {/* Abroad: enquiry form left (desktop), copy right; mobile keeps copy first */}
           {variant === 'abroad' && (
             <>
-              <div className="order-2 flex min-h-0 w-full min-w-0 flex-col items-center justify-center pt-8 sm:pt-10 lg:order-1 lg:min-h-full lg:items-start lg:pt-0">
+              <div className="order-2 flex min-h-0 w-full flex-col items-center justify-center pt-10 lg:order-1 lg:min-h-full lg:items-start lg:pt-0">
                 <MbbsAbroadHeroPayloadForm
                   layout="heroSide"
-                  className="w-full max-w-full sm:max-w-md lg:max-w-[20.5rem] xl:max-w-md"
+                  className="w-full max-w-md lg:max-w-[20.5rem] xl:max-w-md"
                 />
               </div>
 
-              <div className="order-1 min-w-0 max-w-3xl lg:order-2 lg:ml-auto lg:text-right">
+              <div className="order-1 max-w-3xl lg:order-2 lg:ml-auto lg:text-right">
                 <span className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm md:text-sm">
                   <Sparkles className="h-4 w-4 text-gold-400" />
                   MBBS Abroad - Global Pathways
                 </span>
 
-                <h1 className="mt-4 text-balance text-3xl font-black leading-[1.12] text-white sm:text-4xl md:text-5xl lg:text-6xl">
+                <h1 className="mt-4 text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
                   <span className="block text-gold-400">Abroad</span>
                   <span className="mt-2 block">Study MBBS - World-Class Universities</span>
                 </h1>
 
-                <div className="mt-6 min-w-0 rounded-xl border border-white/30 bg-white/10 px-3 py-3 backdrop-blur-sm sm:px-4 md:px-5 lg:mx-auto lg:max-w-md">
+                <div className="mt-6 rounded-xl border border-white/30 bg-white/10 px-4 py-4 backdrop-blur-sm md:px-5 lg:mx-auto lg:max-w-md">
                   <p className="text-xs font-semibold uppercase tracking-wider text-blue-100">
                     Featured college (Abroad)
                   </p>
-                  <p className="mt-2 min-h-[2.5rem] break-words text-base font-semibold text-white sm:min-h-[2.75rem] sm:text-lg md:min-h-[3.25rem] md:text-2xl">
+                  <p className="mt-2 min-h-[2.75rem] text-lg font-semibold text-white md:min-h-[3.25rem] md:text-2xl">
                     {text}
                     <span className="ml-1 inline-block h-6 w-[2px] animate-pulse bg-gold-400 align-middle" />
                   </p>
@@ -277,15 +277,15 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                   Trusted support for MBBS abroad - university selection, applications, and visa assistance end to end.
                 </p>
 
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
-                  <Button variant="primary" size="lg" className="group w-full touch-manipulation sm:w-auto">
+                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                  <Button variant="primary" size="lg" className="group">
                     Get Free Counselling
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                   <Button
                     variant="secondary"
                     size="lg"
-                    className="w-full touch-manipulation border-white/60 bg-white/15 text-white hover:bg-white/25 sm:w-auto"
+                    className="border-white/60 bg-white/15 text-white hover:bg-white/25"
                   >
                     Explore Countries
                   </Button>

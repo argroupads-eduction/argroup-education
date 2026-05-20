@@ -20,11 +20,11 @@ export function MbbsIndiaNavMegaMenu({ onNavigate }: MbbsIndiaNavMegaMenuProps) 
 
   return (
     <div
-      className="mbbs-india-mega-menu flex max-h-[min(32rem,calc(100dvh-6rem))] overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-2xl ring-1 ring-black/5"
+      className="mbbs-india-mega-menu flex overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-2xl ring-1 ring-black/5"
       onMouseLeave={() => setHovered(MBBS_INDIA_STATES[0])}
     >
-      {/* States — scrollable on short viewports */}
-      <ul className="w-[13.5rem] shrink-0 overflow-y-auto border-r border-slate-100 bg-slate-50/80 py-2">
+      {/* States — full list, no scroll */}
+      <ul className="w-[13.5rem] shrink-0 border-r border-slate-100 bg-slate-50/80 py-2">
         {MBBS_INDIA_STATES.map((state) => {
           const active = hovered.id === state.id
           return (
@@ -57,7 +57,7 @@ export function MbbsIndiaNavMegaMenu({ onNavigate }: MbbsIndiaNavMegaMenuProps) 
       {/* Colleges — natural height, optional 2 columns for long lists */}
       <div
         className={[
-          'min-w-0 min-h-0 max-w-[28rem] flex-1 overflow-y-auto bg-white py-3 px-1 sm:min-w-[18rem]',
+          'min-w-[18rem] max-w-[28rem] flex-1 bg-white py-3 px-1',
           useTwoColumns ? 'sm:min-w-[26rem] sm:max-w-[36rem]' : '',
         ].join(' ')}
       >
