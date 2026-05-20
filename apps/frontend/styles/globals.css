@@ -176,6 +176,7 @@
   }
 
   .scrollbar-thin-lead-capture {
+    scroll-behavior: auto;
     scrollbar-width: thin;
     scrollbar-color: rgb(203 213 225) transparent;
   }
@@ -195,6 +196,7 @@
   }
 
   .lead-capture-form-scroll {
+    scroll-behavior: auto;
     scrollbar-width: thin;
     scrollbar-color: rgb(203 213 225) transparent;
   }
