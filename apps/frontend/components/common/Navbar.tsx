@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import {
   Menu,
@@ -84,13 +83,13 @@ export const Navbar = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <motion.div animate={{ scale: logoScale }} transition={{ type: 'spring', stiffness: 260, damping: 24 }}>
-              <Image
+              <img
                 src="/ar-group-logo.webp"
                 alt="AR Group of Education"
                 width={96}
                 height={96}
-                sizes="(max-width: 768px) 56px, 80px"
-                priority
+                decoding="async"
+                fetchPriority="high"
                 className="h-14 w-14 md:h-20 md:w-20 object-contain"
               />
             </motion.div>

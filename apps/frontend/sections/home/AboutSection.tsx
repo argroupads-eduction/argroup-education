@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
@@ -80,12 +79,13 @@ export const AboutSection = () => {
 
               <div className="relative overflow-hidden rounded-[2rem] bg-navy-900 shadow-2xl shadow-navy-900/20 ring-1 ring-white/10">
                 <div className="absolute inset-0 bg-gradient-to-tr from-navy-900/40 via-transparent to-gold-500/10 z-[1]" />
-                <Image
+                <img
                   src="/about-counsellor.png"
                   alt="AR Group of Education counsellor — trusted MBBS admission guidance"
                   width={560}
                   height={700}
-                  sizes="(min-width: 1024px) 560px, (min-width: 768px) 50vw, 100vw"
+                  loading="lazy"
+                  decoding="async"
                   className="aspect-[4/5] w-full object-cover object-top"
                 />
               </div>
