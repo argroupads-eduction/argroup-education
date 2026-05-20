@@ -89,6 +89,7 @@ export const Navbar = () => {
                 alt="AR Group of Education"
                 width={96}
                 height={96}
+                sizes="(max-width: 768px) 56px, 80px"
                 priority
                 className="h-14 w-14 md:h-20 md:w-20 object-contain"
               />
