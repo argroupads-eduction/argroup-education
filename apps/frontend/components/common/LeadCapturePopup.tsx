@@ -25,9 +25,16 @@ import {
 } from '@/lib/mbbsHeroFormDefinitionsCache';
 
 const DESKTOP_SHOW_DELAY_MS = 1500;
-const MOBILE_SHOW_DELAY_MS = 800;
+/** Match desktop cadence so the form is the first meaningful interaction after load */
+const MOBILE_SHOW_DELAY_MS = 1500;
 
-/** Successful mobile lead this session — do not auto-open again on navigation */
+/**
+ * Mobile popup visibility (sessionStorage):
+ * - `ar-lead-mobile-submitted`: user submitted successfully this session — no more auto-opens.
+ * - `ar-lead-mobile-dismissed-<pathname>`: user closed on this path — won't auto-open again until
+ *   a full reload on another URL or they clear storage. This mirrors desktop "once per visit per path"
+ *   without firing the sheet on every client-side navigation (which would feel spammy in the SPA).
+ */
 const MOBILE_SUBMITTED_SESSION_KEY = 'ar-lead-mobile-submitted';
 
 function mobileDismissStorageKey(pathname: string) {
@@ -193,12 +200,16 @@ function validate(values: LeadFormValues): string | null {
   return null;
 }
 
-function PromoPanel({ compact }: { compact?: boolean }) {
+function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' | 'mobileSheet' }) {
+  const isMobileSheet = variant === 'mobileSheet';
+
   return (
     <div
       className={clsx(
         'relative flex flex-col overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white',
-        compact ? 'px-5 py-6' : 'px-6 py-8 md:px-8 md:py-10'
+        isMobileSheet && 'px-4 py-3',
+        variant === 'compact' && 'px-5 py-6',
+        variant === 'default' && 'px-6 py-8 md:px-8 md:py-10'
       )}
     >
       <motion.div
@@ -219,27 +230,52 @@ function PromoPanel({ compact }: { compact?: boolean }) {
       </p>
       <h2
         id="lead-capture-title"
-        className="relative mt-2 font-serif text-xl font-bold leading-tight text-white md:text-2xl"
+        className={clsx(
+          'relative mt-2 font-serif font-bold leading-tight text-white',
+          isMobileSheet && 'mt-1 text-base',
+          !isMobileSheet && 'mt-2 text-xl md:text-2xl'
+        )}
       >
         Your MBBS abroad journey starts here
       </h2>
-      <p className="relative mt-2 text-sm leading-relaxed text-navy-100/90">
+      <p
+        className={clsx(
+          'relative text-navy-100/90',
+          isMobileSheet && 'mt-1 line-clamp-2 text-[11px] leading-snug',
+          !isMobileSheet && 'mt-2 text-sm leading-relaxed'
+        )}
+      >
         WHO-listed universities, transparent fees, and counselling from application to campus —
         trusted by thousands of Indian medical aspirants.
       </p>
 
-      <ul className="relative mt-5 flex flex-wrap gap-2">
-        {PROMO_BADGES.map(({ icon: Icon, label }) => (
-          <li
-            key={label}
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-gold-100 backdrop-blur-sm"
-          >
-            <Icon className="h-3.5 w-3.5 shrink-0 text-gold-400" aria-hidden />
-            {label}
-          </li>
-        ))}
-      </ul>
+      {isMobileSheet ? (
+        <p className="relative mt-2 text-[10px] font-medium leading-snug text-gold-100/95">
+          <span className="whitespace-nowrap">WHO-listed</span>
+          <span className="mx-1 text-white/40" aria-hidden>
+            ·
+          </span>
+          <span className="whitespace-nowrap">Low fees</span>
+          <span className="mx-1 text-white/40" aria-hidden>
+            ·
+          </span>
+          <span className="whitespace-nowrap">Full support</span>
+        </p>
+      ) : (
+        <ul className="relative mt-5 flex flex-wrap gap-2">
+          {PROMO_BADGES.map(({ icon: Icon, label }) => (
+            <li
+              key={label}
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-gold-100 backdrop-blur-sm"
+            >
+              <Icon className="h-3.5 w-3.5 shrink-0 text-gold-400" aria-hidden />
+              {label}
+            </li>
+          ))}
+        </ul>
+      )}
 
+      {!isMobileSheet && (
       <motion.div
         className="relative mt-6 min-h-[7rem] flex-1 rounded-xl border border-white/10 bg-navy-950/40 p-3 backdrop-blur-sm"
         aria-hidden
@@ -293,19 +329,27 @@ function PromoPanel({ compact }: { compact?: boolean }) {
           })}
         </ul>
       </motion.div>
+      )}
 
-      <p className="relative mt-5 rounded-lg border border-gold-500/30 bg-gold-500/10 px-3 py-2 text-center text-xs font-semibold text-gold-100">
+      <p
+        className={clsx(
+          'relative rounded-lg border border-gold-500/30 bg-gold-500/10 px-2.5 py-1.5 text-center font-semibold text-gold-100',
+          isMobileSheet ? 'mt-2 text-[10px] leading-tight' : 'mt-5 px-3 py-2 text-xs'
+        )}
+      >
         Limited seats — book free counselling with AR experts today
       </p>
 
-      <ul className="relative mt-4 space-y-1.5">
-        {TRUST_BULLETS.map((text) => (
-          <li key={text} className="flex gap-2 text-xs text-navy-100/95">
-            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-400" aria-hidden />
-            <span>{text}</span>
-          </li>
-        ))}
-      </ul>
+      {!isMobileSheet && (
+        <ul className="relative mt-4 space-y-1.5">
+          {TRUST_BULLETS.map((text) => (
+            <li key={text} className="flex gap-2 text-xs text-navy-100/95">
+              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-400" aria-hidden />
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -321,6 +365,8 @@ type LeadCaptureFormPanelProps = {
   submitError: string | null;
   dismiss: () => void;
   reduceMotion: boolean;
+  /** Mobile sheet: sticky submit + legal footer inside the sheet scroll region */
+  mobileStickyFooter?: boolean;
 };
 
 function LeadCaptureFormPanel({
@@ -334,6 +380,7 @@ function LeadCaptureFormPanel({
   submitError,
   dismiss,
   reduceMotion,
+  mobileStickyFooter = false,
 }: LeadCaptureFormPanelProps) {
   if (submitted) {
     return (
@@ -361,6 +408,157 @@ function LeadCaptureFormPanel({
     );
   }
 
+  const fieldsBlock = (
+    <>
+      <motion.div
+        className="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-2"
+        initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.12 }}
+      >
+        <motion.div className={fieldWrapClass}>
+          <label htmlFor="lead-fullName" className="mb-1.5 block text-xs font-semibold text-navy-900">
+            Full name *
+          </label>
+          <input
+            ref={firstFieldRef}
+            id="lead-fullName"
+            name="fullName"
+            type="text"
+            autoComplete="name"
+            required
+            placeholder="Your full name"
+            className={inputClass}
+            value={values.fullName}
+            onChange={(e) => setField('fullName', e.target.value)}
+          />
+        </motion.div>
+
+        <motion.div className={fieldWrapClass}>
+          <label htmlFor="lead-email" className="mb-1.5 block text-xs font-semibold text-navy-900">
+            Email *
+          </label>
+          <input
+            id="lead-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            placeholder="you@email.com"
+            className={inputClass}
+            value={values.email}
+            onChange={(e) => setField('email', e.target.value)}
+          />
+        </motion.div>
+
+        <motion.div className={fieldWrapClass}>
+          <label htmlFor="lead-phone" className="mb-1.5 block text-xs font-semibold text-navy-900">
+            Phone *
+          </label>
+          <input
+            id="lead-phone"
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            required
+            placeholder="10-digit mobile"
+            className={inputClass}
+            value={values.phone}
+            onChange={(e) => setField('phone', e.target.value)}
+          />
+        </motion.div>
+
+        <motion.div className={fieldWrapClass}>
+          <label htmlFor="lead-city" className="mb-1.5 block text-xs font-semibold text-navy-900">
+            City *
+          </label>
+          <input
+            id="lead-city"
+            name="city"
+            type="text"
+            list="lead-city-suggestions"
+            autoComplete="address-level2"
+            required
+            placeholder="Your city"
+            className={inputClass}
+            value={values.city}
+            onChange={(e) => setField('city', e.target.value)}
+          />
+          <datalist id="lead-city-suggestions">
+            {INDIAN_CITY_SUGGESTIONS.map((city) => (
+              <option key={city} value={city} />
+            ))}
+          </datalist>
+        </motion.div>
+
+        <motion.div className={`${fieldWrapClass} md:col-span-2`}>
+          <label htmlFor="lead-country" className="mb-1.5 block text-xs font-semibold text-navy-900">
+            Target country *
+          </label>
+          <select
+            id="lead-country"
+            name="targetCountry"
+            required
+            className={selectClass}
+            value={values.targetCountry}
+            onChange={(e) => setField('targetCountry', e.target.value)}
+          >
+            <option value="" disabled>
+              Select country
+            </option>
+            {MBBS_ABROAD_HERO_COUNTRY_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </motion.div>
+      </motion.div>
+
+      {submitError && (
+        <p
+          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          role="alert"
+        >
+          {submitError}
+        </p>
+      )}
+    </>
+  );
+
+  const submitBlock = (
+    <>
+      <Button
+        type="submit"
+        variant="primary"
+        size="md"
+        className="w-full touch-manipulation rounded-lg bg-navy-900 py-3.5 font-bold text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500"
+        disabled={submitting}
+        isLoading={submitting}
+      >
+        Get free counselling
+      </Button>
+
+      <p className="text-center text-[10px] leading-snug text-slate-500">
+        By submitting, you agree to our{' '}
+        <Link
+          href="/terms"
+          className="font-medium text-navy-700 underline-offset-2 hover:text-gold-600 hover:underline"
+        >
+          Terms
+        </Link>{' '}
+        and{' '}
+        <Link
+          href="/privacy"
+          className="font-medium text-navy-700 underline-offset-2 hover:text-gold-600 hover:underline"
+        >
+          Privacy Policy
+        </Link>
+        . We use your details only to contact you about MBBS counselling.
+      </p>
+    </>
+  );
+
   return (
     <>
       <Dialog.Title className="pr-10 font-serif text-xl font-bold text-navy-900 md:pr-0 md:text-2xl">
@@ -370,149 +568,25 @@ function LeadCaptureFormPanel({
         Free counselling — AR Group of Education. Fill in your details below.
       </Dialog.Description>
 
-      <form id={formId} onSubmit={onSubmit} className="mt-5 w-full min-w-0 space-y-4" noValidate>
-        <motion.div
-          className="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-2"
-          initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12 }}
-        >
-          <motion.div className={fieldWrapClass}>
-            <label htmlFor="lead-fullName" className="mb-1.5 block text-xs font-semibold text-navy-900">
-              Full name *
-            </label>
-            <input
-              ref={firstFieldRef}
-              id="lead-fullName"
-              name="fullName"
-              type="text"
-              autoComplete="name"
-              required
-              placeholder="Your full name"
-              className={inputClass}
-              value={values.fullName}
-              onChange={(e) => setField('fullName', e.target.value)}
-            />
-          </motion.div>
-
-          <motion.div className={fieldWrapClass}>
-            <label htmlFor="lead-email" className="mb-1.5 block text-xs font-semibold text-navy-900">
-              Email *
-            </label>
-            <input
-              id="lead-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              placeholder="you@email.com"
-              className={inputClass}
-              value={values.email}
-              onChange={(e) => setField('email', e.target.value)}
-            />
-          </motion.div>
-
-          <motion.div className={fieldWrapClass}>
-            <label htmlFor="lead-phone" className="mb-1.5 block text-xs font-semibold text-navy-900">
-              Phone *
-            </label>
-            <input
-              id="lead-phone"
-              name="phone"
-              type="tel"
-              autoComplete="tel"
-              required
-              placeholder="10-digit mobile"
-              className={inputClass}
-              value={values.phone}
-              onChange={(e) => setField('phone', e.target.value)}
-            />
-          </motion.div>
-
-          <motion.div className={fieldWrapClass}>
-            <label htmlFor="lead-city" className="mb-1.5 block text-xs font-semibold text-navy-900">
-              City *
-            </label>
-            <input
-              id="lead-city"
-              name="city"
-              type="text"
-              list="lead-city-suggestions"
-              autoComplete="address-level2"
-              required
-              placeholder="Your city"
-              className={inputClass}
-              value={values.city}
-              onChange={(e) => setField('city', e.target.value)}
-            />
-            <datalist id="lead-city-suggestions">
-              {INDIAN_CITY_SUGGESTIONS.map((city) => (
-                <option key={city} value={city} />
-              ))}
-            </datalist>
-          </motion.div>
-
-          <motion.div className={`${fieldWrapClass} md:col-span-2`}>
-            <label htmlFor="lead-country" className="mb-1.5 block text-xs font-semibold text-navy-900">
-              Target country *
-            </label>
-            <select
-              id="lead-country"
-              name="targetCountry"
-              required
-              className={selectClass}
-              value={values.targetCountry}
-              onChange={(e) => setField('targetCountry', e.target.value)}
-            >
-              <option value="" disabled>
-                Select country
-              </option>
-              {MBBS_ABROAD_HERO_COUNTRY_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </motion.div>
-        </motion.div>
-
-        {submitError && (
-          <p
-            className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-            role="alert"
-          >
-            {submitError}
-          </p>
+      <form
+        id={formId}
+        onSubmit={onSubmit}
+        className={clsx('mt-5 w-full min-w-0', mobileStickyFooter ? 'space-y-4 pb-1' : 'space-y-4')}
+        noValidate
+      >
+        {mobileStickyFooter ? (
+          <>
+            <div className="space-y-4 pb-2">{fieldsBlock}</div>
+            <div className="sticky bottom-0 z-[2] -mx-4 border-t border-slate-100 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-6px_16px_rgba(15,23,42,0.07)] sm:-mx-5 sm:px-5">
+              {submitBlock}
+            </div>
+          </>
+        ) : (
+          <>
+            {fieldsBlock}
+            {submitBlock}
+          </>
         )}
-
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          className="w-full touch-manipulation rounded-lg bg-navy-900 py-3.5 font-bold text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500"
-          disabled={submitting}
-          isLoading={submitting}
-        >
-          Get free counselling
-        </Button>
-
-        <p className="text-center text-[10px] leading-snug text-slate-500">
-          By submitting, you agree to our{' '}
-          <Link
-            href="/terms"
-            className="font-medium text-navy-700 underline-offset-2 hover:text-gold-600 hover:underline"
-          >
-            Terms
-          </Link>{' '}
-          and{' '}
-          <Link
-            href="/privacy"
-            className="font-medium text-navy-700 underline-offset-2 hover:text-gold-600 hover:underline"
-          >
-            Privacy Policy
-          </Link>
-          . We use your details only to contact you about MBBS counselling.
-        </p>
       </form>
     </>
   );
@@ -718,9 +792,9 @@ export function LeadCapturePopup() {
           open={mobileOpen}
           onOpenChange={handleMobileOpenChange}
           reduceMotion={!!reduceMotion}
+          header={<PromoPanel variant="mobileSheet" />}
         >
-          <PromoPanel compact />
-          <div className="bg-white px-4 pb-2 pt-2 sm:px-5">
+          <div className="bg-white px-4 pt-2 sm:px-5">
             <LeadCaptureFormPanel
               formId={formId}
               firstFieldRef={firstFieldRef}
@@ -732,6 +806,7 @@ export function LeadCapturePopup() {
               submitError={submitError}
               dismiss={dismissMobile}
               reduceMotion={!!reduceMotion}
+              mobileStickyFooter
             />
           </div>
         </LeadCaptureMobileSheet>

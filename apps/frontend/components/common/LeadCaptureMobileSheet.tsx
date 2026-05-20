@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
@@ -8,17 +9,23 @@ export type LeadCaptureMobileSheetProps = {
   open: boolean;
   onOpenChange: (next: boolean) => void;
   reduceMotion: boolean;
-  children: React.ReactNode;
+  /** Condensed branding — keep short; capped ~28vh so the form stays usable */
+  header: ReactNode;
+  /** Form body: scrolls independently with touch-friendly momentum */
+  children: ReactNode;
 };
 
 /**
- * Full-viewport mobile sheet: one scroll parent for promo + form (no nested scroll/clipping).
- * Scrollbar styling is neutralized via `.lead-capture-mobile-scroll` in globals.css (avoids global gold thumb).
+ * Full-viewport mobile sheet: fixed outer wrapper; header region capped in height; form is the
+ * primary scroll container (`flex-1 min-h-0 overflow-y-auto`) with overscroll containment so
+ * the page behind does not steal gestures. Scrollbars use `.lead-capture-form-scroll` (thin
+ * neutral thumb — not the global gold webkit style).
  */
 export function LeadCaptureMobileSheet({
   open,
   onOpenChange,
   reduceMotion,
+  header,
   children,
 }: LeadCaptureMobileSheetProps) {
   const overlayVariants = reduceMotion
@@ -55,7 +62,7 @@ export function LeadCaptureMobileSheet({
               aria-describedby="lead-capture-desc"
             >
               <motion.div
-                className="fixed inset-0 z-[101] flex flex-col"
+                className="fixed inset-0 z-[101] flex flex-col pt-[env(safe-area-inset-top,0px)]"
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
@@ -72,7 +79,13 @@ export function LeadCaptureMobileSheet({
                     </button>
                   </Dialog.Close>
 
-                  <div className="lead-capture-mobile-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain pt-[max(3.5rem,calc(env(safe-area-inset-top,0px)+2.75rem))] pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pl-[max(0px,env(safe-area-inset-left,0px))] pr-[max(0px,env(safe-area-inset-right,0px))] [-webkit-overflow-scrolling:touch]">
+                  {/* Branding: fixed max height so the form panel is never pushed off-screen */}
+                  <div className="shrink-0 max-h-[28vh] overflow-x-hidden overflow-y-auto overscroll-y-contain border-b border-slate-100 [-webkit-overflow-scrolling:touch] [overscroll-behavior-y:contain] pl-[max(0px,env(safe-area-inset-left,0px))] pr-[max(0px,env(safe-area-inset-right,0px))] pt-[max(3.25rem,calc(env(safe-area-inset-top,0px)+2.75rem))] scrollbar-thin-lead-capture">
+                    {header}
+                  </div>
+
+                  {/* Form: single main scroll — sticky submit lives inside LeadCaptureFormPanel */}
+                  <div className="lead-capture-form-scroll flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] [overscroll-behavior-y:contain] pl-[max(0px,env(safe-area-inset-left,0px))] pr-[max(0px,env(safe-area-inset-right,0px))] pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">
                     {children}
                   </div>
                 </div>
