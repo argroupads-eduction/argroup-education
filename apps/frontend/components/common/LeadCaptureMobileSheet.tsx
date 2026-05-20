@@ -48,7 +48,7 @@ export function LeadCaptureMobileSheet({
           <Dialog.Portal forceMount>
             <Dialog.Overlay asChild forceMount>
               <motion.div
-                className="fixed inset-0 z-[100] bg-navy-950/80 backdrop-blur-[3px]"
+                className="fixed inset-0 z-[100] bg-navy-900/80 backdrop-blur-[3px]"
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
@@ -86,7 +86,7 @@ export function LeadCaptureMobileSheet({
                     </button>
                   </Dialog.Close>
 
-                  <div className="shrink-0 overflow-hidden">{header}</div>
+                  <div className="shrink-0 overflow-hidden bg-navy-900 text-white">{header}</div>
 
                   <div
                     className="h-0.5 shrink-0 bg-gradient-to-r from-transparent via-gold-400 to-transparent"
