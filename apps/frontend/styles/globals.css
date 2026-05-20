@@ -163,7 +163,7 @@
     height: 6px;
   }
 
-  /* Lead capture mobile sheet — single scroll area; hide gold global scrollbar thumb */
+  /* Lead capture mobile — avoid global `::-webkit-scrollbar` gold thumb on nested scrollers */
   .lead-capture-mobile-scroll {
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -173,6 +173,44 @@
     display: none;
     width: 0;
     height: 0;
+  }
+
+  .scrollbar-thin-lead-capture {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+
+  .scrollbar-thin-lead-capture::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  .scrollbar-thin-lead-capture::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background-color: rgb(203 213 225);
+  }
+
+  .scrollbar-thin-lead-capture::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .lead-capture-form-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+
+  .lead-capture-form-scroll::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  .lead-capture-form-scroll::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background-color: rgb(203 213 225);
+  }
+
+  .lead-capture-form-scroll::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   .mbbs-abroad-mega-menu::-webkit-scrollbar-thumb {
@@ -192,6 +230,7 @@
   }
 
   .mbbs-abroad-scroll-pin {
+    position: sticky;
     top: var(--mbbs-abroad-header-offset);
     height: calc(100dvh - var(--mbbs-abroad-header-offset));
   }

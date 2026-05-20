@@ -155,8 +155,10 @@ function CountryVisualCard({
         animate="center"
         exit="exit"
         transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-        className={`relative w-full overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br shadow-2xl shadow-black/30 ${country.gradient} ${
-          compact ? 'aspect-[5/4] max-h-[min(52vw,14rem)]' : 'aspect-[4/3] md:aspect-[5/4] lg:rounded-[2rem]'
+        className={`relative w-full overflow-hidden border border-white/20 bg-gradient-to-br shadow-2xl shadow-black/30 ${country.gradient} ${
+          compact
+            ? 'aspect-[5/4] max-h-[min(52vw,14rem)] rounded-2xl'
+            : 'aspect-[4/3] rounded-[1.75rem] md:aspect-[5/4] lg:rounded-[2rem]'
         }`}
       >
         {country.imageSrc ? (
@@ -204,9 +206,20 @@ function CountryVisualCard({
           aria-hidden
         />
 
-        <div className="absolute right-3 top-3 rounded-full border border-white/25 bg-navy-900/50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-sm md:right-6 md:top-6">
-          {String(activeIndex + 1).padStart(2, '0')}
-        </div>
+        {compact ? (
+          <div className="absolute right-3 top-3 rounded-full border border-white/25 bg-navy-900/50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-sm md:right-6 md:top-6">
+            {String(activeIndex + 1).padStart(2, '0')}
+          </div>
+        ) : (
+          <motion.div
+            className="absolute right-4 top-4 rounded-full border border-white/25 bg-navy-900/50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-sm md:right-6 md:top-6"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            {String(activeIndex + 1).padStart(2, '0')}
+          </motion.div>
+        )}
       </motion.div>
     </AnimatePresence>
   )
@@ -380,7 +393,7 @@ function MbbsAbroadScrollSectionMobile({
   )
 }
 
-/** Desktop: scroll-driven pinned steps (unchanged behaviour) */
+/** Desktop (md+): tall spacer + sticky pin; useScroll drives step index and bottom progress bar */
 function MbbsAbroadScrollSectionDesktop({
   countries,
 }: {
@@ -423,7 +436,7 @@ function MbbsAbroadScrollSectionDesktop({
       aria-label="MBBS Abroad destinations"
     >
       <motion.div
-        className={`mbbs-abroad-scroll-pin sticky z-10 flex w-full flex-col overflow-hidden ${MBBS_ABROAD_PIN_BG}`}
+        className={`mbbs-abroad-scroll-pin z-10 flex w-full flex-col overflow-hidden ${MBBS_ABROAD_PIN_BG}`}
       >
         <motion.div
           className="pointer-events-none absolute inset-0 bg-gradient-to-r from-navy-900/40 via-transparent to-navy-700/25"
