@@ -16,8 +16,8 @@ export type LeadCaptureMobileSheetProps = {
 };
 
 /**
- * Mobile lead capture: compact bottom sheet / card (max 90dvh), overflow hidden —
- * no nested scroll regions so the full form stays visible on one screen.
+ * Mobile lead capture: compact bottom sheet (max 90dvh), overflow hidden —
+ * no nested scroll so the full form stays visible on one screen.
  */
 export function LeadCaptureMobileSheet({
   open,
@@ -33,11 +33,11 @@ export function LeadCaptureMobileSheet({
   const sheetVariants = reduceMotion
     ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
     : {
-        hidden: { opacity: 0, y: 24 },
+        hidden: { opacity: 0, y: 28 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { type: 'spring' as const, stiffness: 420, damping: 34 },
+          transition: { type: 'spring' as const, stiffness: 440, damping: 36 },
         },
       };
 
@@ -48,7 +48,7 @@ export function LeadCaptureMobileSheet({
           <Dialog.Portal forceMount>
             <Dialog.Overlay asChild forceMount>
               <motion.div
-                className="fixed inset-0 z-[100] bg-navy-950/75 backdrop-blur-sm"
+                className="fixed inset-0 z-[100] bg-navy-950/80 backdrop-blur-[3px]"
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
@@ -64,17 +64,22 @@ export function LeadCaptureMobileSheet({
               aria-describedby="lead-capture-desc"
             >
               <motion.div
-                className="fixed inset-0 z-[101] flex items-end justify-center px-0 pb-0 pt-[max(0.5rem,env(safe-area-inset-top,0px))] sm:items-center sm:p-4"
+                className="fixed inset-x-0 bottom-0 z-[101] flex justify-center px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] sm:inset-0 sm:items-center sm:p-4"
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
                 variants={sheetVariants}
               >
-                <div className="relative flex max-h-[90dvh] w-full max-w-md min-h-0 flex-col overflow-hidden rounded-t-2xl border border-navy-200/20 bg-white shadow-2xl shadow-navy-900/30 sm:max-h-[min(90dvh,40rem)] sm:rounded-2xl">
+                <div className="relative flex w-full max-w-md min-h-0 max-h-[min(88dvh,36rem)] flex-col overflow-hidden rounded-t-[1.35rem] border border-navy-200/25 bg-white shadow-[0_-8px_40px_rgba(26,54,93,0.22)] sm:max-h-[min(90dvh,40rem)] sm:rounded-2xl sm:shadow-2xl sm:shadow-navy-900/30">
+                  <div
+                    className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-slate-300/90 sm:hidden"
+                    aria-hidden
+                  />
+
                   <Dialog.Close asChild>
                     <button
                       type="button"
-                      className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-navy-900/40 text-white backdrop-blur-sm transition-colors hover:bg-navy-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 touch-manipulation"
+                      className="absolute right-2.5 top-2.5 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-navy-900/50 text-white backdrop-blur-sm transition-colors hover:bg-navy-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 touch-manipulation sm:right-3 sm:top-3 sm:h-9 sm:w-9"
                       aria-label="Close lead form"
                     >
                       <X className="h-4 w-4" aria-hidden />
@@ -83,7 +88,14 @@ export function LeadCaptureMobileSheet({
 
                   <div className="shrink-0 overflow-hidden">{header}</div>
 
-                  <div className="flex min-h-0 shrink flex-col overflow-hidden">{children}</div>
+                  <div
+                    className="h-0.5 shrink-0 bg-gradient-to-r from-transparent via-gold-400 to-transparent"
+                    aria-hidden
+                  />
+
+                  <div className="flex min-h-0 shrink flex-col overflow-hidden bg-gradient-to-b from-white to-slate-50/40">
+                    {children}
+                  </div>
                 </div>
               </motion.div>
             </Dialog.Content>

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/Button';
+import { LeadCaptureFreeOfferBadge } from '@/components/common/LeadCaptureFreeOfferBadge';
 import { LeadCaptureMobileSheet } from '@/components/common/LeadCaptureMobileSheet';
 import { MBBS_ABROAD_HERO_COUNTRY_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOptions';
 import {
@@ -100,35 +101,6 @@ const inputClassMobile =
 const selectClass = `${inputClass} appearance-none bg-[length:1rem] bg-[right_0.65rem_center] bg-no-repeat pr-9 [background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231a365d'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")]`;
 
 const selectClassMobile = `${inputClassMobile} appearance-none bg-[length:0.875rem] bg-[right_0.5rem_center] bg-no-repeat pr-8 [background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231a365d'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")]`;
-
-function CounsellingPriceBadge({ compact = false }: { compact?: boolean }) {
-  return (
-    <div
-      className={clsx(
-        'flex items-center justify-center gap-2 rounded-lg border border-gold-200/80 bg-gradient-to-r from-gold-50 to-white',
-        compact ? 'px-2.5 py-1.5' : 'px-3 py-2'
-      )}
-      aria-hidden
-    >
-      <span
-        className={clsx(
-          'font-semibold text-slate-400 line-through decoration-slate-400/80',
-          compact ? 'text-xs' : 'text-sm'
-        )}
-      >
-        ₹999
-      </span>
-      <span
-        className={clsx(
-          'rounded-full bg-gold-500 font-bold uppercase tracking-wide text-navy-900 shadow-sm',
-          compact ? 'px-2 py-0.5 text-[9px]' : 'px-2.5 py-0.5 text-[10px]'
-        )}
-      >
-        Expert counselling
-      </span>
-    </div>
-  );
-}
 
 function isInputField(f: HeroMbbsFormFieldBlock): f is HeroMbbsFormFieldBlock & { name: string } {
   if (!f.name) return false;
@@ -241,9 +213,9 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
     <div
       className={clsx(
         'relative flex flex-col overflow-hidden bg-gradient-to-br from-navy-950 via-navy-900 to-navy-950 text-white',
-        isMobileSheet && 'px-4 pb-3 pt-10',
+        isMobileSheet && 'px-3.5 pb-2.5 pt-8',
         variant === 'compact' && 'px-5 py-6',
-        variant === 'default' && 'px-6 py-8 md:px-8 md:py-10'
+        variant === 'default' && 'px-7 py-9 md:px-9 md:py-10'
       )}
     >
       <motion.div
@@ -259,37 +231,29 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
         transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
       />
 
-      <p className="relative text-[10px] font-bold uppercase tracking-[0.2em] text-gold-300">
+      <p className="relative text-[10px] font-bold uppercase tracking-[0.22em] text-gold-300/95">
         AR Group of Education
       </p>
       <h2
         id="lead-capture-title"
         className={clsx(
-          'relative font-serif font-bold leading-tight text-white',
-          isMobileSheet && 'mt-0.5 pr-8 text-[15px]',
-          !isMobileSheet && 'mt-2 text-xl md:text-2xl'
+          'relative font-serif font-bold leading-snug text-white',
+          isMobileSheet && 'mt-0.5 pr-9 text-[14px] leading-tight',
+          !isMobileSheet && 'mt-2.5 text-[1.35rem] leading-tight md:text-[1.65rem]'
         )}
       >
-        {isMobileSheet ? 'MBBS abroad counselling' : 'Your MBBS abroad journey starts here'}
+        {isMobileSheet ? 'MBBS abroad experts' : 'Your MBBS abroad journey starts here'}
       </h2>
       {!isMobileSheet && (
-        <p className="relative mt-2 text-sm leading-relaxed text-navy-100/90">
-          WHO-listed universities, transparent fees, and counselling from application to campus —
+        <p className="relative mt-2.5 max-w-sm text-[13px] leading-relaxed text-navy-100/90 md:text-sm">
+          WHO-listed universities, transparent fees, and expert guidance from application to campus —
           trusted by thousands of Indian medical aspirants.
         </p>
       )}
 
       {isMobileSheet ? (
-        <p className="relative mt-1.5 text-[10px] font-medium leading-snug text-gold-100/95">
-          <span className="whitespace-nowrap">WHO-listed</span>
-          <span className="mx-1 text-white/35" aria-hidden>
-            ·
-          </span>
-          <span className="whitespace-nowrap">Low fees</span>
-          <span className="mx-1 text-white/35" aria-hidden>
-            ·
-          </span>
-          <span className="whitespace-nowrap">Visa support</span>
+        <p className="relative mt-1 text-[10px] font-medium leading-snug text-gold-100/90">
+          WHO-listed · Low fees · Visa support
         </p>
       ) : (
         <ul className="relative mt-5 flex flex-wrap gap-2">
@@ -307,25 +271,40 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
 
       {!isMobileSheet && (
       <motion.div
-        className="relative mt-6 min-h-[7rem] flex-1 rounded-xl border border-white/10 bg-navy-950/40 p-3 backdrop-blur-sm"
+        className="relative mt-7 min-h-[7.5rem] flex-1 rounded-xl border border-white/12 bg-gradient-to-b from-navy-950/50 to-navy-900/30 p-3.5 shadow-inner shadow-black/20 backdrop-blur-sm"
         aria-hidden
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.4 }}
       >
-        <Globe2 className="absolute left-3 top-3 h-5 w-5 text-gold-400/80" />
+        <Globe2 className="absolute left-3.5 top-3.5 h-5 w-5 text-gold-400/90" />
         <svg
           viewBox="0 0 320 140"
-          className="mx-auto mt-1 h-full w-full max-w-[280px] text-navy-600/80"
+          className="mx-auto mt-0.5 h-full w-full max-w-[292px] text-navy-600/80"
           fill="currentColor"
         >
-          <ellipse cx="160" cy="72" rx="130" ry="52" className="fill-navy-700/50" />
+          <defs>
+            <radialGradient id="lead-map-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="currentColor" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <ellipse cx="160" cy="72" rx="128" ry="50" className="fill-navy-700/55" />
+          <ellipse cx="160" cy="72" rx="90" ry="32" fill="url(#lead-map-glow)" className="text-gold-500/20" />
           <path
-            d="M40 72 Q100 48 160 72 T280 72"
+            d="M36 74 Q95 46 160 70 T284 74"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1"
-            className="text-gold-500/25"
+            strokeWidth="1.25"
+            strokeDasharray="4 3"
+            className="text-gold-400/35"
+          />
+          <path
+            d="M55 58 Q120 38 200 52 T265 88"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="0.75"
+            className="text-teal-300/20"
           />
         </svg>
         <ul className="absolute inset-0">
@@ -362,9 +341,12 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       )}
 
       {!isMobileSheet && (
-        <p className="relative mt-5 rounded-lg border border-gold-500/30 bg-gold-500/10 px-3 py-2 text-center text-xs font-semibold text-gold-100">
-          Limited seats — speak with AR experts today
-        </p>
+        <div className="relative mt-5 flex flex-col items-center gap-2 rounded-xl border border-gold-500/25 bg-gradient-to-r from-navy-900/60 via-gold-500/10 to-navy-900/60 px-3 py-2.5">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-gold-200/95">
+            Limited seats
+          </p>
+          <LeadCaptureFreeOfferBadge />
+        </div>
       )}
 
       {!isMobileSheet && (
@@ -453,8 +435,8 @@ function LeadCaptureFormPanel({
     <>
       <motion.div
         className={clsx(
-          'grid w-full min-w-0 grid-cols-1',
-          isMobile ? 'gap-2.5' : 'gap-4 md:grid-cols-2'
+          'grid w-full min-w-0',
+          isMobile ? 'grid-cols-2 gap-2' : 'grid-cols-1 gap-3.5 md:grid-cols-2 md:gap-4'
         )}
         initial={reduceMotion ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -535,7 +517,7 @@ function LeadCaptureFormPanel({
           </datalist>
         </motion.div>
 
-        <motion.div className={clsx(fieldWrapClass, !isMobile && 'md:col-span-2')}>
+        <motion.div className={clsx(fieldWrapClass, 'col-span-2')}>
           <label htmlFor="lead-country" className={labelClass}>
             Target country *
           </label>
@@ -575,19 +557,26 @@ function LeadCaptureFormPanel({
 
   const submitBlock = (
     <>
-      <CounsellingPriceBadge compact={isMobile} />
+      <div
+        className={clsx(
+          'flex items-center justify-center',
+          isMobile ? 'py-0.5' : 'rounded-lg border border-emerald-100/80 bg-emerald-50/40 py-2'
+        )}
+      >
+        <LeadCaptureFreeOfferBadge compact={isMobile} />
+      </div>
       <Button
         type="submit"
         variant="primary"
         size={isMobile ? 'sm' : 'md'}
         className={clsx(
           'w-full touch-manipulation rounded-lg bg-navy-900 font-bold text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500',
-          isMobile ? 'py-2.5 text-sm' : 'py-3.5'
+          isMobile ? 'py-2 text-sm' : 'py-3.5'
         )}
         disabled={submitting}
         isLoading={submitting}
       >
-        Get free counselling
+        Get <span className="font-extrabold text-gold-300">free</span> counselling
       </Button>
 
       <p className="text-center text-[10px] leading-snug text-slate-500">
@@ -623,11 +612,11 @@ function LeadCaptureFormPanel({
         <form
           id={formId}
           onSubmit={onSubmit}
-          className="flex w-full min-w-0 flex-col gap-2.5 overflow-hidden px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-2.5"
+          className="flex w-full min-w-0 flex-col gap-2 overflow-hidden px-3.5 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2"
           noValidate
         >
           {fieldsBlock}
-          <div className="space-y-2 border-t border-slate-100 pt-2">{submitBlock}</div>
+          <div className="space-y-1.5 border-t border-slate-100/90 pt-1.5">{submitBlock}</div>
         </form>
       </>
     );
@@ -635,14 +624,17 @@ function LeadCaptureFormPanel({
 
   return (
     <>
-      <Dialog.Title className="pr-10 font-serif text-xl font-bold text-navy-900 md:pr-0 md:text-2xl">
+      <Dialog.Title className="pr-10 font-serif text-[1.35rem] font-bold leading-tight text-navy-900 md:pr-0 md:text-[1.65rem]">
         Looking for MBBS Abroad?
       </Dialog.Title>
-      <Dialog.Description id="lead-capture-desc" className="mt-1 text-sm text-slate-600">
-        AR Group of Education — share your details and our counsellors will call you back.
+      <Dialog.Description id="lead-capture-desc" className="mt-1.5 text-[13px] leading-relaxed text-slate-600 md:text-sm">
+        Share your details — AR Group counsellors will call you with tailored university options.
       </Dialog.Description>
+      <div className="mt-3 flex justify-start">
+        <LeadCaptureFreeOfferBadge />
+      </div>
 
-      <form id={formId} onSubmit={onSubmit} className="mt-5 w-full min-w-0 space-y-4" noValidate>
+      <form id={formId} onSubmit={onSubmit} className="mt-4 w-full min-w-0 space-y-3.5" noValidate>
         {fieldsBlock}
         <div className="space-y-3">{submitBlock}</div>
       </form>
@@ -900,7 +892,7 @@ export function LeadCapturePopup() {
                   >
                     <motion.div
                       role="document"
-                      className="relative flex h-[100dvh] max-h-[100dvh] min-h-0 w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl shadow-navy-900/30 sm:h-auto sm:max-h-[90vh] sm:rounded-2xl md:flex-row"
+                      className="relative flex h-[100dvh] max-h-[100dvh] min-h-0 w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5 sm:h-auto sm:max-h-[min(90vh,44rem)] sm:rounded-2xl md:flex-row"
                       layout={!reduceMotion}
                     >
                       <Dialog.Close asChild>
@@ -915,7 +907,7 @@ export function LeadCapturePopup() {
                       </Dialog.Close>
 
                       <motion.div
-                        className="max-h-[40vh] w-full shrink-0 overflow-y-auto overscroll-contain sm:max-h-none md:w-[40%]"
+                        className="max-h-[40vh] w-full shrink-0 overflow-hidden sm:max-h-none md:w-[42%]"
                         initial={reduceMotion ? false : { opacity: 0, x: -12 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.05, duration: 0.35 }}
@@ -923,9 +915,9 @@ export function LeadCapturePopup() {
                         <PromoPanel />
                       </motion.div>
 
-                      <div className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white md:w-[60%] md:overflow-y-visible">
+                      <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-white md:w-[58%]">
                         <motion.div
-                          className="min-w-0 w-full px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pt-14 sm:px-7 sm:py-8 sm:pb-8 sm:pt-6"
+                          className="min-w-0 w-full overflow-y-auto overflow-x-hidden px-5 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pt-14 sm:px-8 sm:py-8 sm:pb-8 sm:pt-7 md:overflow-y-visible"
                           initial={reduceMotion ? false : { opacity: 0, x: 12 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.08, duration: 0.35 }}
