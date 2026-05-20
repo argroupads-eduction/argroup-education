@@ -38,12 +38,12 @@ export function LeadCaptureMobileSheet({
   const sheetVariants = reduceMotion
     ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
     : {
-        hidden: { opacity: 0, y: 12, scale: 0.97 },
+        hidden: { opacity: 0, y: 28, scale: 0.94 },
         visible: {
           opacity: 1,
           y: 0,
           scale: 1,
-          transition: { type: 'spring' as const, stiffness: 440, damping: 36 },
+          transition: { type: 'spring' as const, stiffness: 420, damping: 34, mass: 0.85 },
         },
       };
 
@@ -69,14 +69,14 @@ export function LeadCaptureMobileSheet({
               aria-labelledby="lead-capture-title"
               aria-describedby="lead-capture-desc"
             >
-              <motion.div
-                className="fixed inset-0 z-[101] flex items-center justify-center px-4 py-[max(0.75rem,env(safe-area-inset-top,0px))] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]"
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                variants={sheetVariants}
-              >
-                <div className="relative flex w-full max-w-[min(100%,22.5rem)] min-h-0 max-h-[min(88dvh,36rem)] flex-col overflow-hidden rounded-2xl border border-navy-200/20 bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5">
+              <div className="fixed inset-0 z-[101] flex items-center justify-center px-4 py-[max(0.75rem,env(safe-area-inset-top,0px))] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">
+                <motion.div
+                  className="relative flex w-full max-w-[min(100%,22.5rem)] min-h-0 max-h-[min(88dvh,36rem)] flex-col overflow-hidden rounded-2xl border border-navy-200/20 bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5"
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  variants={sheetVariants}
+                >
                   <Dialog.Title id="lead-capture-title" className="sr-only">
                     {title}
                   </Dialog.Title>
@@ -102,8 +102,8 @@ export function LeadCaptureMobileSheet({
                   <div className="flex min-h-0 shrink flex-col overflow-hidden bg-gradient-to-b from-white to-slate-50/40">
                     {children}
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </div>
             </Dialog.Content>
           </Dialog.Portal>
         )}
