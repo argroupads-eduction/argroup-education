@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/Button';
-import { LeadCaptureFreeOfferBadge } from '@/components/common/LeadCaptureFreeOfferBadge';
+import { LeadCapturePromoBanner } from '@/components/common/LeadCapturePromoBanner';
 import { LeadCaptureMobileSheet } from '@/components/common/LeadCaptureMobileSheet';
 import { MBBS_ABROAD_HERO_COUNTRY_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOptions';
 import {
@@ -54,7 +54,20 @@ const TRUST_BULLETS = [
   'Visa, documentation & pre-departure briefing',
 ] as const;
 
-const PIN_COUNTRIES = MBBS_ABROAD_HERO_COUNTRY_OPTIONS.slice(0, 10);
+/** Map pins: abroad destinations + India (origin hub). */
+const LEAD_MAP_PINS = [
+  ...MBBS_ABROAD_HERO_COUNTRY_OPTIONS,
+  { label: 'India', value: 'India' },
+] as const;
+
+const LEAD_MAP_PIN_POSITIONS = [
+  { top: '18%', left: '22%' },
+  { top: '48%', left: '42%' },
+  { top: '32%', left: '52%' },
+  { top: '22%', left: '48%' },
+  { top: '38%', left: '28%' },
+  { top: '58%', left: '55%' },
+] as const;
 
 const INDIAN_CITY_SUGGESTIONS = [
   'Mumbai',
@@ -310,20 +323,8 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
           />
         </svg>
         <ul className="absolute inset-0">
-          {PIN_COUNTRIES.map((c, i) => {
-            const positions = [
-              { top: '18%', left: '22%' },
-              { top: '28%', left: '48%' },
-              { top: '22%', left: '72%' },
-              { top: '42%', left: '18%' },
-              { top: '48%', left: '38%' },
-              { top: '44%', left: '58%' },
-              { top: '40%', left: '78%' },
-              { top: '62%', left: '30%' },
-              { top: '68%', left: '52%' },
-              { top: '58%', left: '70%' },
-            ];
-            const pos = positions[i % positions.length];
+          {LEAD_MAP_PINS.map((c, i) => {
+            const pos = LEAD_MAP_PIN_POSITIONS[i % LEAD_MAP_PIN_POSITIONS.length];
             return (
               <motion.li
                 key={c.value}
@@ -342,14 +343,9 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       </motion.div>
       )}
 
-      {!isMobileSheet && (
-        <div className="relative mt-5 flex flex-col items-center gap-2 rounded-xl border border-gold-500/25 bg-gradient-to-r from-navy-900/60 via-gold-500/10 to-navy-900/60 px-3 py-2.5">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-gold-200/95">
-            Limited seats
-          </p>
-          <LeadCaptureFreeOfferBadge />
-        </div>
-      )}
+      <div className={clsx('relative', isMobileSheet ? 'mt-2.5' : 'mt-5')}>
+        <LeadCapturePromoBanner compact={isMobileSheet} />
+      </div>
 
       {!isMobileSheet && (
         <ul className="relative mt-4 space-y-1.5">
@@ -559,23 +555,18 @@ function LeadCaptureFormPanel({
 
   const submitBlock = (
     <>
-      {isMobile && (
-        <div className="flex items-center justify-center py-0.5">
-          <LeadCaptureFreeOfferBadge compact />
-        </div>
-      )}
       <Button
         type="submit"
         variant="primary"
         size={isMobile ? 'sm' : 'md'}
         className={clsx(
-          'w-full touch-manipulation rounded-lg bg-navy-900 font-bold text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500',
+          'w-full touch-manipulation rounded-lg bg-navy-900 font-bold uppercase tracking-wide text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500',
           isMobile ? 'py-2 text-sm' : 'py-3.5'
         )}
         disabled={submitting}
         isLoading={submitting}
       >
-        Get <span className="font-extrabold text-gold-300">free</span> counselling
+        SUBMIT
       </Button>
 
       <p className="text-center text-[10px] leading-snug text-slate-500">
