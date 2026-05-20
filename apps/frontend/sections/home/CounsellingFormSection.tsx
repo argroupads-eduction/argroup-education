@@ -63,7 +63,7 @@ export const CounsellingFormSection = () => {
           <div className="relative grid items-start gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-14">
             <div className="lg:pr-2">
               <span className="inline-flex items-center rounded-full border border-gold-200 bg-gold-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-gold-800">
-                Free counselling available
+                Expert counselling available
               </span>
 
               <h2 className="mt-4 font-serif text-2xl font-bold leading-tight text-navy-900 md:text-3xl lg:text-[2rem]">
@@ -126,7 +126,7 @@ export const CounsellingFormSection = () => {
             >
               <div className="mb-3 border-l-4 border-gold-500 pl-3">
                 <h3 className="font-serif text-lg font-bold text-navy-900">
-                  Book free counselling
+                  Book counselling
                 </h3>
                 <p className="mt-0.5 text-xs text-slate-500">
                   Quick form — we reply within 24 hours

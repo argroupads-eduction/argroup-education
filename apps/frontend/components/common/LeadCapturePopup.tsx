@@ -94,7 +94,41 @@ const fieldWrapClass = 'min-w-0 w-full';
 const inputClass =
   'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 font-body text-base text-navy-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20';
 
+const inputClassMobile =
+  'w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 py-2 font-body text-sm text-navy-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20';
+
 const selectClass = `${inputClass} appearance-none bg-[length:1rem] bg-[right_0.65rem_center] bg-no-repeat pr-9 [background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231a365d'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")]`;
+
+const selectClassMobile = `${inputClassMobile} appearance-none bg-[length:0.875rem] bg-[right_0.5rem_center] bg-no-repeat pr-8 [background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231a365d'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")]`;
+
+function CounsellingPriceBadge({ compact = false }: { compact?: boolean }) {
+  return (
+    <div
+      className={clsx(
+        'flex items-center justify-center gap-2 rounded-lg border border-gold-200/80 bg-gradient-to-r from-gold-50 to-white',
+        compact ? 'px-2.5 py-1.5' : 'px-3 py-2'
+      )}
+      aria-hidden
+    >
+      <span
+        className={clsx(
+          'font-semibold text-slate-400 line-through decoration-slate-400/80',
+          compact ? 'text-xs' : 'text-sm'
+        )}
+      >
+        ₹999
+      </span>
+      <span
+        className={clsx(
+          'rounded-full bg-gold-500 font-bold uppercase tracking-wide text-navy-900 shadow-sm',
+          compact ? 'px-2 py-0.5 text-[9px]' : 'px-2.5 py-0.5 text-[10px]'
+        )}
+      >
+        Expert counselling
+      </span>
+    </div>
+  );
+}
 
 function isInputField(f: HeroMbbsFormFieldBlock): f is HeroMbbsFormFieldBlock & { name: string } {
   if (!f.name) return false;
@@ -206,8 +240,8 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
   return (
     <div
       className={clsx(
-        'relative flex flex-col overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white',
-        isMobileSheet && 'px-4 py-3',
+        'relative flex flex-col overflow-hidden bg-gradient-to-br from-navy-950 via-navy-900 to-navy-950 text-white',
+        isMobileSheet && 'px-4 pb-3 pt-10',
         variant === 'compact' && 'px-5 py-6',
         variant === 'default' && 'px-6 py-8 md:px-8 md:py-10'
       )}
@@ -231,35 +265,31 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       <h2
         id="lead-capture-title"
         className={clsx(
-          'relative mt-2 font-serif font-bold leading-tight text-white',
-          isMobileSheet && 'mt-1 text-base',
+          'relative font-serif font-bold leading-tight text-white',
+          isMobileSheet && 'mt-0.5 pr-8 text-[15px]',
           !isMobileSheet && 'mt-2 text-xl md:text-2xl'
         )}
       >
-        Your MBBS abroad journey starts here
+        {isMobileSheet ? 'MBBS abroad counselling' : 'Your MBBS abroad journey starts here'}
       </h2>
-      <p
-        className={clsx(
-          'relative text-navy-100/90',
-          isMobileSheet && 'mt-1 line-clamp-2 text-[11px] leading-snug',
-          !isMobileSheet && 'mt-2 text-sm leading-relaxed'
-        )}
-      >
-        WHO-listed universities, transparent fees, and counselling from application to campus —
-        trusted by thousands of Indian medical aspirants.
-      </p>
+      {!isMobileSheet && (
+        <p className="relative mt-2 text-sm leading-relaxed text-navy-100/90">
+          WHO-listed universities, transparent fees, and counselling from application to campus —
+          trusted by thousands of Indian medical aspirants.
+        </p>
+      )}
 
       {isMobileSheet ? (
-        <p className="relative mt-2 text-[10px] font-medium leading-snug text-gold-100/95">
+        <p className="relative mt-1.5 text-[10px] font-medium leading-snug text-gold-100/95">
           <span className="whitespace-nowrap">WHO-listed</span>
-          <span className="mx-1 text-white/40" aria-hidden>
+          <span className="mx-1 text-white/35" aria-hidden>
             ·
           </span>
           <span className="whitespace-nowrap">Low fees</span>
-          <span className="mx-1 text-white/40" aria-hidden>
+          <span className="mx-1 text-white/35" aria-hidden>
             ·
           </span>
-          <span className="whitespace-nowrap">Full support</span>
+          <span className="whitespace-nowrap">Visa support</span>
         </p>
       ) : (
         <ul className="relative mt-5 flex flex-wrap gap-2">
@@ -331,14 +361,11 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       </motion.div>
       )}
 
-      <p
-        className={clsx(
-          'relative rounded-lg border border-gold-500/30 bg-gold-500/10 px-2.5 py-1.5 text-center font-semibold text-gold-100',
-          isMobileSheet ? 'mt-2 text-[10px] leading-tight' : 'mt-5 px-3 py-2 text-xs'
-        )}
-      >
-        Limited seats — book free counselling with AR experts today
-      </p>
+      {!isMobileSheet && (
+        <p className="relative mt-5 rounded-lg border border-gold-500/30 bg-gold-500/10 px-3 py-2 text-center text-xs font-semibold text-gold-100">
+          Limited seats — speak with AR experts today
+        </p>
+      )}
 
       {!isMobileSheet && (
         <ul className="relative mt-4 space-y-1.5">
@@ -365,8 +392,7 @@ type LeadCaptureFormPanelProps = {
   submitError: string | null;
   dismiss: () => void;
   reduceMotion: boolean;
-  /** Mobile sheet: sticky submit + legal footer inside the sheet scroll region */
-  mobileStickyFooter?: boolean;
+  variant?: 'desktop' | 'mobile';
 };
 
 function LeadCaptureFormPanel({
@@ -380,26 +406,41 @@ function LeadCaptureFormPanel({
   submitError,
   dismiss,
   reduceMotion,
-  mobileStickyFooter = false,
+  variant = 'desktop',
 }: LeadCaptureFormPanelProps) {
+  const isMobile = variant === 'mobile';
+  const labelClass = isMobile
+    ? 'mb-1 block text-[11px] font-semibold text-navy-900'
+    : 'mb-1.5 block text-xs font-semibold text-navy-900';
+  const fieldInputClass = isMobile ? inputClassMobile : inputClass;
+  const fieldSelectClass = isMobile ? selectClassMobile : selectClass;
+
   if (submitted) {
     return (
       <motion.div
-        className="flex min-h-[240px] flex-col items-center justify-center py-8 text-center"
+        className={clsx(
+          'flex flex-col items-center justify-center text-center',
+          isMobile ? 'px-4 py-6' : 'min-h-[240px] py-8'
+        )}
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        <CheckCircle2 className="mb-4 h-14 w-14 text-emerald-500" aria-hidden />
-        <h3 className="font-serif text-2xl font-bold text-navy-900">Thank you!</h3>
-        <p className="mt-2 max-w-sm text-sm text-slate-600">
+        <CheckCircle2
+          className={clsx('text-emerald-500', isMobile ? 'mb-3 h-12 w-12' : 'mb-4 h-14 w-14')}
+          aria-hidden
+        />
+        <h3 className={clsx('font-serif font-bold text-navy-900', isMobile ? 'text-xl' : 'text-2xl')}>
+          Thank you!
+        </h3>
+        <p className={clsx('mt-2 max-w-sm text-slate-600', isMobile ? 'text-xs' : 'text-sm')}>
           Our counsellors will contact you within 24 hours with MBBS abroad options tailored to your
           profile.
         </p>
         <Button
           type="button"
           variant="navy"
-          size="md"
-          className="mt-6 bg-navy-900 hover:bg-navy-800"
+          size={isMobile ? 'sm' : 'md'}
+          className={clsx('bg-navy-900 hover:bg-navy-800', isMobile ? 'mt-4' : 'mt-6')}
           onClick={dismiss}
         >
           Continue browsing
@@ -411,13 +452,16 @@ function LeadCaptureFormPanel({
   const fieldsBlock = (
     <>
       <motion.div
-        className="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-2"
+        className={clsx(
+          'grid w-full min-w-0 grid-cols-1',
+          isMobile ? 'gap-2.5' : 'gap-4 md:grid-cols-2'
+        )}
         initial={reduceMotion ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.12 }}
       >
         <motion.div className={fieldWrapClass}>
-          <label htmlFor="lead-fullName" className="mb-1.5 block text-xs font-semibold text-navy-900">
+          <label htmlFor="lead-fullName" className={labelClass}>
             Full name *
           </label>
           <input
@@ -428,14 +472,14 @@ function LeadCaptureFormPanel({
             autoComplete="name"
             required
             placeholder="Your full name"
-            className={inputClass}
+            className={fieldInputClass}
             value={values.fullName}
             onChange={(e) => setField('fullName', e.target.value)}
           />
         </motion.div>
 
         <motion.div className={fieldWrapClass}>
-          <label htmlFor="lead-email" className="mb-1.5 block text-xs font-semibold text-navy-900">
+          <label htmlFor="lead-email" className={labelClass}>
             Email *
           </label>
           <input
@@ -445,14 +489,14 @@ function LeadCaptureFormPanel({
             autoComplete="email"
             required
             placeholder="you@email.com"
-            className={inputClass}
+            className={fieldInputClass}
             value={values.email}
             onChange={(e) => setField('email', e.target.value)}
           />
         </motion.div>
 
         <motion.div className={fieldWrapClass}>
-          <label htmlFor="lead-phone" className="mb-1.5 block text-xs font-semibold text-navy-900">
+          <label htmlFor="lead-phone" className={labelClass}>
             Phone *
           </label>
           <input
@@ -462,14 +506,14 @@ function LeadCaptureFormPanel({
             autoComplete="tel"
             required
             placeholder="10-digit mobile"
-            className={inputClass}
+            className={fieldInputClass}
             value={values.phone}
             onChange={(e) => setField('phone', e.target.value)}
           />
         </motion.div>
 
         <motion.div className={fieldWrapClass}>
-          <label htmlFor="lead-city" className="mb-1.5 block text-xs font-semibold text-navy-900">
+          <label htmlFor="lead-city" className={labelClass}>
             City *
           </label>
           <input
@@ -480,7 +524,7 @@ function LeadCaptureFormPanel({
             autoComplete="address-level2"
             required
             placeholder="Your city"
-            className={inputClass}
+            className={fieldInputClass}
             value={values.city}
             onChange={(e) => setField('city', e.target.value)}
           />
@@ -491,15 +535,15 @@ function LeadCaptureFormPanel({
           </datalist>
         </motion.div>
 
-        <motion.div className={`${fieldWrapClass} md:col-span-2`}>
-          <label htmlFor="lead-country" className="mb-1.5 block text-xs font-semibold text-navy-900">
+        <motion.div className={clsx(fieldWrapClass, !isMobile && 'md:col-span-2')}>
+          <label htmlFor="lead-country" className={labelClass}>
             Target country *
           </label>
           <select
             id="lead-country"
             name="targetCountry"
             required
-            className={selectClass}
+            className={fieldSelectClass}
             value={values.targetCountry}
             onChange={(e) => setField('targetCountry', e.target.value)}
           >
@@ -517,7 +561,10 @@ function LeadCaptureFormPanel({
 
       {submitError && (
         <p
-          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className={clsx(
+            'rounded-lg border border-red-200 bg-red-50 text-red-700',
+            isMobile ? 'px-2.5 py-1.5 text-xs' : 'px-3 py-2 text-sm'
+          )}
           role="alert"
         >
           {submitError}
@@ -528,11 +575,15 @@ function LeadCaptureFormPanel({
 
   const submitBlock = (
     <>
+      <CounsellingPriceBadge compact={isMobile} />
       <Button
         type="submit"
         variant="primary"
-        size="md"
-        className="w-full touch-manipulation rounded-lg bg-navy-900 py-3.5 font-bold text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500"
+        size={isMobile ? 'sm' : 'md'}
+        className={clsx(
+          'w-full touch-manipulation rounded-lg bg-navy-900 font-bold text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500',
+          isMobile ? 'py-2.5 text-sm' : 'py-3.5'
+        )}
         disabled={submitting}
         isLoading={submitting}
       >
@@ -559,34 +610,41 @@ function LeadCaptureFormPanel({
     </>
   );
 
+  if (isMobile) {
+    return (
+      <>
+        <Dialog.Description
+          id="lead-capture-desc"
+          className="sr-only"
+        >
+          AR Group MBBS abroad counselling — enter your details for a callback.
+        </Dialog.Description>
+
+        <form
+          id={formId}
+          onSubmit={onSubmit}
+          className="flex w-full min-w-0 flex-col gap-2.5 overflow-hidden px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-2.5"
+          noValidate
+        >
+          {fieldsBlock}
+          <div className="space-y-2 border-t border-slate-100 pt-2">{submitBlock}</div>
+        </form>
+      </>
+    );
+  }
+
   return (
     <>
       <Dialog.Title className="pr-10 font-serif text-xl font-bold text-navy-900 md:pr-0 md:text-2xl">
         Looking for MBBS Abroad?
       </Dialog.Title>
       <Dialog.Description id="lead-capture-desc" className="mt-1 text-sm text-slate-600">
-        Free counselling — AR Group of Education. Fill in your details below.
+        AR Group of Education — share your details and our counsellors will call you back.
       </Dialog.Description>
 
-      <form
-        id={formId}
-        onSubmit={onSubmit}
-        className={clsx('mt-5 w-full min-w-0', mobileStickyFooter ? 'space-y-4 pb-1' : 'space-y-4')}
-        noValidate
-      >
-        {mobileStickyFooter ? (
-          <>
-            <div className="space-y-4 pb-2">{fieldsBlock}</div>
-            <div className="sticky bottom-0 z-[2] -mx-4 border-t border-slate-100 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-6px_16px_rgba(15,23,42,0.07)] sm:-mx-5 sm:px-5">
-              {submitBlock}
-            </div>
-          </>
-        ) : (
-          <>
-            {fieldsBlock}
-            {submitBlock}
-          </>
-        )}
+      <form id={formId} onSubmit={onSubmit} className="mt-5 w-full min-w-0 space-y-4" noValidate>
+        {fieldsBlock}
+        <div className="space-y-3">{submitBlock}</div>
       </form>
     </>
   );
@@ -794,21 +852,19 @@ export function LeadCapturePopup() {
           reduceMotion={!!reduceMotion}
           header={<PromoPanel variant="mobileSheet" />}
         >
-          <div className="bg-white px-4 pt-2 sm:px-5">
-            <LeadCaptureFormPanel
-              formId={formId}
-              firstFieldRef={firstFieldRef}
-              values={values}
-              setField={setField}
-              onSubmit={onSubmit}
-              submitted={submitted}
-              submitting={submitting}
-              submitError={submitError}
-              dismiss={dismissMobile}
-              reduceMotion={!!reduceMotion}
-              mobileStickyFooter
-            />
-          </div>
+          <LeadCaptureFormPanel
+            formId={formId}
+            firstFieldRef={firstFieldRef}
+            values={values}
+            setField={setField}
+            onSubmit={onSubmit}
+            submitted={submitted}
+            submitting={submitting}
+            submitError={submitError}
+            dismiss={dismissMobile}
+            reduceMotion={!!reduceMotion}
+            variant="mobile"
+          />
         </LeadCaptureMobileSheet>
       )}
 
