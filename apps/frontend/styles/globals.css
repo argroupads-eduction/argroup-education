@@ -182,6 +182,11 @@
     height: calc(100dvh - var(--mbbs-abroad-header-offset));
   }
 
+  /* Mobile: natural height — no sticky pin / overflow clip */
+  .mbbs-abroad-mobile-panel {
+    overflow: visible;
+  }
+
   .mbbs-abroad-country-watermark {
     word-break: break-word;
     hyphens: auto;
