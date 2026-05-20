@@ -42,7 +42,7 @@ export const CounsellingFormSection = () => {
   return (
     <section
       id="free-counselling"
-      className="relative overflow-hidden bg-gradient-to-b from-navy-50/80 via-white to-gold-50/40 py-14 md:py-20"
+      className="relative z-20 overflow-hidden bg-gradient-to-b from-navy-50/80 via-white to-gold-50/40 py-14 md:py-20"
     >
       <div
         className="pointer-events-none absolute -right-24 top-8 h-72 w-72 rounded-full bg-navy-400/8 blur-3xl"

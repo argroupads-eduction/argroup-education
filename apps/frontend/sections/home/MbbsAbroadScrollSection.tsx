@@ -399,9 +399,14 @@ function MbbsAbroadScrollSectionDesktop({
 
   const progressWidth = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
 
+  const scrollSteps = Math.max(1, count - 1)
+
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     const clamped = Math.min(0.999999, Math.max(0, v))
-    const idx = Math.min(count - 1, Math.floor(clamped * count))
+    const idx =
+      count <= 1
+        ? 0
+        : Math.min(count - 1, Math.floor(clamped * scrollSteps))
     if (idx !== prevIndexRef.current) {
       setDirection(idx > prevIndexRef.current ? 1 : -1)
       prevIndexRef.current = idx
@@ -409,16 +414,20 @@ function MbbsAbroadScrollSectionDesktop({
     setActiveIndex(idx)
   })
 
+  /** One viewport per transition (N countries → N−1 steps), no white tail after last slide */
   const sectionHeight = useMemo(
-    () => `calc(${count} * (100dvh - var(--mbbs-abroad-header-offset, 4.5rem)))`,
-    [count],
+    () =>
+      count <= 1
+        ? 'calc(100dvh - var(--mbbs-abroad-header-offset, 4.5rem))'
+        : `calc(${scrollSteps} * (100dvh - var(--mbbs-abroad-header-offset, 4.5rem)))`,
+    [count, scrollSteps],
   )
   const country = countries[activeIndex]
 
   return (
     <section
       ref={containerRef}
-      className="mbbs-abroad-scroll-section relative hidden scroll-mt-32 bg-transparent md:block"
+      className={`mbbs-abroad-scroll-section relative hidden scroll-mt-32 md:block ${MBBS_ABROAD_PIN_BG}`}
       style={{ height: sectionHeight }}
       aria-label="MBBS Abroad destinations"
     >
