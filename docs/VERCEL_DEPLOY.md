@@ -1,32 +1,42 @@
 # Vercel deployment (AR Group monorepo)
 
-## **Choose one deploy mode (required)**
+## **Deploy mode (required)**
 
-| Mode | Vercel **Root Directory** | Config file used |
-|------|---------------------------|------------------|
-| **A — preferred** | `apps/frontend` | `apps/frontend/vercel.json` |
-| **B — fallback** | *(empty / repo root)* | root `vercel.json` |
+This monorepo deploys **only** with **Root Directory = `apps/frontend`**. There is no root `vercel.json` — building from the repo root without Root Directory fails because `.next` is created at `apps/frontend/.next`, not at the repository root.
 
-**If you see “No Next.js version detected”, the Root Directory does not match the mode above.** Fix Root Directory, save, then **Redeploy** the latest `main` commit (not an old SHA like `1bbf796`).
+| Setting | Required value |
+|--------|----------------|
+| **Root Directory** | `apps/frontend` |
+| **Config file** | `apps/frontend/vercel.json` |
+
+**If you see “No Next.js version detected” or “The Next.js output directory `.next` was not found”**, Root Directory is wrong or Output Directory is overridden in the dashboard. Fix both, save, then **Redeploy** the latest `main` commit.
 
 ### **Fix now (do these in order)**
 
-1. **Deployments** → open the failed deployment → confirm the commit is **`e901a3b0` or newer** on `main`. If it shows `1bbf796` or older, go to **Deployments** → **Create Deployment** → branch **`main`** → deploy latest (or push a new commit and wait for auto-deploy).
-2. **Settings** → **General** → **Root Directory** → pick **one** mode from the table below and **Save**.
+1. **Deployments** → open the failed deployment → confirm the commit is the latest on `main`.
+2. **Settings** → **General** → **Root Directory** → set exactly **`apps/frontend`** → **Save**.
 3. **Settings** → **General** → **Build & Development Settings** → set **Node.js Version** to **20.x** (or leave default if `engines` in `apps/frontend/package.json` applies).
-4. **Clear dashboard overrides** that fight `vercel.json`: leave **Install Command**, **Build Command**, and **Output Directory** **empty** unless you intentionally override (empty = use repo `vercel.json`).
+4. **Clear dashboard overrides** that fight `apps/frontend/vercel.json`: leave **Install Command**, **Build Command**, and **Output Directory** **empty** (empty = use repo config). **Never** set Output Directory to `apps/frontend/.next` or `.next` alone — that breaks static files from `public/`.
 5. **Deployments** → latest → **⋮** → **Redeploy** (prefer **without** reusing cache after Root Directory or `vercel.json` changes).
 
 ---
 
-## Mandatory: Root Directory = `apps/frontend` (Mode A)
+## Mandatory: Root Directory = `apps/frontend`
 
-**Recommended for this repo.** Without it, Vercel must use **Mode B** (repo root + root `vercel.json`). If Root Directory is wrong or an old commit is deployed, you will see a failed build like:
+If Root Directory is empty (repo root) or an old commit is deployed, builds fail with errors like:
 
 ```text
 Warning: Could not identify Next.js version, ensure it is defined as a project dependency.
 Error: No Next.js version detected. Make sure your package.json has "next" in either "dependencies" or "devDependencies".
 ```
+
+Or after removing a root `outputDirectory` override (commit `3f5b40aa`+):
+
+```text
+Error: The Next.js output directory ".next" was not found at "/vercel/path0/.next"
+```
+
+That happens because `npm run build` writes `.next` under `apps/frontend/`, while Vercel expects it at the project root when Root Directory is wrong.
 
 ### Dashboard steps (project **argroup-education**)
 
@@ -37,7 +47,7 @@ Error: No Next.js version detected. Make sure your package.json has "next" in ei
 5. Click **Save**.
 6. Go to **Deployments** → latest deployment → **⋮** → **Redeploy** (use “Redeploy with existing Build Cache” only if the build already succeeded once with the new root).
 
-After this, Vercel reads `apps/frontend/package.json` (which includes `next`) and `apps/frontend/vercel.json`. The repo root `vercel.json` is **ignored** when Root Directory is set correctly — that is expected.
+After this, Vercel reads `apps/frontend/package.json` (which includes `next`) and `apps/frontend/vercel.json`. There is **no** root `vercel.json` in this repo.
 
 | Setting | Required value |
 |--------|----------------|
@@ -50,14 +60,14 @@ After this, Vercel reads `apps/frontend/package.json` (which includes `next`) an
 
 ---
 
-## Fallback: Root Directory left empty (Mode B)
+## Why repo-root builds are not supported
 
-1. **Settings** → **General** → **Root Directory** → clear the field (repo root).
-2. Enable **Include source files outside of the Root Directory** if offered (not required when root is empty).
-3. Root `vercel.json` runs `npm ci`, then `npm run build --workspace=ar-education-frontend`, with `outputDirectory` `apps/frontend/.next`.
-4. Root `package.json` includes `next` in `devDependencies` so Vercel’s framework detector succeeds.
+Building from the repository root without Root Directory requires either:
 
-Prefer **Mode A** (`apps/frontend`) — it is simpler and matches GitHub Actions (`working-directory: apps/frontend`).
+- **`outputDirectory`: `apps/frontend/.next`** — deploys the build cache **without** `public/` (broken logo, hero, and about images), or
+- **No `outputDirectory`** — Vercel looks for `.next` at the repo root and fails with “output directory `.next` was not found”.
+
+**Always use Root Directory `apps/frontend`.** This matches GitHub Actions (`working-directory: apps/frontend`).
 
 ---
 
@@ -82,7 +92,7 @@ If images work on `localhost:3000` but return **404** on production (e.g. `argro
 
 ### Root causes (this repo)
 
-1. **Wrong Output Directory** — Dashboard or root `vercel.json` must **not** set Output Directory to `apps/frontend/.next` only. That deploys the build cache without `public/`. Leave Output Directory **empty** (Next.js default).
+1. **Wrong Output Directory** — Dashboard must **not** set Output Directory to `apps/frontend/.next` or `.next` only. That deploys the build cache without `public/`. Leave Output Directory **empty** (Next.js default).
 2. **Wrong Root Directory** — Without `apps/frontend`, Vercel may build from repo root and miss `public/`.
 3. **Stale deploy** — Beta project still on an old commit before assets were added to git.
 
@@ -208,13 +218,12 @@ Commit the updated `package-lock.json` on `main`. No `.npmrc` override is requir
 ## Verify locally
 
 ```bash
-# From monorepo root (matches Mode B / root vercel.json)
+# From monorepo root
 npm ci
-npm run build --workspace=ar-education-frontend
-# or: npm run build:frontend
+npm run build:frontend
 ```
 
-Or from `apps/frontend` only (after root `npm ci`):
+Or from `apps/frontend` (matches Vercel Root Directory):
 
 ```bash
 cd apps/frontend
