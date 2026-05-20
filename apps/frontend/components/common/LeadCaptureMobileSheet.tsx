@@ -9,6 +9,8 @@ export type LeadCaptureMobileSheetProps = {
   open: boolean;
   onOpenChange: (next: boolean) => void;
   reduceMotion: boolean;
+  /** Radix dialog title (aria-labelledby); visible copy may live in `header` */
+  title?: string;
   /** Compact navy branding strip — keep short; no internal scroll */
   header: ReactNode;
   /** Form body — must fit without scrolling (compact fields) */
@@ -19,10 +21,13 @@ export type LeadCaptureMobileSheetProps = {
  * Mobile lead capture: compact bottom sheet (max 90dvh), overflow hidden —
  * no nested scroll so the full form stays visible on one screen.
  */
+const DEFAULT_TITLE = 'MBBS abroad experts';
+
 export function LeadCaptureMobileSheet({
   open,
   onOpenChange,
   reduceMotion,
+  title = DEFAULT_TITLE,
   header,
   children,
 }: LeadCaptureMobileSheetProps) {
@@ -71,6 +76,10 @@ export function LeadCaptureMobileSheet({
                 variants={sheetVariants}
               >
                 <div className="relative flex w-full max-w-md min-h-0 max-h-[min(88dvh,36rem)] flex-col overflow-hidden rounded-t-[1.35rem] border border-navy-200/25 bg-white shadow-[0_-8px_40px_rgba(26,54,93,0.22)] sm:max-h-[min(90dvh,40rem)] sm:rounded-2xl sm:shadow-2xl sm:shadow-navy-900/30">
+                  <Dialog.Title id="lead-capture-title" className="sr-only">
+                    {title}
+                  </Dialog.Title>
+
                   <div
                     className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-slate-300/90 sm:hidden"
                     aria-hidden

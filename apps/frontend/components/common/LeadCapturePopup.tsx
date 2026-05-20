@@ -234,16 +234,18 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       <p className="relative text-[10px] font-bold uppercase tracking-[0.22em] text-gold-300/95">
         AR Group of Education
       </p>
-      <h2
-        id="lead-capture-title"
-        className={clsx(
-          'relative font-serif font-bold leading-snug text-white',
-          isMobileSheet && 'mt-0.5 pr-9 text-[14px] leading-tight',
-          !isMobileSheet && 'mt-2.5 text-[1.35rem] leading-tight md:text-[1.65rem]'
-        )}
-      >
-        {isMobileSheet ? 'MBBS abroad experts' : 'Your MBBS abroad journey starts here'}
-      </h2>
+      {isMobileSheet ? (
+        <p
+          aria-hidden
+          className="relative mt-0.5 pr-9 font-serif text-[14px] font-bold leading-tight text-white"
+        >
+          MBBS abroad experts
+        </p>
+      ) : (
+        <h2 className="relative mt-2.5 font-serif text-[1.35rem] font-bold leading-tight text-white md:text-[1.65rem]">
+          Your MBBS abroad journey starts here
+        </h2>
+      )}
       {!isMobileSheet && (
         <p className="relative mt-2.5 max-w-sm text-[13px] leading-relaxed text-navy-100/90 md:text-sm">
           WHO-listed universities, transparent fees, and expert guidance from application to campus —
