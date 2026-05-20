@@ -7,7 +7,7 @@ interface FormSectionProps {
   title?: string
 }
 
-export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get Free Counselling' }) => {
+export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get counselling' }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',

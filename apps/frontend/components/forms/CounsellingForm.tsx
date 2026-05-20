@@ -288,7 +288,7 @@ export const CounsellingForm = ({
     >
       <div className="overflow-hidden rounded-2xl bg-white shadow-2xl">
         <div className="bg-gradient-to-r from-gold-600 to-gold-500 px-8 py-12 text-center text-white">
-          <h2 className="mb-2 font-serif text-4xl font-bold">Free counselling session</h2>
+          <h2 className="mb-2 font-serif text-4xl font-bold">MBBS counselling session</h2>
           <p className="font-body text-lg text-gold-100">
             Book your personalized consultation with our experts
           </p>
