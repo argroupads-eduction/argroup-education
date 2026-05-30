@@ -1,4 +1,16 @@
+const fs = require('fs');
 const path = require('path');
+
+/** Monorepo root when present (Git deploy / local). Omit on Vercel app-only uploads. */
+function resolveOutputFileTracingRoot() {
+  const monorepoRoot = path.join(__dirname, '../..');
+  if (fs.existsSync(path.join(monorepoRoot, 'package.json'))) {
+    return monorepoRoot;
+  }
+  return undefined;
+}
+
+const outputFileTracingRoot = resolveOutputFileTracingRoot();
 
 /** Marketing images referenced as plain /filename paths in components. */
 const PUBLIC_MARKETING_ASSETS = [
@@ -12,8 +24,8 @@ const PUBLIC_MARKETING_ASSETS = [
 const nextConfig = {
   reactStrictMode: true,
 
-  // Monorepo: trace dependencies from repo root (Vercel + local).
-  outputFileTracingRoot: path.join(__dirname, '../..'),
+  // Monorepo tracing only when repo root is in the deployment bundle.
+  ...(outputFileTracingRoot ? { outputFileTracingRoot } : {}),
 
   outputFileTracingIncludes: {
     '/api/public-asset/[...path]': ['./public/**/*'],
