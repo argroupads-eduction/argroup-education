@@ -1,5 +1,7 @@
 /** Prepare migrated WordPress HTML for premium display (content unchanged semantically). */
 
+import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
+
 function normUrl(url: string): string {
   return url
     .replace(/^https?:\/\/(www\.)?argroupofeducation\.com/i, '')
@@ -16,7 +18,7 @@ function urlsMatch(a: string, b: string): boolean {
 }
 
 function stripHtml(text: string): string {
-  return text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  return plainTextFromHtml(text);
 }
 
 /** Remove hero duplicate: featured image + first matching img in body. */
@@ -549,7 +551,7 @@ export function prepareWpHtml(
 }
 
 export function plainTitle(title: string): string {
-  return stripHtml(title);
+  return plainTextFromHtml(title);
 }
 
 export function metaDescriptionFromContent(

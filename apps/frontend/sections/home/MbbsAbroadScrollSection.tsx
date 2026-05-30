@@ -15,6 +15,7 @@ import {
   MBBS_ABROAD_SCROLL_COUNTRIES,
   type MbbsAbroadScrollCountry,
 } from '@/lib/mbbsAbroadScrollCountries'
+import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree'
 
 function countryWatermarkTextClass(name: string, compact = false): string {
   if (compact) {
@@ -145,6 +146,7 @@ function CountryVisualCard({
   direction,
   compact = false,
 }: CountryVisualCardProps) {
+  const hasImage = Boolean(country.imageSrc);
   return (
     <AnimatePresence mode="wait" custom={direction}>
       <motion.div
@@ -155,45 +157,57 @@ function CountryVisualCard({
         animate="center"
         exit="exit"
         transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-        className={`relative w-full overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br shadow-2xl shadow-black/30 ${country.gradient} ${
-          compact ? 'aspect-[5/4] max-h-[min(52vw,14rem)]' : 'aspect-[4/3] md:aspect-[5/4] lg:rounded-[2rem]'
+        className={`relative flex w-full items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br shadow-2xl shadow-black/30 ${country.gradient} ${
+          compact
+            ? 'min-h-[min(52vw,14rem)] max-h-[min(52vw,14rem)]'
+            : 'min-h-[min(42vh,22rem)] lg:rounded-[2rem]'
         }`}
       >
-        {country.imageSrc ? (
+        {hasImage ? (
           <img
             src={country.imageSrc}
             alt={`MBBS in ${country.name}`}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="max-h-full max-w-full object-contain object-center p-2"
             loading="lazy"
             decoding="async"
           />
         ) : null}
 
-        <div
-          className="absolute inset-0 opacity-50"
-          style={{
-            backgroundImage: `radial-gradient(circle at 25% 75%, ${country.accent}55 0%, transparent 50%), radial-gradient(circle at 75% 25%, rgba(255,255,255,0.15) 0%, transparent 45%)`,
-          }}
-          aria-hidden
-        />
+        {!hasImage ? (
+          <>
+            <div
+              className="absolute inset-0 opacity-50"
+              style={{
+                backgroundImage: `radial-gradient(circle at 25% 75%, ${country.accent}55 0%, transparent 50%), radial-gradient(circle at 75% 25%, rgba(255,255,255,0.15) 0%, transparent 45%)`,
+              }}
+              aria-hidden
+            />
 
-        <div
-          className={`absolute inset-0 flex flex-col items-center justify-center text-center ${
-            compact ? 'p-4' : 'p-6 md:p-8'
-          }`}
-          aria-hidden
-        >
-          <p
-            className={`mbbs-abroad-country-watermark max-w-full px-2 font-black uppercase text-white/20 ${countryWatermarkTextClass(country.name, compact)}`}
-          >
-            {country.name}
-          </p>
-          <p
-            className={`mt-1.5 max-w-xs font-medium text-white/90 ${compact ? 'text-xs line-clamp-2' : 'text-sm md:text-base'}`}
-          >
-            {country.tagline}
-          </p>
-        </div>
+            <div
+              className={`absolute inset-0 flex flex-col items-center justify-center text-center ${
+                compact ? 'p-4' : 'p-6 md:p-8'
+              }`}
+              aria-hidden
+            >
+              <p
+                className={`mbbs-abroad-country-watermark max-w-full px-2 font-black uppercase text-white/20 ${countryWatermarkTextClass(country.name, compact)}`}
+              >
+                {country.name}
+              </p>
+              <p
+                className={`mt-1.5 max-w-xs font-medium text-white/90 ${compact ? 'text-xs line-clamp-2' : 'text-sm md:text-base'}`}
+              >
+                {country.tagline}
+              </p>
+            </div>
+          </>
+        ) : (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-950/80 via-navy-950/30 to-transparent p-4 pt-10">
+            <p className={`font-medium text-white/95 ${compact ? 'text-xs' : 'text-sm md:text-base'}`}>
+              {country.tagline}
+            </p>
+          </div>
+        )}
 
         <div
           className="absolute bottom-0 left-0 right-0 h-1.5 origin-left bg-gold-500"
@@ -542,7 +556,17 @@ function MbbsAbroadScrollSectionDesktop({
 }
 
 export function MbbsAbroadScrollSection() {
-  const countries = MBBS_ABROAD_SCROLL_COUNTRIES
+  const countries = useMemo(
+    () =>
+      MBBS_ABROAD_SCROLL_COUNTRIES.map((c) => {
+        const fromTree = MBBS_ABROAD_COUNTRIES.find((x) => x.id === c.slug)
+        return {
+          ...c,
+          imageSrc: fromTree?.featuredImage ?? c.imageSrc,
+        }
+      }),
+    []
+  )
 
   return (
     <div id="mbbs-abroad" className="scroll-mt-[4.5rem] md:scroll-mt-32">

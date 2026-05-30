@@ -1,5 +1,6 @@
 import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaTree';
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
+import { dedupeLinks } from '@/lib/decodeHtmlEntities';
 import type { BreadcrumbItem } from '@/components/content/ContentBreadcrumbs';
 
 export type ProgramContext = {
@@ -25,10 +26,12 @@ export function findProgramContextBySlug(slug: string): ProgramContext | null {
           { label: college.name },
         ],
         relatedTitle: 'More colleges in this state',
-        relatedLinks: state.colleges
-          .filter((c) => c.slug !== slug)
-          .slice(0, 12)
-          .map((c) => ({ label: c.name, href: c.href })),
+        relatedLinks: dedupeLinks(
+          state.colleges
+            .filter((c) => c.slug !== slug)
+            .slice(0, 12)
+            .map((c) => ({ label: c.name, href: c.href }))
+        ),
       };
     }
   }
@@ -47,10 +50,12 @@ export function findProgramContextBySlug(slug: string): ProgramContext | null {
             { label: college.name },
           ],
           relatedTitle: `More universities in ${country.name}`,
-          relatedLinks: country.colleges
-            .filter((c) => c.slug !== slug)
-            .slice(0, 12)
-            .map((c) => ({ label: c.name, href: c.href })),
+          relatedLinks: dedupeLinks(
+            country.colleges
+              .filter((c) => c.slug !== slug)
+              .slice(0, 12)
+              .map((c) => ({ label: c.name, href: c.href }))
+          ),
         };
       }
     }
@@ -69,10 +74,12 @@ export function findProgramContextBySlug(slug: string): ProgramContext | null {
             { label: college.name },
           ],
           relatedTitle: `More colleges under ${uni.name}`,
-          relatedLinks: (uni.colleges ?? [])
-            .filter((c) => c.slug !== slug)
-            .slice(0, 12)
-            .map((c) => ({ label: c.name, href: c.href })),
+          relatedLinks: dedupeLinks(
+            (uni.colleges ?? [])
+              .filter((c) => c.slug !== slug)
+              .slice(0, 12)
+              .map((c) => ({ label: c.name, href: c.href }))
+          ),
         };
       }
     }

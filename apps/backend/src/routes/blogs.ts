@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../lib/prisma';
+import { prisma, withPrismaRetry } from '../lib/prisma';
 
 const router = Router();
 
@@ -37,25 +37,27 @@ router.get('/', async (req: Request, res: Response) => {
       ...(category ? { category } : {}),
     };
 
-    const [items, total] = await Promise.all([
-      prisma.blogPost.findMany({
-        where,
-        orderBy: { publishedAt: 'desc' },
-        skip,
-        take: limit,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          featuredImage: true,
-          category: true,
-          publishedAt: true,
-          createdAt: true,
-        },
-      }),
-      prisma.blogPost.count({ where }),
-    ]);
+    const [items, total] = await withPrismaRetry(() =>
+      Promise.all([
+        prisma.blogPost.findMany({
+          where,
+          orderBy: { publishedAt: 'desc' },
+          skip,
+          take: limit,
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            featuredImage: true,
+            category: true,
+            publishedAt: true,
+            createdAt: true,
+          },
+        }),
+        prisma.blogPost.count({ where }),
+      ])
+    );
 
     res.json({
       data: items.map(formatPost),
@@ -75,9 +77,11 @@ router.get('/:slug', async (req: Request, res: Response) => {
   try {
     const slug = decodeURIComponent(req.params.slug);
 
-    const post = await prisma.blogPost.findFirst({
-      where: { slug, published: true },
-    });
+    const post = await withPrismaRetry(() =>
+      prisma.blogPost.findFirst({
+        where: { slug, published: true },
+      })
+    );
 
     if (!post) {
       res.status(404).json({ success: false, message: 'Blog post not found' });

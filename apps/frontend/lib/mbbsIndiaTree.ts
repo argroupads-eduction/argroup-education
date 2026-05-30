@@ -5,6 +5,7 @@ export type MbbsIndiaCollege = {
   city?: string;
   slug: string | null;
   href: string;
+  image?: string | null;
 };
 
 export type MbbsIndiaStateColleges = {

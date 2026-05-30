@@ -4,6 +4,7 @@ export type MbbsAbroadCollege = {
   name: string;
   slug: string | null;
   href: string;
+  image?: string | null;
 };
 
 export type MbbsAbroadUniversity = {
@@ -20,6 +21,7 @@ export type MbbsAbroadCountryColleges = {
   navLabel: string;
   href: string;
   wpSlug: string | null;
+  featuredImage?: string | null;
   colleges?: MbbsAbroadCollege[];
   universities?: MbbsAbroadUniversity[];
 };

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import Image from 'next/image';
+import { FitImage } from '@/components/ui/FitImage';
 import Link from 'next/link';
 import { ArrowRight, Phone } from 'lucide-react';
 import { prepareWpHtml } from '@/lib/wpHtmlPrepare';
@@ -37,17 +37,8 @@ export function ContentArticle({
       <WpFaqEnhancer />
 
       {displayFeatured ? (
-        <div className="relative mb-10 aspect-[21/9] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-lg ring-1 ring-black/5">
-          <Image
-            src={featuredImage}
-            alt={title}
-            fill
-            priority
-            className="object-cover"
-            sizes="(max-width: 1280px) 100vw, 896px"
-            unoptimized
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-900/40 via-transparent to-transparent" />
+        <div className="mb-10 overflow-hidden rounded-2xl bg-slate-100 shadow-lg ring-1 ring-black/5">
+          <FitImage src={featuredImage} alt={title} priority frameClassName="rounded-2xl" />
         </div>
       ) : null}
 

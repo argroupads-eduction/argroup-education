@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, GraduationCap, MapPin } from 'lucide-react'
 import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaTree'
 import { CollegeCard } from '@/components/mbbs-india/CollegeCard'
+import { HorizontalScrollItem, HorizontalScrollRow } from '@/components/ui/HorizontalScrollRow'
 
 export const MBBSIndiaStateSection = () => {
   const [activeState, setActiveState] = useState(MBBS_INDIA_STATES[0].id)
@@ -52,15 +53,14 @@ export const MBBSIndiaStateSection = () => {
           </p>
         </div>
 
-        <div className="mb-10 overflow-x-auto pb-2">
-          <div className="inline-flex min-w-full justify-center gap-2 md:gap-3">
-            {MBBS_INDIA_STATES.map((state) => (
+        <HorizontalScrollRow ariaLabel="MBBS India states" autoScrollMobile={false} gapClassName="gap-2 md:gap-3" className="mb-10">
+          {MBBS_INDIA_STATES.map((state) => (
+            <HorizontalScrollItem key={state.id}>
               <button
-                key={state.id}
                 type="button"
                 onClick={() => handleStateClick(state.id)}
                 className={[
-                  'shrink-0 rounded-full border px-4 py-2.5 text-xs font-semibold transition md:px-5 md:py-3 md:text-sm',
+                  'rounded-full border px-4 py-2.5 text-xs font-semibold transition md:px-5 md:py-3 md:text-sm',
                   activeState === state.id
                     ? 'border-transparent bg-navy-900 text-white shadow-lg shadow-navy-900/20'
                     : 'border-slate-200 bg-white text-slate-700 hover:border-gold-300 hover:text-navy-900',
@@ -68,9 +68,9 @@ export const MBBSIndiaStateSection = () => {
               >
                 {state.navLabel || state.name}
               </button>
-            ))}
-          </div>
-        </div>
+            </HorizontalScrollItem>
+          ))}
+        </HorizontalScrollRow>
 
         <AnimatePresence mode="wait">
           {currentState && (
@@ -103,11 +103,13 @@ export const MBBSIndiaStateSection = () => {
                 </Link>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <HorizontalScrollRow ariaLabel={`${currentState.name} MBBS colleges`} gapClassName="gap-4">
                 {currentState.colleges.map((college, index) => (
-                  <CollegeCard key={`${currentState.id}-${college.name}-${index}`} college={college} index={index} />
+                  <HorizontalScrollItem key={`${currentState.id}-${college.name}-${index}`} className="w-[17.5rem] sm:w-[19rem]">
+                    <CollegeCard college={college} index={index} />
+                  </HorizontalScrollItem>
                 ))}
-              </div>
+              </HorizontalScrollRow>
             </motion.div>
           )}
         </AnimatePresence>

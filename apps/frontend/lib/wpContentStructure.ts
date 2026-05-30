@@ -1,7 +1,9 @@
 /** Extract structure from migrated WP HTML for SEO layout (content unchanged semantically). */
 
+import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
+
 function stripHtml(text: string): string {
-  return text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  return plainTextFromHtml(text);
 }
 
 function slugify(text: string): string {

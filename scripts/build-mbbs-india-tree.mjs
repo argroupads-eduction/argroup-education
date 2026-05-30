@@ -17,7 +17,10 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const STATES_PATH = path.join(REPO_ROOT, 'data', 'mbbs-india-states.json');
 const OUT_PATH = path.join(REPO_ROOT, 'data', 'mbbs-india-tree.json');
 const FRONTEND_OUT = path.join(REPO_ROOT, 'apps', 'frontend', 'data', 'mbbs-india-tree.json');
-const WP_JSON = path.join(REPO_ROOT, 'data', 'wp-export', 'pages.json');
+const WP_JSON_CANDIDATES = [
+  path.join(REPO_ROOT, 'apps', 'frontend', 'data', 'wp-export-bundle', 'pages.json'),
+  path.join(REPO_ROOT, 'data', 'wp-export', 'pages.json'),
+];
 
 const STATE_WP_SLUG = {
   up: 'mbbs-in-up',
@@ -86,22 +89,35 @@ function parseWxrXml(xml) {
   return pages;
 }
 
+function mapJsonPage(p) {
+  return {
+    slug: p.slug,
+    title: typeof p.title === 'string' ? p.title : p.title?.rendered || p.slug,
+    featuredImage: p.featuredImage || null,
+  };
+}
+
 async function loadWpPages(sourceArg) {
   if (sourceArg && sourceArg.endsWith('.xml')) {
     console.log('Reading WordPress XML:', sourceArg);
     const xml = await readFile(sourceArg, 'utf8');
     return { pages: parseWxrXml(xml), source: sourceArg };
   }
-  try {
-    const raw = await readFile(WP_JSON, 'utf8');
-    const pages = JSON.parse(raw).map((p) => ({
-      slug: p.slug,
-      title: p.title?.rendered || p.title || p.slug,
-    }));
-    return { pages, source: 'data/wp-export/pages.json' };
-  } catch {
-    throw new Error('No pages source found. Run npm run wp:export or pass path to .xml export.');
+  for (const wpPath of WP_JSON_CANDIDATES) {
+    try {
+      const raw = await readFile(wpPath, 'utf8');
+      const pages = JSON.parse(raw).map(mapJsonPage);
+      return { pages, source: wpPath };
+    } catch {
+      /* try next */
+    }
   }
+  throw new Error('No pages source found. Run npm run wp:export or pass path to .xml export.');
+}
+
+function imageForSlug(slug, pageBySlug) {
+  if (!slug) return null;
+  return pageBySlug.get(slug)?.featuredImage || null;
 }
 
 function findPageSlug(collegeName, pages) {
@@ -137,6 +153,7 @@ async function main() {
   const { pages, source } = await loadWpPages(sourceArg);
 
   const slugSet = new Set(pages.map((p) => p.slug));
+  const pageBySlug = new Map(pages.map((p) => [p.slug, p]));
   let matched = 0;
   let total = 0;
   const unmatched = [];
@@ -157,11 +174,13 @@ async function main() {
           const slug = findPageSlug(college.name, pages);
           if (slug) matched++;
           else unmatched.push({ state: state.name, college: college.name });
+          const stateImage = imageForSlug(wpSlug && slugSet.has(wpSlug) ? wpSlug : null, pageBySlug);
           return {
             name: college.name,
             city: college.city,
             slug: slug || null,
             href: slug ? `/${slug}` : state.href,
+            image: imageForSlug(slug, pageBySlug) || stateImage,
           };
         }),
       };

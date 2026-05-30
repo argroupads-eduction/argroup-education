@@ -8,6 +8,7 @@ import countriesRouter from './routes/countries';
 import universitiesRouter from './routes/universities';
 import formsRouter from './routes/forms';
 import newsletterRouter from './routes/newsletter';
+import { connectPrisma, prisma, reconnectPrisma } from './lib/prisma';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
@@ -29,12 +30,33 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Health Check
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-  });
+// Health Check (includes Neon / Prisma connectivity)
+app.get('/health', async (_req: Request, res: Response) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({
+      status: 'ok',
+      database: 'connected',
+      timestamp: new Date().toISOString(),
+    });
+  } catch {
+    try {
+      await reconnectPrisma();
+      await prisma.$queryRaw`SELECT 1`;
+      res.json({
+        status: 'ok',
+        database: 'reconnected',
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('[health] database unreachable:', err);
+      res.status(503).json({
+        status: 'degraded',
+        database: 'disconnected',
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
 });
 
 // Routes
@@ -62,7 +84,28 @@ app.use((err: Error & { status?: number }, _req: Request, res: Response, _next: 
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+async function start() {
+  try {
+    await connectPrisma();
+    console.log('🗄️  Database: Neon connected');
+  } catch (err) {
+    console.error('⚠️  Database: could not connect (API will retry on requests):', err);
+  }
+
+  const server = app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+
+  const shutdown = async (signal: string) => {
+    console.log(`\n${signal} — closing server and database connections…`);
+    server.close();
+    await prisma.$disconnect().catch(() => undefined);
+    process.exit(0);
+  };
+
+  process.on('SIGINT', () => void shutdown('SIGINT'));
+  process.on('SIGTERM', () => void shutdown('SIGTERM'));
+}
+
+void start();

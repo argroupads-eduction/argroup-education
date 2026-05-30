@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const publicDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
 
 const REQUIRED = [
-  'ar-group-logo.webp',
+  'ar-group-logo.png',
   'india-homepage.jpg',
   'abroad-homepage.jpg',
   'about-counsellor.png',

@@ -1,3 +1,5 @@
+import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export type ContentType = 'post' | 'page';
@@ -27,6 +29,24 @@ export interface BlogListItem {
   publishedAt: string;
 }
 
+function normalizeContent(doc: SiteContent): SiteContent {
+  return {
+    ...doc,
+    title: plainTextFromHtml(doc.title),
+    excerpt: plainTextFromHtml(doc.excerpt),
+    metaTitle: doc.metaTitle ? plainTextFromHtml(doc.metaTitle) : null,
+    metaDescription: doc.metaDescription ? plainTextFromHtml(doc.metaDescription) : null,
+  };
+}
+
+function normalizeBlogItem(doc: BlogListItem): BlogListItem {
+  return {
+    ...doc,
+    title: plainTextFromHtml(doc.title),
+    excerpt: plainTextFromHtml(doc.excerpt),
+  };
+}
+
 function apiBase() {
   return API_URL.replace(/\/$/, '');
 }
@@ -40,7 +60,7 @@ export async function getContentBySlug(slug: string): Promise<SiteContent | null
     });
     if (res.ok) {
       const json = await res.json();
-      if (json.data) return json.data;
+      if (json.data) return normalizeContent(json.data as SiteContent);
     }
   } catch {
     /* API offline — fall through to local export */
@@ -48,7 +68,8 @@ export async function getContentBySlug(slug: string): Promise<SiteContent | null
 
   // 2) Bundled wp-export JSON (Vercel) or repo data/wp-export (local dev)
   const { getWpExportContentBySlug } = await import('@/lib/wpExportContent');
-  return getWpExportContentBySlug(slug);
+  const local = await getWpExportContentBySlug(slug);
+  return local ? normalizeContent(local) : null;
 }
 
 export async function getBlogPosts(page = 1, limit = 12): Promise<{
@@ -63,8 +84,9 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
     );
     if (res.ok) {
       const json = await res.json();
+      const data = (json.data ?? []).map((item: BlogListItem) => normalizeBlogItem(item));
       return {
-        data: json.data ?? [],
+        data,
         total: json.total ?? 0,
         pages: json.pages ?? 0,
       };
