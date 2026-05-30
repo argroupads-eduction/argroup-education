@@ -5,33 +5,60 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Pooled URL (Neon "Connect" with connection pooling ON) — use in app runtime
+  url       = env("DATABASE_URL")
+  // Direct URL (Neon "Connect" with pooling OFF) — required for Prisma migrations
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
-// Blog Models
+// Blog Models (WordPress posts)
 model BlogPost {
-  id               String   @id @default(cuid())
-  title            String   @unique
-  slug             String   @unique
-  content          String   @db.Text
-  excerpt          String   @db.Text
+  id               String    @id @default(cuid())
+  wpId             Int?      @unique
+  title            String
+  slug             String    @unique
+  content          String    @db.Text
+  excerpt          String    @db.Text
   featuredImage    String?
-  category         String
+  category         String    @default("Blog")
   tags             String[]
   metaTitle        String?
   metaDescription  String?
+  canonicalUrl     String?
   keywords         String[]
-  author           String   @default("AR Group")
-  published        Boolean  @default(false)
-  views            Int      @default(0)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
+  author           String    @default("AR Group")
+  published        Boolean   @default(false)
+  publishedAt      DateTime?
+  views            Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
   @@index([slug])
   @@index([category])
   @@index([published])
-  @@fulltext([title, content])
+}
+
+// WordPress pages (colleges, countries, static pages)
+model SitePage {
+  id               String    @id @default(cuid())
+  wpId             Int       @unique
+  title            String
+  slug             String    @unique
+  content          String    @db.Text
+  excerpt          String?   @db.Text
+  featuredImage    String?
+  metaTitle        String?
+  metaDescription  String?
+  canonicalUrl     String?
+  keywords         String[]
+  published        Boolean   @default(true)
+  publishedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([published])
 }
 
 // Country Models

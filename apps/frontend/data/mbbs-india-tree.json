@@ -1,0 +1,855 @@
+{
+  "generatedAt": "2026-05-30T06:19:56.480Z",
+  "source": "c:\\Users\\akash\\Downloads\\argroupofeducation.WordPress.2026-05-30.xml",
+  "states": [
+    {
+      "id": "up",
+      "name": "Uttar Pradesh",
+      "navLabel": "UP",
+      "href": "/mbbs-india/up",
+      "wpSlug": "mbbs-in-up",
+      "colleges": [
+        {
+          "name": "Rama Medical College",
+          "city": "Kanpur",
+          "slug": "rama-medical-college-hapur",
+          "href": "/rama-medical-college-hapur"
+        },
+        {
+          "name": "Saraswathi Institute of Medical Sciences",
+          "city": "Hapur",
+          "slug": "saraswathi-institute-of-medical-sciences-hapur",
+          "href": "/saraswathi-institute-of-medical-sciences-hapur"
+        },
+        {
+          "name": "NCR Institute Of Medical Sciences",
+          "city": "Meerut",
+          "slug": "ncr-institute-of-medical-sciences-meerut",
+          "href": "/ncr-institute-of-medical-sciences-meerut"
+        },
+        {
+          "name": "Venkateshwara Institute of Medical Sciences",
+          "city": "Gajraula",
+          "slug": "venkateshwara-institute-of-medical-sciences-gajraula",
+          "href": "/venkateshwara-institute-of-medical-sciences-gajraula"
+        },
+        {
+          "name": "Shri Gorakhnath Medical College",
+          "slug": "shri-gorakhnath-medical-college",
+          "href": "/shri-gorakhnath-medical-college"
+        },
+        {
+          "name": "Muzaffarnagar Medical College - [MMC]",
+          "city": "Muzaffarnagar",
+          "slug": "muzaffarnagar-medical-college-mmc-muzaffarnagar",
+          "href": "/muzaffarnagar-medical-college-mmc-muzaffarnagar"
+        },
+        {
+          "name": "FH Medical College",
+          "city": "Agra",
+          "slug": "f-h-medical-college-and-hospital-agra",
+          "href": "/f-h-medical-college-and-hospital-agra"
+        },
+        {
+          "name": "Subharti Medical College",
+          "slug": "subharti-medical-college",
+          "href": "/subharti-medical-college"
+        },
+        {
+          "name": "K.D. Medical College - Hospital and Research Center",
+          "city": "Mathura",
+          "slug": "k-d-medical-college-hospital-and-research-center-mathura",
+          "href": "/k-d-medical-college-hospital-and-research-center-mathura"
+        },
+        {
+          "name": "Naraina Medical College & Research Center - [NMRC]",
+          "city": "Kanpur",
+          "slug": "naraina-medical-college-research-center-nmrc-kanpur",
+          "href": "/naraina-medical-college-research-center-nmrc-kanpur"
+        },
+        {
+          "name": "Ajay Sangal Institute Of Medical Sciences",
+          "slug": null,
+          "href": "/mbbs-india/up"
+        },
+        {
+          "name": "Dr SS Kushwah Institute of Medical Sciences",
+          "slug": "dr-bs-kushwah-institute-of-medical-sciences",
+          "href": "/dr-bs-kushwah-institute-of-medical-sciences"
+        },
+        {
+          "name": "Prasad Institute of Medical Sciences",
+          "city": "Lucknow",
+          "slug": "prasad-institute-of-medical-sciences-lucknow",
+          "href": "/prasad-institute-of-medical-sciences-lucknow"
+        },
+        {
+          "name": "KMC Medical College",
+          "slug": "kmc-medical-college",
+          "href": "/kmc-medical-college"
+        },
+        {
+          "name": "Shri Siddhi Vinayak Medical College and Hospital",
+          "slug": "shri-siddhi-vinayak-medical-college",
+          "href": "/shri-siddhi-vinayak-medical-college"
+        },
+        {
+          "name": "Rajshree Medical Research Institute",
+          "city": "Bareilly",
+          "slug": "rajshree-medical-research-institute-bareilly",
+          "href": "/rajshree-medical-research-institute-bareilly"
+        },
+        {
+          "name": "Career Institute of Medical Sciences",
+          "city": "Lucknow",
+          "slug": "career-institute-of-medical-sciences-lucknow",
+          "href": "/career-institute-of-medical-sciences-lucknow"
+        },
+        {
+          "name": "United Institute of Medical Sciences",
+          "city": "Prayagraj",
+          "slug": "united-institute-of-medical-sciences-prayagraj",
+          "href": "/united-institute-of-medical-sciences-prayagraj"
+        },
+        {
+          "name": "Heritage Institute of Medical Sciences",
+          "slug": "heritage-institute-of-medical-sciences-hims-varanasi",
+          "href": "/heritage-institute-of-medical-sciences-hims-varanasi"
+        },
+        {
+          "name": "Hind Institute of Medical Sciences",
+          "city": "Sitapur",
+          "slug": "hind-institute-of-medical-sciences-lucknow",
+          "href": "/hind-institute-of-medical-sciences-lucknow"
+        },
+        {
+          "name": "Integral Institute Of Medical Sciences",
+          "city": "Lucknow",
+          "slug": "integral-university-lucknow",
+          "href": "/integral-university-lucknow"
+        },
+        {
+          "name": "Rama Medical College",
+          "city": "Hapur",
+          "slug": "rama-medical-college-hapur",
+          "href": "/rama-medical-college-hapur"
+        },
+        {
+          "name": "Santosh Medical College",
+          "city": "Ghaziabad",
+          "slug": "santosh-medical-college-ghaziabad",
+          "href": "/santosh-medical-college-ghaziabad"
+        },
+        {
+          "name": "Sharda University",
+          "slug": "sharda-university",
+          "href": "/sharda-university"
+        },
+        {
+          "name": "Shri Ram Murti Smarak Institute Of Medical Sciences",
+          "city": "Bareilly",
+          "slug": "shri-ram-murti-smarak-institute-of-medical-sciences-bareilly",
+          "href": "/shri-ram-murti-smarak-institute-of-medical-sciences-bareilly"
+        },
+        {
+          "name": "Rohilkhand Medical College",
+          "city": "Bareilly",
+          "slug": "rohilkhand-medical-college-and-hospital-bareilly",
+          "href": "/rohilkhand-medical-college-and-hospital-bareilly"
+        },
+        {
+          "name": "Noida International Institute of Medical Sciences",
+          "city": "Greater Noida",
+          "slug": "noida-international-institute-of-medical-sciences",
+          "href": "/noida-international-institute-of-medical-sciences"
+        },
+        {
+          "name": "TS Misra Medical College & Hospital",
+          "city": "Lucknow",
+          "slug": "ts-misra-medical-college-hospital-lucknow",
+          "href": "/ts-misra-medical-college-hospital-lucknow"
+        },
+        {
+          "name": "Krishna Mohan Medical College",
+          "city": "Mathura",
+          "slug": "krishna-mohan-medical-college-mathura",
+          "href": "/krishna-mohan-medical-college-mathura"
+        },
+        {
+          "name": "SKS Hospital Medical College",
+          "city": "Mathura",
+          "slug": "sks-hospital-medical-college-and-research-centre-mathura",
+          "href": "/sks-hospital-medical-college-and-research-centre-mathura"
+        },
+        {
+          "name": "Teerthanker Mahaveer Medical College",
+          "city": "Moradabad",
+          "slug": "teerthanker-mahaveer-medical-college-moradabad",
+          "href": "/teerthanker-mahaveer-medical-college-moradabad"
+        },
+        {
+          "name": "GS Medical College",
+          "city": "Hapur",
+          "slug": "gs-medical-college-hapur",
+          "href": "/gs-medical-college-hapur"
+        },
+        {
+          "name": "Kalka Dental College & Hospital",
+          "slug": "kalka-dental-college",
+          "href": "/kalka-dental-college"
+        },
+        {
+          "name": "Mayo Institute of Medical Sciences",
+          "slug": "mayo-institute-of-medical-sciences",
+          "href": "/mayo-institute-of-medical-sciences"
+        }
+      ]
+    },
+    {
+      "id": "haryana",
+      "name": "Haryana",
+      "navLabel": "Haryana",
+      "href": "/mbbs-india/haryana",
+      "wpSlug": "mbbs-in-haryana",
+      "colleges": [
+        {
+          "name": "RPS College of Veterinary & Animal Sciences",
+          "city": "LUVAS",
+          "slug": null,
+          "href": "/mbbs-india/haryana"
+        },
+        {
+          "name": "Al-falah School of Medical Sciences & Research Centre",
+          "slug": "al-falah-school-of-medical-sciences-research-centre",
+          "href": "/al-falah-school-of-medical-sciences-research-centre"
+        },
+        {
+          "name": "Manav Rachna Dental College",
+          "slug": "manav-rachna-dental-college",
+          "href": "/manav-rachna-dental-college"
+        },
+        {
+          "name": "Maharishi Markandeshwar Medical College",
+          "city": "Ambala",
+          "slug": "maharishi-markandeshwar-medical-college-ambala",
+          "href": "/maharishi-markandeshwar-medical-college-ambala"
+        },
+        {
+          "name": "Adesh Medical College",
+          "slug": "adesh-medical-college-and-hospital-kurukshetra",
+          "href": "/adesh-medical-college-and-hospital-kurukshetra"
+        },
+        {
+          "name": "NC Medical College and Hospital",
+          "city": "Panipat",
+          "slug": "nc-medical-college-and-hospital-panipat",
+          "href": "/nc-medical-college-and-hospital-panipat"
+        },
+        {
+          "name": "SGT Medical College",
+          "city": "Gurugram",
+          "slug": "sgt-medical-college-gurugram",
+          "href": "/sgt-medical-college-gurugram"
+        },
+        {
+          "name": "World College of Medical Science and Research",
+          "city": "Jhajjar",
+          "slug": "world-college-of-medical-science-jhajjar",
+          "href": "/world-college-of-medical-science-jhajjar"
+        },
+        {
+          "name": "Amrita Medical College",
+          "city": "Faridabad",
+          "slug": "amrita-medical-college-faridabad",
+          "href": "/amrita-medical-college-faridabad"
+        }
+      ]
+    },
+    {
+      "id": "rajasthan",
+      "name": "Rajasthan",
+      "navLabel": "Rajasthan",
+      "href": "/mbbs-india/rajasthan",
+      "wpSlug": "mbbs-in-rajasthan",
+      "colleges": [
+        {
+          "name": "Sudha Medical College",
+          "slug": "sudha-medical-college",
+          "href": "/sudha-medical-college"
+        },
+        {
+          "name": "Vyas Medical College",
+          "slug": "vyas-medical-college",
+          "href": "/vyas-medical-college"
+        },
+        {
+          "name": "Ananta Institute of Medical Sciences & Research Centre",
+          "city": "Rajsamand",
+          "slug": "ananta-institute-of-medical-sciences-research-centre-rajsamand",
+          "href": "/ananta-institute-of-medical-sciences-research-centre-rajsamand"
+        },
+        {
+          "name": "Mahatma Gandhi University of Medical Science & Technology",
+          "city": "Jaipur",
+          "slug": "mahatma-gandhi-university-of-medical-science-technology-jaipur",
+          "href": "/mahatma-gandhi-university-of-medical-science-technology-jaipur"
+        },
+        {
+          "name": "American International Institute of Medical Science",
+          "city": "Udaipur",
+          "slug": "american-international-institute-of-medical-science-udaipur",
+          "href": "/american-international-institute-of-medical-science-udaipur"
+        },
+        {
+          "name": "Surendera Dental College",
+          "slug": "surendera-dental-college",
+          "href": "/surendera-dental-college"
+        },
+        {
+          "name": "Pacific Medical College",
+          "slug": "pacific-medical-college",
+          "href": "/pacific-medical-college"
+        },
+        {
+          "name": "Pacific Institute of Medical Science - [PIMS]",
+          "city": "Udaipur",
+          "slug": "pacific-institute-of-medical-science-pims-udaipur",
+          "href": "/pacific-institute-of-medical-science-pims-udaipur"
+        },
+        {
+          "name": "National Institute of Medical Sciences & Research",
+          "city": "Jaipur",
+          "slug": "national-institute-of-medical-sciences-and-research-jaipur",
+          "href": "/national-institute-of-medical-sciences-and-research-jaipur"
+        },
+        {
+          "name": "Jaipur National University",
+          "city": "Rajasthan",
+          "slug": "jaipur-national-university-rajasthan",
+          "href": "/jaipur-national-university-rajasthan"
+        },
+        {
+          "name": "Dr SS Tantia Medical College",
+          "city": "Sri Ganganagar",
+          "slug": "dr-s-s-tantia-medical-college-sri-ganganagar",
+          "href": "/dr-s-s-tantia-medical-college-sri-ganganagar"
+        },
+        {
+          "name": "Geetanjali Medical College",
+          "city": "Rajasthan",
+          "slug": "geetanjali-medical-college-rajasthan",
+          "href": "/geetanjali-medical-college-rajasthan"
+        }
+      ]
+    },
+    {
+      "id": "maharashtra",
+      "name": "Maharashtra",
+      "navLabel": "Maharashtra",
+      "href": "/mbbs-india/maharashtra",
+      "wpSlug": "mbbs-in-maharashtra",
+      "colleges": [
+        {
+          "name": "DY Patil Medical College",
+          "city": "Pune",
+          "slug": "dy-patil-medical-college-pune",
+          "href": "/dy-patil-medical-college-pune"
+        },
+        {
+          "name": "Symbiosis Medical College for Women",
+          "city": "Pune",
+          "slug": "symbiosis-medical-college-for-women-pune",
+          "href": "/symbiosis-medical-college-for-women-pune"
+        },
+        {
+          "name": "Bharati Vidyapeeth Medical College",
+          "city": "Pune",
+          "slug": "bharati-vidyapeeth-medical-college-pune",
+          "href": "/bharati-vidyapeeth-medical-college-pune"
+        },
+        {
+          "name": "MGM Medical College",
+          "slug": "mgm-medical-college",
+          "href": "/mgm-medical-college"
+        },
+        {
+          "name": "Datta Meghe Medical College",
+          "city": "Nagpur",
+          "slug": "datta-meghe-medical-college-nagpur",
+          "href": "/datta-meghe-medical-college-nagpur"
+        }
+      ]
+    },
+    {
+      "id": "karnataka",
+      "name": "Karnataka",
+      "navLabel": "Karnataka",
+      "href": "/mbbs-india/karnataka",
+      "wpSlug": "mbbs-in-karnataka",
+      "colleges": [
+        {
+          "name": "BRAMC Dr BR Ambedkar Medical College",
+          "slug": "dr-b-r-ambedkar-medical-college-bramc-bangalore",
+          "href": "/dr-b-r-ambedkar-medical-college-bramc-bangalore"
+        },
+        {
+          "name": "JSS Medical College",
+          "slug": "jss-medical-college",
+          "href": "/jss-medical-college"
+        },
+        {
+          "name": "JJM Medical College",
+          "slug": "jjm-medical-college",
+          "href": "/jjm-medical-college"
+        },
+        {
+          "name": "Jawaharlal Nehru Medical College",
+          "slug": "jawaharlal-nehru-medical-college",
+          "href": "/jawaharlal-nehru-medical-college"
+        },
+        {
+          "name": "Kasturba Medical College",
+          "slug": "kasturba-medical-college",
+          "href": "/kasturba-medical-college"
+        },
+        {
+          "name": "Al-Ameen Medical College",
+          "slug": "al-ameen-medical-college",
+          "href": "/al-ameen-medical-college"
+        },
+        {
+          "name": "St. John's Medical College",
+          "slug": "st-johns-medical-college",
+          "href": "/st-johns-medical-college"
+        },
+        {
+          "name": "S Nijalingappa Medical College and H.S.K Hospital",
+          "slug": "s-nijalingappa-medical-college-and-h-s-k-hospital",
+          "href": "/s-nijalingappa-medical-college-and-h-s-k-hospital"
+        },
+        {
+          "name": "Adichunchanagiri Institute of Medical Sciences",
+          "slug": "adichunchanagiri-institute-of-medical-sciences",
+          "href": "/adichunchanagiri-institute-of-medical-sciences"
+        },
+        {
+          "name": "AJ Institute of Medical Sciences and Research Centre",
+          "slug": "a-j-institute-of-medical-sciences-and-research-centre",
+          "href": "/a-j-institute-of-medical-sciences-and-research-centre"
+        },
+        {
+          "name": "Vydehi Institute of Medical Sciences and Research Centre",
+          "slug": "vydehi-institute-of-medical-sciences-and-research-centre",
+          "href": "/vydehi-institute-of-medical-sciences-and-research-centre"
+        },
+        {
+          "name": "MVJ Medical College & Research Hospital",
+          "slug": "m-v-j-medical-college-research-hospital",
+          "href": "/m-v-j-medical-college-research-hospital"
+        },
+        {
+          "name": "MS Ramaiah Medical College",
+          "city": "Bangalore",
+          "slug": "m-s-ramaiah-medical-college",
+          "href": "/m-s-ramaiah-medical-college"
+        },
+        {
+          "name": "Kempegowda Institute of Medical Sciences",
+          "slug": "kempegowda-institute-of-medical-sciences",
+          "href": "/kempegowda-institute-of-medical-sciences"
+        }
+      ]
+    },
+    {
+      "id": "mp",
+      "name": "Madhya Pradesh",
+      "navLabel": "MP",
+      "href": "/mbbs-india/mp",
+      "wpSlug": "mbbs-in-madhya-pradesh",
+      "colleges": [
+        {
+          "name": "LNCT Medical College",
+          "city": "Indore",
+          "slug": "lnct-medical-college-and-sewakunj-hospital-indore",
+          "href": "/lnct-medical-college-and-sewakunj-hospital-indore"
+        },
+        {
+          "name": "Sukh Sagar Medical College and Hospital",
+          "slug": "sukh-sagar-medical-college-and-hospital",
+          "href": "/sukh-sagar-medical-college-and-hospital"
+        },
+        {
+          "name": "Sri Satya Sai University of Technology & Medical Sciences",
+          "slug": "sri-satya-sai-university-of-technology-medical-sciences",
+          "href": "/sri-satya-sai-university-of-technology-medical-sciences"
+        },
+        {
+          "name": "RKDF Medical College & Research Centre",
+          "city": "Bhopal",
+          "slug": "r-k-d-f-medical-college-research-centre-bhopal",
+          "href": "/r-k-d-f-medical-college-research-centre-bhopal"
+        },
+        {
+          "name": "Ram Krishna Medical College Hospital and Research Centre",
+          "slug": "ram-krishna-medical-college-hospital-and-research-centre",
+          "href": "/ram-krishna-medical-college-hospital-and-research-centre"
+        },
+        {
+          "name": "Amaltas Institute of Medical Science",
+          "city": "Dewas",
+          "slug": "amaltas-institute-of-medical-science",
+          "href": "/amaltas-institute-of-medical-science"
+        },
+        {
+          "name": "Index Medical College",
+          "city": "Indore",
+          "slug": "index-medical-college-indore",
+          "href": "/index-medical-college-indore"
+        },
+        {
+          "name": "Sri Aurobindo Institute of Medical Sciences",
+          "city": "Indore",
+          "slug": "sri-aurobindo-institute-of-medical-sciences-indore",
+          "href": "/sri-aurobindo-institute-of-medical-sciences-indore"
+        },
+        {
+          "name": "Ruxmaniben Deepchand Gardi Medical College",
+          "city": "Ujjain",
+          "slug": "ruxmaniben-deepchand-gardi-medical-college-ujjain",
+          "href": "/ruxmaniben-deepchand-gardi-medical-college-ujjain"
+        },
+        {
+          "name": "Peoples College of Medical Science",
+          "city": "Bhopal",
+          "slug": "peoples-college-of-medical-sciences",
+          "href": "/peoples-college-of-medical-sciences"
+        },
+        {
+          "name": "LN Medical College",
+          "city": "Bhopal",
+          "slug": null,
+          "href": "/mbbs-india/mp"
+        },
+        {
+          "name": "Chirayu Medical College and Hospital",
+          "city": "Bhopal",
+          "slug": null,
+          "href": "/mbbs-india/mp"
+        }
+      ]
+    },
+    {
+      "id": "bihar",
+      "name": "Bihar",
+      "navLabel": "Bihar",
+      "href": "/mbbs-india/bihar",
+      "wpSlug": "mbbs-in-bihar",
+      "colleges": [
+        {
+          "name": "Lord Buddha Koshi Medical College & Hospital",
+          "slug": "lord-buddha-koshi-medical-college-hospital",
+          "href": "/lord-buddha-koshi-medical-college-hospital"
+        },
+        {
+          "name": "Mata Gujri Memorial Medical College",
+          "slug": "mata-gujri-memorial-medical-college-lions-seva-kendra-hospital-kishanganj-bihar",
+          "href": "/mata-gujri-memorial-medical-college-lions-seva-kendra-hospital-kishanganj-bihar"
+        },
+        {
+          "name": "Radha Devi Jageshwari Memorial Medical College",
+          "city": "Muzaffarpur",
+          "slug": "radha-devi-jageshwari-memorial-medical-college-and-hospital-muzaffarpur",
+          "href": "/radha-devi-jageshwari-memorial-medical-college-and-hospital-muzaffarpur"
+        },
+        {
+          "name": "Shree Narayan Medical Institute & Hospital",
+          "city": "Saharsa",
+          "slug": "shree-narayan-medical-institute-hospital-saharsa",
+          "href": "/shree-narayan-medical-institute-hospital-saharsa"
+        },
+        {
+          "name": "Narayan Medical College & Hospital",
+          "city": "Bihar",
+          "slug": "narayan-medical-college-hospital-bihar",
+          "href": "/narayan-medical-college-hospital-bihar"
+        },
+        {
+          "name": "Madhubani Medical College & Hospital",
+          "city": "Bihar",
+          "slug": "madhubani-medical-college-hospital-bihar",
+          "href": "/madhubani-medical-college-hospital-bihar"
+        },
+        {
+          "name": "Katihar Medical College",
+          "city": "Bihar",
+          "slug": "katihar-medical-college-bihar",
+          "href": "/katihar-medical-college-bihar"
+        },
+        {
+          "name": "Netaji Subhas Medical College & Hospital",
+          "slug": "netaji-subhas-medical-college-hospital",
+          "href": "/netaji-subhas-medical-college-hospital"
+        }
+      ]
+    },
+    {
+      "id": "uttarakhand",
+      "name": "Uttarakhand",
+      "navLabel": "Uttarakhand",
+      "href": "/mbbs-india/uttarakhand",
+      "wpSlug": "mbbs-in-uttarakhand",
+      "colleges": [
+        {
+          "name": "Graphic Era Institute of Medical Sciences",
+          "slug": "graphic-era-institute-of-medical-sciences",
+          "href": "/graphic-era-institute-of-medical-sciences"
+        },
+        {
+          "name": "Gautam Buddha Chikitsa Mahavidyalaya",
+          "city": "Dehradun",
+          "slug": "gautam-buddha-chikitsa-mahavidyalaya",
+          "href": "/gautam-buddha-chikitsa-mahavidyalaya"
+        },
+        {
+          "name": "Himalayan Institute of Medical Science",
+          "city": "Dehradun",
+          "slug": "himalayan-institute-of-medical-science",
+          "href": "/himalayan-institute-of-medical-science"
+        },
+        {
+          "name": "Shri Guru Ram Rai Institute of Medical Science",
+          "slug": "shri-guru-ram-rai-institute-of-medical-science",
+          "href": "/shri-guru-ram-rai-institute-of-medical-science"
+        }
+      ]
+    },
+    {
+      "id": "himachal-pradesh",
+      "name": "Himachal Pradesh",
+      "navLabel": "Himachal Pradesh",
+      "href": "/mbbs-india/himachal-pradesh",
+      "wpSlug": "mbbs-in-himachal-pradesh",
+      "colleges": [
+        {
+          "name": "Maharishi Markandeshwar Medical College",
+          "city": "Solan",
+          "slug": "maharishi-markandeshwar-medical-college-ambala",
+          "href": "/maharishi-markandeshwar-medical-college-ambala"
+        }
+      ]
+    },
+    {
+      "id": "delhi",
+      "name": "Delhi",
+      "navLabel": "Delhi",
+      "href": "/mbbs-india/delhi",
+      "wpSlug": "mbbs-in-delhi",
+      "colleges": [
+        {
+          "name": "Hamdard Institute of Medical Sciences & Research (HIMSR)",
+          "city": "New Delhi",
+          "slug": "hamdard-institute-of-medical-sciences-research-himsr-new-delhi",
+          "href": "/hamdard-institute-of-medical-sciences-research-himsr-new-delhi"
+        }
+      ]
+    },
+    {
+      "id": "chhattisgarh",
+      "name": "Chhattisgarh",
+      "navLabel": "Chhattisgarh",
+      "href": "/mbbs-india/chhattisgarh",
+      "wpSlug": "mbbs-in-chhattisgarh",
+      "colleges": [
+        {
+          "name": "Raipur Institute of Medical Sciences",
+          "slug": "raipur-institute-of-medical-sciences",
+          "href": "/raipur-institute-of-medical-sciences"
+        },
+        {
+          "name": "Shri Rawatpura Sarkar Institute of Medical Sciences and Research",
+          "slug": "shri-rawatpura-sarkar-institute-of-medical-sciences-and-research",
+          "href": "/shri-rawatpura-sarkar-institute-of-medical-sciences-and-research"
+        },
+        {
+          "name": "Shri Balaji Institute of Medical Sciences",
+          "city": "Raipur",
+          "slug": "shri-balaji-institute-of-medical-sciences-raipur",
+          "href": "/shri-balaji-institute-of-medical-sciences-raipur"
+        },
+        {
+          "name": "Shree Shankaracharya Institute of Medical Sciences",
+          "slug": "shree-shankaracharya-institute-of-medical-sciences",
+          "href": "/shree-shankaracharya-institute-of-medical-sciences"
+        }
+      ]
+    },
+    {
+      "id": "jharkhand",
+      "name": "Jharkhand",
+      "navLabel": "Jharkhand",
+      "href": "/mbbs-india/jharkhand",
+      "wpSlug": "mbbs-in-jharkhand",
+      "colleges": [
+        {
+          "name": "Manipal TATA Medical College (MTMC)",
+          "city": "Jamshedpur",
+          "slug": "manipal-tata-medical-college-mtmc-jamshedpur",
+          "href": "/manipal-tata-medical-college-mtmc-jamshedpur"
+        }
+      ]
+    },
+    {
+      "id": "sikkim",
+      "name": "Sikkim",
+      "navLabel": "Sikkim",
+      "href": "/mbbs-india/sikkim",
+      "wpSlug": "mbbs-in-sikkim",
+      "colleges": [
+        {
+          "name": "Sikkim Manipal University",
+          "slug": "sikkim-manipal-university",
+          "href": "/sikkim-manipal-university"
+        }
+      ]
+    },
+    {
+      "id": "pondicherry",
+      "name": "Pondicherry",
+      "navLabel": "Pondicherry",
+      "href": "/mbbs-india/pondicherry",
+      "wpSlug": "mbbs-in-pondicherry",
+      "colleges": [
+        {
+          "name": "Aarupadai Veedu Medical College & Hospital",
+          "slug": "aarupadai-veedu-medical-college-hospital",
+          "href": "/aarupadai-veedu-medical-college-hospital"
+        },
+        {
+          "name": "Shri Lakshmi Narayan Institute of Medical Sciences",
+          "slug": "shri-lakshmi-narayan-institute-of-medical-sciences",
+          "href": "/shri-lakshmi-narayan-institute-of-medical-sciences"
+        },
+        {
+          "name": "Mahatma Gandhi Medical College & Research Institute",
+          "slug": "mahatma-gandhi-medical-college-research-institute",
+          "href": "/mahatma-gandhi-medical-college-research-institute"
+        }
+      ]
+    },
+    {
+      "id": "kerala",
+      "name": "Kerala",
+      "navLabel": "Kerala",
+      "href": "/mbbs-india/kerala",
+      "wpSlug": "mbbs-in-kerala",
+      "colleges": [
+        {
+          "name": "Amrita School of Medicine",
+          "city": "Kochi",
+          "slug": "international-school-of-medicine-kyrgyzstan",
+          "href": "/international-school-of-medicine-kyrgyzstan"
+        },
+        {
+          "name": "Jubilee Mission Medical College",
+          "city": "Thrissur",
+          "slug": null,
+          "href": "/mbbs-india/kerala"
+        },
+        {
+          "name": "Pushpagiri Institute of Medical Sciences",
+          "city": "Thiruvalla",
+          "slug": null,
+          "href": "/mbbs-india/kerala"
+        }
+      ]
+    },
+    {
+      "id": "west-bengal",
+      "name": "West Bengal",
+      "navLabel": "West Bengal",
+      "href": "/mbbs-india/west-bengal",
+      "wpSlug": "mbbs-in-west-bengal",
+      "colleges": [
+        {
+          "name": "ICARE Institute of Medical Sciences",
+          "slug": "icare-institute-of-medical-sciences",
+          "href": "/icare-institute-of-medical-sciences"
+        },
+        {
+          "name": "Santiniketan Medical College",
+          "slug": "santiniketan-medical-college",
+          "href": "/santiniketan-medical-college"
+        },
+        {
+          "name": "Gouri Devi Institute of Medical Sciences and Hospital",
+          "slug": "gouri-devi-institute-of-medical-sciences-and-hospital",
+          "href": "/gouri-devi-institute-of-medical-sciences-and-hospital"
+        },
+        {
+          "name": "JIS School of Medical Science & Research",
+          "slug": "jis-school-of-medical-science-research",
+          "href": "/jis-school-of-medical-science-research"
+        },
+        {
+          "name": "IQ City Medical College",
+          "slug": "iq-city-medical-college",
+          "href": "/iq-city-medical-college"
+        },
+        {
+          "name": "Shri Ramkrishna Institute of Medical Sciences",
+          "slug": "shri-ramkrishna-institute-of-medical-sciences",
+          "href": "/shri-ramkrishna-institute-of-medical-sciences"
+        },
+        {
+          "name": "Jagannath Gupta Institute of Medical Sciences",
+          "slug": "jagannath-gupta-institute-of-medical-sciences",
+          "href": "/jagannath-gupta-institute-of-medical-sciences"
+        },
+        {
+          "name": "KPC Medical College",
+          "slug": "kpc-medical-college",
+          "href": "/kpc-medical-college"
+        }
+      ]
+    },
+    {
+      "id": "tamil-nadu",
+      "name": "Tamil Nadu",
+      "navLabel": "Tamil Nadu",
+      "href": "/mbbs-india/tamil-nadu",
+      "wpSlug": "mbbs-in-tamil-nadu",
+      "colleges": [
+        {
+          "name": "Madras Medical College",
+          "city": "Chennai",
+          "slug": null,
+          "href": "/mbbs-india/tamil-nadu"
+        },
+        {
+          "name": "Christian Medical College",
+          "city": "Vellore",
+          "slug": "bicol-christian-college-of-medicine-philippines",
+          "href": "/bicol-christian-college-of-medicine-philippines"
+        },
+        {
+          "name": "Stanley Medical College",
+          "city": "Chennai",
+          "slug": null,
+          "href": "/mbbs-india/tamil-nadu"
+        },
+        {
+          "name": "Sri Ramachandra Medical College",
+          "city": "Chennai",
+          "slug": null,
+          "href": "/mbbs-india/tamil-nadu"
+        },
+        {
+          "name": "Chettinad Hospital and Research Institute",
+          "city": "Chennai",
+          "slug": null,
+          "href": "/mbbs-india/tamil-nadu"
+        }
+      ]
+    }
+  ]
+}

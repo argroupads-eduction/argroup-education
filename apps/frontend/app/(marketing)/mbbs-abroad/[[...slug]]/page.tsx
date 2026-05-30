@@ -1,118 +1,165 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { ContentJsonLd } from '@/components/content/ContentJsonLd';
+import { ContentPageShell } from '@/components/content/ContentPageShell';
+import { ProgramPageHero } from '@/components/content/ProgramPageHero';
+import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
+import { MbbsAbroadCountryGrid } from '@/components/mbbs-abroad/MbbsAbroadCountryGrid';
+import { MbbsAbroadIndexHero } from '@/components/mbbs-abroad/MbbsAbroadIndexHero';
+import { getContentBySlug } from '@/lib/contentApi';
+import {
+  MBBS_ABROAD_COUNTRIES,
+  getMbbsAbroadCountryById,
+  isMbbsAbroadThreeLevel,
+  mbbsAbroadCountryCollegeCount,
+} from '@/lib/mbbsAbroadTree';
+import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
 
 type PageProps = {
-  params: Promise<{
-    slug?: string[];
-  }>;
+  params: Promise<{ slug?: string[] }>;
 };
-
-function formatSlug(parts?: string[]) {
-  if (!parts || parts.length === 0) return 'MBBS Abroad';
-  return parts
-    .map((part) =>
-      part
-        .split('-')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
-    )
-    .join(' - ');
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const section = formatSlug(slug);
+  if (!slug?.length) {
+    return {
+      title: 'MBBS Abroad — Top Medical Universities',
+      description:
+        'Study MBBS abroad in Russia, Nepal, Bangladesh, Kazakhstan & more. WHO-listed universities with visa & admission support.',
+      alternates: { canonical: `${SITE_URL}/mbbs-abroad` },
+    };
+  }
+
+  const country = getMbbsAbroadCountryById(slug[0]);
+  if (!country) return { title: 'MBBS Abroad' };
+
+  const wp = country.wpSlug ? await getContentBySlug(country.wpSlug) : null;
+  const title = plainTitle(wp?.metaTitle || wp?.title || `MBBS in ${country.name}`);
+  const description =
+    wp?.metaDescription ||
+    metaDescriptionFromContent(wp?.excerpt, wp?.content || '', 160) ||
+    `Explore MBBS universities in ${country.name}.`;
+
   return {
-    title: `${section} | AR Group of Education`,
-    description: `Explore guidance and counselling resources for ${section}.`,
+    title,
+    description,
+    alternates: { canonical: `${SITE_URL}${country.href}` },
+    openGraph: { title, description, url: `${SITE_URL}${country.href}` },
   };
 }
 
 export default async function MbbsAbroadPage({ params }: PageProps) {
   const { slug } = await params;
-  const section = formatSlug(slug);
+
+  if (!slug?.length) {
+    return <MbbsAbroadIndexHero />;
+  }
+
+  const country = getMbbsAbroadCountryById(slug[0]);
+  if (!country) notFound();
+
+  if (slug.length >= 2 && isMbbsAbroadThreeLevel(country)) {
+    const university = country.universities?.find((u) => u.id === slug[1]);
+    if (!university) notFound();
+
+    const wpContent = university.slug ? await getContentBySlug(university.slug) : null;
+    const title = plainTitle(wpContent?.title || university.name);
+    const breadcrumbs = [
+      { label: 'MBBS Abroad', href: '/mbbs-abroad' },
+      { label: country.name, href: country.href },
+      { label: university.name },
+    ];
+
+    return (
+      <>
+        {wpContent ? (
+          <ContentJsonLd content={{ ...wpContent, slug: university.slug! }} breadcrumbs={breadcrumbs} />
+        ) : null}
+
+        <ProgramPageHero
+          title={title}
+          badge="MBBS Abroad"
+          theme="abroad"
+          breadcrumbs={breadcrumbs}
+          subtitle={`Universities in ${country.name} · NMC-aligned guidance`}
+          featuredImage={wpContent?.featuredImage}
+        />
+
+        {wpContent ? (
+          <ContentPageShell
+            html={wpContent.content}
+            featuredImage={wpContent.featuredImage}
+            title={title}
+            showFeaturedImage={false}
+          />
+        ) : null}
+
+        {university.colleges?.length ? (
+          <section className="bg-slate-50/50 py-12 md:py-16">
+            <div className="mx-auto max-w-7xl px-4">
+              <MbbsAbroadCountryGrid
+                country={{ ...country, colleges: university.colleges, universities: undefined }}
+              />
+            </div>
+          </section>
+        ) : null}
+      </>
+    );
+  }
+
+  const wpContent = country.wpSlug ? await getContentBySlug(country.wpSlug) : null;
+  const title = plainTitle(wpContent?.title || `MBBS in ${country.name}`);
+  const collegeCount = mbbsAbroadCountryCollegeCount(country);
+  const breadcrumbs = [
+    { label: 'MBBS Abroad', href: '/mbbs-abroad' },
+    { label: country.name },
+  ];
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 relative overflow-hidden flex items-center justify-center">
-        {/* Decorative elements */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 right-20 w-72 h-72 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 left-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        </div>
+      {wpContent ? <ContentJsonLd content={{ ...wpContent, slug: country.wpSlug! }} breadcrumbs={breadcrumbs} /> : null}
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-20">
-          {/* Header Badge */}
-          <div className="flex justify-center mb-12">
-            <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-6 py-2 text-white text-sm font-semibold inline-flex items-center gap-2">
-              <span className="text-2xl">✨</span>
-              MBBS Abroad - Global Pathways
-            </div>
-          </div>
+      <ProgramPageHero
+        title={title}
+        badge="MBBS Abroad"
+        theme="abroad"
+        breadcrumbs={breadcrumbs}
+        subtitle="WHO-listed universities · Fees, eligibility & visa support"
+        stats={
+          collegeCount > 0
+            ? [
+                { label: 'Universities', value: String(collegeCount) },
+                { label: 'Destination', value: country.name },
+              ]
+            : undefined
+        }
+        featuredImage={wpContent?.featuredImage}
+      />
 
-          {/* Main Heading */}
-          <div className="text-center space-y-6">
-            <p className="text-sm text-white/60">{section}</p>
-            {/* "Abroad" in orange */}
-            <h1 className="text-7xl md:text-8xl font-bold">
-              <span className="text-orange-400">Abroad</span>
-            </h1>
+      {wpContent ? (
+        <ContentPageShell
+          html={wpContent.content}
+          featuredImage={wpContent.featuredImage}
+          title={title}
+          showFeaturedImage={false}
+        />
+      ) : null}
 
-            {/* "Study MBBS - World-Class Universities" */}
-            <div className="space-y-2">
-              <h2 className="text-5xl md:text-6xl font-bold text-white leading-tight">
-                Study MBBS
-              </h2>
-              <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-                World-Class Universities
-              </h2>
-            </div>
-
-            {/* Description */}
-            <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mt-8">
-              Pursue your medical dreams at prestigious international universities with globally recognized degrees
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
-              <button className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-lg transition-colors">
-                Explore Countries
-              </button>
-              <button className="bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-bold py-3 px-8 rounded-lg transition-colors">
-                Free Counselling
-              </button>
-            </div>
-          </div>
+      <section className="bg-slate-50/50 py-12 md:py-16">
+        <div className="mx-auto max-w-7xl px-4">
+          <MbbsAbroadCountryGrid country={country} />
         </div>
       </section>
 
-      {/* Featured College Section */}
-      <section className="bg-white py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-8 md:p-12 text-white">
-            <div className="text-sm font-semibold tracking-wider mb-4 opacity-90">
-              FEATURED COLLEGE (ABROAD)
-            </div>
-            <h3 className="text-3xl md:text-4xl font-bold mb-6">
-              Al-Farabi Kazakh National University
-            </h3>
-            <p className="text-white/80 mb-6 max-w-2xl">
-              One of the leading universities in Central Asia, offering world-class MBBS education with modern facilities and experienced faculty.
-            </p>
-            <button className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-6 rounded-lg transition-colors">
-              Learn More
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Content Section */}
-      <section className="max-w-5xl mx-auto px-4 py-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-6">Why Study MBBS Abroad?</h2>
-        <p className="text-gray-700 mb-8">
-          Detailed content for this route is being prepared. You can still request free counselling from our team for personalized admission support.
-        </p>
-      </section>
+      <RelatedLinksPills
+        title="Explore other countries"
+        links={MBBS_ABROAD_COUNTRIES.filter((c) => c.id !== country.id).map((c) => ({
+          label: c.name,
+          href: c.href,
+        }))}
+      />
     </>
   );
 }
