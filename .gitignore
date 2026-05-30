@@ -10,6 +10,7 @@ apps/backend/.env.neon
 
 # Next.js
 .next/
+.vercel/
 
 # Build output
 dist/
