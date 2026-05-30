@@ -6,6 +6,7 @@ import { prepareWpHtml } from '@/lib/wpHtmlPrepare';
 import { parseContentStructure } from '@/lib/wpContentStructure';
 import { QuickFactsGrid } from './QuickFactsGrid';
 import { ContentTableOfContents } from './ContentTableOfContents';
+import { WpFaqEnhancer } from './WpFaqEnhancer';
 import { WpLazyReveal } from './WpLazyReveal';
 import { ContentSidebar } from './ContentSidebar';
 
@@ -33,6 +34,7 @@ export function ContentArticle({
   return (
     <article className="wp-content-root wp-content-premium wp-content-affinity">
       <WpLazyReveal />
+      <WpFaqEnhancer />
 
       {displayFeatured ? (
         <div className="relative mb-10 aspect-[21/9] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-lg ring-1 ring-black/5">

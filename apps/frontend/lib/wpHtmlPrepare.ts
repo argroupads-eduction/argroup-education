@@ -141,24 +141,30 @@ export function transformEaelAccordions(html: string): string {
   while ((match = headerRe.exec(html)) !== null) {
     const title = stripHtml(match[1]);
     const body = match[2].trim();
-    items.push(`<details class="wp-premium-faq">
-      <summary class="wp-premium-faq-summary"><h3 class="wp-faq-heading">${title}</h3></summary>
-      <div class="wp-premium-faq-body">${body}</div>
-    </details>`);
+    const num = String(items.length + 1).padStart(2, '0');
+    items.push(
+      `<details class="wp-premium-faq" style="--faq-i:${items.length}">` +
+        `<summary class="wp-premium-faq-summary">` +
+        `<span class="wp-premium-faq-qnum">${num}</span>` +
+        `<span class="wp-premium-faq-qtext">${escapeHtml(title)}</span>` +
+        `</summary>` +
+        `<div class="wp-premium-faq-body"><div class="wp-premium-faq-body-inner">${body}</div></div>` +
+        `</details>`
+    );
   }
 
   if (!items.length) return html;
 
   let out = html.replace(
     /<div class="eael-adv-accordion"[\s\S]*?<\/div>\s*(?=<\/div>\s*<\/div>)/i,
-    `<div class="wp-premium-faq-group">${items.join('')}</div>`
+    `<div class="wp-premium-faq-group wp-premium-faq-group--animated">${items.join('')}</div>`
   );
 
   // If wrapper replace missed, append transformed block and hide raw accordion via class
   if (!out.includes('wp-premium-faq-group')) {
     out = out.replace(
       /<div class="eael-adv-accordion"[\s\S]*?<\/div>\s*<\/div>/i,
-      `<div class="wp-premium-faq-group">${items.join('')}</div>`
+      `<div class="wp-premium-faq-group wp-premium-faq-group--animated">${items.join('')}</div>`
     );
   }
 
@@ -234,6 +240,71 @@ export function transformLongListsToGrid(html: string): string {
   return out;
 }
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function faqQuestionText(qInner: string): string | null {
+  const text = stripHtml(qInner);
+  const m = text.match(/^Q\s*(\d+)\s*[.:]\s*(.+)$/i);
+  return m ? m[2].trim() : null;
+}
+
+function faqAnswerHtml(aInner: string): string | null {
+  if (!/A\s*\d+/i.test(aInner)) return null;
+  let out = aInner.trim();
+  out = out.replace(/^(?:<b>\s*)?A\s*\d+\s*[.:]\s*<\/b>\s*/i, '');
+  out = out.replace(/^(?:<span[^>]*>\s*)?A\s*\d+\s*[.:]\s*/i, (m) => {
+    const open = m.match(/^<span[^>]*>/)?.[0];
+    return open ?? '';
+  });
+  out = out.replace(/^A\s*\d+\s*[.:]\s*/i, '');
+  out = out.replace(/^<\/b>\s*/i, '');
+  return out.trim() || null;
+}
+
+/** WP "FAQs" blocks: Q1/A1 paragraph pairs → collapsible accordion (answers hidden until open). */
+export function transformWpFaqParagraphs(html: string): string {
+  const sectionRe =
+    /(<h[23][^>]*>[\s\S]*?FAQs?[\s\S]*?<\/h[23]>)(\s*)([\s\S]*?)(?=\s*<div class="xs_social|\s*<\/div>\s*<\/div>\s*<\/section|\s*<section\b|$)/gi;
+
+  return html.replace(sectionRe, (full, heading, _sp, body) => {
+    const items: string[] = [];
+    const pairRe = /<p[^>]*>([\s\S]*?)<\/p>\s*<p[^>]*>([\s\S]*?)<\/p>/gi;
+    let m: RegExpExecArray | null;
+
+    while ((m = pairRe.exec(body)) !== null) {
+      if (!/Q\s*\d+/i.test(m[1])) break;
+      const qTitle = faqQuestionText(m[1]);
+      const answer = faqAnswerHtml(m[2]);
+      if (!qTitle || !answer) continue;
+
+      const num = (m[1].match(/Q\s*(\d+)/i) || m[2].match(/A\s*(\d+)/i))?.[1] ?? String(items.length + 1);
+      items.push(
+        `<details class="wp-premium-faq" style="--faq-i:${items.length}">` +
+          `<summary class="wp-premium-faq-summary">` +
+          `<span class="wp-premium-faq-qnum">${num.padStart(2, '0')}</span>` +
+          `<span class="wp-premium-faq-qtext">${escapeHtml(qTitle)}</span>` +
+          `</summary>` +
+          `<div class="wp-premium-faq-body"><div class="wp-premium-faq-body-inner">${answer}</div></div>` +
+          `</details>`
+      );
+    }
+
+    if (!items.length) return full;
+
+    const titledHeading = heading.replace(/<h([23])\b/i, '<h$1 class="wp-faq-section-title"');
+    return (
+      `${titledHeading}` +
+      `<div class="wp-premium-faq-group wp-premium-faq-group--animated">${items.join('')}</div>`
+    );
+  });
+}
+
 export function prepareWpHtml(
   html: string,
   options?: { featuredImage?: string | null; title?: string }
@@ -246,6 +317,7 @@ export function prepareWpHtml(
   out = stripBrokenIconWidgets(out);
   out = transformLongListsToGrid(out);
   out = transformEaelAccordions(out);
+  out = transformWpFaqParagraphs(out);
   out = replaceBrokenEmbeddedForms(out);
   out = constrainInlineSvgs(out);
   return out;
