@@ -21,9 +21,24 @@ type WpExportDoc = {
 let cache: Map<string, SiteContent> | null = null;
 let loadPromise: Promise<Map<string, SiteContent>> | null = null;
 
-function wpExportDir(): string {
-  // apps/frontend cwd → repo root data/wp-export
-  return path.resolve(process.cwd(), '../../data/wp-export');
+/** Production bundle (committed) then local full export (gitignored). */
+function wpExportDirs(): string[] {
+  return [
+    path.resolve(process.cwd(), 'data/wp-export-bundle'),
+    path.resolve(process.cwd(), '../../data/wp-export'),
+  ];
+}
+
+async function resolveWpExportDir(): Promise<string | null> {
+  for (const dir of wpExportDirs()) {
+    try {
+      await readFile(path.join(dir, 'pages.json'));
+      return dir;
+    } catch {
+      /* try next */
+    }
+  }
+  return null;
 }
 
 function toSiteContent(doc: WpExportDoc, type: 'page' | 'post'): SiteContent {
@@ -48,7 +63,11 @@ async function loadExportIndex(): Promise<Map<string, SiteContent>> {
   if (loadPromise) return loadPromise;
 
   loadPromise = (async () => {
-    const dir = wpExportDir();
+    const dir = await resolveWpExportDir();
+    if (!dir) {
+      cache = new Map();
+      return cache;
+    }
     const [pagesRaw, postsRaw] = await Promise.all([
       readFile(path.join(dir, 'pages.json'), 'utf8').catch(() => '[]'),
       readFile(path.join(dir, 'posts.json'), 'utf8').catch(() => '[]'),
@@ -91,7 +110,8 @@ export async function getWpExportBlogPosts(
   limit = 12
 ): Promise<{ data: BlogListItem[]; total: number; pages: number }> {
   try {
-    const dir = wpExportDir();
+    const dir = await resolveWpExportDir();
+    if (!dir) return { data: [], total: 0, pages: 0 };
     const raw = await readFile(path.join(dir, 'posts.json'), 'utf8');
     const posts = JSON.parse(raw) as WpExportDoc[];
     const sorted = [...posts].sort(

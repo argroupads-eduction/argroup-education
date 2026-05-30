@@ -46,7 +46,7 @@ export async function getContentBySlug(slug: string): Promise<SiteContent | null
     /* API offline — fall through to local export */
   }
 
-  // 2) Local wp-export JSON (works without backend in dev)
+  // 2) Bundled wp-export JSON (Vercel) or repo data/wp-export (local dev)
   const { getWpExportContentBySlug } = await import('@/lib/wpExportContent');
   return getWpExportContentBySlug(slug);
 }

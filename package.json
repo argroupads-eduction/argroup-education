@@ -29,7 +29,8 @@
     "neon:init": "node apps/backend/scripts/setup-neon-env.mjs && npm run db:deploy && npm run wp:import",
     "wp:import:pages": "npm run wp:import:pages --workspace=ar-education-backend",
     "build:mbbs-india": "node scripts/build-mbbs-india-tree.mjs",
-    "build:mbbs-abroad": "node scripts/build-mbbs-abroad-tree.mjs"
+    "build:mbbs-abroad": "node scripts/build-mbbs-abroad-tree.mjs",
+    "build:wp-bundle": "node scripts/build-wp-production-bundle.mjs"
   },
   "workspaces": [
     "apps/frontend",
