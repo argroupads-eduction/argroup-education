@@ -9,7 +9,9 @@ export function WpFaqEnhancer() {
     const cleanups: (() => void)[] = [];
 
     groups.forEach((group) => {
-      const items = Array.from(group.querySelectorAll('details.wp-premium-faq'));
+      const items = Array.from(
+        group.querySelectorAll<HTMLDetailsElement>('details.wp-premium-faq')
+      );
 
       items.forEach((detail) => {
         const onToggle = () => {
