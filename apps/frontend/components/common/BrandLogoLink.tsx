@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import type { MouseEvent, ReactNode } from 'react';
 
 type BrandLogoLinkProps = {
@@ -16,7 +17,7 @@ export function BrandLogoLink({ children, className = '', frameClassName = '' }:
   };
 
   return (
-    <a
+    <Link
       href="/"
       onClick={goHomeReload}
       className={['brand-logo-link', className].filter(Boolean).join(' ')}
@@ -25,6 +26,6 @@ export function BrandLogoLink({ children, className = '', frameClassName = '' }:
       <span className={['brand-logo-link__frame', frameClassName].filter(Boolean).join(' ')}>
         {children}
       </span>
-    </a>
+    </Link>
   );
 }

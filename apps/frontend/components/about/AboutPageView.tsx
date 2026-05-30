@@ -51,7 +51,7 @@ const HIGHLIGHT_ICONS: Record<string, LucideIcon> = {
 const fadeUp = {
   initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+  transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] as const },
   viewport: { once: true, margin: '-60px' },
 };
 
@@ -222,7 +222,7 @@ export function AboutPageView() {
               className="about-journey-showcase"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] as const }}
               viewport={{ once: true, margin: '-40px' }}
               aria-label="AR Group milestones at a glance"
             >
