@@ -5,6 +5,7 @@ import { Footer } from '@/components/common/Footer';
 import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
 import '@/styles/globals.css';
 import '@/styles/wp-content.css';
+import '@/styles/blog.css';
 
 // Font imports
 const inter = Inter({

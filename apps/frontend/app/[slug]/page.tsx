@@ -6,7 +6,8 @@ import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
-import { getContentBySlug } from '@/lib/contentApi';
+import { BlogPostLayout } from '@/components/blog/BlogPostLayout';
+import { getBlogPosts, getContentBySlug } from '@/lib/contentApi';
 import { findProgramContextBySlug } from '@/lib/programBreadcrumbs';
 import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 
@@ -69,6 +70,28 @@ export default async function WpSlugPage({ params }: PageProps) {
 
   const title = plainTitle(content.title);
   const program = findProgramContextBySlug(decoded);
+
+  const breadcrumbs = program?.breadcrumbs ?? [
+    ...(content.type === 'post' ? [{ label: 'Blog', href: '/blog' }] : []),
+    { label: title },
+  ];
+
+  if (content.type === 'post') {
+    const { data: latestPosts } = await getBlogPosts(1, 12);
+    return (
+      <>
+        <ContentJsonLd content={content} breadcrumbs={breadcrumbs} />
+        <BlogPostLayout
+          content={content}
+          latestPosts={latestPosts}
+          breadcrumbs={breadcrumbs}
+        />
+      </>
+    );
+  }
+
+  const theme = program?.theme ?? 'default';
+  const badge = program?.badge ?? 'Guide';
   const published = content.publishedAt
     ? new Date(content.publishedAt).toLocaleDateString('en-IN', {
         year: 'numeric',
@@ -76,14 +99,6 @@ export default async function WpSlugPage({ params }: PageProps) {
         day: 'numeric',
       })
     : null;
-
-  const breadcrumbs = program?.breadcrumbs ?? [
-    ...(content.type === 'post' ? [{ label: 'Blog', href: '/blog' }] : []),
-    { label: title },
-  ];
-
-  const theme = program?.theme ?? (content.type === 'post' ? 'default' : 'default');
-  const badge = program?.badge ?? (content.type === 'post' ? 'Blog' : 'Guide');
 
   return (
     <>
@@ -104,29 +119,25 @@ export default async function WpSlugPage({ params }: PageProps) {
         title={title}
         showFeaturedImage={false}
         published={published}
-        publishedLabel={content.type === 'post' ? 'Published' : 'Last updated'}
+        publishedLabel="Last updated"
       />
 
       <div className="border-t border-slate-200 bg-white py-6 sm:py-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:px-4">
           <Link
             href={
-              content.type === 'post'
-                ? '/blog'
-                : program?.program === 'india'
-                  ? '/mbbs-india'
-                  : program?.program === 'abroad'
-                    ? '/mbbs-abroad'
-                    : '/'
+              program?.program === 'india'
+                ? '/mbbs-india'
+                : program?.program === 'abroad'
+                  ? '/mbbs-abroad'
+                  : '/'
             }
             className="inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-navy-900 transition hover:text-gold-600"
           >
             <ArrowLeft className="h-4 w-4" />
-            {content.type === 'post'
-              ? 'All articles'
-              : program
-                ? `Back to MBBS ${program.program === 'india' ? 'India' : 'Abroad'}`
-                : 'Back to home'}
+            {program
+              ? `Back to MBBS ${program.program === 'india' ? 'India' : 'Abroad'}`
+              : 'Back to home'}
           </Link>
           <Link
             href="/contact"
