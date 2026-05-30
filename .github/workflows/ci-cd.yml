@@ -27,6 +27,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Generate Prisma client
+        working-directory: apps/backend
+        run: npx prisma generate
+
       - name: Lint
         run: npm run lint
 
