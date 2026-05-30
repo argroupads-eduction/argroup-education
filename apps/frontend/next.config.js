@@ -14,7 +14,7 @@ const outputFileTracingRoot = resolveOutputFileTracingRoot();
 
 /** Marketing images referenced as plain /filename paths in components. */
 const PUBLIC_MARKETING_ASSETS = [
-  'ar-group-logo.webp',
+  'ar-group-logo.png',
   'india-homepage.jpg',
   'abroad-homepage.jpg',
   'about-counsellor.png',

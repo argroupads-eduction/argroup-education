@@ -581,35 +581,26 @@ function LeadCaptureFormPanel({
 
   if (isMobile) {
     return (
-      <>
-        <Dialog.Description
-          id="lead-capture-desc"
-          className="sr-only"
-        >
-          AR Group MBBS abroad counselling — enter your details for a callback.
-        </Dialog.Description>
-
-        <form
-          id={formId}
-          onSubmit={onSubmit}
-          className="flex w-full min-w-0 flex-col gap-2 overflow-hidden px-3.5 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2"
-          noValidate
-        >
-          {fieldsBlock}
-          <div className="space-y-1.5 border-t border-slate-100/90 pt-1.5">{submitBlock}</div>
-        </form>
-      </>
+      <form
+        id={formId}
+        onSubmit={onSubmit}
+        className="flex w-full min-w-0 flex-col gap-2 overflow-hidden px-3.5 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2"
+        noValidate
+      >
+        {fieldsBlock}
+        <div className="space-y-1.5 border-t border-slate-100/90 pt-1.5">{submitBlock}</div>
+      </form>
     );
   }
 
   return (
     <>
-      <Dialog.Title className="pr-10 font-serif text-[1.35rem] font-bold leading-tight text-navy-900 md:pr-0 md:text-[1.65rem]">
+      <h2 className="pr-10 font-serif text-[1.35rem] font-bold leading-tight text-navy-900 md:pr-0 md:text-[1.65rem]">
         Looking for MBBS Abroad?
-      </Dialog.Title>
-      <Dialog.Description id="lead-capture-desc" className="mt-1.5 text-[13px] leading-relaxed text-slate-600 md:text-sm">
+      </h2>
+      <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600 md:text-sm">
         Share your details — AR Group counsellors will call you with tailored university options.
-      </Dialog.Description>
+      </p>
 
       <form id={formId} onSubmit={onSubmit} className="mt-4 w-full min-w-0 space-y-3.5" noValidate>
         {fieldsBlock}
@@ -839,6 +830,11 @@ export function LeadCapturePopup() {
                     exit="hidden"
                     variants={contentVariants}
                   >
+                    <Dialog.Title className="sr-only">Looking for MBBS Abroad?</Dialog.Title>
+                    <Dialog.Description id="lead-capture-desc" className="sr-only">
+                      Share your details — AR Group counsellors will call you with tailored university options.
+                    </Dialog.Description>
+
                     <motion.div
                       role="document"
                       className="relative flex h-[100dvh] max-h-[100dvh] min-h-0 w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5 sm:h-auto sm:max-h-[min(90vh,44rem)] sm:rounded-2xl md:flex-row"

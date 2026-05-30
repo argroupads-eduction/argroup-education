@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { BlogListItem, SiteContent } from '@/lib/contentApi';
+import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 
 type WpExportDoc = {
   wpId?: number;
@@ -41,17 +42,22 @@ async function resolveWpExportDir(): Promise<string | null> {
   return null;
 }
 
+function normalizeText(value: string | null | undefined): string {
+  if (!value) return '';
+  return plainTextFromHtml(value);
+}
+
 function toSiteContent(doc: WpExportDoc, type: 'page' | 'post'): SiteContent {
   return {
     id: String(doc.wpId ?? doc.slug),
     type,
-    title: doc.title,
+    title: normalizeText(doc.title),
     slug: doc.slug,
     content: doc.content,
-    excerpt: doc.excerpt ?? '',
+    excerpt: normalizeText(doc.excerpt),
     featuredImage: doc.featuredImage ?? null,
-    metaTitle: doc.metaTitle ?? null,
-    metaDescription: doc.metaDescription ?? null,
+    metaTitle: doc.metaTitle ? normalizeText(doc.metaTitle) : null,
+    metaDescription: doc.metaDescription ? normalizeText(doc.metaDescription) : null,
     canonicalUrl: doc.canonicalUrl ?? null,
     publishedAt: doc.date ?? doc.modified ?? null,
     updatedAt: doc.modified ?? doc.date ?? new Date().toISOString(),
@@ -122,9 +128,9 @@ export async function getWpExportBlogPosts(
     const slice = sorted.slice((page - 1) * limit, page * limit);
     const data = slice.map((doc) => ({
       id: String(doc.wpId ?? doc.slug),
-      title: doc.title,
+      title: normalizeText(doc.title),
       slug: doc.slug,
-      excerpt: doc.excerpt ?? '',
+      excerpt: normalizeText(doc.excerpt),
       featuredImage: doc.featuredImage ?? null,
       category: 'Blog',
       publishedAt: doc.date ?? doc.modified ?? new Date().toISOString(),

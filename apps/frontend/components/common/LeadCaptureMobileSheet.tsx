@@ -63,13 +63,15 @@ export function LeadCaptureMobileSheet({
               />
             </Dialog.Overlay>
 
-            <Dialog.Content
-              asChild
-              forceMount
-              aria-labelledby="lead-capture-title"
-              aria-describedby="lead-capture-desc"
-            >
+            <Dialog.Content asChild forceMount aria-describedby="lead-capture-desc">
               <div className="fixed inset-0 z-[101] flex items-center justify-center px-4 py-[max(0.75rem,env(safe-area-inset-top,0px))] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">
+                <Dialog.Title id="lead-capture-title" className="sr-only">
+                  {title}
+                </Dialog.Title>
+                <Dialog.Description id="lead-capture-desc" className="sr-only">
+                  AR Group MBBS abroad counselling — enter your details for a callback.
+                </Dialog.Description>
+
                 <motion.div
                   className="relative flex w-full max-w-[min(100%,22.5rem)] min-h-0 max-h-[min(88dvh,36rem)] flex-col overflow-hidden rounded-2xl border border-navy-200/20 bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5"
                   initial="hidden"
@@ -77,10 +79,6 @@ export function LeadCaptureMobileSheet({
                   exit="hidden"
                   variants={sheetVariants}
                 >
-                  <Dialog.Title id="lead-capture-title" className="sr-only">
-                    {title}
-                  </Dialog.Title>
-
                   <div className="relative shrink-0 overflow-hidden bg-navy-900 text-white">
                     <Dialog.Close asChild>
                       <button

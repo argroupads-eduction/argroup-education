@@ -496,7 +496,10 @@
 /* ── Images ── */
 .wp-content-root .wp-content-body img {
   max-width: 100%;
+  width: auto;
   height: auto;
+  max-height: none;
+  object-fit: contain;
   border-radius: var(--wp-radius);
   margin: 1.25rem auto;
   display: block;

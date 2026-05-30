@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../lib/prisma';
+import { prisma, withPrismaRetry } from '../lib/prisma';
 
 const router = Router();
 
@@ -23,14 +23,16 @@ router.get('/:slug', async (req: Request, res: Response) => {
       return;
     }
 
-    const [post, page] = await Promise.all([
-      prisma.blogPost.findFirst({
-        where: { slug, published: true },
-      }),
-      prisma.sitePage.findFirst({
-        where: { slug, published: true },
-      }),
-    ]);
+    const [post, page] = await withPrismaRetry(() =>
+      Promise.all([
+        prisma.blogPost.findFirst({
+          where: { slug, published: true },
+        }),
+        prisma.sitePage.findFirst({
+          where: { slug, published: true },
+        }),
+      ])
+    );
 
     const doc = post ?? page;
     if (!doc) {

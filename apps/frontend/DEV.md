@@ -15,7 +15,7 @@ From the **repo root**:
 npm run dev
 ```
 
-This runs **Payload CMS on port 8000** and the **Next.js frontend on port 3000** (`dev:website`).
+This runs **Express backend on port 3001** (Neon via Prisma) and **Next.js on port 3000** (`dev:stack`).
 
 For CMS + Express backend + frontend:
 

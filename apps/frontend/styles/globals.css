@@ -192,6 +192,40 @@
     hyphens: auto;
     line-height: 0.95;
   }
+
+  /* Images — never crop; container fits image */
+  .fit-image-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+    background: rgb(241 245 249);
+  }
+
+  .fit-image-frame__img {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100%;
+    max-height: min(70vh, 28rem);
+    object-fit: contain !important;
+  }
+
+  .horizontal-scroll-row {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) transparent;
+    scroll-snap-type: x proximity;
+  }
+
+  .horizontal-scroll-row::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .horizontal-scroll-row::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: rgb(203 213 225);
+  }
 }
 
 @layer components {

@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { FitImage } from '@/components/ui/FitImage';
 import { ArrowRight, Phone } from 'lucide-react';
 import { ContentBreadcrumbs, type BreadcrumbItem } from './ContentBreadcrumbs';
 
-type ProgramTheme = 'india' | 'abroad' | 'default';
+type ProgramTheme = 'india' | 'abroad' | 'mdms' | 'default';
 
 type ProgramPageHeroProps = {
   title: string;
@@ -18,6 +18,7 @@ type ProgramPageHeroProps = {
 const THEME_STYLES: Record<ProgramTheme, string> = {
   india: 'bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900',
   abroad: 'bg-gradient-to-br from-blue-950 via-navy-900 to-blue-900',
+  mdms: 'bg-gradient-to-br from-indigo-950 via-navy-900 to-indigo-900',
   default: 'bg-gradient-to-br from-slate-900 via-navy-900 to-slate-800',
 };
 
@@ -83,17 +84,14 @@ export function ProgramPageHero({
           </div>
 
           {featuredImage ? (
-            <div className="relative mx-auto aspect-[4/3] w-full max-w-lg overflow-hidden rounded-2xl border border-white/15 shadow-2xl lg:max-w-none">
-              <Image
+            <div className="mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-white/15 shadow-2xl lg:max-w-none">
+              <FitImage
                 src={featuredImage}
                 alt={title}
-                fill
                 priority
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 480px"
-                unoptimized
+                maxHeight="20rem"
+                frameClassName="rounded-2xl bg-navy-950/40"
               />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-900/50 via-transparent to-transparent" />
             </div>
           ) : null}
         </div>

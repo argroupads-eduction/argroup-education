@@ -1,5 +1,6 @@
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadCollegesByCountry';
 import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaCollegesByState';
+import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 
 // Site Constants
 export const SITE_NAME = 'AR Group of Education';
@@ -35,7 +36,7 @@ export const NAV_LINKS = [
       label: state.navLabel,
       stateName: state.name,
       href: state.href,
-      colleges: state.colleges.map((c) => ({ label: c.name, href: `/home#${state.id}` })),
+      colleges: state.colleges.map((c) => ({ label: c.name, href: c.href })),
     })),
   },
   {
@@ -60,20 +61,14 @@ export const NAV_LINKS = [
       })),
     })),
   },
-  { 
-    label: 'MD/MS', 
+  {
+    label: 'MD/MS',
     href: '/md-ms',
-    submenu: [
-      { label: 'MD/MS in UP', href: '/md-ms/up' },
-      { label: 'MD/MS in Karnataka', href: '/md-ms/karnataka' },
-      { label: 'MD/MS in Haryana', href: '/md-ms/haryana' },
-      { label: 'MD/MS in Madhya Pradesh', href: '/md-ms/mp' },
-      { label: 'MD/MS in Chhattisgarh', href: '/md-ms/chhattisgarh' },
-      { label: 'MD/MS in Rajasthan', href: '/md-ms/rajasthan' },
-      { label: 'MD/MS in Maharashtra', href: '/md-ms/maharashtra' },
-      { label: 'MD/MS in Uttarakhand', href: '/md-ms/uttarakhand' },
-      { label: 'MD/MS in Tamil Nadu', href: '/md-ms/tamil-nadu' },
-    ]
+    megaMenu: 'md-ms' as const,
+    submenu: MD_MS_NAV_ITEMS.map((item) => ({
+      label: item.label,
+      href: item.href,
+    })),
   },
   { 
     label: 'Latest Updates', 

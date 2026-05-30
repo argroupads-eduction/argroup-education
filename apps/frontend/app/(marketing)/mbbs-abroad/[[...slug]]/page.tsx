@@ -5,7 +5,8 @@ import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { MbbsAbroadCountryGrid } from '@/components/mbbs-abroad/MbbsAbroadCountryGrid';
-import { MbbsAbroadIndexHero } from '@/components/mbbs-abroad/MbbsAbroadIndexHero';
+import { MbbsAbroadHub } from '@/components/program-hub/MbbsAbroadHub';
+import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { getContentBySlug } from '@/lib/contentApi';
 import {
   MBBS_ABROAD_COUNTRIES,
@@ -24,11 +25,19 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   if (!slug?.length) {
+    const seo = PROGRAM_HUB_SEO.abroad;
+    const wp = await getContentBySlug(PROGRAM_HUB_WP_SLUG.abroad);
+    const title = plainTitle(wp?.metaTitle || seo.title);
+    const description =
+      wp?.metaDescription ||
+      metaDescriptionFromContent(wp?.excerpt, wp?.content || '', 160) ||
+      seo.description;
+
     return {
-      title: 'MBBS Abroad — Top Medical Universities',
-      description:
-        'Study MBBS abroad in Russia, Nepal, Bangladesh, Kazakhstan & more. WHO-listed universities with visa & admission support.',
-      alternates: { canonical: `${SITE_URL}/mbbs-abroad` },
+      title,
+      description,
+      alternates: { canonical: `${SITE_URL}${seo.path}` },
+      openGraph: { title, description, url: `${SITE_URL}${seo.path}` },
     };
   }
 
@@ -54,7 +63,8 @@ export default async function MbbsAbroadPage({ params }: PageProps) {
   const { slug } = await params;
 
   if (!slug?.length) {
-    return <MbbsAbroadIndexHero />;
+    const wpContent = await getContentBySlug(PROGRAM_HUB_WP_SLUG.abroad);
+    return <MbbsAbroadHub wpContent={wpContent} />;
   }
 
   const country = getMbbsAbroadCountryById(slug[0]);

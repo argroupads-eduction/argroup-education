@@ -12,6 +12,7 @@
     "migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
+    "db:ping": "node scripts/test-db-connection.mjs",
     "seed": "ts-node src/seed.ts",
     "wp:import": "node --env-file=.env scripts/import-wp.mjs",
     "wp:import:pages": "node --env-file=.env scripts/import-wp.mjs -- --pages-only"

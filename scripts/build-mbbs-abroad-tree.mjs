@@ -16,7 +16,10 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const COUNTRIES_PATH = path.join(REPO_ROOT, 'data', 'mbbs-abroad-countries.json');
 const OUT_PATH = path.join(REPO_ROOT, 'data', 'mbbs-abroad-tree.json');
 const FRONTEND_OUT = path.join(REPO_ROOT, 'apps', 'frontend', 'data', 'mbbs-abroad-tree.json');
-const WP_JSON = path.join(REPO_ROOT, 'data', 'wp-export', 'pages.json');
+const WP_JSON_CANDIDATES = [
+  path.join(REPO_ROOT, 'apps', 'frontend', 'data', 'wp-export-bundle', 'pages.json'),
+  path.join(REPO_ROOT, 'data', 'wp-export', 'pages.json'),
+];
 
 const COUNTRY_WP_SLUG = {
   russia: ['study-mbbs-in-russia', 'mbbs-in-russia'],
@@ -81,19 +84,33 @@ function parseWxrXml(xml) {
   return pages;
 }
 
+function mapJsonPage(p) {
+  return {
+    slug: p.slug,
+    title: typeof p.title === 'string' ? p.title : p.title?.rendered || p.slug,
+    featuredImage: p.featuredImage || null,
+  };
+}
+
 async function loadWpPages(sourceArg) {
   if (sourceArg?.endsWith('.xml')) {
     const xml = await readFile(sourceArg, 'utf8');
     return { pages: parseWxrXml(xml), source: sourceArg };
   }
-  const raw = await readFile(WP_JSON, 'utf8');
-  return {
-    pages: JSON.parse(raw).map((p) => ({
-      slug: p.slug,
-      title: p.title?.rendered || p.title || p.slug,
-    })),
-    source: 'data/wp-export/pages.json',
-  };
+  for (const wpPath of WP_JSON_CANDIDATES) {
+    try {
+      const raw = await readFile(wpPath, 'utf8');
+      return { pages: JSON.parse(raw).map(mapJsonPage), source: wpPath };
+    } catch {
+      /* try next */
+    }
+  }
+  throw new Error('No pages source found. Run npm run wp:export or pass path to .xml export.');
+}
+
+function imageForSlug(slug, pageBySlug) {
+  if (!slug) return null;
+  return pageBySlug.get(slug)?.featuredImage || null;
 }
 
 function findPageSlug(name, pages) {
@@ -126,12 +143,13 @@ function resolveCountryWpSlug(countryId, slugSet) {
   return candidates.find((s) => slugSet.has(s)) ?? null;
 }
 
-function mapCollege(college, pages, fallbackHref) {
+function mapCollege(college, pages, pageBySlug, fallbackHref) {
   const slug = findPageSlug(college.name, pages);
   return {
     name: college.name,
     slug: slug || null,
     href: slug ? `/${slug}` : fallbackHref,
+    image: imageForSlug(slug, pageBySlug),
   };
 }
 
@@ -140,6 +158,7 @@ async function main() {
   const countries = JSON.parse(await readFile(COUNTRIES_PATH, 'utf8'));
   const { pages, source } = await loadWpPages(sourceArg);
   const slugSet = new Set(pages.map((p) => p.slug));
+  const pageBySlug = new Map(pages.map((p) => [p.slug, p]));
 
   let matched = 0;
   let total = 0;
@@ -154,7 +173,7 @@ async function main() {
 
       const colleges = (country.colleges ?? []).map((c) => {
         total++;
-        const mapped = mapCollege(c, pages, countryFallback);
+        const mapped = mapCollege(c, pages, pageBySlug, countryFallback);
         if (mapped.slug) matched++;
         else unmatched.push({ country: country.name, college: c.name });
         return mapped;
@@ -165,7 +184,7 @@ async function main() {
         const uHref = uSlug ? `/${uSlug}` : u.href;
         const uColleges = (u.colleges ?? []).map((c) => {
           total++;
-          const mapped = mapCollege(c, pages, uHref);
+          const mapped = mapCollege(c, pages, pageBySlug, uHref);
           if (mapped.slug) matched++;
           else unmatched.push({ country: country.name, college: c.name });
           return mapped;
@@ -185,6 +204,7 @@ async function main() {
         navLabel: country.navLabel,
         href: country.href,
         wpSlug,
+        featuredImage: imageForSlug(wpSlug, pageBySlug),
         colleges: colleges.length ? colleges : undefined,
         universities: universities.length ? universities : undefined,
       };

@@ -6,6 +6,9 @@ import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
 import '@/styles/globals.css';
 import '@/styles/wp-content.css';
 import '@/styles/blog.css';
+import '@/styles/nav-mega.css';
+import '@/styles/program-hub.css';
+import '@/styles/brand-logo.css';
 
 // Font imports
 const inter = Inter({

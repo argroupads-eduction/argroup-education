@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CollegeCard } from './CollegeCard';
+import { HorizontalScrollItem, HorizontalScrollRow } from '@/components/ui/HorizontalScrollRow';
 import type { MbbsIndiaStateColleges } from '@/lib/mbbsIndiaTree';
 
 type MbbsIndiaStateGridProps = {
@@ -27,16 +28,20 @@ export function MbbsIndiaStateGrid({ state }: MbbsIndiaStateGridProps) {
         </Link>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <HorizontalScrollRow ariaLabel={`${state.name} colleges`} gapClassName="gap-4">
         {state.colleges.map((college, index) => (
-          <CollegeCard
+          <HorizontalScrollItem
             key={`${state.id}-${college.name}-${index}`}
-            college={college}
-            index={index}
-            variant={index < 2 ? 'featured' : 'default'}
-          />
+            className="w-[17.5rem] sm:w-[19rem] md:w-[20rem]"
+          >
+            <CollegeCard
+              college={college}
+              index={index}
+              variant={index < 2 ? 'featured' : 'default'}
+            />
+          </HorizontalScrollItem>
         ))}
-      </div>
+      </HorizontalScrollRow>
     </div>
   );
 }

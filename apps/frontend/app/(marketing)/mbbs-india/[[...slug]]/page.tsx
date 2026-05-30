@@ -4,7 +4,8 @@ import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
-import { MbbsIndiaIndexHero } from '@/components/mbbs-india/MbbsIndiaIndexHero';
+import { MbbsIndiaHub } from '@/components/program-hub/MbbsIndiaHub';
+import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { MbbsIndiaStateGrid } from '@/components/mbbs-india/MbbsIndiaStateGrid';
 import { getContentBySlug } from '@/lib/contentApi';
 import { MBBS_INDIA_STATES, getMbbsIndiaStateBySlugPart } from '@/lib/mbbsIndiaTree';
@@ -19,11 +20,19 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   if (!slug?.length) {
+    const seo = PROGRAM_HUB_SEO.india;
+    const wp = await getContentBySlug(PROGRAM_HUB_WP_SLUG.india);
+    const title = plainTitle(wp?.metaTitle || seo.title);
+    const description =
+      wp?.metaDescription ||
+      metaDescriptionFromContent(wp?.excerpt, wp?.content || '', 160) ||
+      seo.description;
+
     return {
-      title: 'MBBS in India — State-wise Medical Colleges',
-      description:
-        'Explore MBBS colleges across Indian states. Fees, NEET cut-offs, eligibility, and expert admission counselling.',
-      alternates: { canonical: `${SITE_URL}/mbbs-india` },
+      title,
+      description,
+      alternates: { canonical: `${SITE_URL}${seo.path}` },
+      openGraph: { title, description, url: `${SITE_URL}${seo.path}` },
     };
   }
 
@@ -49,7 +58,8 @@ export default async function MbbsIndiaPage({ params }: PageProps) {
   const { slug } = await params;
 
   if (!slug?.length) {
-    return <MbbsIndiaIndexHero />;
+    const wpContent = await getContentBySlug(PROGRAM_HUB_WP_SLUG.india);
+    return <MbbsIndiaHub wpContent={wpContent} />;
   }
 
   const state = getMbbsIndiaStateBySlugPart(slug[0]);
