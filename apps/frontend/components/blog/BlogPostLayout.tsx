@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Clock, Calendar } from 'lucide-react';
 import type { BlogListItem, SiteContent } from '@/lib/contentApi';
@@ -6,7 +5,9 @@ import { prepareWpHtml, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 import { parseContentStructure } from '@/lib/wpContentStructure';
 import { ContentTableOfContents } from '@/components/content/ContentTableOfContents';
 import { QuickFactsGrid } from '@/components/content/QuickFactsGrid';
+import { WpFaqEnhancer } from '@/components/content/WpFaqEnhancer';
 import { WpLazyReveal } from '@/components/content/WpLazyReveal';
+import { BlogImage } from './BlogImage';
 import { BlogLatestSidebar } from './BlogLatestSidebar';
 import { formatBlogDate, readingTimeMinutes } from '@/lib/blogUtils';
 
@@ -63,17 +64,13 @@ export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLa
               </div>
             </div>
             {content.featuredImage ? (
-              <div className="blog-post-hero__image">
-                <Image
-                  src={content.featuredImage}
-                  alt={content.title}
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 420px"
-                  unoptimized
-                />
-              </div>
+              <BlogImage
+                src={content.featuredImage}
+                alt={content.title}
+                variant="hero"
+                priority
+                sizes="(max-width: 1024px) 100vw, 420px"
+              />
             ) : null}
           </div>
         </div>
@@ -81,8 +78,9 @@ export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLa
 
       <div className="mx-auto max-w-7xl px-4 pb-16 md:pb-24">
         <div className="blog-post-grid">
-          <article className="blog-article min-w-0">
+          <article className="blog-article wp-content-root wp-content-affinity min-w-0">
             <WpLazyReveal />
+            <WpFaqEnhancer />
             <ContentTableOfContents headings={headings} variant="mobile" />
 
             <QuickFactsGrid facts={quickFacts} />

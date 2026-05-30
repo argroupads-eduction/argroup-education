@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import type { BlogListItem } from '@/lib/contentApi';
+import { BlogImage } from './BlogImage';
 import { blogCardExcerpt, formatBlogDate } from '@/lib/blogUtils';
 
 type BlogLatestSidebarProps = {
@@ -31,14 +31,7 @@ export function BlogLatestSidebar({
                 </span>
                 <span className="blog-sidebar__thumb">
                   {post.featuredImage ? (
-                    <Image
-                      src={post.featuredImage}
-                      alt=""
-                      width={72}
-                      height={56}
-                      className="h-full w-full object-cover"
-                      unoptimized
-                    />
+                    <BlogImage src={post.featuredImage} alt="" variant="thumb" sizes="88px" />
                   ) : (
                     <span className="blog-sidebar__thumb-fallback">📰</span>
                   )}

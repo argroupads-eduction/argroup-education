@@ -150,21 +150,56 @@
   }
 }
 
-.blog-card__media {
+/* Image frames — full image visible, never cropped */
+.blog-image-frame {
   position: relative;
-  min-height: 220px;
-  background: linear-gradient(135deg, var(--blog-gold), var(--blog-navy));
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, #f8fafc 0%, #eef2f7 50%, #f1f5f9 100%);
 }
 
-.blog-card--featured .blog-card__media {
+.blog-image-frame--featured {
   min-height: 280px;
 }
 
+.blog-image-frame--compact {
+  min-height: 150px;
+}
+
+.blog-image-frame--thumb {
+  width: 100%;
+  height: 100%;
+  min-height: 56px;
+}
+
+.blog-image-frame--hero {
+  aspect-ratio: 16 / 10;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(12, 31, 63, 0.12);
+}
+
+.blog-card__media {
+  position: relative;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem;
+  background: linear-gradient(145deg, #f8fafc 0%, #eef2f7 100%);
+  overflow: hidden;
+}
+
+.blog-card--featured .blog-card__media {
+  min-height: 300px;
+}
+
 .blog-card__media--sm {
-  width: 140px;
-  min-width: 140px;
-  min-height: 120px;
+  width: 200px;
+  min-width: 200px;
+  min-height: 150px;
   flex-shrink: 0;
+  padding: 0.5rem;
 }
 
 .blog-card__media-fallback {
@@ -301,11 +336,14 @@
 }
 
 .blog-sidebar__thumb {
-  width: 72px;
-  height: 56px;
+  position: relative;
+  width: 88px;
+  height: 68px;
   border-radius: 0.5rem;
   overflow: hidden;
-  background: #e2e8f0;
+  background: linear-gradient(145deg, #f8fafc, #eef2f7);
+  padding: 0.25rem;
+  flex-shrink: 0;
 }
 
 .blog-sidebar__thumb-fallback {
@@ -412,13 +450,8 @@
   gap: 0.4rem;
 }
 
-.blog-post-hero__image {
-  position: relative;
-  aspect-ratio: 16 / 10;
-  border-radius: 1rem;
-  overflow: hidden;
-  box-shadow: 0 12px 40px rgba(12, 31, 63, 0.12);
-  background: #e2e8f0;
+.blog-post-hero .blog-image-frame--hero {
+  width: 100%;
 }
 
 /* Blog article body — SEO-friendly readable column */
@@ -503,9 +536,17 @@
 
 .wp-content-blog img {
   max-width: 100%;
+  width: auto;
   height: auto;
+  max-height: min(70vh, 520px);
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  margin: 1.25rem auto;
   border-radius: 0.75rem;
-  margin: 1.25rem 0;
+  background: #f8fafc;
+  padding: 0.35rem;
+  box-shadow: 0 2px 12px rgba(12, 31, 63, 0.06);
 }
 
 .wp-content-blog a {

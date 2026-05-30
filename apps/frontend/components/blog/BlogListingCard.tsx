@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import type { BlogListItem } from '@/lib/contentApi';
 import { blogCardExcerpt, formatBlogDate } from '@/lib/blogUtils';
+import { BlogImage } from './BlogImage';
 
 type BlogListingCardProps = {
   blog: BlogListItem;
@@ -18,13 +18,11 @@ export function BlogListingCard({ blog, variant = 'compact' }: BlogListingCardPr
         <Link href={`/${blog.slug}`} className="blog-card__link">
           <div className="blog-card__media">
             {blog.featuredImage ? (
-              <Image
+              <BlogImage
                 src={blog.featuredImage}
                 alt={blog.title}
-                fill
-                className="object-cover"
+                variant="featured"
                 sizes="(max-width: 1024px) 100vw, 66vw"
-                unoptimized
                 priority
               />
             ) : (
@@ -53,14 +51,7 @@ export function BlogListingCard({ blog, variant = 'compact' }: BlogListingCardPr
       <Link href={`/${blog.slug}`} className="blog-card__link blog-card__link--row">
         <div className="blog-card__media blog-card__media--sm">
           {blog.featuredImage ? (
-            <Image
-              src={blog.featuredImage}
-              alt={blog.title}
-              fill
-              className="object-cover"
-              sizes="160px"
-              unoptimized
-            />
+            <BlogImage src={blog.featuredImage} alt={blog.title} variant="compact" sizes="200px" />
           ) : (
             <div className="blog-card__media-fallback blog-card__media-fallback--sm" aria-hidden>
               📚

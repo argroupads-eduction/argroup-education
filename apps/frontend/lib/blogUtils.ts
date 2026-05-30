@@ -6,7 +6,12 @@ export function blogCardExcerpt(
   content?: string,
   max = 140
 ): string {
-  return metaDescriptionFromContent(excerpt, content ?? '', max);
+  const raw = metaDescriptionFromContent(excerpt, content ?? '', max);
+  return raw
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\u00a0/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 export function formatBlogDate(iso: string): string {
