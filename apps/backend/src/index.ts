@@ -2,14 +2,12 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
 import blogsRouter from './routes/blogs';
+import contentRouter from './routes/content';
 import countriesRouter from './routes/countries';
 import universitiesRouter from './routes/universities';
 import formsRouter from './routes/forms';
 import newsletterRouter from './routes/newsletter';
-
-dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
@@ -41,6 +39,7 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // Routes
 app.use('/api/blogs', blogsRouter);
+app.use('/api/content', contentRouter);
 app.use('/api/countries', countriesRouter);
 app.use('/api/universities', universitiesRouter);
 app.use('/api/forms', formsRouter);

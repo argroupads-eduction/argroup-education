@@ -1,7 +1,4 @@
-import {
-  MBBS_ABROAD_COUNTRIES,
-  mbbsAbroadCollegeHref,
-} from '@/lib/mbbsAbroadCollegesByCountry';
+import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadCollegesByCountry';
 import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaCollegesByState';
 
 // Site Constants
@@ -51,14 +48,14 @@ export const NAV_LINKS = [
       href: country.href,
       colleges: country.colleges?.map((c) => ({
         label: c.name,
-        href: mbbsAbroadCollegeHref(country.id),
+        href: c.href,
       })),
       universities: country.universities?.map((u) => ({
         label: u.name,
         href: u.href,
         colleges: u.colleges?.map((c) => ({
           label: c.name,
-          href: mbbsAbroadCollegeHref(country.id),
+          href: c.href,
         })),
       })),
     })),

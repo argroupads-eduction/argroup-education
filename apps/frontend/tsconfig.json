@@ -25,6 +25,7 @@
       "@/sections/*": ["./sections/*"],
       "@/hooks/*": ["./hooks/*"],
       "@/lib/*": ["./lib/*"],
+      "@/data/*": ["./data/*"],
       "@/services/*": ["./services/*"],
       "@/types/*": ["./types/*"],
       "@/utils/*": ["./utils/*"],

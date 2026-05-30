@@ -1,5 +1,5 @@
 import { readPayloadCms } from '@/lib/payloadCmsRead';
-import { getPayloadCmsServerFetchUrl } from '@/lib/payloadCmsUrl';
+import { getPayloadCmsServerFetchUrl, isPayloadCmsConfigured } from '@/lib/payloadCmsUrl';
 import type { HeroMbbsFormDoc } from '@/lib/mbbsHeroFormDefinitionsCache';
 
 export type MbbsHeroFormKind = 'india' | 'abroad';
@@ -58,7 +58,22 @@ function isWrongCmsService(json: unknown): boolean {
 export async function loadMbbsHeroFormDefinitionServer(
   kind: MbbsHeroFormKind
 ): Promise<MbbsHeroFormServerLoadResult> {
+  if (!isPayloadCmsConfigured()) {
+    return {
+      ok: false,
+      status: 503,
+      message: 'Payload CMS not configured (using built-in fallback forms).',
+    };
+  }
+
   const base = getPayloadCmsServerFetchUrl();
+  if (!base) {
+    return {
+      ok: false,
+      status: 503,
+      message: 'Payload CMS URL is empty.',
+    };
+  }
   const cfg = KIND_CONFIG[kind];
   const configuredTitle = (process.env[cfg.titleEnv] || cfg.defaultTitle).trim();
   const formIdEnv = process.env[cfg.idEnv]?.trim();

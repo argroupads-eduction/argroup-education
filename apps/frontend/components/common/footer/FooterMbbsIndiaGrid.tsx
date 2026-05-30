@@ -21,7 +21,7 @@ export function FooterMbbsIndiaGrid() {
                 {state.colleges.map((college, index) => (
                   <li key={`${college.name}-${index}`}>
                     <Link
-                      href={state.href}
+                      href={college.href}
                       className="block py-0.5 text-xs leading-snug text-gray-300 transition-colors hover:text-gold-400"
                     >
                       <span className="font-medium">{college.name}</span>

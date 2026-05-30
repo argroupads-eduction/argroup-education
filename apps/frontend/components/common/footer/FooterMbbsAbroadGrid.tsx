@@ -4,25 +4,18 @@ import Link from 'next/link'
 import {
   MBBS_ABROAD_COUNTRIES,
   isMbbsAbroadThreeLevel,
-  mbbsAbroadCollegeHref,
   mbbsAbroadCountryHref,
-} from '@/lib/mbbsAbroadCollegesByCountry'
+  type MbbsAbroadCollege,
+} from '@/lib/mbbsAbroadTree'
 import { FooterAccordion } from './FooterAccordion'
 
-function CollegeLinks({
-  countryId,
-  names,
-}: {
-  countryId: string
-  names: { name: string }[]
-}) {
-  const href = mbbsAbroadCollegeHref(countryId)
+function CollegeLinks({ colleges }: { colleges: MbbsAbroadCollege[] }) {
   return (
     <ul className="space-y-1">
-      {names.map((college, index) => (
+      {colleges.map((college, index) => (
         <li key={`${college.name}-${index}`}>
           <Link
-            href={href}
+            href={college.href}
             className="block py-0.5 text-xs leading-snug text-gray-300 transition-colors hover:text-gold-400"
           >
             {college.name}
@@ -57,10 +50,7 @@ export function FooterMbbsAbroadGrid() {
                             href={university.href}
                             nested
                           >
-                            <CollegeLinks
-                              countryId={country.id}
-                              names={university.colleges}
-                            />
+                            <CollegeLinks colleges={university.colleges} />
                           </FooterAccordion>
                         )
                       }
@@ -82,9 +72,7 @@ export function FooterMbbsAbroadGrid() {
             const colleges = country.colleges ?? []
             return (
               <FooterAccordion key={country.id} title={title} href={href}>
-                {colleges.length > 0 ? (
-                  <CollegeLinks countryId={country.id} names={colleges} />
-                ) : null}
+                {colleges.length > 0 ? <CollegeLinks colleges={colleges} /> : null}
               </FooterAccordion>
             )
           })}

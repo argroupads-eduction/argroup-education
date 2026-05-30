@@ -4,8 +4,9 @@
   "description": "Premium educational consultancy platform - Monorepo",
   "private": true,
   "scripts": {
-    "dev": "npm run dev:website",
-    "dev:website": "npx concurrently -k -n cms,frontend -c blue,cyan \"npm run dev:cms\" \"npm run dev -w apps/frontend\"",
+    "dev": "npm run dev:stack",
+    "dev:website": "npm run dev -w apps/frontend",
+    "dev:with-cms": "npx concurrently -k -n cms,frontend -c blue,cyan \"npm run dev:cms\" \"npm run dev -w apps/frontend\"",
     "dev:stack": "npx concurrently -k -n backend,frontend -c yellow,cyan \"npm run dev -w apps/backend\" \"npm run dev -w apps/frontend\"",
     "dev:frontend": "npm run dev -w apps/frontend",
     "dev:backend": "npm run dev -w apps/backend",
@@ -19,7 +20,16 @@
     "type-check": "npx turbo run type-check",
     "format": "prettier --write .",
     "clean": "turbo run clean && rm -rf node_modules",
-    "install-all": "npm install && npm install -w apps/frontend && npm install -w apps/backend"
+    "install-all": "npm install && npm install -w apps/frontend && npm install -w apps/backend",
+    "wp:export": "node scripts/wp-migration/export-wp.mjs",
+    "wp:import": "npm run wp:import --workspace=ar-education-backend",
+    "db:deploy": "npm run db:deploy --workspace=ar-education-backend",
+    "db:studio": "npm run db:studio --workspace=ar-education-backend",
+    "neon:setup": "node apps/backend/scripts/setup-neon-env.mjs",
+    "neon:init": "node apps/backend/scripts/setup-neon-env.mjs && npm run db:deploy && npm run wp:import",
+    "wp:import:pages": "npm run wp:import:pages --workspace=ar-education-backend",
+    "build:mbbs-india": "node scripts/build-mbbs-india-tree.mjs",
+    "build:mbbs-abroad": "node scripts/build-mbbs-abroad-tree.mjs"
   },
   "workspaces": [
     "apps/frontend",

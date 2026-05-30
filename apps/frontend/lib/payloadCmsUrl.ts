@@ -1,10 +1,17 @@
+/** True when Payload CMS URL is explicitly configured (not implied localhost default). */
+export function isPayloadCmsConfigured(): boolean {
+  const enabled = process.env.PAYLOAD_CMS_ENABLED;
+  if (enabled === 'false' || enabled === '0' || enabled === 'no') return false;
+  return !!(process.env.PAYLOAD_CMS_URL?.trim() || process.env.NEXT_PUBLIC_CMS_URL?.trim());
+}
+
 /** Base URL for Payload (server routes prefer PAYLOAD_CMS_URL; browser uses NEXT_PUBLIC_CMS_URL). */
 export function getPayloadCmsBaseUrl(): string {
   const fromEnv =
     process.env.PAYLOAD_CMS_URL?.replace(/\/$/, '') ||
     process.env.NEXT_PUBLIC_CMS_URL?.replace(/\/$/, '') ||
     '';
-  return fromEnv || 'http://127.0.0.1:8000';
+  return fromEnv;
 }
 
 /**
@@ -14,6 +21,7 @@ export function getPayloadCmsBaseUrl(): string {
  */
 export function getPayloadCmsServerFetchUrl(): string {
   const base = getPayloadCmsBaseUrl().replace(/\/$/, '');
+  if (!base) return '';
   try {
     const u = new URL(base);
     if (u.hostname === 'localhost') {

@@ -4,13 +4,17 @@
   "description": "Backend API for AR Group of Education",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev -r dotenv/config --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "npx eslint src --ext .ts",
     "type-check": "tsc --noEmit",
     "migrate": "prisma migrate dev",
-    "seed": "ts-node src/seed.ts"
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "seed": "ts-node src/seed.ts",
+    "wp:import": "node --env-file=.env scripts/import-wp.mjs",
+    "wp:import:pages": "node --env-file=.env scripts/import-wp.mjs -- --pages-only"
   },
   "keywords": [],
   "author": "",

@@ -1,89 +1,77 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
+import { getBlogPosts } from '@/lib/contentApi';
 
 export const metadata: Metadata = {
-  title: 'Blog - Medical Education Tips & Guides',
-  description: 'Read latest articles about MBBS abroad, medical education, and study tips.',
+  title: 'Latest Education Blog 2026 | MBBS, BTech & MBA',
+  description:
+    'Explore AR Group of Education blog for MBBS India & Abroad admission guides, fees, eligibility, and expert career tips for students.',
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com'}/blog`,
+  },
 };
 
-export default function BlogPage() {
-  // Mock blog posts - would come from backend in production
-  const blogs = [
-    {
-      id: 1,
-      slug: 'top-reasons-study-mbbs-abroad',
-      title: 'Top 5 Reasons to Study MBBS Abroad',
-      excerpt: 'Explore the key benefits of pursuing your medical degree in international universities...',
-      category: 'Education',
-      date: new Date('2024-01-15'),
-      image: '🌍',
-    },
-    {
-      id: 2,
-      slug: 'mbbs-russia-complete-guide',
-      title: 'Complete Guide to MBBS in Russia',
-      excerpt: 'Everything you need to know about medical education in Russia...',
-      category: 'Countries',
-      date: new Date('2024-01-10'),
-      image: '🇷🇺',
-    },
-    {
-      id: 3,
-      slug: 'neet-preparation-tips',
-      title: 'NEET Preparation Tips & Strategies',
-      excerpt: 'Effective strategies to prepare for NEET exam...',
-      category: 'Tips',
-      date: new Date('2024-01-05'),
-      image: '📚',
-    },
-  ];
+export default async function BlogPage() {
+  const { data: blogs } = await getBlogPosts(1, 24);
 
   return (
-    <div className="py-16 md:py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-navy-900 mb-6">
+    <div className="bg-white py-16 md:py-24">
+      <div className="mx-auto max-w-7xl px-4">
+        <div className="mb-16 text-center">
+          <h1 className="mb-6 text-4xl font-bold text-navy-900 md:text-5xl">
             Latest <span className="text-gold-500">Articles & Tips</span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Stay informed with our expert insights on medical education
+          <p className="mx-auto max-w-2xl text-xl text-gray-600">
+            MBBS India & Abroad admission guides, fees, eligibility, and expert tips
           </p>
         </div>
 
-        {/* Blog Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {blogs.map((blog) => (
-            <Link key={blog.id} href={`/blog/${blog.slug}`}>
-              <div className="rounded-lg overflow-hidden shadow-elevation-1 hover:shadow-elevation-3 transition-shadow h-full bg-white cursor-pointer">
-                {/* Image */}
-                <div className="h-48 bg-gradient-to-br from-gold-500 to-navy-500 flex items-center justify-center text-6xl">
-                  {blog.image}
-                </div>
-
-                {/* Content */}
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold text-gold-500 uppercase">
-                      {blog.category}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {blog.date.toLocaleDateString()}
-                    </span>
+        {blogs.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-12 text-center">
+            <p className="mb-4 text-gray-600">
+              No posts in database yet. Run export + import from WordPress.
+            </p>
+            <code className="text-sm text-navy-800">npm run wp:export && npm run wp:import</code>
+          </div>
+        ) : (
+          <div className="mb-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {blogs.map((blog) => (
+              <Link key={blog.id} href={`/${blog.slug}`}>
+                <div className="h-full cursor-pointer overflow-hidden rounded-lg bg-white shadow-elevation-1 transition-shadow hover:shadow-elevation-3">
+                  <div className="relative flex h-48 items-center justify-center bg-gradient-to-br from-gold-500 to-navy-500">
+                    {blog.featuredImage ? (
+                      <Image
+                        src={blog.featuredImage}
+                        alt={blog.title}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <span className="text-5xl">📚</span>
+                    )}
                   </div>
-                  <h3 className="text-xl font-bold text-navy-900 mb-3">
-                    {blog.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4">{blog.excerpt}</p>
-                  <span className="text-gold-500 font-semibold">Read More →</span>
+                  <div className="p-6">
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="text-xs font-semibold uppercase text-gold-500">
+                        {blog.category}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(blog.publishedAt).toLocaleDateString('en-IN')}
+                      </span>
+                    </div>
+                    <h2 className="mb-3 text-xl font-bold text-navy-900">{blog.title}</h2>
+                    <p className="mb-4 line-clamp-3 text-gray-600">{blog.excerpt}</p>
+                    <span className="font-semibold text-gold-500">Read More →</span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
 
-        {/* CTA */}
         <div className="text-center">
           <Link href="/">
             <Button variant="navy">Back to Home</Button>
