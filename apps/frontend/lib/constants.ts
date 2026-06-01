@@ -239,15 +239,24 @@ export const SOCIAL_LINKS = [
   { platform: 'youtube', url: 'https://youtube.com/@argroupedu' },
   { platform: 'linkedin', url: 'https://linkedin.com/company/argroupedu' },
   { platform: 'twitter', url: 'https://twitter.com/argroupedu' },
-  { platform: 'whatsapp', url: 'https://wa.me/919999999999' },
+  { platform: 'whatsapp', url: 'https://wa.me/917076909090' },
 ] as const;
 
 // Contact Info
 export const CONTACT_INFO = {
-  phone: '+91 (800) 123-4567',
+  phone: '+91-7076909090',
+  phoneTel: '+917076909090',
   email: 'info@argroup.edu',
-  address: 'New Delhi, India',
-  hours: 'Monday - Friday: 9:00 AM - 6:00 PM IST',
+  whatsapp: 'https://wa.me/917076909090',
+  address: 'Sector 18, Noida · Wave Silver Tower, Office 523',
+  addressLines: [
+    'Sector 18, Noida',
+    'Wave Silver Tower',
+    'Office No. 523',
+  ] as const,
+  hours: '24×7 — open all week',
+  hoursShort: '24×7',
+  city: 'Noida',
 } as const;
 
 // SEO Keywords

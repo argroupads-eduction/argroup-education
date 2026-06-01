@@ -71,6 +71,7 @@ export function fixHeadingLevelSkips(html: string): string {
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
+  re.lastIndex = 0;
   while ((match = re.exec(html)) !== null) {
     out += html.slice(lastIndex, match.index);
     let level = Number(match[1]);
@@ -140,6 +141,7 @@ export function transformEaelAccordions(html: string): string {
 
   const items: string[] = [];
   let match: RegExpExecArray | null;
+  headerRe.lastIndex = 0;
   while ((match = headerRe.exec(html)) !== null) {
     const title = stripHtml(match[1]);
     const body = match[2].trim();

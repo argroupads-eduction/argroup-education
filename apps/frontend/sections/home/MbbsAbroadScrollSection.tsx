@@ -344,7 +344,7 @@ function MbbsAbroadScrollSectionMobile({
 
               <Link
                 href={`/mbbs-abroad/${country.slug}`}
-                className="mbbs-abroad-cta group mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-gold-400/50 bg-gold-500 px-6 py-3 text-sm font-semibold shadow-lg shadow-gold-500/25 transition-all duration-200 hover:border-gold-300 hover:bg-gold-600 active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-300 sm:w-fit"
+                className="mbbs-abroad-cta group mt-5 sm:w-fit"
               >
                 <span className="text-white">Explore {country.name}</span>
                 <ArrowRight
@@ -514,7 +514,7 @@ function MbbsAbroadScrollSectionDesktop({
 
                   <Link
                     href={`/mbbs-abroad/${country.slug}`}
-                    className="mbbs-abroad-cta group mt-8 inline-flex w-fit items-center justify-center gap-2.5 rounded-xl border-2 border-gold-400/50 bg-gold-500 px-7 py-3.5 text-sm font-semibold shadow-lg shadow-gold-500/25 transition-all duration-200 hover:-translate-y-0.5 hover:border-gold-300 hover:bg-gold-600 hover:shadow-xl hover:shadow-gold-500/35 active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-300"
+                    className="mbbs-abroad-cta group mt-8"
                   >
                     <span className="text-white">Explore {country.name}</span>
                     <ArrowRight

@@ -1,31 +1,34 @@
 import { ContentJsonLd } from '@/components/content/ContentJsonLd';
-import { ContentPageShell } from '@/components/content/ContentPageShell';
-import { MbbsAbroadHubExplorer } from '@/components/program-hub/MbbsAbroadHubExplorer';
+import { MbbsAbroadCountryOrbit } from '@/components/mbbs-abroad/MbbsAbroadCountryOrbit';
+import { MbbsAbroadDocumentsVault } from '@/components/mbbs-abroad/MbbsAbroadDocumentsVault';
+import { MbbsAbroadIntakeRibbon } from '@/components/mbbs-abroad/MbbsAbroadIntakeRibbon';
+import { MbbsAbroadHubDirectory } from '@/components/program-hub/MbbsAbroadHubDirectory';
+import { MbbsAbroadHubGuide } from '@/components/program-hub/MbbsAbroadHubGuide';
 import { ProgramHubCta } from '@/components/program-hub/ProgramHubCta';
 import { ProgramHubHero } from '@/components/program-hub/ProgramHubHero';
 import { ProgramHubTrustBar } from '@/components/program-hub/ProgramHubTrustBar';
 import type { SiteContent } from '@/lib/contentApi';
 import { MBBS_ABROAD_COUNTRIES, abroadCollegeCount } from '@/lib/mbbsAbroadTree';
+import { MBBS_ABROAD_HUB } from '@/lib/mbbsAbroadHubContent';
 import { PROGRAM_HUB_SEO } from '@/lib/programHubContent';
-import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type MbbsAbroadHubProps = {
-  wpContent: SiteContent | null;
+  /** Yoast / DB metadata only — body HTML is not rendered on the hub. */
+  seoContent?: SiteContent | null;
 };
 
-export function MbbsAbroadHub({ wpContent }: MbbsAbroadHubProps) {
+export function MbbsAbroadHub({ seoContent }: MbbsAbroadHubProps) {
   const seo = PROGRAM_HUB_SEO.abroad;
-  const title = plainTitle(wpContent?.title || 'Study MBBS Abroad');
   const breadcrumbs = [{ label: 'MBBS Abroad' }];
 
   const contentForJsonLd: SiteContent =
-    wpContent ??
+    seoContent ??
     ({
       id: 'mbbs-abroad-hub',
       type: 'page',
-      title,
+      title: seo.title,
       slug: 'study-mbbs-in-abroad',
-      content: '',
+      content: MBBS_ABROAD_HUB.overviewLead,
       excerpt: seo.description,
       featuredImage: null,
       metaTitle: seo.title,
@@ -36,7 +39,7 @@ export function MbbsAbroadHub({ wpContent }: MbbsAbroadHubProps) {
     } satisfies SiteContent);
 
   return (
-    <div className="program-hub-root">
+    <div className="program-hub-root program-hub-root--abroad">
       <ContentJsonLd content={contentForJsonLd} breadcrumbs={breadcrumbs} />
 
       <ProgramHubHero
@@ -58,24 +61,12 @@ export function MbbsAbroadHub({ wpContent }: MbbsAbroadHubProps) {
       />
 
       <ProgramHubTrustBar />
-      <MbbsAbroadHubExplorer />
-
-      {wpContent?.content ? (
-        <section className="program-hub-section bg-white">
-          <div className="mx-auto max-w-7xl px-4">
-            <div className="program-hub-section-head">
-              <p className="program-hub-section-kicker">Complete guide</p>
-              <h2 className="program-hub-section-title">{title}</h2>
-            </div>
-            <ContentPageShell
-              html={wpContent.content}
-              featuredImage={wpContent.featuredImage}
-              title={title}
-              showFeaturedImage={Boolean(wpContent.featuredImage)}
-            />
-          </div>
-        </section>
-      ) : null}
+      <MbbsAbroadIntakeRibbon />
+      <MbbsAbroadCountryOrbit />
+      <MbbsAbroadHubGuide variant="intro" />
+      <MbbsAbroadHubDirectory />
+      <MbbsAbroadHubGuide variant="extended" />
+      <MbbsAbroadDocumentsVault />
 
       <ProgramHubCta
         title="Planning MBBS abroad this intake?"

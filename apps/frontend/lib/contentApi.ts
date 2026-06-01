@@ -15,6 +15,14 @@ export interface SiteContent {
   metaTitle: string | null;
   metaDescription: string | null;
   canonicalUrl: string | null;
+  focusKeyword?: string | null;
+  keywords?: string[];
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogImage?: string | null;
+  twitterTitle?: string | null;
+  twitterDescription?: string | null;
+  schemaJson?: unknown | null;
   publishedAt: string | null;
   updatedAt: string;
 }
@@ -36,6 +44,12 @@ function normalizeContent(doc: SiteContent): SiteContent {
     excerpt: plainTextFromHtml(doc.excerpt),
     metaTitle: doc.metaTitle ? plainTextFromHtml(doc.metaTitle) : null,
     metaDescription: doc.metaDescription ? plainTextFromHtml(doc.metaDescription) : null,
+    ogTitle: doc.ogTitle ? plainTextFromHtml(doc.ogTitle) : null,
+    ogDescription: doc.ogDescription ? plainTextFromHtml(doc.ogDescription) : null,
+    twitterTitle: doc.twitterTitle ? plainTextFromHtml(doc.twitterTitle) : null,
+    twitterDescription: doc.twitterDescription
+      ? plainTextFromHtml(doc.twitterDescription)
+      : null,
   };
 }
 

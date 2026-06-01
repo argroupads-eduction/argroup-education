@@ -14,7 +14,14 @@ type WpExportDoc = {
   metaTitle?: string | null;
   metaDescription?: string | null;
   canonicalUrl?: string | null;
+  focusKeyword?: string | null;
   keywords?: string[];
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogImage?: string | null;
+  twitterTitle?: string | null;
+  twitterDescription?: string | null;
+  schemaJson?: unknown | null;
   date?: string;
   modified?: string;
 };
@@ -59,6 +66,16 @@ function toSiteContent(doc: WpExportDoc, type: 'page' | 'post'): SiteContent {
     metaTitle: doc.metaTitle ? normalizeText(doc.metaTitle) : null,
     metaDescription: doc.metaDescription ? normalizeText(doc.metaDescription) : null,
     canonicalUrl: doc.canonicalUrl ?? null,
+    focusKeyword: doc.focusKeyword ?? null,
+    keywords: doc.keywords ?? [],
+    ogTitle: doc.ogTitle ? normalizeText(doc.ogTitle) : null,
+    ogDescription: doc.ogDescription ? normalizeText(doc.ogDescription) : null,
+    ogImage: doc.ogImage ?? doc.featuredImage ?? null,
+    twitterTitle: doc.twitterTitle ? normalizeText(doc.twitterTitle) : null,
+    twitterDescription: doc.twitterDescription
+      ? normalizeText(doc.twitterDescription)
+      : null,
+    schemaJson: doc.schemaJson ?? null,
     publishedAt: doc.date ?? doc.modified ?? null,
     updatedAt: doc.modified ?? doc.date ?? new Date().toISOString(),
   };

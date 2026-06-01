@@ -7,6 +7,7 @@ import { MBBS_INDIA_HERO_STATE_OPTIONS } from '@/lib/mbbsIndiaHeroStateOptions';
 import { isHeroMbbsFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { useHeroMbbsFormDefinition } from '@/lib/useHeroMbbsFormDefinition';
 import { HeroFormSkeleton } from '@/sections/home/HeroFormSkeleton';
+import { nameFromFormValues, openThankYouInNewTab } from '@/lib/openThankYouPage';
 
 type FormFieldBlock = {
   id?: string | null;
@@ -74,6 +75,7 @@ export function MbbsIndiaHeroPayloadForm({
           return;
         }
       }
+
       setSubmitting(true);
       try {
         const submissionData = fields.map((f) => ({
@@ -111,6 +113,10 @@ export function MbbsIndiaHeroPayloadForm({
           setSubmitError(msg);
           return;
         }
+        openThankYouInNewTab({
+          name: nameFromFormValues(values, fields),
+          source: 'hero-mbbs-india',
+        });
         setSubmitted(true);
       } catch {
         setSubmitError('Network error. Try again.');

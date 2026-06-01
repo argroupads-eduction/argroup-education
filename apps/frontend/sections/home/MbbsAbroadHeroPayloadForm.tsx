@@ -7,6 +7,7 @@ import { MBBS_ABROAD_HERO_COUNTRY_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOpt
 import { isHeroMbbsFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { useHeroMbbsFormDefinition } from '@/lib/useHeroMbbsFormDefinition';
 import { HeroFormSkeleton } from '@/sections/home/HeroFormSkeleton';
+import { nameFromFormValues, openThankYouInNewTab } from '@/lib/openThankYouPage';
 
 type FormFieldBlock = {
   id?: string | null;
@@ -84,6 +85,7 @@ export function MbbsAbroadHeroPayloadForm({
           return;
         }
       }
+
       setSubmitting(true);
       try {
         const submissionData = fields.map((f) => ({
@@ -117,6 +119,10 @@ export function MbbsAbroadHeroPayloadForm({
           setSubmitError(msg);
           return;
         }
+        openThankYouInNewTab({
+          name: nameFromFormValues(values, fields),
+          source: 'hero-mbbs-abroad',
+        });
         setSubmitted(true);
       } catch {
         setSubmitError('Network error. Try again.');

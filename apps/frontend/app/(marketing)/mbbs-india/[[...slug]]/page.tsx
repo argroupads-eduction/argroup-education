@@ -9,9 +9,8 @@ import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { MbbsIndiaStateGrid } from '@/components/mbbs-india/MbbsIndiaStateGrid';
 import { getContentBySlug } from '@/lib/contentApi';
 import { MBBS_INDIA_STATES, getMbbsIndiaStateBySlugPart } from '@/lib/mbbsIndiaTree';
-import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
+import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
+import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type PageProps = {
   params: Promise<{ slug?: string[] }>;
@@ -22,17 +21,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!slug?.length) {
     const seo = PROGRAM_HUB_SEO.india;
     const wp = await getContentBySlug(PROGRAM_HUB_WP_SLUG.india);
-    const title = plainTitle(wp?.metaTitle || seo.title);
-    const description =
-      wp?.metaDescription ||
-      metaDescriptionFromContent(wp?.excerpt, wp?.content || '', 160) ||
-      seo.description;
-
+    if (wp) {
+      return buildSiteMetadata(wp, {
+        canonicalPath: seo.path,
+        fallbackTitle: seo.title,
+      });
+    }
     return {
-      title,
-      description,
-      alternates: { canonical: `${SITE_URL}${seo.path}` },
-      openGraph: { title, description, url: `${SITE_URL}${seo.path}` },
+      title: seo.title,
+      description: seo.description,
+      alternates: { canonical: seo.path },
     };
   }
 
@@ -40,17 +38,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!state) return { title: 'MBBS India' };
 
   const wp = state.wpSlug ? await getContentBySlug(state.wpSlug) : null;
-  const title = plainTitle(wp?.metaTitle || wp?.title || `MBBS in ${state.name}`);
-  const description =
-    wp?.metaDescription ||
-    metaDescriptionFromContent(wp?.excerpt, wp?.content || '', 160) ||
-    `Explore ${state.colleges.length}+ MBBS colleges in ${state.name}.`;
+  if (wp) {
+    return buildSiteMetadata(wp, {
+      canonicalPath: state.href,
+      fallbackTitle: `MBBS in ${state.name}`,
+    });
+  }
 
   return {
-    title,
-    description,
-    alternates: { canonical: `${SITE_URL}${state.href}` },
-    openGraph: { title, description, url: `${SITE_URL}${state.href}` },
+    title: `MBBS in ${state.name}`,
+    description: `Explore ${state.colleges.length}+ MBBS colleges in ${state.name}.`,
+    alternates: { canonical: state.href },
   };
 }
 

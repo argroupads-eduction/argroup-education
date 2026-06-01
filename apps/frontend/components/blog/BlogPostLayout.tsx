@@ -153,7 +153,7 @@ function BlogCounsellingCard() {
       </p>
       <Link
         href="/contact"
-        className="mt-4 flex min-h-[44px] w-full items-center justify-center rounded-xl bg-gold-500 text-sm font-bold text-navy-900 hover:bg-gold-400"
+        className="site-gold-cta mt-4 flex min-h-[44px] w-full items-center justify-center"
       >
         Free counselling
       </Link>

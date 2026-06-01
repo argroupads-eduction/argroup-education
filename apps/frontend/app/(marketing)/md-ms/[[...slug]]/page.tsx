@@ -8,9 +8,8 @@ import { MdMsHub } from '@/components/program-hub/MdMsHub';
 import { getContentBySlug } from '@/lib/contentApi';
 import { getMdMsNavItemById, MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
-import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
+import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
+import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type PageProps = {
   params: Promise<{ slug?: string[] }>;
@@ -22,17 +21,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!slug?.length) {
     const seo = PROGRAM_HUB_SEO.mdms;
     const wp = await getContentBySlug(PROGRAM_HUB_WP_SLUG.mdms);
-    const title = plainTitle(wp?.metaTitle || seo.title);
-    const description =
-      wp?.metaDescription ||
-      metaDescriptionFromContent(wp?.excerpt, wp?.content || '', 160) ||
-      seo.description;
-
+    if (wp) {
+      return buildSiteMetadata(wp, {
+        canonicalPath: seo.path,
+        fallbackTitle: seo.title,
+      });
+    }
     return {
-      title,
-      description,
-      alternates: { canonical: `${SITE_URL}${seo.path}` },
-      openGraph: { title, description, url: `${SITE_URL}${seo.path}` },
+      title: seo.title,
+      description: seo.description,
+      alternates: { canonical: seo.path },
     };
   }
 
@@ -40,17 +38,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!item) return { title: 'MD/MS' };
 
   const wp = await getContentBySlug(item.wpSlug);
-  const title = plainTitle(wp?.metaTitle || wp?.title || item.label);
-  const description =
-    wp?.metaDescription ||
-    metaDescriptionFromContent(wp?.excerpt, wp?.content || '', 160) ||
-    `MD/MS admission guidance for ${item.label.replace('MD/MS in ', '')}.`;
+  if (wp) {
+    return buildSiteMetadata(wp, {
+      canonicalPath: item.href,
+      fallbackTitle: item.label,
+    });
+  }
 
   return {
-    title,
-    description,
-    alternates: { canonical: `${SITE_URL}${item.href}` },
-    openGraph: { title, description, url: `${SITE_URL}${item.href}` },
+    title: item.label,
+    description: `MD/MS admission guidance for ${item.label.replace('MD/MS in ', '')}.`,
+    alternates: { canonical: item.href },
   };
 }
 

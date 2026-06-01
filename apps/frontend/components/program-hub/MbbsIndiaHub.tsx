@@ -32,7 +32,7 @@ export function MbbsIndiaHub({ wpContent }: MbbsIndiaHubProps) {
       metaDescription: seo.description,
       canonicalUrl: null,
       publishedAt: null,
-      updatedAt: new Date().toISOString(),
+      updatedAt: '2024-01-01T00:00:00.000Z',
     } satisfies SiteContent);
 
   return (

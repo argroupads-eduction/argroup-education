@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Playfair_Display, Poppins } from 'next/font/google';
+import { Inter, Lora, Poppins } from 'next/font/google';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
@@ -8,6 +8,7 @@ import '@/styles/wp-content.css';
 import '@/styles/blog.css';
 import '@/styles/nav-mega.css';
 import '@/styles/program-hub.css';
+import '@/styles/mbbs-abroad-premium.css';
 import '@/styles/brand-logo.css';
 
 // Font imports
@@ -18,11 +19,12 @@ const inter = Inter({
   weight: ['400', '500', '600', '700'],
 });
 
-const playfair = Playfair_Display({
+/** Serif headings — Lora uses a standard “&” (Playfair’s default & has decorative swashes). */
+const playfair = Lora({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-playfair',
-  weight: ['400', '500', '600', '700', '800', '900'],
+  weight: ['400', '500', '600', '700'],
 });
 
 const poppins = Poppins({

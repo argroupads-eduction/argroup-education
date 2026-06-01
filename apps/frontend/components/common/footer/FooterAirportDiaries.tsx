@@ -56,12 +56,10 @@ function OrbitRing({
 
 function FilmMarquee({
   images,
-  reverse,
   activeId,
   onSelect,
 }: {
   images: AirportDiaryImage[];
-  reverse?: boolean;
   activeId: string;
   onSelect: (id: string) => void;
 }) {
@@ -69,12 +67,7 @@ function FilmMarquee({
 
   return (
     <div className="airport-diaries__marquee">
-      <div
-        className={[
-          'airport-diaries__marquee-track',
-          reverse ? 'airport-diaries__marquee-track--reverse' : '',
-        ].join(' ')}
-      >
+      <div className="airport-diaries__marquee-track">
         {loop.map((img, i) => (
           <button
             key={`${img.id}-${i}`}
@@ -130,7 +123,6 @@ export function FooterAirportDiaries() {
   );
 
   const rowA = useMemo(() => images.filter((_, i) => i % 2 === 0), [images]);
-  const rowB = useMemo(() => images.filter((_, i) => i % 2 === 1), [images]);
 
   if (!images.length) return null;
 
@@ -220,11 +212,9 @@ export function FooterAirportDiaries() {
           </div>
         </div>
 
-        <div className="airport-diaries__marquees">
-          <FilmMarquee images={rowA.length ? rowA : images} activeId={activeId} onSelect={selectById} />
+        <div className="airport-diaries__marquees airport-diaries__marquees--single">
           <FilmMarquee
-            images={rowB.length ? rowB : images}
-            reverse
+            images={rowA.length ? rowA : images}
             activeId={activeId}
             onSelect={selectById}
           />

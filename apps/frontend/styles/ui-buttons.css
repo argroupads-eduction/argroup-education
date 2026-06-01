@@ -1,0 +1,476 @@
+/* Site-wide buttons & button-like links — readable text + premium hover motion */
+
+@keyframes ui-btn-shine {
+  from {
+    transform: translateX(-120%) skewX(-12deg);
+  }
+  to {
+    transform: translateX(220%) skewX(-12deg);
+  }
+}
+
+.ui-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  font-family: var(--font-poppins), system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1),
+    box-shadow 0.28s ease,
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease;
+}
+
+.ui-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.35) 45%,
+    transparent 90%
+  );
+  transform: translateX(-130%) skewX(-14deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ui-btn:hover::before {
+  opacity: 1;
+  animation: ui-btn-shine 0.7s ease forwards;
+}
+
+.ui-btn > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ui-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -12px rgb(15 23 42 / 0.35);
+}
+
+.ui-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px -8px rgb(15 23 42 / 0.3);
+}
+
+.ui-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.ui-btn--primary {
+  background: linear-gradient(135deg, rgb(245 158 11), rgb(251 191 36));
+  color: rgb(15 23 42) !important;
+  box-shadow: 0 4px 14px -4px rgb(245 158 11 / 0.55);
+}
+
+.ui-btn--primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgb(251 191 36), rgb(253 224 171));
+  color: rgb(15 23 42) !important;
+}
+
+.ui-btn--navy {
+  background: linear-gradient(135deg, rgb(15 23 42), rgb(30 41 59));
+  color: rgb(255 255 255) !important;
+  box-shadow: 0 4px 14px -4px rgb(15 23 42 / 0.45);
+}
+
+.ui-btn--navy:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgb(30 41 59), rgb(51 65 85));
+  color: rgb(255 255 255) !important;
+}
+
+.ui-btn--secondary {
+  border: 1px solid rgb(226 232 240);
+  background: white;
+  color: rgb(15 23 42) !important;
+}
+
+.ui-btn--secondary:hover:not(:disabled) {
+  border-color: rgb(251 191 36 / 0.65);
+  background: rgb(255 251 235);
+  color: rgb(15 23 42) !important;
+}
+
+.ui-btn--ghost {
+  background: transparent;
+  color: rgb(15 23 42) !important;
+}
+
+.ui-btn--ghost:hover:not(:disabled) {
+  background: rgb(248 250 252);
+  color: rgb(180 83 9) !important;
+}
+
+.ui-btn--pill {
+  border-radius: 9999px;
+}
+
+.ui-btn--sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+}
+
+.ui-btn--md {
+  padding: 0.65rem 1.35rem;
+  font-size: 0.9375rem;
+}
+
+.ui-btn--lg {
+  padding: 0.85rem 1.75rem;
+  font-size: 1.0625rem;
+}
+
+/* Legacy utility classes */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.btn-navy {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  font-family: var(--font-poppins), system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none !important;
+  cursor: pointer;
+  padding: 0.65rem 1.35rem;
+  font-size: 0.9375rem;
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1),
+    box-shadow 0.28s ease,
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease;
+}
+
+.btn::before,
+.btn-primary::before,
+.btn-secondary::before,
+.btn-outline::before,
+.btn-navy::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.35) 45%,
+    transparent 90%
+  );
+  transform: translateX(-130%) skewX(-14deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn:hover::before,
+.btn-primary:hover::before,
+.btn-secondary:hover::before,
+.btn-outline:hover::before,
+.btn-navy:hover::before {
+  opacity: 1;
+  animation: ui-btn-shine 0.7s ease forwards;
+}
+
+.btn-primary,
+.btn {
+  background: linear-gradient(135deg, rgb(245 158 11), rgb(251 191 36));
+  color: rgb(15 23 42) !important;
+  box-shadow: 0 4px 14px -4px rgb(245 158 11 / 0.55);
+}
+
+.btn-primary:hover:not(:disabled),
+.btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgb(251 191 36), rgb(253 224 171));
+  color: rgb(15 23 42) !important;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  border: 1px solid rgb(226 232 240);
+  background: white;
+  color: rgb(15 23 42) !important;
+}
+
+.btn-outline {
+  border: 2px solid rgb(245 158 11);
+  background: white;
+  color: rgb(180 83 9) !important;
+}
+
+.btn-outline:hover:not(:disabled) {
+  color: rgb(180 83 9) !important;
+  background: rgb(255 251 235);
+}
+
+.btn-navy {
+  background: linear-gradient(135deg, rgb(15 23 42), rgb(30 41 59));
+  color: rgb(255 255 255) !important;
+}
+
+.airport-diaries__cta,
+.mbbs-abroad-cta,
+.counselling-form-submit,
+a.site-gold-cta,
+button.site-gold-cta,
+.program-hub-btn-primary,
+.nav-mega-hub {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  overflow: hidden;
+  font-family: var(--font-poppins), system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1),
+    box-shadow 0.28s ease,
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease;
+}
+
+.airport-diaries__cta::before,
+.mbbs-abroad-cta::before,
+.counselling-form-submit::before,
+a.site-gold-cta::before,
+button.site-gold-cta::before,
+.program-hub-btn-primary::before,
+.nav-mega-hub::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.35) 45%,
+    transparent 90%
+  );
+  transform: translateX(-130%) skewX(-14deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.airport-diaries__cta:hover::before,
+.mbbs-abroad-cta:hover::before,
+.counselling-form-submit:hover::before,
+a.site-gold-cta:hover::before,
+button.site-gold-cta:hover::before,
+.program-hub-btn-primary:hover::before,
+.nav-mega-hub:hover::before {
+  opacity: 1;
+  animation: ui-btn-shine 0.7s ease forwards;
+}
+
+.airport-diaries__cta > *,
+.mbbs-abroad-cta > *,
+.counselling-form-submit > *,
+a.site-gold-cta > *,
+button.site-gold-cta > *,
+.program-hub-btn-primary > *,
+.nav-mega-hub > * {
+  position: relative;
+  z-index: 1;
+}
+
+.airport-diaries__cta,
+.mbbs-abroad-cta,
+.counselling-form-submit,
+a.site-gold-cta,
+button.site-gold-cta,
+.program-hub-btn-primary,
+.nav-mega-hub {
+  background: linear-gradient(135deg, rgb(245 158 11), rgb(251 191 36));
+  color: rgb(15 23 42) !important;
+  box-shadow: 0 4px 14px -4px rgb(245 158 11 / 0.55);
+}
+
+.airport-diaries__cta:hover:not(:disabled),
+.mbbs-abroad-cta:hover,
+.counselling-form-submit:hover:not(:disabled),
+a.site-gold-cta:hover,
+button.site-gold-cta:hover:not(:disabled),
+.program-hub-btn-primary:hover,
+.nav-mega-hub:hover {
+  background: linear-gradient(135deg, rgb(251 191 36), rgb(253 224 171));
+  color: rgb(15 23 42) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -12px rgb(15 23 42 / 0.35);
+}
+
+.airport-diaries__cta {
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  margin-top: 1.5rem;
+  font-weight: 700;
+}
+
+.mbbs-abroad-cta {
+  padding: 0.65rem 1.35rem;
+  font-size: 0.9375rem;
+  margin-top: 0;
+  width: 100%;
+  border-radius: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .mbbs-abroad-cta {
+    width: fit-content;
+  }
+}
+
+.counselling-form-submit {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 0.75rem;
+  padding: 0.65rem 1.35rem;
+  font-size: 0.9375rem;
+  touch-action: manipulation;
+}
+
+.counselling-form-submit.ui-btn--compact {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+}
+
+a.site-gold-cta,
+button.site-gold-cta {
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+}
+
+.program-hub-btn-primary,
+.nav-mega-hub {
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+}
+
+.program-hub-btn-primary--lg {
+  padding: 0.75rem 1.4rem;
+  font-size: 0.9rem;
+}
+
+.nav-mega-hub {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.program-hub-btn-ghost {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-family: var(--font-poppins), system-ui, sans-serif;
+  font-weight: 600;
+  text-decoration: none !important;
+  border: 1px solid rgb(255 255 255 / 0.22);
+  background: rgb(255 255 255 / 0.06);
+  color: rgb(255 255 255) !important;
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1),
+    box-shadow 0.28s ease,
+    background-color 0.22s ease;
+}
+
+.program-hub-btn-ghost:hover {
+  background: rgb(255 255 255 / 0.14);
+  color: rgb(255 255 255) !important;
+  transform: translateY(-2px);
+}
+
+.wp-content-root .wp-premium-btn,
+.wp-content-root .wp-premium-btn-primary,
+.wp-content-root .wp-premium-btn-outline {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0.65rem 1.35rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  border-radius: 0.65rem;
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1),
+    box-shadow 0.28s ease,
+    background-color 0.22s ease,
+    color 0.22s ease;
+}
+
+.wp-content-root .wp-premium-btn-primary {
+  background: linear-gradient(135deg, rgb(15 23 42), rgb(30 41 59));
+  color: rgb(255 255 255) !important;
+}
+
+.wp-content-root .wp-premium-btn-primary:hover {
+  background: linear-gradient(135deg, rgb(30 41 59), rgb(51 65 85));
+  color: rgb(255 255 255) !important;
+  transform: translateY(-2px);
+}
+
+.wp-content-root .wp-premium-btn-outline {
+  border: 2px solid rgb(226 232 240);
+  background: white;
+  color: rgb(15 23 42) !important;
+}
+
+.wp-content-root .wp-premium-btn-outline:hover {
+  border-color: rgb(251 191 36 / 0.65);
+  background: rgb(255 251 235);
+  color: rgb(15 23 42) !important;
+  transform: translateY(-2px);
+}
+
+.about-cta .ui-btn,
+.about-cta a[class*='Button'],
+.about-cta button {
+  text-decoration: none !important;
+}
+
+button.ui-btn:hover,
+button.ui-btn:focus-visible,
+a.ui-btn:hover,
+a.ui-btn:focus-visible {
+  text-decoration: none !important;
+}

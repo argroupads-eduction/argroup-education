@@ -14,8 +14,8 @@
     "db:studio": "prisma studio",
     "db:ping": "node scripts/test-db-connection.mjs",
     "seed": "ts-node src/seed.ts",
-    "wp:import": "node --env-file=.env scripts/import-wp.mjs",
-    "wp:import:pages": "node --env-file=.env scripts/import-wp.mjs -- --pages-only"
+    "wp:import": "npx ts-node --env-file=.env scripts/import-wp.ts",
+    "wp:seo:import": "node --env-file=.env scripts/import-yoast-seo.mjs"
   },
   "keywords": [],
   "author": "",

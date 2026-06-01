@@ -1,0 +1,696 @@
+/* MBBS Abroad hub — premium country orbit, documents vault, WP overrides */
+
+/* ── Country orbit ── */
+.abroad-orbit {
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 0 4.5rem;
+  background: linear-gradient(165deg, #050d1a 0%, #0c1f3f 38%, #0f2848 100%);
+  color: #fff;
+}
+
+.abroad-orbit__aurora {
+  position: absolute;
+  inset: -20% -10%;
+  background:
+    radial-gradient(ellipse 50% 40% at 15% 30%, rgb(232 163 23 / 0.18), transparent 55%),
+    radial-gradient(ellipse 45% 35% at 85% 60%, rgb(56 189 248 / 0.12), transparent 50%);
+  animation: abroad-aurora 14s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes abroad-aurora {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, -3%, 0) scale(1.05);
+  }
+}
+
+.abroad-orbit__grid-lines {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.5) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black, transparent);
+  pointer-events: none;
+}
+
+.abroad-orbit__head {
+  position: relative;
+  max-width: 40rem;
+  margin-bottom: 2.5rem;
+}
+
+.abroad-orbit__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(253 224 171);
+}
+
+.abroad-orbit__title {
+  margin-top: 0.75rem;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(1.85rem, 4.5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.abroad-orbit__title span {
+  background: linear-gradient(90deg, #fde68a, #f59e0b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.abroad-orbit__lead {
+  margin-top: 0.85rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgb(191 219 254 / 0.88);
+}
+
+.abroad-orbit__bento {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .abroad-orbit__bento {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(7.5rem, auto);
+    gap: 1.15rem;
+  }
+
+  .abroad-orbit__tile--hero {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .abroad-orbit__tile--a {
+    grid-column: 1 / span 2;
+  }
+
+  .abroad-orbit__tile--b {
+    grid-column: 3 / span 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .abroad-orbit__bento {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .abroad-orbit__tile--hero {
+    grid-column: span 3;
+    grid-row: span 2;
+  }
+}
+
+.abroad-orbit__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.04);
+  backdrop-filter: blur(12px);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.abroad-orbit__card:hover {
+  transform: translateY(-4px);
+  border-color: rgb(251 191 36 / 0.45);
+  box-shadow:
+    0 24px 48px rgb(0 0 0 / 0.35),
+    0 0 0 1px rgb(251 191 36 / 0.2);
+}
+
+.abroad-orbit__card--hero {
+  min-height: 14rem;
+  padding: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .abroad-orbit__card--hero {
+    min-height: 18rem;
+    padding: 1.5rem;
+  }
+}
+
+.abroad-orbit__stamp {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  padding: 0.25rem 0.55rem;
+  border-radius: 0.35rem;
+  border: 1px dashed rgb(251 191 36 / 0.5);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: rgb(253 224 171);
+  transform: rotate(6deg);
+}
+
+.abroad-orbit__flag {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 6rem;
+  margin-bottom: 0.75rem;
+}
+
+.abroad-orbit__flag-img {
+  max-height: 5.5rem;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 0.65rem;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.25);
+  transition: transform 0.4s ease;
+}
+
+.abroad-orbit__card--hero:hover .abroad-orbit__flag-img {
+  transform: scale(1.04);
+}
+
+.abroad-orbit__flag-fallback {
+  width: 3rem;
+  height: 3rem;
+  color: rgb(148 163 184);
+}
+
+.abroad-orbit__card-foot {
+  margin-top: auto;
+}
+
+.abroad-orbit__country {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.abroad-orbit__meta {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: rgb(191 219 254 / 0.75);
+}
+
+.abroad-orbit__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgb(253 224 171);
+}
+
+.abroad-orbit__card--compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  min-height: 4.5rem;
+}
+
+.abroad-orbit__compact-img {
+  width: 3.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 0.45rem;
+  border: 1px solid rgb(255 255 255 / 0.15);
+}
+
+.abroad-orbit__country-sm {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.abroad-orbit__meta-sm {
+  font-size: 0.72rem;
+  color: rgb(191 219 254 / 0.7);
+}
+
+.abroad-orbit__arrow-sm {
+  margin-left: auto;
+  width: 1rem;
+  height: 1rem;
+  color: rgb(253 224 171);
+  flex-shrink: 0;
+}
+
+/* ── Intake ribbon ── */
+.abroad-intake {
+  padding: 2rem 0;
+  background: linear-gradient(180deg, #faf8f4 0%, #fff 100%);
+  border-bottom: 1px solid #e8e4dc;
+}
+
+.abroad-intake__track {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .abroad-intake__track {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.abroad-intake__card {
+  position: relative;
+  padding: 1.35rem 1.35rem 1.35rem 1.15rem;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 4px 24px rgb(12 31 63 / 0.06);
+}
+
+.abroad-intake__step {
+  position: absolute;
+  top: 0.85rem;
+  right: 1rem;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: rgb(12 31 63 / 0.06);
+  font-variant-numeric: tabular-nums;
+}
+
+.abroad-intake__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.65rem;
+  background: linear-gradient(135deg, #0c1f3f, #1e3a5f);
+  color: #fde68a;
+}
+
+.abroad-intake__title {
+  margin-top: 0.85rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0c1f3f;
+}
+
+.abroad-intake__body {
+  margin-top: 0.4rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: #64748b;
+}
+
+/* ── Documents vault ── */
+.abroad-vault {
+  position: relative;
+  padding: 4rem 0 4.5rem;
+  background: #faf8f4;
+  overflow: hidden;
+}
+
+.abroad-vault__texture {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c4a574' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.abroad-vault__head {
+  position: relative;
+  max-width: 42rem;
+  margin-bottom: 2.25rem;
+}
+
+.abroad-vault__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #b45309;
+}
+
+.abroad-vault__title {
+  margin-top: 0.65rem;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(1.65rem, 4vw, 2.35rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #0c1f3f;
+}
+
+.abroad-vault__lead {
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #64748b;
+}
+
+.abroad-vault__grid {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .abroad-vault__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .abroad-vault__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.abroad-vault__card {
+  position: relative;
+  height: 100%;
+  padding: 1.15rem 1rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid #e8e0d4;
+  background: linear-gradient(145deg, #fff 0%, #fdfbf7 100%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.8) inset,
+    0 8px 28px rgb(12 31 63 / 0.06);
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.abroad-vault__card:hover {
+  transform: translateY(-3px);
+  border-color: rgb(232 163 23 / 0.45);
+  box-shadow: 0 16px 40px rgb(12 31 63 / 0.1);
+}
+
+.abroad-vault__num {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgb(12 31 63 / 0.12);
+}
+
+.abroad-vault__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  color: #c2410c;
+  border: 1px solid rgb(251 191 36 / 0.35);
+}
+
+.abroad-vault__doc-title {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #0c1f3f;
+}
+
+.abroad-vault__hint {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.abroad-vault__cta {
+  position: relative;
+  margin-top: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(90deg, #0c1f3f, #1e3a5f);
+  color: rgb(219 234 254);
+  font-size: 0.95rem;
+}
+
+.abroad-vault__cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #f59e0b, #eab308);
+  color: #0c1f3f;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: filter 0.2s ease;
+}
+
+.abroad-vault__cta-btn:hover {
+  filter: brightness(1.06);
+}
+
+/* ── Guide shell (remaining WP content) ── */
+.abroad-guide-shell {
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+}
+
+.abroad-hub-wp-hidden,
+.wp-content-abroad-hub .abroad-wp-suppress,
+.wp-content-abroad-hub .abroad-wp-countries,
+.wp-content-abroad-hub .abroad-wp-countries-heading,
+.wp-content-abroad-hub .abroad-wp-documents,
+.wp-content-abroad-hub .abroad-wp-documents-inner,
+.wp-content-abroad-hub .abroad-wp-partner-logos,
+.wp-content-abroad-hub .abroad-wp-duplicate-block,
+.wp-content-abroad-hub .abroad-wp-doc-orphan,
+.wp-content-abroad-hub .abroad-wp-admission-grid,
+.wp-content-abroad-hub .abroad-wp-airport-diaries {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+/* Benefits list → premium card grid (same WP text) */
+.wp-content-abroad-hub .abroad-wp-benefits-list .elementor-widget-text-editor ul {
+  display: grid !important;
+  gap: 1rem;
+  list-style: none !important;
+  margin: 1.5rem 0 2rem !important;
+  padding: 0 !important;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .wp-content-abroad-hub .abroad-wp-benefits-list .elementor-widget-text-editor ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-content-abroad-hub .abroad-wp-benefits-list .elementor-widget-text-editor ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.wp-content-abroad-hub .abroad-wp-benefits-list li {
+  margin: 0 !important;
+  padding: 1.35rem 1.25rem !important;
+  border-radius: 1rem;
+  border: 1px solid #e8e0d4;
+  background: linear-gradient(145deg, #fff 0%, #fdfbf7 100%);
+  box-shadow: 0 8px 28px rgb(12 31 63 / 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.wp-content-abroad-hub .abroad-wp-benefits-list li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgb(12 31 63 / 0.1);
+  border-color: rgb(232 163 23 / 0.4);
+}
+
+.wp-content-abroad-hub .abroad-wp-benefits-list li b {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 1rem;
+  color: #0c1f3f;
+}
+
+.wp-content-abroad-hub .abroad-benefit-body,
+.wp-content-abroad-hub .abroad-wp-benefits-list .abroad-benefit-body {
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #475569;
+  font-weight: 400;
+}
+
+.wp-content-abroad-hub ul.wp-premium-feature-grid > li .abroad-benefit-body,
+.wp-content-abroad-hub .abroad-wp-benefits-list li span:not(.abroad-benefit-body) {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.wp-content-abroad-hub ul.wp-premium-feature-grid > li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Intro paragraph — readable measure */
+.wp-content-abroad-hub .wp-content-body > .elementor-section:first-child p,
+.wp-content-abroad-hub .abroad-wp-section .elementor-widget-text-editor p {
+  max-width: 48rem;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: #334155;
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-inner-section:has(.elementor-image-box-wrapper),
+.wp-content-abroad-hub .wp-content-body .elementor-inner-section:has(a[href*='mbbs-in']) {
+  display: none !important;
+}
+
+.wp-content-abroad-hub .wp-content-body h2,
+.wp-content-abroad-hub .wp-content-body h3 {
+  font-family: var(--font-playfair), Georgia, serif;
+  color: #0c1f3f !important;
+  border-bottom: 2px solid rgb(232 163 23 / 0.35);
+  padding-bottom: 0.35rem;
+  margin-top: 2.5rem !important;
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-icon-box-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  border-left: none;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(12 31 63 / 0.05);
+  transition: transform 0.25s ease;
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-widget-wrap:has(> .elementor-widget-icon-box) {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .wp-content-abroad-hub .wp-content-body .elementor-widget-wrap:has(> .elementor-widget-icon-box) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-content-abroad-hub .wp-content-body .elementor-widget-wrap:has(> .elementor-widget-icon-box) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-icon-box-icon {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+  margin: 0 auto 0.75rem;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, #fff7ed, #ffedd5) !important;
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-icon-box-icon img {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  max-width: 2.25rem !important;
+  object-fit: contain;
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-icon-box-title {
+  font-size: 0.9rem !important;
+  text-align: center;
+}
+
+/* Image-box country links — grid if any remain visible */
+.wp-content-abroad-hub .wp-content-body .elementor-widget-image-box {
+  margin: 0 !important;
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-image-box-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  text-align: center;
+  transition: box-shadow 0.25s ease;
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-image-box-wrapper:hover {
+  box-shadow: 0 12px 32px rgb(12 31 63 / 0.1);
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-image-box-img img {
+  max-height: 4rem;
+  width: auto;
+  margin: 0 auto;
+  border-radius: 0.5rem;
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-image-box-title a {
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  color: #0c1f3f !important;
+}
+
+.wp-content-abroad-hub .wp-content-body .elementor-image-box-title a:hover {
+  color: #b45309 !important;
+}

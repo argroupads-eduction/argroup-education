@@ -15,8 +15,17 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: rgb(15 23 42);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
   border-radius: 9999px;
   transition: color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nav-mega-trigger:focus-visible {
+  outline: 2px solid rgb(245 158 11);
+  outline-offset: 2px;
 }
 
 .nav-mega-trigger:hover,
@@ -47,30 +56,37 @@
 .nav-mega-layer {
   z-index: 60;
   top: 100%;
-  margin-top: -1px;
-  padding-top: 0.35rem;
+  margin-top: 0;
+  padding-top: 0;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(-0.35rem);
+  transform: translateY(-0.25rem);
   background: transparent;
   border: none;
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   transition:
-    opacity 0.16s ease,
-    visibility 0.16s ease,
-    transform 0.16s ease;
+    opacity 0.2s ease,
+    visibility 0.2s ease,
+    transform 0.2s ease;
 }
 
+/* Invisible bridge so pointer can move from trigger → panel without closing */
 .nav-mega-layer::before {
   content: '';
   position: absolute;
-  top: 0;
+  top: -0.75rem;
   left: 0;
   right: 0;
-  height: 0.65rem;
+  height: 0.85rem;
+  pointer-events: none;
+}
+
+/* Keep bridge hover-only so it does not block clicks on nav triggers above */
+.nav-mega-layer--open::before {
+  pointer-events: none;
 }
 
 .nav-mega-layer--open {
@@ -78,6 +94,10 @@
   visibility: visible;
   pointer-events: auto;
   transform: translateY(0);
+}
+
+.nav-mega-root:has(.nav-mega-layer--open) {
+  z-index: 70;
 }
 
 .nav-mega-layer--open .nav-mega-shell {

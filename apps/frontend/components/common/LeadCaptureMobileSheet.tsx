@@ -21,7 +21,7 @@ export type LeadCaptureMobileSheetProps = {
  * Mobile-only lead capture: centered card modal (max ~88dvh), overflow hidden —
  * no nested scroll so the full form stays visible on one screen.
  */
-const DEFAULT_TITLE = 'MBBS abroad experts';
+const DEFAULT_TITLE = 'MBBS in India or abroad — expert counselling';
 
 export function LeadCaptureMobileSheet({
   open,
@@ -69,7 +69,7 @@ export function LeadCaptureMobileSheet({
                   {title}
                 </Dialog.Title>
                 <Dialog.Description id="lead-capture-desc" className="sr-only">
-                  AR Group MBBS abroad counselling — enter your details for a callback.
+                  AR Group MBBS counselling for India and abroad — enter your details for a callback.
                 </Dialog.Description>
 
                 <motion.div

@@ -4,56 +4,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type MegaMenuId = 'mbbs-india' | 'mbbs-abroad' | 'md-ms';
 
-const OPEN_MS = 0;
-const CLOSE_MS = 220;
+const CLOSE_MS = 280;
 
 export function useMegaMenu() {
   const [megaOpen, setMegaOpen] = useState<MegaMenuId | null>(null);
-  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
-  const clearTimers = useCallback(() => {
-    if (openTimer.current) clearTimeout(openTimer.current);
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    openTimer.current = null;
-    closeTimer.current = null;
-  }, []);
-
-  const openMega = useCallback(
-    (id: MegaMenuId) => {
-      if (closeTimer.current) {
-        clearTimeout(closeTimer.current);
-        closeTimer.current = null;
-      }
-      if (openTimer.current) clearTimeout(openTimer.current);
-      if (megaOpen === id) return;
-
-      if (OPEN_MS <= 0) {
-        setMegaOpen(id);
-        return;
-      }
-
-      openTimer.current = setTimeout(() => {
-        setMegaOpen(id);
-        openTimer.current = null;
-      }, OPEN_MS);
-    },
-    [megaOpen]
-  );
-
-  const closeMega = useCallback(() => {
-    if (openTimer.current) {
-      clearTimeout(openTimer.current);
-      openTimer.current = null;
-    }
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => {
-      setMegaOpen(null);
-      closeTimer.current = null;
-    }, CLOSE_MS);
-  }, []);
-
-  const cancelClose = useCallback(() => {
+  const clearCloseTimer = useCallback(() => {
     if (closeTimer.current) {
       clearTimeout(closeTimer.current);
       closeTimer.current = null;
@@ -61,11 +19,72 @@ export function useMegaMenu() {
   }, []);
 
   const forceClose = useCallback(() => {
-    clearTimers();
+    clearCloseTimer();
     setMegaOpen(null);
-  }, [clearTimers]);
+  }, [clearCloseTimer]);
 
-  useEffect(() => clearTimers, [clearTimers]);
+  const openMega = useCallback(
+    (id: MegaMenuId) => {
+      clearCloseTimer();
+      setMegaOpen((current) => (current === id ? current : id));
+    },
+    [clearCloseTimer]
+  );
 
-  return { megaOpen, openMega, closeMega, cancelClose, forceClose };
+  const toggleMega = useCallback(
+    (id: MegaMenuId) => {
+      clearCloseTimer();
+      setMegaOpen((current) => (current === id ? null : id));
+    },
+    [clearCloseTimer]
+  );
+
+  const scheduleClose = useCallback(() => {
+    clearCloseTimer();
+    closeTimer.current = setTimeout(() => {
+      setMegaOpen(null);
+      closeTimer.current = null;
+    }, CLOSE_MS);
+  }, [clearCloseTimer]);
+
+  const cancelClose = useCallback(() => {
+    clearCloseTimer();
+  }, [clearCloseTimer]);
+
+  /** @deprecated use scheduleClose — kept for Navbar onMouseLeave */
+  const closeMega = scheduleClose;
+
+  useEffect(() => {
+    if (!megaOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') forceClose();
+    };
+
+    const onPointerDown = (event: PointerEvent) => {
+      const root = rootRef.current;
+      if (!root) return;
+      if (!root.contains(event.target as Node)) forceClose();
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown, true);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown, true);
+    };
+  }, [megaOpen, forceClose]);
+
+  useEffect(() => clearCloseTimer, [clearCloseTimer]);
+
+  return {
+    megaOpen,
+    openMega,
+    toggleMega,
+    closeMega,
+    scheduleClose,
+    cancelClose,
+    forceClose,
+    rootRef,
+  };
 }

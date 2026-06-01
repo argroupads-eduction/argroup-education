@@ -35,7 +35,14 @@ type WpItem = {
   metaTitle: string | null;
   metaDescription: string | null;
   canonicalUrl: string | null;
+  focusKeyword?: string | null;
   keywords: string[];
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogImage?: string | null;
+  twitterTitle?: string | null;
+  twitterDescription?: string | null;
+  schemaJson?: unknown | null;
 };
 
 function stripHtml(html: string): string {
@@ -84,7 +91,14 @@ async function importPosts(posts: WpItem[]) {
       metaTitle: item.metaTitle,
       metaDescription: item.metaDescription,
       canonicalUrl: item.canonicalUrl,
+      focusKeyword: item.focusKeyword ?? null,
       keywords: item.keywords ?? [],
+      ogTitle: item.ogTitle ?? null,
+      ogDescription: item.ogDescription ?? null,
+      ogImage: item.ogImage ?? null,
+      twitterTitle: item.twitterTitle ?? null,
+      twitterDescription: item.twitterDescription ?? null,
+      schemaJson: item.schemaJson ?? undefined,
       published: true,
       publishedAt: new Date(item.date),
     };
@@ -128,7 +142,14 @@ async function importPages(pages: WpItem[]) {
       metaTitle: item.metaTitle,
       metaDescription: item.metaDescription,
       canonicalUrl: item.canonicalUrl,
+      focusKeyword: item.focusKeyword ?? null,
       keywords: item.keywords ?? [],
+      ogTitle: item.ogTitle ?? null,
+      ogDescription: item.ogDescription ?? null,
+      ogImage: item.ogImage ?? null,
+      twitterTitle: item.twitterTitle ?? null,
+      twitterDescription: item.twitterDescription ?? null,
+      schemaJson: item.schemaJson ?? undefined,
       published: true,
       publishedAt: new Date(item.date),
     };

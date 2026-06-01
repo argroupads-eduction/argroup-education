@@ -8,10 +8,11 @@ import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { BlogPostLayout } from '@/components/blog/BlogPostLayout';
 import { getBlogPosts, getContentBySlug } from '@/lib/contentApi';
+import { PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { findProgramContextBySlug } from '@/lib/programBreadcrumbs';
+import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
 const HOME_WP_SLUG = 'mbbs-admission-in-top-colleges';
 
 type PageProps = {
@@ -31,28 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Not Found' };
   }
 
-  const title = plainTitle(content.metaTitle || content.title);
-  const description = metaDescriptionFromContent(content.metaDescription || content.excerpt, content.content);
-  const canonical = content.canonicalUrl || `${SITE_URL}/${content.slug}`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical },
-    openGraph: {
-      title,
-      description,
-      url: canonical,
-      type: content.type === 'post' ? 'article' : 'website',
-      ...(content.featuredImage ? { images: [{ url: content.featuredImage, alt: title }] } : {}),
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      ...(content.featuredImage ? { images: [content.featuredImage] } : {}),
-    },
-  };
+  return buildSiteMetadata(content);
 }
 
 export default async function WpSlugPage({ params }: PageProps) {
@@ -61,6 +41,10 @@ export default async function WpSlugPage({ params }: PageProps) {
 
   if (decoded === HOME_WP_SLUG) {
     redirect('/');
+  }
+
+  if (decoded === PROGRAM_HUB_WP_SLUG.abroad) {
+    redirect('/mbbs-abroad');
   }
 
   const content = await getContentBySlug(decoded);
@@ -141,7 +125,7 @@ export default async function WpSlugPage({ params }: PageProps) {
           </Link>
           <Link
             href="/contact"
-            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-gold-500 px-5 py-2.5 text-sm font-bold text-navy-900 transition hover:bg-gold-400 sm:w-auto"
+            className="site-gold-cta inline-flex min-h-[44px] w-full items-center justify-center sm:w-auto"
           >
             Free counselling
           </Link>

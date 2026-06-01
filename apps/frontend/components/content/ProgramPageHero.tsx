@@ -68,7 +68,7 @@ export function ProgramPageHero({
             <div className="mt-5 flex flex-col gap-2.5 sm:mt-7 sm:flex-row sm:flex-wrap sm:gap-3">
               <Link
                 href="/contact"
-                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-navy-900 transition hover:bg-gold-400 sm:w-auto"
+                className="site-gold-cta inline-flex min-h-[44px] w-full items-center justify-center gap-2 sm:w-auto"
               >
                 Free counselling
                 <ArrowRight className="h-4 w-4" />

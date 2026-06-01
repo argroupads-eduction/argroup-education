@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { openThankYouInNewTab } from '@/lib/openThankYouPage'
 
 interface FormSectionProps {
   program: 'mbbs-india' | 'mbbs-abroad' | 'md-ms'
@@ -15,7 +16,6 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
     message: '',
   })
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
   const handleChange = (
@@ -50,30 +50,16 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
         throw new Error(data.error || 'Failed to submit form')
       }
 
-      setSuccess(true)
+      openThankYouInNewTab({
+        name: formData.name,
+        source: `form-section-${program}`,
+      })
       setFormData({ name: '', email: '', phone: '', message: '' })
-
-      setTimeout(() => {
-        setSuccess(false)
-      }, 5000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-md">
-        <div className="text-center">
-          <h3 className="text-lg md:text-xl font-bold text-green-600 mb-2">Thank You!</h3>
-          <p className="text-sm md:text-base text-slate-600">
-            Your inquiry has been received. Our team will contact you shortly.
-          </p>
-        </div>
-      </div>
-    )
   }
 
   return (
