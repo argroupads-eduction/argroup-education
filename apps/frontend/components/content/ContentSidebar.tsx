@@ -15,7 +15,7 @@ export function ContentSidebar() {
         <div className="mt-5 space-y-2.5">
           <Link
             href="/contact"
-            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-gold-500 px-4 py-3 text-sm font-bold text-navy-900 transition hover:bg-gold-400"
+            className="site-gold-cta flex min-h-[44px] w-full items-center justify-center gap-2"
           >
             <MessageCircle className="h-4 w-4" />
             Book consultation

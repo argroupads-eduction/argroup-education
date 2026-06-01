@@ -33,17 +33,51 @@ function yoastMeta(item) {
       metaTitle: null,
       metaDescription: null,
       canonicalUrl: null,
+      focusKeyword: null,
       keywords: [],
+      ogTitle: null,
+      ogDescription: null,
       ogImage: null,
+      twitterTitle: null,
+      twitterDescription: null,
+      schemaJson: null,
     };
   }
-  const ogImage = Array.isArray(y.og_image) ? y.og_image[0]?.url : y.og_image?.url;
+  const ogImage = Array.isArray(y.og_image)
+    ? y.og_image[0]?.url
+    : typeof y.og_image === 'string'
+      ? y.og_image
+      : y.og_image?.url;
+  const twitterImage = Array.isArray(y.twitter_image)
+    ? y.twitter_image[0]
+    : y.twitter_image;
+
+  let schemaJson = null;
+  if (y.schema) {
+    schemaJson =
+      typeof y.schema === 'string'
+        ? (() => {
+            try {
+              return JSON.parse(y.schema);
+            } catch {
+              return { raw: y.schema };
+            }
+          })()
+        : y.schema;
+  }
+
   return {
     metaTitle: y.title || null,
     metaDescription: y.description || null,
     canonicalUrl: y.canonical || item.link || null,
+    focusKeyword: null,
     keywords: [],
-    ogImage: ogImage || null,
+    ogTitle: y.og_title || null,
+    ogDescription: y.og_description || null,
+    ogImage: ogImage || twitterImage || null,
+    twitterTitle: y.twitter_title || null,
+    twitterDescription: y.twitter_description || null,
+    schemaJson,
   };
 }
 

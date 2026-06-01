@@ -68,7 +68,7 @@ export const CounsellingFormSection = () => {
 
               <h2 className="mt-4 font-serif text-2xl font-bold leading-tight text-navy-900 md:text-3xl lg:text-[2rem]">
                 Get guided by the best{' '}
-                <span className="text-gold-600">MBBS India &amp; Abroad</span> experts
+                <span className="text-gold-600">MBBS India and Abroad</span> experts
               </h2>
 
               <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">

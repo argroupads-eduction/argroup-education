@@ -46,7 +46,7 @@
   z-index: 1;
   max-width: 80rem;
   margin: 0 auto;
-  padding: 3rem 1rem 2.5rem;
+  padding: 3rem 1rem 2rem;
 }
 
 @media (min-width: 768px) {
@@ -167,26 +167,6 @@
   font-size: 1rem;
   font-weight: 800;
   color: rgb(253 224 171);
-}
-
-.airport-diaries__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin-top: 1.5rem;
-  padding: 0.75rem 1.35rem;
-  border-radius: 9999px;
-  background: linear-gradient(120deg, #f59e0b, #fbbf24);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: rgb(15 23 42);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.airport-diaries__cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 28px -12px rgb(245 158 11 / 0.65);
-  color: rgb(15 23 42);
 }
 
 /* Spotlight + 3D orbit stage */
@@ -342,13 +322,18 @@
   padding: 0.35rem;
 }
 
-/* Film-strip marquees */
+.airport-diaries__ticker-wrap:hover .airport-diaries__ticker {
+  animation-play-state: paused;
+}
+
+/* Top film-strip only (bottom row removed) */
 .airport-diaries__marquees {
   margin-top: 1.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
   mask-image: linear-gradient(90deg, transparent, black 6%, black 94%, transparent);
+}
+
+.airport-diaries__marquees--single {
+  display: block;
 }
 
 .airport-diaries__marquee {
@@ -362,13 +347,7 @@
   animation: airport-marquee-ltr 46s linear infinite;
 }
 
-.airport-diaries__marquee-track--reverse {
-  animation-name: airport-marquee-rtl;
-  animation-duration: 52s;
-}
-
-.airport-diaries__marquee:hover .airport-diaries__marquee-track,
-.airport-diaries__ticker-wrap:hover .airport-diaries__ticker {
+.airport-diaries__marquee:hover .airport-diaries__marquee-track {
   animation-play-state: paused;
 }
 
@@ -461,15 +440,6 @@
   }
   to {
     transform: translateX(-50%);
-  }
-}
-
-@keyframes airport-marquee-rtl {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0);
   }
 }
 

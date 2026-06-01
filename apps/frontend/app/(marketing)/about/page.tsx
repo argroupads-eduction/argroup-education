@@ -3,28 +3,22 @@ import { AboutPageView } from '@/components/about/AboutPageView';
 import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { ABOUT_SEO, ABOUT_WP_SLUG } from '@/lib/aboutContent';
 import { getContentBySlug, type SiteContent } from '@/lib/contentApi';
-import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
+import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
+import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 export async function generateMetadata(): Promise<Metadata> {
   const wp = await getContentBySlug(ABOUT_WP_SLUG);
-  const title = plainTitle(wp?.metaTitle || ABOUT_SEO.title);
-  const description =
-    wp?.metaDescription ||
-    metaDescriptionFromContent(wp?.excerpt, wp?.content || '', 160) ||
-    ABOUT_SEO.description;
+  if (wp) {
+    return buildSiteMetadata(wp, {
+      canonicalPath: '/about',
+      fallbackTitle: ABOUT_SEO.title,
+    });
+  }
 
   return {
-    title,
-    description,
-    alternates: { canonical: `${SITE_URL}/about` },
-    openGraph: {
-      title,
-      description,
-      url: `${SITE_URL}/about`,
-      type: 'website',
-    },
+    title: ABOUT_SEO.title,
+    description: ABOUT_SEO.description,
+    alternates: { canonical: '/about' },
   };
 }
 

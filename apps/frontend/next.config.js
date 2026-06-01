@@ -18,6 +18,7 @@ const PUBLIC_MARKETING_ASSETS = [
   'india-homepage.jpg',
   'abroad-homepage.jpg',
   'about-counsellor.png',
+  'lead-mbbs-doctor.jpg',
 ];
 
 /** @type {import('next').NextConfig} */
@@ -107,6 +108,16 @@ const nextConfig = {
       {
         source: '/mbbs-admission-in-top-colleges/',
         destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/study-mbbs-in-abroad',
+        destination: '/mbbs-abroad',
+        permanent: true,
+      },
+      {
+        source: '/study-mbbs-in-abroad/',
+        destination: '/mbbs-abroad',
         permanent: true,
       },
       // WordPress trailing slashes → Next paths (SEO / backlinks)

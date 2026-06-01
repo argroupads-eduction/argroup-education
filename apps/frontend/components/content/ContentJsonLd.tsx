@@ -6,12 +6,35 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation
 type ContentJsonLdProps = {
   content: Pick<
     SiteContent,
-    'title' | 'slug' | 'excerpt' | 'content' | 'featuredImage' | 'publishedAt' | 'updatedAt' | 'type'
+    | 'title'
+    | 'slug'
+    | 'excerpt'
+    | 'content'
+    | 'featuredImage'
+    | 'publishedAt'
+    | 'updatedAt'
+    | 'type'
+    | 'schemaJson'
   >;
   breadcrumbs?: { label: string; href?: string }[];
 };
 
 export function ContentJsonLd({ content, breadcrumbs }: ContentJsonLdProps) {
+  if (content.schemaJson && typeof content.schemaJson === 'object') {
+    const yoastSchema = content.schemaJson as Record<string, unknown>;
+    const withContext =
+      yoastSchema['@context'] != null
+        ? yoastSchema
+        : { '@context': 'https://schema.org', ...yoastSchema };
+
+    return (
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(withContext) }}
+      />
+    );
+  }
+
   const title = plainTitle(content.title);
   const description = metaDescriptionFromContent(content.excerpt, content.content);
   const url = `${SITE_URL}/${content.slug}`;

@@ -1,11 +1,17 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { MessageSquare, Send, CheckCircle } from 'lucide-react';
+import {
+  THANK_YOU_PATH,
+  markCounsellingSubmitted,
+} from '@/lib/counsellingFormSession';
+import { openThankYouInNewTab } from '@/lib/openThankYouPage';
 
 const CounsellingFormSchema = z.object({
   fullName: z.string().min(2, 'Full name is required'),
@@ -24,6 +30,11 @@ type CounsellingFormData = z.infer<typeof CounsellingFormSchema>;
 type CounsellingFormProps = {
   embedded?: boolean;
   compact?: boolean;
+  /** Thank-you path; default opens in a new tab after success. */
+  redirectOnSuccess?: string;
+  /** Open thank-you in new tab (default true when redirectOnSuccess is set). */
+  openInNewTab?: boolean;
+  submitSource?: string;
 };
 
 const Field = ({
@@ -37,9 +48,14 @@ const Field = ({
 export const CounsellingForm = ({
   embedded = false,
   compact = false,
+  redirectOnSuccess = THANK_YOU_PATH,
+  openInNewTab = true,
+  submitSource = 'counselling-form',
 }: CounsellingFormProps) => {
+  const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const animate = !embedded;
 
   const {
@@ -52,15 +68,33 @@ export const CounsellingForm = ({
   });
 
   const onSubmit = async (data: CounsellingFormData) => {
+    setSubmitError(null);
+
+    const sessionData = {
+      source: submitSource,
+      name: data.fullName,
+    };
+
+    if (redirectOnSuccess) {
+      if (openInNewTab) {
+        openThankYouInNewTab(sessionData, redirectOnSuccess);
+      } else {
+        markCounsellingSubmitted(sessionData);
+        router.push(redirectOnSuccess);
+      }
+      reset();
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log('Form submitted:', data);
+      await new Promise((resolve) => setTimeout(resolve, 800));
       setSubmitted(true);
       reset();
       setTimeout(() => setSubmitted(false), 5000);
     } catch (error) {
       console.error('Submission error:', error);
+      setSubmitError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -95,8 +129,8 @@ export const CounsellingForm = ({
   const gridGap = compact ? 'gap-3' : 'gap-6';
 
   const submitBtnClass = compact
-    ? 'counselling-form-submit flex w-full min-h-11 items-center justify-center gap-2 rounded-lg bg-gold-500 py-2.5 font-body text-sm font-bold text-white shadow-md shadow-gold-600/25 transition-all hover:bg-gold-600 active:scale-[0.99] disabled:opacity-60 touch-manipulation'
-    : 'counselling-form-submit flex w-full min-h-11 items-center justify-center gap-3 rounded-xl bg-gold-500 py-4 font-body text-lg font-bold text-white shadow-lg shadow-gold-600/30 transition-all hover:bg-gold-600 active:scale-[0.99] disabled:opacity-60 touch-manipulation';
+    ? 'counselling-form-submit ui-btn--compact'
+    : 'counselling-form-submit';
 
   const inner = (
     <div className={embedded ? 'w-full' : 'p-8 md:p-12'}>
@@ -125,7 +159,7 @@ export const CounsellingForm = ({
           </p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className={formSpace}>
+        <form onSubmit={handleSubmit(onSubmit)} className={formSpace} noValidate>
           <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-2' : 'md:grid-cols-2'} ${gridGap}`}>
             <Field animate={animate}>
               <label className={labelClass}>Full name *</label>
@@ -155,6 +189,7 @@ export const CounsellingForm = ({
               <label className={labelClass}>Phone (10 digits) *</label>
               <input
                 type="tel"
+                inputMode="numeric"
                 placeholder="9876543210"
                 className={inputClass(!!errors.phone)}
                 {...register('phone')}
@@ -236,6 +271,12 @@ export const CounsellingForm = ({
               </div>
             </Field>
           )}
+
+          {submitError ? (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm font-medium text-red-600">
+              {submitError}
+            </p>
+          ) : null}
 
           <Field animate={animate}>
             <button type="submit" disabled={isLoading} className={submitBtnClass}>

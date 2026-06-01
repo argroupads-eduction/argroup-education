@@ -126,41 +126,7 @@
   margin-top: 1.75rem;
 }
 
-.program-hub-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.75rem 1.35rem;
-  border-radius: 9999px;
-  background: rgb(245 158 11);
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: rgb(15 23 42);
-  transition: background-color 0.18s ease, transform 0.18s ease;
-}
-
-.program-hub-btn-primary:hover {
-  background: rgb(251 191 36);
-  transform: translateY(-1px);
-}
-
-.program-hub-btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.75rem 1.35rem;
-  border-radius: 9999px;
-  border: 1px solid rgb(255 255 255 / 0.22);
-  background: rgb(255 255 255 / 0.06);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: white;
-  transition: background-color 0.18s ease;
-}
-
-.program-hub-btn-ghost:hover {
-  background: rgb(255 255 255 / 0.12);
-}
+/* Button styles: ui-buttons.css (.program-hub-btn-primary / -ghost) */
 
 .program-hub-trust {
   border-bottom: 1px solid rgb(226 232 240);

@@ -33,7 +33,7 @@ export function MbbsIndiaIndexHero() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-navy-900 transition hover:bg-gold-400"
+              className="site-gold-cta inline-flex items-center gap-2"
             >
               Get free counselling
               <ArrowRight className="h-4 w-4" />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -8,9 +9,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   Award,
   CheckCircle2,
-  Globe2,
   GraduationCap,
-  MapPin,
   ShieldCheck,
   X,
 } from 'lucide-react';
@@ -18,7 +17,8 @@ import clsx from 'clsx';
 import { Button } from '@/components/ui/Button';
 import { LeadCapturePromoBanner } from '@/components/common/LeadCapturePromoBanner';
 import { LeadCaptureMobileSheet } from '@/components/common/LeadCaptureMobileSheet';
-import { MBBS_ABROAD_HERO_COUNTRY_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOptions';
+import { LEAD_CAPTURE_TARGET_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOptions';
+import { openThankYouInNewTab } from '@/lib/openThankYouPage';
 import {
   type HeroMbbsFormDoc,
   type HeroMbbsFormFieldBlock,
@@ -35,25 +35,9 @@ const PROMO_BADGES = [
 ] as const;
 
 const TRUST_BULLETS = [
-  '4,000+ students guided across India & abroad',
+  '4,000+ students guided across India and abroad',
   'NMC-aligned counselling with honest fee guidance',
   'Visa, documentation & pre-departure briefing',
-] as const;
-
-/** Map pins: abroad destinations + India (origin hub). */
-const LEAD_MAP_PINS = [
-  ...MBBS_ABROAD_HERO_COUNTRY_OPTIONS,
-  { label: 'India', value: 'India' },
-] as const;
-
-/** Pin order matches LEAD_MAP_PINS; India sits south-central on the stylized map. */
-const LEAD_MAP_PIN_POSITIONS = [
-  { top: '18%', left: '22%' },
-  { top: '28%', left: '48%' },
-  { top: '22%', left: '72%' },
-  { top: '42%', left: '18%' },
-  { top: '44%', left: '58%' },
-  { top: '54%', left: '62%' },
 ] as const;
 
 const INDIAN_CITY_SUGGESTIONS = [
@@ -202,7 +186,7 @@ function validate(values: LeadFormValues): string | null {
     return 'Enter a valid 10-digit mobile number.';
   }
   if (!values.city.trim()) return 'City is required.';
-  if (!values.targetCountry.trim()) return 'Please select a target country.';
+  if (!values.targetCountry.trim()) return 'Please select a target destination.';
   return null;
 }
 
@@ -215,7 +199,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
         'relative flex flex-col overflow-hidden bg-navy-900 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white',
         isMobileSheet && 'px-3.5 pb-2.5 pt-3.5 text-center',
         variant === 'compact' && 'px-5 py-6',
-        variant === 'default' && 'px-7 py-9 md:px-9 md:py-10'
+        variant === 'default' && 'px-6 py-7 md:px-7 md:py-8'
       )}
     >
       <motion.div
@@ -244,8 +228,8 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
           <LeadCapturePromoBanner compact className="mx-auto w-full max-w-full" />
         </div>
       ) : (
-        <h2 className="relative mt-2.5 font-serif text-[1.35rem] font-bold leading-tight text-white md:text-[1.65rem]">
-          Your MBBS abroad journey starts here
+        <h2 className="relative mt-2.5 font-serif text-[1.25rem] font-bold leading-snug text-white md:text-[1.5rem]">
+          Your MBBS in India and abroad journey starts here
         </h2>
       )}
       {!isMobileSheet && (
@@ -271,65 +255,30 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
 
       {!isMobileSheet && (
       <motion.div
-        className="relative mt-7 min-h-[7.5rem] flex-1 rounded-xl border border-white/12 bg-gradient-to-b from-navy-800/60 to-navy-900/40 p-3.5 shadow-inner shadow-black/20 backdrop-blur-sm"
-        aria-hidden
+        className="relative mt-5 aspect-[5/4] w-full max-h-[11.5rem] overflow-hidden rounded-xl border border-white/12 shadow-inner shadow-black/25"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.4 }}
       >
-        <Globe2 className="absolute left-3.5 top-3.5 h-5 w-5 text-gold-400/90" />
-        <svg
-          viewBox="0 0 320 140"
-          className="mx-auto mt-0.5 h-full w-full max-w-[292px] text-navy-600/80"
-          fill="currentColor"
-        >
-          <defs>
-            <radialGradient id="lead-map-glow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="currentColor" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <ellipse cx="160" cy="72" rx="128" ry="50" className="fill-navy-700/55" />
-          <ellipse cx="160" cy="72" rx="90" ry="32" fill="url(#lead-map-glow)" className="text-gold-500/20" />
-          <path
-            d="M36 74 Q95 46 160 70 T284 74"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.25"
-            strokeDasharray="4 3"
-            className="text-gold-400/35"
-          />
-          <path
-            d="M55 58 Q120 38 200 52 T265 88"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="0.75"
-            className="text-teal-300/20"
-          />
-        </svg>
-        <ul className="absolute inset-0">
-          {LEAD_MAP_PINS.map((c, i) => {
-            const pos = LEAD_MAP_PIN_POSITIONS[i % LEAD_MAP_PIN_POSITIONS.length];
-            return (
-              <motion.li
-                key={c.value}
-                className="absolute flex items-center gap-0.5 text-[9px] font-medium text-gold-100"
-                style={pos}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 + i * 0.05, type: 'spring', stiffness: 260, damping: 18 }}
-              >
-                <MapPin className="h-3 w-3 text-gold-400" aria-hidden />
-                <span className="hidden sm:inline">{c.label}</span>
-              </motion.li>
-            );
-          })}
-        </ul>
+        <Image
+          src="/lead-mbbs-doctor.jpg"
+          alt="MBBS doctor — medical education counselling for India and abroad"
+          fill
+          className="object-cover object-[center_20%]"
+          sizes="(max-width: 768px) 90vw, 320px"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-900/25 to-transparent"
+          aria-hidden
+        />
+        <p className="absolute bottom-2.5 left-3 right-3 text-[11px] font-semibold leading-snug text-white md:text-xs">
+          Expert counselling for MBBS in India and top universities abroad
+        </p>
       </motion.div>
       )}
 
       {!isMobileSheet && (
-        <div className="relative mt-5 flex w-full flex-col items-stretch gap-2 rounded-xl border border-gold-500/25 bg-gradient-to-r from-navy-900/60 via-gold-500/10 to-navy-900/60 px-3 py-2.5">
+        <div className="relative mt-4 flex w-full flex-col items-stretch gap-2 rounded-xl border border-gold-500/25 bg-gradient-to-r from-navy-900/60 via-gold-500/10 to-navy-900/60 px-3 py-2">
           <p className="text-center text-[11px] font-bold uppercase tracking-wider text-gold-200/95">
             Limited seats
           </p>
@@ -338,7 +287,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       )}
 
       {!isMobileSheet && (
-        <ul className="relative mt-4 space-y-1.5">
+        <ul className="relative mt-3 space-y-1.5 pb-0.5">
           {TRUST_BULLETS.map((text) => (
             <li key={text} className="flex gap-2 text-xs text-navy-100/95">
               <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-400" aria-hidden />
@@ -403,7 +352,7 @@ function LeadCaptureFormPanel({
           Thank you!
         </h3>
         <p className={clsx('mt-2 max-w-sm text-slate-600', isMobile ? 'text-xs' : 'text-sm')}>
-          Our counsellors will contact you within 24 hours with MBBS abroad options tailored to your
+          Our counsellors will contact you within 24 hours with MBBS in India and abroad options tailored to your
           profile.
         </p>
         <Button
@@ -507,7 +456,7 @@ function LeadCaptureFormPanel({
 
         <motion.div className={clsx(fieldWrapClass, 'col-span-2')}>
           <label htmlFor="lead-country" className={labelClass}>
-            Target country *
+            Target destination *
           </label>
           <select
             id="lead-country"
@@ -518,9 +467,9 @@ function LeadCaptureFormPanel({
             onChange={(e) => setField('targetCountry', e.target.value)}
           >
             <option value="" disabled>
-              Select country
+              India or abroad
             </option>
-            {MBBS_ABROAD_HERO_COUNTRY_OPTIONS.map((o) => (
+            {LEAD_CAPTURE_TARGET_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
@@ -595,11 +544,12 @@ function LeadCaptureFormPanel({
 
   return (
     <>
-      <h2 className="pr-10 font-serif text-[1.35rem] font-bold leading-tight text-navy-900 md:pr-0 md:text-[1.65rem]">
-        Looking for MBBS Abroad?
+      <h2 className="pr-10 font-serif text-[1.25rem] font-bold leading-snug text-navy-900 md:pr-0 md:text-[1.55rem]">
+        Looking for MBBS in India or Abroad?
       </h2>
       <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600 md:text-sm">
-        Share your details — AR Group counsellors will call you with tailored university options.
+        Share your details — AR Group counsellors will call you with tailored options for India and international
+        universities.
       </p>
 
       <form id={formId} onSubmit={onSubmit} className="mt-4 w-full min-w-0 space-y-3.5" noValidate>
@@ -717,6 +667,10 @@ export function LeadCapturePopup() {
 
     const payload = buildSubmissionPayload(normalized, payloadForm);
     if (!payload) {
+      openThankYouInNewTab({
+        name: normalized.fullName,
+        source: 'lead-popup',
+      });
       setSubmitted(true);
       return;
     }
@@ -747,6 +701,10 @@ export function LeadCapturePopup() {
         setSubmitError(msg);
         return;
       }
+      openThankYouInNewTab({
+        name: normalized.fullName,
+        source: 'lead-popup',
+      });
       setSubmitted(true);
     } catch {
       setSubmitError('Network error. Please try again.');
@@ -782,6 +740,7 @@ export function LeadCapturePopup() {
           open={mobileOpen}
           onOpenChange={handleMobileOpenChange}
           reduceMotion={!!reduceMotion}
+          title="Looking for MBBS in India or Abroad?"
           header={<PromoPanel variant="mobileSheet" />}
         >
           <LeadCaptureFormPanel
@@ -830,14 +789,15 @@ export function LeadCapturePopup() {
                     exit="hidden"
                     variants={contentVariants}
                   >
-                    <Dialog.Title className="sr-only">Looking for MBBS Abroad?</Dialog.Title>
+                    <Dialog.Title className="sr-only">Looking for MBBS in India or Abroad?</Dialog.Title>
                     <Dialog.Description id="lead-capture-desc" className="sr-only">
-                      Share your details — AR Group counsellors will call you with tailored university options.
+                      Share your details for MBBS in India or abroad — AR Group counsellors will call you with tailored
+                      university options.
                     </Dialog.Description>
 
                     <motion.div
                       role="document"
-                      className="relative flex h-[100dvh] max-h-[100dvh] min-h-0 w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5 sm:h-auto sm:max-h-[min(90vh,44rem)] sm:rounded-2xl md:flex-row"
+                      className="relative flex h-[100dvh] max-h-[100dvh] min-h-0 w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5 sm:h-auto sm:max-h-[min(92vh,54rem)] sm:rounded-2xl md:flex-row"
                       layout={!reduceMotion}
                     >
                       <Dialog.Close asChild>
@@ -852,7 +812,7 @@ export function LeadCapturePopup() {
                       </Dialog.Close>
 
                       <motion.div
-                        className="max-h-[40vh] w-full shrink-0 overflow-hidden bg-navy-900 sm:max-h-none md:w-[42%]"
+                        className="flex max-h-[38vh] w-full shrink-0 flex-col overflow-y-auto overflow-x-hidden bg-navy-900 sm:max-h-none md:max-h-[min(92vh,54rem)] md:w-[42%]"
                         initial={reduceMotion ? false : { opacity: 0, x: -12 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.05, duration: 0.35 }}
@@ -862,7 +822,7 @@ export function LeadCapturePopup() {
 
                       <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-white md:w-[58%]">
                         <motion.div
-                          className="min-w-0 w-full overflow-y-auto overflow-x-hidden px-5 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pt-14 sm:px-8 sm:py-8 sm:pb-8 sm:pt-7 md:overflow-y-visible"
+                          className="min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-14 sm:px-7 sm:py-7 sm:pb-7 sm:pt-7"
                           initial={reduceMotion ? false : { opacity: 0, x: 12 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.08, duration: 0.35 }}

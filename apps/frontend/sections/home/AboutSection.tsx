@@ -211,7 +211,7 @@ export const AboutSection = () => {
                 href="https://wa.me/919999999999"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-navy-900/15 bg-white px-8 py-4 text-base font-semibold text-navy-900 transition hover:border-gold-400 hover:bg-gold-50 sm:w-auto"
+                className="ui-btn ui-btn--secondary ui-btn--lg w-full sm:w-auto"
               >
                 <MessageCircle className="h-5 w-5 text-green-600" />
                 Chat on WhatsApp

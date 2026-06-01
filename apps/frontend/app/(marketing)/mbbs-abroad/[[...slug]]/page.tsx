@@ -14,9 +14,8 @@ import {
   isMbbsAbroadThreeLevel,
   mbbsAbroadCountryCollegeCount,
 } from '@/lib/mbbsAbroadTree';
-import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
+import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
+import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type PageProps = {
   params: Promise<{ slug?: string[] }>;
@@ -27,17 +26,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!slug?.length) {
     const seo = PROGRAM_HUB_SEO.abroad;
     const wp = await getContentBySlug(PROGRAM_HUB_WP_SLUG.abroad);
-    const title = plainTitle(wp?.metaTitle || seo.title);
-    const description =
-      wp?.metaDescription ||
-      metaDescriptionFromContent(wp?.excerpt, wp?.content || '', 160) ||
-      seo.description;
-
+    if (wp) {
+      return buildSiteMetadata(wp, {
+        canonicalPath: seo.path,
+        fallbackTitle: seo.title,
+      });
+    }
     return {
-      title,
-      description,
-      alternates: { canonical: `${SITE_URL}${seo.path}` },
-      openGraph: { title, description, url: `${SITE_URL}${seo.path}` },
+      title: seo.title,
+      description: seo.description,
+      alternates: { canonical: seo.path },
     };
   }
 
@@ -45,17 +43,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!country) return { title: 'MBBS Abroad' };
 
   const wp = country.wpSlug ? await getContentBySlug(country.wpSlug) : null;
-  const title = plainTitle(wp?.metaTitle || wp?.title || `MBBS in ${country.name}`);
-  const description =
-    wp?.metaDescription ||
-    metaDescriptionFromContent(wp?.excerpt, wp?.content || '', 160) ||
-    `Explore MBBS universities in ${country.name}.`;
+  if (wp) {
+    return buildSiteMetadata(wp, {
+      canonicalPath: country.href,
+      fallbackTitle: `MBBS in ${country.name}`,
+    });
+  }
 
   return {
-    title,
-    description,
-    alternates: { canonical: `${SITE_URL}${country.href}` },
-    openGraph: { title, description, url: `${SITE_URL}${country.href}` },
+    title: `MBBS in ${country.name}`,
+    description: `Explore MBBS universities in ${country.name}.`,
+    alternates: { canonical: country.href },
   };
 }
 
@@ -63,8 +61,8 @@ export default async function MbbsAbroadPage({ params }: PageProps) {
   const { slug } = await params;
 
   if (!slug?.length) {
-    const wpContent = await getContentBySlug(PROGRAM_HUB_WP_SLUG.abroad);
-    return <MbbsAbroadHub wpContent={wpContent} />;
+    const seoContent = await getContentBySlug(PROGRAM_HUB_WP_SLUG.abroad);
+    return <MbbsAbroadHub seoContent={seoContent} />;
   }
 
   const country = getMbbsAbroadCountryById(slug[0]);

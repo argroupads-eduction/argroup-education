@@ -1,0 +1,550 @@
+/* MBBS Abroad hub — native guide & directory (no WP HTML) */
+
+.abroad-guide--intro {
+  padding: 2.5rem 0 0.75rem;
+}
+
+.abroad-guide--extended {
+  padding: 1.25rem 0 2.5rem;
+  background: linear-gradient(180deg, #f1f5f9 0%, #fff 45%, #f8fafc 100%);
+}
+
+.abroad-guide {
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+}
+
+.abroad-guide__intro {
+  max-width: 48rem;
+  margin-bottom: 0;
+}
+
+.abroad-guide__lead {
+  margin-top: 0.75rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #334155;
+  font-weight: 500;
+}
+
+.abroad-guide__p {
+  margin-top: 0.85rem;
+  font-size: 0.98rem;
+  line-height: 1.75;
+  color: #475569;
+}
+
+.abroad-guide__p--tight {
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.abroad-guide__countries {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .abroad-guide__countries {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .abroad-guide__countries {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.abroad-guide__countries li {
+  padding: 1.1rem 1.15rem;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(12 31 63 / 0.05);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.abroad-guide__countries li:hover {
+  transform: translateY(-2px);
+  border-color: rgb(232 163 23 / 0.4);
+  box-shadow: 0 14px 32px rgb(12 31 63 / 0.09);
+}
+
+.abroad-guide__countries strong {
+  display: block;
+  font-size: 1rem;
+  color: #0c1f3f;
+  margin-bottom: 0.4rem;
+}
+
+.abroad-guide__countries p {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: #64748b;
+  margin: 0;
+}
+
+.abroad-guide__checklist--grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .abroad-guide__checklist--grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.abroad-guide__jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.abroad-guide__jump a {
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0c1f3f;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgb(12 31 63 / 0.04);
+  transition:
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1),
+    box-shadow 0.25s ease;
+}
+
+.abroad-guide__jump a:hover {
+  border-color: rgb(232 163 23 / 0.65);
+  color: #b45309;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgb(12 31 63 / 0.08);
+}
+
+.abroad-guide__block {
+  margin-bottom: 1.75rem;
+}
+
+.abroad-guide__block:last-child {
+  margin-bottom: 0;
+}
+
+/* Bento rows — equal-height panels, no blank columns */
+.abroad-guide__bento {
+  display: grid;
+  gap: 1.15rem;
+  margin-bottom: 1.75rem;
+}
+
+.abroad-guide__bento--duo {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .abroad-guide__bento--duo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .abroad-guide__bento--elig {
+    grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+    align-items: stretch;
+  }
+}
+
+.abroad-guide__panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: 1.25rem 1.35rem 1.35rem;
+  border-radius: 1.15rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 10px 32px rgb(12 31 63 / 0.06);
+}
+
+.abroad-guide__panel--accent {
+  border-color: rgb(232 163 23 / 0.35);
+  background: linear-gradient(160deg, #fff 0%, #fffbeb 100%);
+}
+
+.abroad-guide__h3--in-panel {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.35rem;
+  border-bottom-width: 1px;
+}
+
+.abroad-guide__h3 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  color: #0c1f3f;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid rgb(232 163 23 / 0.35);
+}
+
+.abroad-guide__table-wrap {
+  margin-top: 1.25rem;
+  overflow-x: auto;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 32px rgb(12 31 63 / 0.06);
+}
+
+.abroad-guide__table {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.abroad-guide__table thead {
+  background: linear-gradient(90deg, #0c1f3f, #1e3a5f);
+  color: #fff;
+}
+
+.abroad-guide__table th,
+.abroad-guide__table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.abroad-guide__table tbody th {
+  font-weight: 700;
+  color: #0c1f3f;
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.abroad-guide__checklist {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+}
+
+.abroad-guide__checklist li {
+  display: flex;
+  gap: 0.65rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.abroad-guide__check-icon {
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  color: #b45309;
+}
+
+.abroad-guide__benefits {
+  margin-top: 0;
+  flex: 1;
+  display: grid;
+  gap: 0.65rem;
+  list-style: none;
+  padding: 0;
+  align-content: start;
+}
+
+.abroad-guide__benefits--dense {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .abroad-guide__benefits--dense {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.abroad-guide__benefits li {
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.85rem;
+  border: 1px solid #e8e0d4;
+  background: linear-gradient(145deg, #fff 0%, #fdfbf7 100%);
+  box-shadow: 0 4px 14px rgb(12 31 63 / 0.04);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.abroad-guide__benefits li:hover {
+  transform: translateY(-2px);
+  border-color: rgb(232 163 23 / 0.45);
+  box-shadow: 0 12px 28px rgb(12 31 63 / 0.08);
+}
+
+.abroad-guide__benefits strong {
+  display: block;
+  font-size: 0.92rem;
+  color: #0c1f3f;
+  margin-bottom: 0.35rem;
+}
+
+.abroad-guide__benefits span {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: #64748b;
+}
+
+.abroad-guide__steps {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.85rem;
+  list-style: none;
+  padding: 0;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .abroad-guide__steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .abroad-guide__steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.abroad-guide__block--process {
+  padding: 1.35rem 1.35rem 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+  box-shadow: 0 12px 40px rgb(12 31 63 / 0.06);
+}
+
+.abroad-guide__steps li {
+  display: flex;
+  gap: 0.85rem;
+  padding: 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid rgb(232 163 23 / 0.5);
+  background: #fff;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.abroad-guide__steps li:hover {
+  transform: translateY(-3px);
+  border-left-color: #f59e0b;
+  box-shadow: 0 14px 32px rgb(12 31 63 / 0.1);
+}
+
+.abroad-guide__step-num {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgb(12 31 63 / 0.2);
+}
+
+.abroad-guide__steps strong {
+  display: block;
+  font-size: 0.9rem;
+  color: #0c1f3f;
+}
+
+.abroad-guide__steps p {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.abroad-guide__cta-inline {
+  margin-top: 1.25rem;
+}
+
+.abroad-guide__faqs {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.abroad-guide__faq {
+  border-radius: 0.9rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.abroad-guide__faq:hover {
+  border-color: rgb(232 163 23 / 0.4);
+  box-shadow: 0 8px 24px rgb(12 31 63 / 0.06);
+}
+
+.abroad-guide__faq[open] {
+  border-color: rgb(232 163 23 / 0.55);
+  box-shadow: 0 10px 28px rgb(12 31 63 / 0.08);
+}
+
+.abroad-guide__faq summary {
+  cursor: pointer;
+  padding: 1rem 1.15rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0c1f3f;
+  list-style: none;
+}
+
+.abroad-guide__faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.abroad-guide__faq p {
+  padding: 0 1.15rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: #475569;
+}
+
+/* Directory */
+.abroad-directory.program-hub-section {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.abroad-directory__countries {
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+}
+
+.abroad-directory__country {
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.abroad-directory__country:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.abroad-directory__country-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.abroad-directory__country-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #b45309;
+}
+
+.abroad-directory__country-title {
+  margin-top: 0.35rem;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+  font-weight: 700;
+}
+
+.abroad-directory__country-title a {
+  color: #0c1f3f;
+  text-decoration: none;
+}
+
+.abroad-directory__country-title a:hover {
+  color: #b45309;
+}
+
+.abroad-directory__country-meta {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.abroad-directory__universities {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.abroad-directory__uni-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.abroad-directory__uni-head h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.abroad-directory__uni-head h4 a {
+  color: #0c1f3f;
+}
+
+.abroad-directory__uni-head h4 a:hover {
+  color: #b45309;
+}
+
+.abroad-directory__uni-head span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.abroad-directory__grid {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .abroad-directory__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .abroad-directory__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.abroad-directory__grid > li {
+  min-width: 0;
+}

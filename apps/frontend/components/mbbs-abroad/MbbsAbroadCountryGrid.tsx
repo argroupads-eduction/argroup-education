@@ -27,10 +27,7 @@ export function MbbsAbroadCountryGrid({ country }: MbbsAbroadCountryGridProps) {
             Fees, eligibility, and admission details for each university.
           </p>
         </div>
-        <Link
-          href="/contact"
-          className="inline-flex shrink-0 items-center rounded-full bg-blue-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800"
-        >
+        <Link href="/contact" className="program-hub-btn-primary shrink-0">
           Free counselling
         </Link>
       </div>

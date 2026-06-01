@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
@@ -45,12 +45,29 @@ const MdMsNavMegaMenu = dynamic(
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { megaOpen, openMega, closeMega, cancelClose, forceClose } = useMegaMenu();
+  const { megaOpen, openMega, scheduleClose, cancelClose, forceClose, rootRef } =
+    useMegaMenu();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [openMobileState, setOpenMobileState] = useState<string | null>(null);
   const [openMobileUniversity, setOpenMobileUniversity] = useState<string | null>(null);
   const scrollPosition = useScrollPosition();
   const isScrolled = scrollPosition > 50;
+
+  useEffect(() => {
+    if (!isOpen) {
+      setOpenSubmenu(null);
+      setOpenMobileState(null);
+      setOpenMobileUniversity(null);
+    }
+  }, [isOpen]);
+
+  const closeMobileNav = () => {
+    setIsOpen(false);
+    setOpenSubmenu(null);
+    setOpenMobileState(null);
+    setOpenMobileUniversity(null);
+    forceClose();
+  };
 
   const megaGroupClass = (megaMenu?: string) => {
     if (megaMenu === 'mbbs-india') return 'relative group/mbbs-india';
@@ -119,10 +136,14 @@ export const Navbar = () => {
           isScrolled ? 'border-gray-200 bg-white shadow-md' : 'border-gray-100 bg-white'
         }`}
       >
-        <div className="nav-mega-root relative" onMouseLeave={closeMega}>
+        <div
+          ref={rootRef}
+          className="nav-mega-root relative"
+          onMouseLeave={scheduleClose}
+        >
           <div className="relative mx-auto flex max-w-6xl items-center justify-between overflow-visible px-4 py-1.5">
             {/* Logo */}
-            <div onMouseEnter={closeMega}>
+            <div onMouseEnter={scheduleClose}>
               <BrandLogoLink frameClassName="brand-logo-link__frame--nav">
                 <img
                   src="/ar-group-logo.png"
@@ -136,14 +157,18 @@ export const Navbar = () => {
               </BrandLogoLink>
             </div>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex flex-1 items-center justify-center gap-1 overflow-visible px-2">
+            {/* Desktop Menu — above mega panel so hub links stay clickable */}
+            <div className="relative z-[80] hidden md:flex flex-1 items-center justify-center gap-1 overflow-visible px-2">
               {NAV_LINKS.map((link: any) => (
                 <div key={link.href} className={megaGroupClass(link.megaMenu)}>
                   {link.submenu ? (
                     link.megaMenu ? (
                       <Link
                         href={link.href}
+                        id={`nav-mega-trigger-${link.megaMenu}`}
+                        aria-expanded={megaOpen === link.megaMenu}
+                        aria-haspopup="true"
+                        aria-controls={`nav-mega-panel-${link.megaMenu}`}
                         onMouseEnter={() => handleMegaEnter(link.megaMenu as MegaMenuId)}
                         onFocus={() => handleMegaEnter(link.megaMenu as MegaMenuId)}
                         onClick={forceClose}
@@ -161,6 +186,7 @@ export const Navbar = () => {
                             'nav-mega-chevron',
                             megaOpen === link.megaMenu ? 'nav-mega-chevron--open' : '',
                           ].join(' ')}
+                          aria-hidden
                         />
                       </Link>
                     ) : (
@@ -178,7 +204,8 @@ export const Navbar = () => {
                   ) : (
                     <Link
                       href={link.href}
-                      onMouseEnter={closeMega}
+                      onMouseEnter={scheduleClose}
+                      onClick={forceClose}
                       className="text-navy-900 font-body font-medium text-sm hover:text-gold-600 transition-colors duration-300 px-3 py-2 relative flex items-center gap-1"
                     >
                       {link.label}
@@ -204,7 +231,7 @@ export const Navbar = () => {
             </div>
 
             {/* CTA Button */}
-            <div className="hidden md:flex gap-4" onMouseEnter={closeMega}>
+            <div className="hidden md:flex gap-4" onMouseEnter={scheduleClose}>
               <Button variant="primary" size="md">
                 Free Counselling
               </Button>
@@ -226,15 +253,23 @@ export const Navbar = () => {
 
           {/* Desktop mega menus — full width, flush under navbar */}
           <div
+            id={megaOpen ? `nav-mega-panel-${megaOpen}` : undefined}
+            role="region"
+            aria-labelledby={megaOpen ? `nav-mega-trigger-${megaOpen}` : undefined}
             className={[
               'nav-mega-layer absolute inset-x-0 top-full hidden md:block',
               megaOpen ? 'nav-mega-layer--open' : '',
             ].join(' ')}
             onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
           >
             <div className={`mx-auto w-full px-4 pb-2 pt-0 ${megaInnerWidth}`}>
-              {megaOpen === 'mbbs-india' ? <MbbsIndiaNavMegaMenu onNavigate={forceClose} /> : null}
-              {megaOpen === 'mbbs-abroad' ? <MbbsAbroadNavMegaMenu onNavigate={forceClose} /> : null}
+              {megaOpen === 'mbbs-india' ? (
+                <MbbsIndiaNavMegaMenu onNavigate={forceClose} />
+              ) : null}
+              {megaOpen === 'mbbs-abroad' ? (
+                <MbbsAbroadNavMegaMenu onNavigate={forceClose} />
+              ) : null}
               {megaOpen === 'md-ms' ? <MdMsNavMegaMenu onNavigate={forceClose} /> : null}
             </div>
           </div>
@@ -251,19 +286,27 @@ export const Navbar = () => {
                       <div className="flex items-center gap-1">
                         <Link
                           href={link.href}
-                          className="flex-1 text-navy-900 font-body font-semibold hover:text-gold-600 py-2"
-                          onClick={() => setIsOpen(false)}
+                          onClick={closeMobileNav}
+                          className="flex-1 rounded-lg px-2 py-2 text-navy-900 font-body font-semibold hover:bg-gold-50 hover:text-gold-700"
                         >
-                          {link.label} hub →
+                          {link.label}
                         </Link>
                         <button
                           type="button"
-                          onClick={() => setOpenSubmenu(openSubmenu === link.href ? null : link.href)}
-                          className="rounded-md p-2 text-navy-900 hover:bg-gold-50"
-                          aria-label={`Expand ${link.label} menu`}
+                          onClick={() => {
+                            const next = openSubmenu === link.href ? null : link.href;
+                            setOpenSubmenu(next);
+                            if (!next) {
+                              setOpenMobileState(null);
+                              setOpenMobileUniversity(null);
+                            }
+                          }}
+                          className="rounded-lg p-2 text-navy-900 hover:bg-gold-50"
+                          aria-expanded={openSubmenu === link.href}
+                          aria-label={`Show ${link.label} colleges`}
                         >
                           <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 ${
+                            className={`h-5 w-5 transition-transform duration-200 ${
                               openSubmenu === link.href ? 'rotate-180' : ''
                             }`}
                           />
