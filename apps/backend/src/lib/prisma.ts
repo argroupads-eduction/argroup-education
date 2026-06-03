@@ -9,8 +9,28 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+/** Placeholder for `next build` / CI when routes are imported but no DB is reachable. */
+const BUILD_TIME_DATABASE_URL =
+  'postgresql://build:build@127.0.0.1:5432/build?schema=public';
+
+function resolveDatabaseUrl(): string {
+  const raw = process.env.DATABASE_URL?.trim();
+  if (raw) return neonDatabaseUrl(raw);
+
+  const isCompileOnly =
+    process.env.CI === 'true' ||
+    process.env.npm_lifecycle_event === 'build' ||
+    process.env.NEXT_PHASE === 'phase-production-build';
+
+  if (isCompileOnly) return BUILD_TIME_DATABASE_URL;
+
+  throw new Error(
+    'DATABASE_URL is missing. Copy apps/backend/.env.example to .env and set Neon credentials.'
+  );
+}
+
 function createPrismaClient(): PrismaClient {
-  const url = neonDatabaseUrl(process.env.DATABASE_URL);
+  const url = resolveDatabaseUrl();
   return new PrismaClient({
     datasources: { db: { url } },
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],

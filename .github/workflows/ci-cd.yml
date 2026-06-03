@@ -38,6 +38,9 @@ jobs:
         run: npm run type-check
 
       - name: Build
+        env:
+          # Next build imports /api/* routes that load Prisma; no live DB needed in CI.
+          DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci?schema=public
         run: npm run build
 
   frontend-deploy:
