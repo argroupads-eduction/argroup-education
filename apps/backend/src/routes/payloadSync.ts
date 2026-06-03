@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma, withPrismaRetry } from '../lib/prisma';
+import { revalidateFrontend } from '../lib/revalidateFrontend';
 
 const router = Router();
 
@@ -98,6 +99,10 @@ router.post('/payload-sync', async (req: Request, res: Response) => {
         await withPrismaRetry(() => prisma.blogPost.create({ data }));
       }
 
+      if (published) {
+        void revalidateFrontend({ slug, type: 'post' });
+      }
+
       res.json({ success: true, type: 'post', slug, published });
       return;
     }
@@ -134,6 +139,10 @@ router.post('/payload-sync', async (req: Request, res: Response) => {
       );
     } else {
       await withPrismaRetry(() => prisma.sitePage.create({ data: pageData }));
+    }
+
+    if (published) {
+      void revalidateFrontend({ slug, type: 'page' });
     }
 
     res.json({ success: true, type: 'page', slug, published });

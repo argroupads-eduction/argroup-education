@@ -3,11 +3,15 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 import type { Page } from '../../../payload-types'
 import { htmlFromPayloadDoc, syncToMarketingBackend } from '../../../utilities/syncToMarketingBackend'
 
-export const syncPageToBackend: CollectionAfterChangeHook<Page> = ({ doc, req }) => {
+export const syncPageToBackend: CollectionAfterChangeHook<Page> = ({ doc, previousDoc, req }) => {
   if (req.context?.disableBackendSync) return doc
 
+  const isPublished = doc._status === 'published'
+  const wasPublished = previousDoc?._status === 'published'
+  if (!isPublished && !wasPublished) return doc
+
   const html = htmlFromPayloadDoc(doc)
-  const published = doc._status === 'published'
+  const published = isPublished
 
   void syncToMarketingBackend({
     type: 'page',
