@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { BlogListItem } from '@/lib/contentApi';
 import { BlogImage } from './BlogImage';
-import { blogCardExcerpt, formatBlogDate } from '@/lib/blogUtils';
+import { blogCardExcerpt, blogPostPath, formatBlogDate } from '@/lib/blogUtils';
 
 type BlogLatestSidebarProps = {
   posts: BlogListItem[];
@@ -25,7 +25,7 @@ export function BlogLatestSidebar({
         <ul className="blog-sidebar__list">
           {items.map((post, index) => (
             <li key={post.id}>
-              <Link href={`/${post.slug}`} className="blog-sidebar__item">
+              <Link href={blogPostPath(post.slug)} className="blog-sidebar__item">
                 <span className="blog-sidebar__index" aria-hidden>
                   {String(index + 1).padStart(2, '0')}
                 </span>
