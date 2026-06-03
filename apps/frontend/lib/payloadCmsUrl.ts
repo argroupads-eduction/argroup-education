@@ -9,7 +9,7 @@ export function isPayloadCmsConfigured(): boolean {
  * Production Vercel should read blogs from Railway/Neon (Payload sync on publish), not live Payload API.
  * Set PAYLOAD_CMS_ENABLED=false on Vercel, or CONTENT_SOURCE=api (default on VERCEL).
  */
-export function useBackendAsPrimaryContent(): boolean {
+export function isBackendPrimaryContent(): boolean {
   const source = process.env.CONTENT_SOURCE?.trim().toLowerCase();
   if (source === 'api' || source === 'backend') return true;
   if (source === 'payload' || source === 'cms') return false;
