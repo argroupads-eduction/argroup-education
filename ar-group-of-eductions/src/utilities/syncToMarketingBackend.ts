@@ -3,6 +3,9 @@
  * localhost:3000 / production show blogs even when Payload CMS is offline.
  */
 
+export { htmlFromPayloadDoc, lexicalToHtml } from './lexicalToHtml'
+export { buildPostSyncPayload, resolveFeaturedImageForSync } from './payloadSyncFields'
+
 type SyncPayload = {
   type: 'post' | 'page'
   slug: string
@@ -41,7 +44,7 @@ export async function syncToMarketingBackend(payload: SyncPayload): Promise<void
         Authorization: `Bearer ${secret}`,
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(60_000),
     })
 
     if (!res.ok) {
@@ -53,14 +56,4 @@ export async function syncToMarketingBackend(payload: SyncPayload): Promise<void
   } catch (err) {
     console.error('[payload→backend sync]', err)
   }
-}
-
-export function htmlFromPayloadDoc(doc: {
-  htmlContent?: string | null
-  content?: unknown
-}): string {
-  if (typeof doc.htmlContent === 'string' && doc.htmlContent.trim()) {
-    return doc.htmlContent
-  }
-  return ''
 }
