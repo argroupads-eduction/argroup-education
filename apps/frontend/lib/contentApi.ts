@@ -6,7 +6,7 @@ import {
   getPayloadCmsBaseUrl,
   getPayloadCmsServerFetchUrl,
   isPayloadCmsConfigured,
-  useBackendAsPrimaryContent,
+  isBackendPrimaryContent,
 } from '@/lib/payloadCmsUrl';
 
 export type ContentType = 'post' | 'page';
@@ -500,7 +500,7 @@ async function fetchPayloadBlogPosts(limit = 30): Promise<BlogListItem[]> {
 async function fetchBackendContentBySlug(slug: string): Promise<SiteContent | null> {
   try {
     const res = await fetch(`${apiBase()}/api/content/${encodeURIComponent(slug)}`, {
-      next: { revalidate: useBackendAsPrimaryContent() ? 60 : 3600 },
+      next: { revalidate: isBackendPrimaryContent() ? 60 : 3600 },
       signal: AbortSignal.timeout(8000),
     });
     if (res.ok) {
@@ -514,7 +514,7 @@ async function fetchBackendContentBySlug(slug: string): Promise<SiteContent | nu
 }
 
 export async function getContentBySlug(slug: string): Promise<SiteContent | null> {
-  const backendFirst = useBackendAsPrimaryContent();
+  const backendFirst = isBackendPrimaryContent();
 
   if (backendFirst) {
     const fromApi = await fetchBackendContentBySlug(slug);
@@ -570,7 +570,7 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
     }
   }
 
-  const backendFirst = useBackendAsPrimaryContent();
+  const backendFirst = isBackendPrimaryContent();
   const payloadPosts = backendFirst
     ? []
     : await fetchPayloadBlogPosts(Math.max(limit * 3, 30));
