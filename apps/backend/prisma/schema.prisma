@@ -66,6 +66,11 @@ model SitePage {
   twitterTitle       String?
   twitterDescription String?
   schemaJson         Json?
+  navEnabled         Boolean   @default(false)
+  navSection         String?
+  navParent          String?
+  navLabel           String?
+  navSortOrder       Int       @default(0)
   published          Boolean   @default(true)
   publishedAt      DateTime?
   createdAt        DateTime  @default(now())

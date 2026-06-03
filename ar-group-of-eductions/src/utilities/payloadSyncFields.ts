@@ -89,6 +89,7 @@ export async function resolveFeaturedImageForSync(
   doc: {
     featuredImageUrl?: string | null
     heroImage?: unknown
+    hero?: { media?: unknown } | null
     meta?: { image?: unknown } | null
   }
 ): Promise<string | null> {
@@ -96,7 +97,7 @@ export async function resolveFeaturedImageForSync(
     return doc.featuredImageUrl.trim()
   }
 
-  for (const ref of [doc.heroImage, doc.meta?.image]) {
+  for (const ref of [doc.heroImage, doc.hero?.media, doc.meta?.image]) {
     const media = await resolveMediaId(payload, ref)
     if (!media) continue
 
@@ -119,9 +120,18 @@ export async function buildPostSyncPayload(
     title?: string | null
     htmlContent?: string | null
     content?: unknown
+    layout?: unknown
+    hero?: { richText?: unknown; media?: unknown } | null
     meta?: { title?: string | null; description?: string | null; image?: unknown } | null
     featuredImageUrl?: string | null
     heroImage?: unknown
+    sitePlacement?: {
+      showInNavigation?: boolean | null
+      navSection?: string | null
+      navParent?: string | null
+      navLabel?: string | null
+      navSortOrder?: number | null
+    } | null
     publishedAt?: string | null
     _status?: string | null
   }
@@ -134,11 +144,18 @@ export async function buildPostSyncPayload(
 
   const featuredImage = await resolveFeaturedImageForSync(payload, doc)
 
+  const placement = doc.sitePlacement
+
   return {
     content: html || excerpt || doc.title || '',
     excerpt,
     featuredImage,
     metaTitle: doc.meta?.title ?? null,
     metaDescription: doc.meta?.description ?? null,
+    navEnabled: Boolean(placement?.showInNavigation),
+    navSection: placement?.navSection ?? null,
+    navParent: placement?.navParent ?? null,
+    navLabel: placement?.navLabel ?? null,
+    navSortOrder: placement?.navSortOrder ?? 0,
   }
 }

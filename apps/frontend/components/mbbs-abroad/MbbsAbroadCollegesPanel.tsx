@@ -11,6 +11,8 @@ import {
   type MbbsAbroadCountryColleges,
   type MbbsAbroadUniversity,
 } from '@/lib/mbbsAbroadTree';
+import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
+import { navPagesForParent } from '@/lib/dynamicNav';
 
 type MbbsAbroadCollegesPanelProps = {
   onNavigate?: () => void;
@@ -27,6 +29,7 @@ export function MbbsAbroadCollegesPanel({
   layout = 'nav',
   initialCountryId,
 }: MbbsAbroadCollegesPanelProps) {
+  const navPages = useDynamicNavPages();
   const [hoveredCountry, setHoveredCountry] = useState<MbbsAbroadCountryColleges>(
     MBBS_ABROAD_COUNTRIES.find((c) => c.id === initialCountryId) ?? MBBS_ABROAD_COUNTRIES[0]
   );
@@ -38,9 +41,16 @@ export function MbbsAbroadCollegesPanel({
   const isNav = layout === 'nav';
 
   const rightColleges = useMemo(() => {
-    if (threeLevel && hoveredUniversity?.colleges?.length) return hoveredUniversity.colleges;
-    return hoveredCountry.colleges ?? [];
-  }, [hoveredCountry, hoveredUniversity, threeLevel]);
+    const base =
+      threeLevel && hoveredUniversity?.colleges?.length
+        ? hoveredUniversity.colleges
+        : (hoveredCountry.colleges ?? []);
+    const extra = navPagesForParent(navPages, 'mbbs_abroad', hoveredCountry.name).map((p) => ({
+      name: p.label,
+      href: p.href,
+    }));
+    return [...base, ...extra];
+  }, [hoveredCountry, hoveredUniversity, threeLevel, navPages]);
 
   const useTwoColumns = rightColleges.length > 8;
 

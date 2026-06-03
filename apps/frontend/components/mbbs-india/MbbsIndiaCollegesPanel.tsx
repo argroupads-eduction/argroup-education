@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import { NavMegaMenuShell } from '@/components/common/NavMegaMenuShell';
+import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
+import { navPagesForParent } from '@/lib/dynamicNav';
 import { MBBS_INDIA_STATES, type MbbsIndiaStateColleges } from '@/lib/mbbsIndiaTree';
 
 type MbbsIndiaCollegesPanelProps = {
@@ -18,11 +20,25 @@ export function MbbsIndiaCollegesPanel({
   layout = 'nav',
   initialStateId,
 }: MbbsIndiaCollegesPanelProps) {
+  const navPages = useDynamicNavPages();
   const [hovered, setHovered] = useState<MbbsIndiaStateColleges>(
     MBBS_INDIA_STATES.find((s) => s.id === initialStateId) ?? MBBS_INDIA_STATES[0]
   );
 
-  const useTwoColumns = hovered.colleges.length > 8;
+  const extraColleges = useMemo(
+    () =>
+      navPagesForParent(navPages, 'mbbs_india', hovered.name).map((p) => ({
+        name: p.label,
+        href: p.href,
+      })),
+    [navPages, hovered.name]
+  );
+  const colleges = useMemo(
+    () => [...hovered.colleges, ...extraColleges],
+    [hovered.colleges, extraColleges]
+  );
+
+  const useTwoColumns = colleges.length > 8;
   const isNav = layout === 'nav';
 
   const resetHovered = () =>
@@ -77,7 +93,7 @@ export function MbbsIndiaCollegesPanel({
     >
       <div className={isNav ? 'nav-mega-panel-head' : 'mb-2 flex items-center justify-between px-3'}>
         <p className={isNav ? 'nav-mega-panel-kicker' : 'text-[11px] font-semibold uppercase tracking-wider text-slate-500'}>
-          {hovered.name} · {hovered.colleges.length} colleges
+          {hovered.name} · {colleges.length} colleges
         </p>
         <Link
           href={hovered.href}
@@ -93,7 +109,7 @@ export function MbbsIndiaCollegesPanel({
           useTwoColumns ? (isNav ? 'nav-mega-colleges--grid-2' : 'grid grid-cols-1 gap-x-1 sm:grid-cols-2') : '',
         ].join(' ')}
       >
-        {hovered.colleges.map((college, index) => (
+        {colleges.map((college, index) => (
           <li key={`${hovered.id}-${college.name}-${index}`}>
             {isNav ? (
               <Link href={college.href} onClick={onNavigate} className="nav-mega-college-link group">

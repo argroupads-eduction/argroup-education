@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
@@ -15,6 +15,8 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { NAV_LINKS } from '@/lib/constants';
+import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
+import { navPagesForSection } from '@/lib/dynamicNav';
 import { BrandLogoLink } from '@/components/common/BrandLogoLink';
 import { Button } from '@/components/ui/Button';
 import { useMegaMenu, useScrollPosition, type MegaMenuId } from '@/hooks';
@@ -44,6 +46,20 @@ const MdMsNavMegaMenu = dynamic(
 );
 
 export const Navbar = () => {
+  const dynamicPages = useDynamicNavPages();
+  const navLinks = useMemo(() => {
+    const extras = navPagesForSection(dynamicPages, 'main').map((p) => ({
+      label: p.label,
+      href: p.href,
+    }));
+    if (!extras.length) return [...NAV_LINKS];
+    const links = [...NAV_LINKS] as Array<(typeof NAV_LINKS)[number] | { label: string; href: string }>;
+    const contactIndex = links.findIndex((l) => l.href === '/contact');
+    const insertAt = contactIndex >= 0 ? contactIndex : links.length;
+    links.splice(insertAt, 0, ...extras);
+    return links;
+  }, [dynamicPages]);
+
   const [isOpen, setIsOpen] = useState(false);
   const { megaOpen, openMega, scheduleClose, cancelClose, forceClose, rootRef } =
     useMegaMenu();
@@ -159,7 +175,7 @@ export const Navbar = () => {
 
             {/* Desktop Menu — above mega panel so hub links stay clickable */}
             <div className="relative z-[80] hidden md:flex flex-1 items-center justify-center gap-1 overflow-visible px-2">
-              {NAV_LINKS.map((link: any) => (
+              {navLinks.map((link: any) => (
                 <div key={link.href} className={megaGroupClass(link.megaMenu)}>
                   {link.submenu ? (
                     link.megaMenu ? (
@@ -279,7 +295,7 @@ export const Navbar = () => {
         {isOpen && (
           <div className="md:hidden border-t border-gray-200 bg-white animate-in fade-in duration-200">
             <div className="px-4 py-4 space-y-2">
-              {NAV_LINKS.map((link: any) => (
+              {navLinks.map((link: any) => (
                 <div key={link.href}>
                   {link.submenu ? (
                     <>

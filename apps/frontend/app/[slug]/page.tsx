@@ -11,7 +11,7 @@ import { blogPostPath } from '@/lib/blogUtils';
 import { PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { findProgramContextBySlug } from '@/lib/programBreadcrumbs';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
-import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
+import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 const HOME_WP_SLUG = 'mbbs-admission-in-top-colleges';
 
@@ -59,6 +59,10 @@ export default async function WpSlugPage({ params }: PageProps) {
   }
 
   const title = plainTitle(content.title);
+  const heroTitle = content.metaTitle?.trim()
+    ? plainTitle(content.metaTitle)
+    : title;
+  const heroSubtitle = content.metaDescription?.trim() || undefined;
   const program = findProgramContextBySlug(decoded);
 
   const breadcrumbs = program?.breadcrumbs ?? [
@@ -80,11 +84,11 @@ export default async function WpSlugPage({ params }: PageProps) {
       <ContentJsonLd content={content} breadcrumbs={breadcrumbs} />
 
       <ProgramPageHero
-        title={title}
+        title={heroTitle}
         badge={badge}
         theme={theme}
         breadcrumbs={breadcrumbs}
-        subtitle={metaDescriptionFromContent(content.excerpt, content.content, 220)}
+        subtitle={heroSubtitle}
         featuredImage={content.featuredImage}
       />
 

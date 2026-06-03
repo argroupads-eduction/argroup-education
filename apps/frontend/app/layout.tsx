@@ -3,6 +3,8 @@ import { Inter, Lora, Poppins } from 'next/font/google';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
+import { NavPagesProvider } from '@/components/common/NavPagesProvider';
+import { fetchDynamicNavPages } from '@/lib/dynamicNav';
 import '@/styles/globals.css';
 import '@/styles/wp-content.css';
 import '@/styles/blog.css';
@@ -76,11 +78,13 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const navPages = await fetchDynamicNavPages();
+
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} ${poppins.variable}`}>
       <head>
@@ -91,10 +95,12 @@ export default function RootLayout({
       <body
         className={`${inter.className} min-h-dvh min-w-0 overflow-x-hidden [padding-bottom:env(safe-area-inset-bottom,0px)] [padding-left:env(safe-area-inset-left,0px)] [padding-right:env(safe-area-inset-right,0px)]`}
       >
-        <Navbar />
-        <main className="min-w-0">{children}</main>
-        <Footer />
-        <LeadCapturePopup />
+        <NavPagesProvider pages={navPages}>
+          <Navbar />
+          <main className="min-w-0">{children}</main>
+          <Footer />
+          <LeadCapturePopup />
+        </NavPagesProvider>
       </body>
     </html>
   );
