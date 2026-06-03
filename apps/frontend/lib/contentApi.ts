@@ -5,6 +5,7 @@ import {
   getPayloadCmsBaseUrl,
   getPayloadCmsServerFetchUrl,
   isPayloadCmsConfigured,
+  useBackendAsPrimaryContent,
 } from '@/lib/payloadCmsUrl';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -497,26 +498,39 @@ async function fetchPayloadBlogPosts(limit = 30): Promise<BlogListItem[]> {
   }
 }
 
-export async function getContentBySlug(slug: string): Promise<SiteContent | null> {
-  // 1) Payload CMS (migrated WP HTML or editor content — same layout pipeline)
-  const fromPayload = await fetchPayloadContentBySlug(slug);
-  if (fromPayload) return fromPayload;
-
-  // 2) Backend API (Neon DB — production + dev:stack)
+async function fetchBackendContentBySlug(slug: string): Promise<SiteContent | null> {
   try {
     const res = await fetch(`${apiBase()}/api/content/${encodeURIComponent(slug)}`, {
-      next: { revalidate: 3600 },
-      signal: AbortSignal.timeout(5000),
+      next: { revalidate: useBackendAsPrimaryContent() ? 60 : 3600 },
+      signal: AbortSignal.timeout(8000),
     });
     if (res.ok) {
       const json = await res.json();
       if (json.data) return normalizeContent(json.data as SiteContent);
     }
   } catch {
-    /* API offline — fall through to local export */
+    /* API offline */
+  }
+  return null;
+}
+
+export async function getContentBySlug(slug: string): Promise<SiteContent | null> {
+  const backendFirst = useBackendAsPrimaryContent();
+
+  if (backendFirst) {
+    const fromApi = await fetchBackendContentBySlug(slug);
+    if (fromApi) return fromApi;
+
+    const fromPayload = await fetchPayloadContentBySlug(slug);
+    if (fromPayload) return fromPayload;
+  } else {
+    const fromPayload = await fetchPayloadContentBySlug(slug);
+    if (fromPayload) return fromPayload;
+
+    const fromApi = await fetchBackendContentBySlug(slug);
+    if (fromApi) return fromApi;
   }
 
-  // 3) Bundled wp-export JSON (Vercel) or repo data/wp-export (local dev)
   const { getWpExportContentBySlug } = await import('@/lib/wpExportContent');
   const local = await getWpExportContentBySlug(slug);
   if (local) return normalizeContent(local);
@@ -557,8 +571,11 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
     }
   }
 
-  // Merge fresh Payload posts on top so newly created CMS blogs appear immediately.
-  const payloadPosts = await fetchPayloadBlogPosts(Math.max(limit * 3, 30));
+  const backendFirst = useBackendAsPrimaryContent();
+  const payloadPosts = backendFirst
+    ? []
+    : await fetchPayloadBlogPosts(Math.max(limit * 3, 30));
+
   if (!payloadPosts.length) {
     return {
       ...baseResult,
@@ -567,11 +584,8 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   }
 
   const mergedBySlug = new Map<string, BlogListItem>();
-  // Payload is source of truth for CMS posts; backend/wp-export fills gaps only.
+  for (const item of baseResult.data) mergedBySlug.set(item.slug, item);
   for (const item of payloadPosts) mergedBySlug.set(item.slug, item);
-  for (const item of baseResult.data) {
-    if (!mergedBySlug.has(item.slug)) mergedBySlug.set(item.slug, item);
-  }
 
   const merged = sortBlogPostsByNewest(Array.from(mergedBySlug.values()));
 
