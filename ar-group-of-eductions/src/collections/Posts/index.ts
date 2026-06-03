@@ -17,6 +17,7 @@ import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
+import { syncPostDeleteToBackend, syncPostToBackend } from './hooks/syncPostToBackend'
 
 import {
   MetaDescriptionField,
@@ -80,6 +81,24 @@ export const Posts: CollectionConfig<'posts'> = {
               name: 'heroImage',
               type: 'upload',
               relationTo: 'media',
+            },
+            {
+              name: 'htmlContent',
+              type: 'code',
+              label: 'WordPress HTML (marketing site)',
+              admin: {
+                language: 'html',
+                description:
+                  'Full HTML from WP export. When set, the frontend at localhost:3000 renders this (with FAQ accordion + SEO layout).',
+              },
+            },
+            {
+              name: 'featuredImageUrl',
+              type: 'text',
+              label: 'Featured image URL (imported)',
+              admin: {
+                description: 'External image URL from WordPress until uploaded to Media.',
+              },
             },
             {
               name: 'content',
@@ -217,9 +236,9 @@ export const Posts: CollectionConfig<'posts'> = {
     slugField(),
   ],
   hooks: {
-    afterChange: [revalidatePost],
+    afterChange: [revalidatePost, syncPostToBackend],
     afterRead: [populateAuthors],
-    afterDelete: [revalidateDelete],
+    afterDelete: [revalidateDelete, syncPostDeleteToBackend],
   },
   versions: {
     drafts: {

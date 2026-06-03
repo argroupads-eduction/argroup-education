@@ -187,7 +187,6 @@ export const Footer = () => {
               <Link href="/privacy">Privacy</Link>
               <Link href="/terms">Terms</Link>
               <Link href="/disclaimer">Disclaimer</Link>
-              <Link href="/sitemap">Sitemap</Link>
             </div>
           </div>
         </div>

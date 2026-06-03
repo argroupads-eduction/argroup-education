@@ -18,9 +18,9 @@ export function QuickFactsGrid({ facts, title = 'Key highlights at a glance' }: 
         </p>
       </div>
       <dl className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-        {facts.map((fact) => (
+        {facts.map((fact, index) => (
           <div
-            key={`${fact.label}-${fact.value}`}
+            key={`qf-${index}-${fact.label}-${fact.value}`.slice(0, 120)}
             className="border-b border-r border-white/10 px-4 py-3.5 sm:px-5 sm:py-4 md:px-6"
           >
             <dt className="text-[11px] font-bold uppercase tracking-wider text-gold-300/90">{fact.label}</dt>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { BlogListItem } from '@/lib/contentApi';
+import { sortBlogPostsByNewest } from '@/lib/blogUtils';
 import { BlogListingCard } from './BlogListingCard';
 import { BlogLatestSidebar } from './BlogLatestSidebar';
 
@@ -8,7 +9,8 @@ type BlogIndexLayoutProps = {
 };
 
 export function BlogIndexLayout({ blogs }: BlogIndexLayoutProps) {
-  const [featured, ...rest] = blogs;
+  const sorted = sortBlogPostsByNewest(blogs);
+  const [featured, ...rest] = sorted;
 
   return (
     <div className="blog-root">
@@ -43,7 +45,7 @@ export function BlogIndexLayout({ blogs }: BlogIndexLayoutProps) {
               </div>
             ) : null}
           </div>
-          <BlogLatestSidebar posts={blogs} title="Latest blogs" />
+          <BlogLatestSidebar posts={rest} title="Latest blogs" />
         </div>
       </div>
     </div>
