@@ -15,6 +15,8 @@ import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 
 const HOME_WP_SLUG = 'mbbs-admission-in-top-colleges';
 
+export const dynamic = 'force-dynamic';
+
 type PageProps = {
   params: Promise<{ slug: string }>;
 };

@@ -500,7 +500,9 @@ async function fetchPayloadBlogPosts(limit = 30): Promise<BlogListItem[]> {
 async function fetchBackendContentBySlug(slug: string): Promise<SiteContent | null> {
   try {
     const res = await fetch(`${apiBase()}/api/content/${encodeURIComponent(slug)}`, {
-      next: { revalidate: isBackendPrimaryContent() ? 60 : 3600 },
+      ...(isBackendPrimaryContent()
+        ? { cache: 'no-store' as const }
+        : { next: { revalidate: 3600 } }),
       signal: AbortSignal.timeout(8000),
     });
     if (res.ok) {
@@ -547,7 +549,12 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   try {
     const res = await fetch(
       `${apiBase()}/api/blogs?page=${page}&limit=${limit}`,
-      { next: { revalidate: 600 }, signal: AbortSignal.timeout(5000) }
+      {
+        ...(isBackendPrimaryContent()
+          ? { cache: 'no-store' as const }
+          : { next: { revalidate: 600 } }),
+        signal: AbortSignal.timeout(8000),
+      }
     );
     if (res.ok) {
       const json = await res.json();

@@ -6,6 +6,8 @@ import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { slugFromBlogRouteSegments } from '@/lib/blogUtils';
 import { getBlogPosts, getContentBySlug } from '@/lib/contentApi';
 
+export const dynamic = 'force-dynamic';
+
 type PageProps = {
   params: Promise<{ slug: string[] }>;
 };

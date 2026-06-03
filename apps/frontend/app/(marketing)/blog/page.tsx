@@ -4,8 +4,8 @@ import { BlogIndexLayout } from '@/components/blog/BlogIndexLayout';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
 
-/** Pick up new Payload / API posts within a minute on the index. */
-export const revalidate = 60;
+/** Pick up CMS publishes within seconds (on-demand revalidate after Payload sync). */
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Latest Education Blog 2026 | MBBS, NEET & Study Abroad',

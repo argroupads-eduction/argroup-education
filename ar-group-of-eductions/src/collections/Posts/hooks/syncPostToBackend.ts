@@ -18,7 +18,7 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
   const published = isPublished
   const fields = await buildPostSyncPayload(req.payload, doc)
 
-  void syncToMarketingBackend({
+  await syncToMarketingBackend({
     type: 'post',
     slug: doc.slug ?? '',
     title: doc.title ?? doc.slug ?? 'Untitled',
