@@ -614,7 +614,15 @@ export function prepareWpHtml(
   html: string,
   options?: { featuredImage?: string | null; title?: string }
 ): string {
-  let out = html;
+  let out = html.trim();
+  if (out && !/<[a-z][\s\S]*>/i.test(out)) {
+    out = out
+      .split(/\n{2,}/)
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .map((p) => `<p>${p.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`)
+      .join('\n');
+  }
   if (options?.featuredImage) out = removeDuplicateImages(out, options.featuredImage);
   if (options?.title) out = removeDuplicateTitleHeading(out, options.title);
   out = demoteBodyH1ToH2(out);

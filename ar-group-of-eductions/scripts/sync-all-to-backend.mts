@@ -14,7 +14,8 @@
 import 'dotenv/config';
 import { getPayload } from 'payload';
 import config from '@payload-config';
-import { htmlFromPayloadDoc, syncToMarketingBackend } from '../src/utilities/syncToMarketingBackend';
+import { buildPostSyncPayload } from '../src/utilities/payloadSyncFields';
+import { syncToMarketingBackend } from '../src/utilities/syncToMarketingBackend';
 
 function parseArgs(argv: string[]) {
   return {
@@ -47,8 +48,10 @@ async function main() {
       slug?: string | null;
       title?: string | null;
       htmlContent?: string | null;
+      content?: unknown;
       meta?: { title?: string | null; description?: string | null; image?: unknown };
       featuredImageUrl?: string | null;
+      heroImage?: unknown;
       publishedAt?: string | null;
       _status?: string | null;
     }
@@ -56,27 +59,34 @@ async function main() {
     const slug = doc.slug?.trim();
     if (!slug) return;
 
-    const html = htmlFromPayloadDoc(doc);
     const published = doc._status === 'published';
 
     try {
+      const fields =
+        type === 'post'
+          ? await buildPostSyncPayload(payload, doc)
+          : {
+              content:
+                typeof doc.htmlContent === 'string' && doc.htmlContent.trim()
+                  ? doc.htmlContent
+                  : '',
+              excerpt: doc.meta?.description ?? null,
+              featuredImage:
+                typeof doc.featuredImageUrl === 'string' ? doc.featuredImageUrl : null,
+              metaTitle: doc.meta?.title ?? null,
+              metaDescription: doc.meta?.description ?? null,
+            };
+
       await syncToMarketingBackend({
         type,
         slug,
         title: doc.title ?? slug,
-        content: html || doc.meta?.description || doc.title || '',
-        excerpt: doc.meta?.description ?? null,
-        featuredImage:
-          typeof doc.featuredImageUrl === 'string'
-            ? doc.featuredImageUrl
-            : typeof doc.meta?.image === 'object' &&
-                doc.meta.image &&
-                'url' in doc.meta.image
-              ? String((doc.meta.image as { url?: string }).url ?? '')
-              : null,
+        content: fields.content || doc.title || '',
+        excerpt: fields.excerpt,
+        featuredImage: fields.featuredImage,
         category: type === 'post' ? 'Blog' : undefined,
-        metaTitle: doc.meta?.title ?? null,
-        metaDescription: doc.meta?.description ?? null,
+        metaTitle: fields.metaTitle,
+        metaDescription: fields.metaDescription,
         published,
         publishedAt: doc.publishedAt ?? null,
       });
@@ -93,7 +103,7 @@ async function main() {
       collection: 'posts',
       limit: args.limit || 1000,
       pagination: false,
-      depth: 0,
+      depth: 2,
     });
     console.log(`Syncing ${posts.docs.length} posts…`);
     for (const doc of posts.docs) {
@@ -106,7 +116,7 @@ async function main() {
       collection: 'pages',
       limit: args.limit || 1000,
       pagination: false,
-      depth: 0,
+      depth: 2,
     });
     console.log(`Syncing ${pages.docs.length} pages…`);
     for (const doc of pages.docs) {
