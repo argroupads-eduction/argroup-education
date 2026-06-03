@@ -45,7 +45,11 @@ export function MbbsAbroadCollegesPanel({
       threeLevel && hoveredUniversity?.colleges?.length
         ? hoveredUniversity.colleges
         : (hoveredCountry.colleges ?? []);
-    const extra = navPagesForParent(navPages, 'mbbs_abroad', hoveredCountry.name).map((p) => ({
+    const extra = navPagesForParent(navPages, 'mbbs_abroad', {
+      name: hoveredCountry.name,
+      id: hoveredCountry.id,
+      href: hoveredCountry.href,
+    }).map((p) => ({
       name: p.label,
       href: p.href,
     }));
