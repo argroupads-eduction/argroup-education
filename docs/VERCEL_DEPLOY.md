@@ -59,8 +59,12 @@ Do **not** leave Root Directory empty. There is no root `vercel.json`; building 
 
 Copy from **`apps/frontend/.env.example`**. Set at least:
 
-- `NEXT_PUBLIC_SITE_URL` — your production URL  
-- `NEXT_PUBLIC_API_URL` — backend API (Railway, etc.)
+- `NEXT_PUBLIC_SITE_URL` — your production URL (e.g. `https://argroup-education-frontend.vercel.app`)
+- `DATABASE_URL` — Neon **neondb** pooled connection string (blogs + Payload sync storage)
+- `PAYLOAD_SYNC_SECRET` — same value as Payload `ar-group-of-eductions/.env`
+- `PAYLOAD_CMS_ENABLED` — `false` (site reads DB via `/api/blogs`, not live Payload)
+
+**Do not** set `NEXT_PUBLIC_API_URL` to Railway unless you still run a separate API. The backend now runs as Next.js routes on the same Vercel project (`/api/blogs`, `/api/content/*`, `/api/cms/payload-sync`). You can **delete the Railway `ar-education-backend` service** to save trial credits.
 
 ---
 

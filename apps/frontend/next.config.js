@@ -25,6 +25,8 @@ const PUBLIC_MARKETING_ASSETS = [
 const nextConfig = {
   reactStrictMode: true,
 
+  serverExternalPackages: ['@prisma/client'],
+
   // Monorepo tracing only when repo root is in the deployment bundle.
   ...(outputFileTracingRoot ? { outputFileTracingRoot } : {}),
 
@@ -36,6 +38,11 @@ const nextConfig = {
     '/mbbs-abroad/[...slug]': ['./data/wp-export-bundle/**/*'],
     '/blog': ['./data/wp-export-bundle/**/*'],
     '/api/google-reviews': ['./data/google-reviews.json'],
+    '/api/blogs': ['../../node_modules/.prisma/client/**/*', '../../apps/backend/prisma/schema.prisma'],
+    '/api/blogs/[slug]': ['../../node_modules/.prisma/client/**/*'],
+    '/api/content/[slug]': ['../../node_modules/.prisma/client/**/*'],
+    '/api/cms/payload-sync': ['../../node_modules/.prisma/client/**/*'],
+    '/api/health': ['../../node_modules/.prisma/client/**/*'],
   },
 
   images: {

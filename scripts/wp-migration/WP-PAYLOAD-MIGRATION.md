@@ -76,21 +76,17 @@ When you **publish** a post or page in Payload, it is copied to the marketing ba
 
 ```env
 # ar-group-of-eductions/.env (when you Publish from Payload admin)
-BACKEND_API_URL=https://YOUR-RAILWAY-BACKEND.up.railway.app
+BACKEND_API_URL=https://argroup-education-frontend.vercel.app
 PAYLOAD_SYNC_SECRET=<long-random-string>
 
-# apps/backend/.env (Railway)
+# Vercel → Project → Environment Variables
+NEXT_PUBLIC_SITE_URL=https://argroup-education-frontend.vercel.app
+DATABASE_URL=<Neon neondb pooled URL>
 PAYLOAD_SYNC_SECRET=<same-string>
-FRONTEND_REVALIDATE_URL=https://argroup-education-frontend.vercel.app
-REVALIDATE_SECRET=<long-random-string>
-
-# Vercel → apps/frontend
-NEXT_PUBLIC_API_URL=https://YOUR-RAILWAY-BACKEND.up.railway.app
 PAYLOAD_CMS_ENABLED=false
-REVALIDATE_SECRET=<same-as-railway>
 ```
 
-Vercel **does not** call Payload at runtime; it only reads the API DB. Payload can be on your laptop—only **Publish** must reach Railway.
+Vercel **does not** call Payload at runtime; `/api/blogs` and `/api/cms/payload-sync` run on the same Vercel app. Payload can be on your laptop—only **Publish** must hit your Vercel URL. **Railway is optional** (you can delete the backend service).
 
 **Backfill existing Payload docs:**
 

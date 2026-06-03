@@ -1,72 +1,18 @@
 import { Router, Request, Response } from 'express';
-import { prisma, withPrismaRetry } from '../lib/prisma';
+import { getContentBySlug } from '../handlers/content';
+
+export { WP_HOME_SLUG } from '../handlers/content';
 
 const router = Router();
 
-/** Home page WP slug — served at `/`, not `/[slug]`. */
-export const WP_HOME_SLUG = 'mbbs-admission-in-top-colleges';
-
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
-// GET /api/content/:slug — blog post or WP page by root slug
 router.get('/:slug', async (req: Request, res: Response) => {
   try {
-    const slug = decodeURIComponent(req.params.slug);
-
-    if (slug === WP_HOME_SLUG) {
-      res.status(404).json({
-        success: false,
-        message: 'Home page is served at /',
-      });
+    const result = await getContentBySlug(req.params.slug);
+    if ('error' in result) {
+      res.status(404).json({ success: false, message: result.message });
       return;
     }
-
-    const [post, page] = await withPrismaRetry(() =>
-      Promise.all([
-        prisma.blogPost.findFirst({
-          where: { slug, published: true },
-        }),
-        prisma.sitePage.findFirst({
-          where: { slug, published: true },
-        }),
-      ])
-    );
-
-    const doc = post ?? page;
-    if (!doc) {
-      res.status(404).json({ success: false, message: 'Content not found' });
-      return;
-    }
-
-    const type = post ? 'post' : 'page';
-
-    res.json({
-      success: true,
-      data: {
-        id: doc.id,
-        type,
-        title: doc.title,
-        slug: doc.slug,
-        content: doc.content,
-        excerpt: doc.excerpt ?? stripHtml(doc.content).slice(0, 280),
-        featuredImage: doc.featuredImage,
-        metaTitle: doc.metaTitle,
-        metaDescription: doc.metaDescription,
-        canonicalUrl: doc.canonicalUrl,
-        focusKeyword: doc.focusKeyword,
-        keywords: doc.keywords,
-        ogTitle: doc.ogTitle,
-        ogDescription: doc.ogDescription,
-        ogImage: doc.ogImage,
-        twitterTitle: doc.twitterTitle,
-        twitterDescription: doc.twitterDescription,
-        schemaJson: doc.schemaJson,
-        publishedAt: doc.publishedAt,
-        updatedAt: doc.updatedAt,
-      },
-    });
+    res.json({ success: true, data: result.data });
   } catch (error) {
     console.error('content/:slug', error);
     res.status(500).json({ success: false, message: 'Error fetching content' });
