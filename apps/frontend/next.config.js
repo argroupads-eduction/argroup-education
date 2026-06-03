@@ -33,7 +33,7 @@ const nextConfig = {
   outputFileTracingIncludes: {
     '/api/public-asset/[...path]': ['./public/**/*'],
     '/[slug]': ['./data/wp-export-bundle/**/*'],
-    '/blog/[slug]': ['./data/wp-export-bundle/**/*'],
+    '/blog/[...slug]': ['./data/wp-export-bundle/**/*'],
     '/mbbs-india/[...slug]': ['./data/wp-export-bundle/**/*'],
     '/mbbs-abroad/[...slug]': ['./data/wp-export-bundle/**/*'],
     '/blog': ['./data/wp-export-bundle/**/*'],

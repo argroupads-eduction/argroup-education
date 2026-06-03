@@ -1,5 +1,6 @@
 import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+import { blogPostPath } from '@/lib/blogUtils';
 
 function unauthorized() {
   return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
   const slug = typeof body.slug === 'string' ? body.slug.trim() : '';
   if (slug) {
     if (body.type === 'post') {
-      paths.add(`/blog/${slug}`);
+      paths.add(blogPostPath(slug));
     } else {
       paths.add(`/${slug}`);
     }

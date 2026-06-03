@@ -3,15 +3,16 @@ import { notFound } from 'next/navigation';
 import { BlogPostLayout } from '@/components/blog/BlogPostLayout';
 import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
+import { slugFromBlogRouteSegments } from '@/lib/blogUtils';
 import { getBlogPosts, getContentBySlug } from '@/lib/contentApi';
 
 type PageProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string[] }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const decoded = decodeURIComponent(slug);
+  const { slug: segments } = await params;
+  const decoded = slugFromBlogRouteSegments(segments ?? []);
   const content = await getContentBySlug(decoded);
   if (!content || content.type !== 'post') {
     return { title: 'Not Found' };
@@ -20,8 +21,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BlogSlugPage({ params }: PageProps) {
-  const { slug } = await params;
-  const decoded = decodeURIComponent(slug);
+  const { slug: segments } = await params;
+  const decoded = slugFromBlogRouteSegments(segments ?? []);
+  if (!decoded) notFound();
+
   const content = await getContentBySlug(decoded);
   if (!content || content.type !== 'post') {
     notFound();

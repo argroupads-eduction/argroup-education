@@ -37,3 +37,14 @@ export function readingTimeMinutes(html: string): number {
   const words = html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
 }
+
+/** Public URL for a blog post (supports nested WP slugs like `neet/doctor`). */
+export function blogPostPath(slug: string): string {
+  const parts = slug.split('/').filter(Boolean).map((s) => encodeURIComponent(s));
+  return `/blog/${parts.join('/')}`;
+}
+
+/** DB / API slug from `[...slug]` route segments. */
+export function slugFromBlogRouteSegments(segments: string[]): string {
+  return segments.map((s) => decodeURIComponent(s)).join('/');
+}

@@ -7,6 +7,7 @@ import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { getContentBySlug } from '@/lib/contentApi';
+import { blogPostPath } from '@/lib/blogUtils';
 import { PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { findProgramContextBySlug } from '@/lib/programBreadcrumbs';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
@@ -52,7 +53,7 @@ export default async function WpSlugPage({ params }: PageProps) {
   }
 
   if (content.type === 'post') {
-    redirect(`/blog/${encodeURIComponent(decoded)}`);
+    redirect(blogPostPath(decoded));
   }
 
   const title = plainTitle(content.title);

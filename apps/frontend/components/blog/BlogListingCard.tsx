@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { BlogListItem } from '@/lib/contentApi';
-import { blogCardExcerpt, formatBlogDate } from '@/lib/blogUtils';
+import { blogCardExcerpt, blogPostPath, formatBlogDate } from '@/lib/blogUtils';
 import { BlogImage } from './BlogImage';
 
 type BlogListingCardProps = {
@@ -15,7 +15,7 @@ export function BlogListingCard({ blog, variant = 'compact' }: BlogListingCardPr
   if (variant === 'featured') {
     return (
       <article className="blog-card blog-card--featured">
-        <Link href={`/${blog.slug}`} className="blog-card__link">
+        <Link href={blogPostPath(blog.slug)} className="blog-card__link">
           <div className="blog-card__media">
             {blog.featuredImage ? (
               <BlogImage
@@ -48,7 +48,7 @@ export function BlogListingCard({ blog, variant = 'compact' }: BlogListingCardPr
 
   return (
     <article className="blog-card blog-card--compact">
-      <Link href={`/${blog.slug}`} className="blog-card__link blog-card__link--row">
+      <Link href={blogPostPath(blog.slug)} className="blog-card__link blog-card__link--row">
         <div className="blog-card__media blog-card__media--sm">
           {blog.featuredImage ? (
             <BlogImage src={blog.featuredImage} alt={blog.title} variant="compact" sizes="200px" />

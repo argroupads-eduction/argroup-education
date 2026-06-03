@@ -1,4 +1,5 @@
 import { revalidatePath } from 'next/cache';
+import { blogPostPath } from '@/lib/blogUtils';
 
 export function revalidateAfterContentSync(opts: {
   slug: string;
@@ -6,8 +7,8 @@ export function revalidateAfterContentSync(opts: {
 }) {
   revalidatePath('/blog');
   if (opts.type === 'post') {
-    revalidatePath(`/blog/${opts.slug}`);
+    revalidatePath(blogPostPath(opts.slug));
   } else {
-    revalidatePath(`/${opts.slug}`);
+    revalidatePath(`/${opts.slug.split('/').map(encodeURIComponent).join('/')}`);
   }
 }
