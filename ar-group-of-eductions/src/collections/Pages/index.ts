@@ -166,7 +166,7 @@ export const Pages: CollectionConfig<'pages'> = {
           label: 'Under (state / country)',
           admin: {
             description:
-              'For India/Abroad mega menus — e.g. Uttar Pradesh, Russia. Page link is added under that group.',
+              'For India/Abroad mega menus — use state/country name (Uttar Pradesh), id (up), or path (mbbs-india/up). Page link appears in that group’s college list.',
             condition: (_, siblingData) =>
               Boolean(siblingData?.showInNavigation) &&
               ['mbbs_india', 'mbbs_abroad'].includes(String(siblingData?.navSection ?? '')),

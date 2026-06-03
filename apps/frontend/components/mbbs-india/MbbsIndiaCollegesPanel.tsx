@@ -27,12 +27,16 @@ export function MbbsIndiaCollegesPanel({
 
   const extraColleges = useMemo(
     (): MbbsIndiaCollege[] =>
-      navPagesForParent(navPages, 'mbbs_india', hovered.name).map((p) => ({
+      navPagesForParent(navPages, 'mbbs_india', {
+        name: hovered.name,
+        id: hovered.id,
+        href: hovered.href,
+      }).map((p) => ({
         name: p.label,
         href: p.href,
         slug: null,
       })),
-    [navPages, hovered.name]
+    [navPages, hovered.name, hovered.id, hovered.href]
   );
   const colleges = useMemo(
     (): MbbsIndiaCollege[] => [...hovered.colleges, ...extraColleges],
