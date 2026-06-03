@@ -13,6 +13,8 @@
     "dev:cms": "npm run dev:8000 --prefix ar-group-of-eductions",
     "dev:turbo": "turbo run dev --parallel",
     "dev:all": "npx concurrently -k -n cms,backend,frontend -c blue,yellow,cyan \"npm run dev:cms\" \"npm run dev -w apps/backend\" \"npm run dev -w apps/frontend\"",
+    "predev:all": "npm run db:generate --workspace=ar-education-backend",
+    "predev:stack": "npm run db:generate --workspace=ar-education-backend",
     "build": "turbo run build",
     "build:frontend": "npm run build --workspace=ar-education-frontend",
     "start": "turbo run start",
