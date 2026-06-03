@@ -717,6 +717,18 @@
   text-underline-offset: 2px;
 }
 
+/* Payload / Lexical inline links */
+.wp-content-root .wp-content-body a[href^="http"],
+.wp-content-root .wp-content-body a[href^="/"] {
+  color: #c2410c;
+  background: linear-gradient(transparent 60%, rgba(251, 191, 36, 0.35) 60%);
+}
+
+.wp-content-root .wp-content-body strong {
+  font-weight: 700;
+  color: #0f172a;
+}
+
 .wp-content-root .wp-content-body .elementor-button,
 .wp-content-root .wp-content-body .wp-block-button__link {
   display: inline-flex;

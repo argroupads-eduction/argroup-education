@@ -88,6 +88,14 @@ PAYLOAD_CMS_ENABLED=false
 
 Vercel **does not** call Payload at runtime; `/api/blogs` and `/api/cms/payload-sync` run on the same Vercel app. Payload can be on your laptop—only **Publish** must hit your Vercel URL. **Railway is optional** (you can delete the backend service).
 
+### No redeploy needed
+
+1. Edit post/page in Payload → **Publish**
+2. Sync runs automatically → Neon DB updates → Vercel cache clears (`/api/revalidate`)
+3. Refresh live URL — changes appear in **seconds** (no Vercel redeploy, no git push)
+
+Rich text (bold, links, colors, underline) is converted to HTML on publish.
+
 **Backfill existing Payload docs:**
 
 ```bash
