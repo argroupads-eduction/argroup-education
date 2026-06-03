@@ -1,14 +1,13 @@
 import { sortBlogPostsByNewest } from '@/lib/blogUtils';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
+import { getApiBaseUrl } from '@/lib/apiBase';
 import {
   getPayloadCmsBaseUrl,
   getPayloadCmsServerFetchUrl,
   isPayloadCmsConfigured,
   useBackendAsPrimaryContent,
 } from '@/lib/payloadCmsUrl';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export type ContentType = 'post' | 'page';
 
@@ -70,7 +69,7 @@ function normalizeBlogItem(doc: BlogListItem): BlogListItem {
 }
 
 function apiBase() {
-  return API_URL.replace(/\/$/, '');
+  return getApiBaseUrl();
 }
 
 type PayloadMedia = { url?: string | null } | null | string;

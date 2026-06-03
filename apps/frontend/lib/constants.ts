@@ -6,7 +6,9 @@ import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 export const SITE_NAME = 'AR Group of Education';
 export const SITE_DESCRIPTION = 'Premium educational consultancy platform for medical education abroad';
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroup.edu';
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from '@/lib/apiBase';
+
+export const API_URL = getApiBaseUrl();
 
 // Brand Colors
 export const COLORS = {

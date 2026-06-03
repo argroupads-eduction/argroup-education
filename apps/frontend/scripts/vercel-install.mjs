@@ -16,6 +16,10 @@ function run(cmd, cwd) {
 
 if (fs.existsSync(rootLock)) {
   run('npm ci', monorepoRoot);
+  const backendDir = path.join(monorepoRoot, 'apps/backend');
+  if (fs.existsSync(path.join(backendDir, 'prisma/schema.prisma'))) {
+    run('npx prisma generate', backendDir);
+  }
 } else {
   run('npm install', appDir);
 }

@@ -1,7 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
+import { getApiBaseUrl } from '@/lib/apiBase';
 import { ApiResponse, PaginatedResponse, BlogPost, University, Country } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = getApiBaseUrl();
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_URL,

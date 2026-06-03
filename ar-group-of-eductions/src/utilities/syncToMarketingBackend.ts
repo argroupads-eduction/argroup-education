@@ -18,10 +18,18 @@ type SyncPayload = {
 }
 
 export async function syncToMarketingBackend(payload: SyncPayload): Promise<void> {
-  const base = process.env.BACKEND_API_URL?.replace(/\/$/, '')
+  const base = (
+    process.env.BACKEND_API_URL ||
+    process.env.FRONTEND_APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    ''
+  ).replace(/\/$/, '')
   const secret = process.env.PAYLOAD_SYNC_SECRET?.trim()
 
   if (!base || !secret) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[payload→backend sync] Set BACKEND_API_URL to your Vercel site (e.g. https://argroup-education-frontend.vercel.app)')
+    }
     return
   }
 

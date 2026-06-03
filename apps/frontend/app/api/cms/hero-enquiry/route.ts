@@ -38,7 +38,8 @@ async function submitToPayload(formId: number, submissionData: SubmissionField[]
 
 async function submitToBackend(kind: MbbsHeroFormKind, submissionData: SubmissionField[]) {
   const map = fieldsToMap(submissionData);
-  const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+  const { getApiBaseUrl } = await import('@/lib/apiBase');
+  const apiUrl = getApiBaseUrl();
   const body = {
     name: map.name?.trim() || 'Unknown',
     email: map.email?.trim() || 'noreply@argroup.local',
