@@ -6,7 +6,7 @@ import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import { NavMegaMenuShell } from '@/components/common/NavMegaMenuShell';
 import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
 import { navPagesForParent } from '@/lib/dynamicNav';
-import { MBBS_INDIA_STATES, type MbbsIndiaStateColleges } from '@/lib/mbbsIndiaTree';
+import { MBBS_INDIA_STATES, type MbbsIndiaCollege, type MbbsIndiaStateColleges } from '@/lib/mbbsIndiaTree';
 
 type MbbsIndiaCollegesPanelProps = {
   onNavigate?: () => void;
@@ -26,15 +26,16 @@ export function MbbsIndiaCollegesPanel({
   );
 
   const extraColleges = useMemo(
-    () =>
+    (): MbbsIndiaCollege[] =>
       navPagesForParent(navPages, 'mbbs_india', hovered.name).map((p) => ({
         name: p.label,
         href: p.href,
+        slug: null,
       })),
     [navPages, hovered.name]
   );
   const colleges = useMemo(
-    () => [...hovered.colleges, ...extraColleges],
+    (): MbbsIndiaCollege[] => [...hovered.colleges, ...extraColleges],
     [hovered.colleges, extraColleges]
   );
 
