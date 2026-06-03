@@ -234,12 +234,122 @@ export function lexicalToHtml(value: unknown, mediaBaseUrl?: string): string {
     .join('\n')
 }
 
+function payloadLinkToHref(link: Record<string, unknown> | undefined): string {
+  if (!link) return '#'
+
+  if (link.type === 'custom') {
+    const url = typeof link.url === 'string' ? link.url.trim() : ''
+    return url || '#'
+  }
+
+  const ref = link.reference as
+    | { relationTo?: string; value?: { slug?: string } | string | number }
+    | undefined
+  const value = ref?.value
+  if (value && typeof value === 'object' && typeof value.slug === 'string' && value.slug) {
+    const parts = value.slug.split('/').filter(Boolean).map(encodeURIComponent)
+    if (ref?.relationTo === 'posts') return `/blog/${parts.join('/')}`
+    return `/${parts.join('/')}`
+  }
+
+  return '#'
+}
+
+const DEFAULT_PAGE_ENQUIRY_CTA = `<div class="wp-premium-enquiry">
+  <p class="wp-premium-enquiry-text">Speak with our admission counsellors for personalised guidance on fees, eligibility, and seat booking.</p>
+  <div class="wp-premium-enquiry-actions">
+    <a href="/contact" class="wp-premium-btn wp-premium-btn-primary">Book free counselling</a>
+    <a href="tel:+917076909090" class="wp-premium-btn wp-premium-btn-outline">Call +91-7076909090</a>
+  </div>
+</div>`
+
+function layoutBlockToHtml(block: Record<string, unknown>, baseUrl: string): string {
+  const blockType = typeof block.blockType === 'string' ? block.blockType : ''
+
+  if (blockType === 'content') {
+    const columns = block.columns as Array<{ richText?: unknown }> | undefined
+    return (columns ?? [])
+      .map((col) => lexicalToHtml(col.richText, baseUrl))
+      .filter(Boolean)
+      .join('\n')
+  }
+
+  if (blockType === 'cta') {
+    const textHtml = lexicalToHtml(block.richText, baseUrl)
+    const links = block.links as Array<{ link?: Record<string, unknown> }> | undefined
+    const buttons = (links ?? [])
+      .map((item) => {
+        const link = item.link
+        if (!link || typeof link.label !== 'string' || !link.label.trim()) return ''
+        const href = payloadLinkToHref(link)
+        const appearance =
+          link.appearance === 'outline' ? 'wp-premium-btn-outline' : 'wp-premium-btn-primary'
+        const target = link.newTab ? ' target="_blank" rel="noopener noreferrer"' : ''
+        return `<a href="${escapeAttr(href)}" class="wp-premium-btn ${appearance}"${target}>${escapeHtml(link.label.trim())}</a>`
+      })
+      .filter(Boolean)
+      .join('')
+
+    if (buttons) {
+      const intro = textHtml.trim()
+        ? `<div class="wp-premium-enquiry-text">${textHtml}</div>`
+        : `<p class="wp-premium-enquiry-text">Speak with our admission counsellors for personalised guidance on fees, eligibility, and seat booking.</p>`
+      return `<div class="wp-premium-enquiry">${intro}<div class="wp-premium-enquiry-actions">${buttons}</div></div>`
+    }
+
+    return textHtml
+  }
+
+  if (blockType === 'mediaBlock') {
+    const imgUrl = mediaValueToUrl(block.media, baseUrl)
+    if (!imgUrl) return ''
+    const alt =
+      typeof block.media === 'object' && block.media && 'alt' in block.media
+        ? escapeAttr(String((block.media as { alt?: string }).alt || ''))
+        : ''
+    return `<p><img src="${escapeAttr(imgUrl)}" alt="${alt}" /></p>`
+  }
+
+  if (blockType === 'formBlock') {
+    return DEFAULT_PAGE_ENQUIRY_CTA
+  }
+
+  return ''
+}
+
+export function layoutToHtml(layout: unknown, mediaBaseUrl?: string): string {
+  if (!Array.isArray(layout)) return ''
+
+  const base = mediaBaseUrl || process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:8000'
+
+  return layout
+    .map((block) => {
+      if (!block || typeof block !== 'object') return ''
+      return layoutBlockToHtml(block as Record<string, unknown>, base)
+    })
+    .filter(Boolean)
+    .join('\n')
+}
+
 export function htmlFromPayloadDoc(doc: {
   htmlContent?: string | null
   content?: unknown
+  layout?: unknown
+  hero?: { richText?: unknown } | null
 }): string {
   if (typeof doc.htmlContent === 'string' && doc.htmlContent.trim()) {
     return doc.htmlContent
   }
-  return lexicalToHtml(doc.content)
+
+  const fromContent = lexicalToHtml(doc.content)
+  if (fromContent.trim()) return fromContent
+
+  const heroHtml = lexicalToHtml(doc.hero?.richText)
+  const layoutHtml = layoutToHtml(doc.layout)
+
+  if (heroHtml.trim() && layoutHtml.trim()) {
+    return `${heroHtml}\n${layoutHtml}`
+  }
+
+  return heroHtml.trim() || layoutHtml
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 import {
   Facebook,
   Instagram,
@@ -16,6 +17,8 @@ import { Button } from '@/components/ui/Button';
 import { CONTACT_INFO, SITE_DESCRIPTION, SITE_NAME, SOCIAL_LINKS } from '@/lib/constants';
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
 import { FooterAirportDiaries } from './footer/FooterAirportDiaries';
+import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
+import { navPagesForSection } from '@/lib/dynamicNav';
 import '@/styles/footer-main.css';
 
 const COMPANY_LINKS = [
@@ -60,6 +63,14 @@ function socialIcon(platform: string) {
 
 export const Footer = () => {
   const year = new Date().getFullYear();
+  const navPages = useDynamicNavPages();
+  const footerLinks = useMemo(() => {
+    const extras = navPagesForSection(navPages, 'footer').map((p) => ({
+      label: p.label,
+      href: p.href,
+    }));
+    return [...COMPANY_LINKS, ...extras];
+  }, [navPages]);
 
   return (
     <footer className="bg-navy-900 text-white">
@@ -109,7 +120,7 @@ export const Footer = () => {
               <div className="site-footer-main__col">
                 <h4 className="site-footer-main__col-title">Company</h4>
                 <ul>
-                  {COMPANY_LINKS.map((link) => (
+                  {footerLinks.map((link) => (
                     <li key={link.href}>
                       <Link href={link.href}>{link.label}</Link>
                     </li>

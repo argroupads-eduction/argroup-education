@@ -467,15 +467,17 @@
 }
 
 .wp-content-root .wp-premium-btn-primary {
-  background: var(--wp-navy);
+  background: var(--wp-navy) !important;
   color: #fff !important;
   box-shadow: 0 4px 14px rgba(26, 54, 93, 0.25);
+  text-decoration: none !important;
 }
 
 .wp-content-root .wp-premium-btn-outline {
-  border: 2px solid var(--wp-navy);
+  border: 2px solid var(--wp-navy) !important;
   color: var(--wp-navy) !important;
-  background: #fff;
+  background: #fff !important;
+  text-decoration: none !important;
 }
 
 /* Hide any leftover embedded forms (WPForms, Formidable, etc.) */
@@ -709,8 +711,8 @@
   color: #000 !important;
 }
 
-/* ── Links & buttons ── */
-.wp-content-root .wp-content-body a {
+/* ── Links & buttons (exclude premium CTA + WP buttons) ── */
+.wp-content-root .wp-content-body a:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link) {
   color: #b45309;
   font-weight: 600;
   text-decoration: underline;
@@ -718,8 +720,8 @@
 }
 
 /* Payload / Lexical inline links */
-.wp-content-root .wp-content-body a[href^="http"],
-.wp-content-root .wp-content-body a[href^="/"] {
+.wp-content-root .wp-content-body a[href^="http"]:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link),
+.wp-content-root .wp-content-body a[href^="/"]:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link) {
   color: #c2410c;
   background: linear-gradient(transparent 60%, rgba(251, 191, 36, 0.35) 60%);
 }

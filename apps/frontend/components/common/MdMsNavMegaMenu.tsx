@@ -1,8 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 import { ArrowUpRight, Stethoscope } from 'lucide-react';
 import { NavMegaMenuShell } from '@/components/common/NavMegaMenuShell';
+import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
+import { navPagesForSection } from '@/lib/dynamicNav';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 
 type MdMsNavMegaMenuProps = {
@@ -10,6 +13,16 @@ type MdMsNavMegaMenuProps = {
 };
 
 export function MdMsNavMegaMenu({ onNavigate }: MdMsNavMegaMenuProps) {
+  const navPages = useDynamicNavPages();
+  const mdmsItems = useMemo(() => {
+    const extras = navPagesForSection(navPages, 'md_ms').map((p) => ({
+      href: p.href,
+      label: p.label,
+      shortLabel: p.label.slice(0, 3).toUpperCase(),
+    }));
+    return [...MD_MS_NAV_ITEMS, ...extras];
+  }, [navPages]);
+
   return (
     <NavMegaMenuShell
       theme="mdms"
@@ -29,11 +42,11 @@ export function MdMsNavMegaMenu({ onNavigate }: MdMsNavMegaMenuProps) {
           </p>
           <span className="nav-mega-mdms-stat">
             <Stethoscope className="h-3.5 w-3.5" aria-hidden />
-            {MD_MS_NAV_ITEMS.length} states
+            {mdmsItems.length} states
           </span>
         </aside>
         <div className="nav-mega-mdms-grid">
-          {MD_MS_NAV_ITEMS.map((item) => (
+          {mdmsItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}

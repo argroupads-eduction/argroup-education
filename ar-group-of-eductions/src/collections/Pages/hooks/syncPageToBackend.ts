@@ -27,6 +27,11 @@ export const syncPageToBackend: CollectionAfterChangeHook<Page> = async ({
     featuredImage: fields.featuredImage,
     metaTitle: fields.metaTitle,
     metaDescription: fields.metaDescription,
+    navEnabled: fields.navEnabled,
+    navSection: fields.navSection,
+    navParent: fields.navParent,
+    navLabel: fields.navLabel,
+    navSortOrder: fields.navSortOrder,
     published,
     publishedAt: doc.publishedAt ?? null,
   })

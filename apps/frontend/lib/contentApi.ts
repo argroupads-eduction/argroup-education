@@ -100,6 +100,8 @@ type PayloadPageDoc = {
   htmlContent?: string | null;
   featuredImageUrl?: string | null;
   content?: unknown;
+  hero?: { richText?: unknown; media?: PayloadMedia } | null;
+  layout?: Array<Record<string, unknown>> | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -111,17 +113,48 @@ type PayloadPageDoc = {
   _status?: string;
 };
 
+function pageBodyHtmlFromPayload(doc: PayloadPageDoc): string {
+  if (typeof doc.htmlContent === 'string' && doc.htmlContent.trim()) {
+    return doc.htmlContent;
+  }
+
+  const parts: string[] = [];
+  const heroHtml = lexicalToHtml(doc.hero?.richText);
+  if (heroHtml.trim()) parts.push(heroHtml);
+
+  if (Array.isArray(doc.layout)) {
+    for (const block of doc.layout) {
+      if (!block || typeof block !== 'object') continue;
+      const blockType = typeof block.blockType === 'string' ? block.blockType : '';
+      if (blockType === 'content' && Array.isArray(block.columns)) {
+        for (const col of block.columns) {
+          if (!col || typeof col !== 'object') continue;
+          const colHtml = lexicalToHtml((col as { richText?: unknown }).richText);
+          if (colHtml.trim()) parts.push(colHtml);
+        }
+      }
+      if (blockType === 'mediaBlock' && block.media) {
+        const url = payloadMediaToUrl(block.media as PayloadMedia);
+        if (url) parts.push(`<p><img src="${url}" alt="" /></p>`);
+      }
+    }
+  }
+
+  return parts.join('\n');
+}
+
 function payloadDocToSiteContent(
   doc: PayloadPostDoc | PayloadPageDoc,
   type: ContentType
 ): SiteContent | null {
   if (!doc.slug) return null;
 
-  const htmlFromWp =
-    typeof doc.htmlContent === 'string' && doc.htmlContent.trim().length > 0
-      ? doc.htmlContent
-      : null;
-  const htmlContent = htmlFromWp || lexicalToHtml((doc as PayloadPostDoc).content);
+  const htmlContent =
+    type === 'page'
+      ? pageBodyHtmlFromPayload(doc as PayloadPageDoc)
+      : typeof doc.htmlContent === 'string' && doc.htmlContent.trim().length > 0
+        ? doc.htmlContent
+        : lexicalToHtml((doc as PayloadPostDoc).content);
   if (!htmlContent.trim()) return null;
 
   const excerpt =
@@ -133,6 +166,7 @@ function payloadDocToSiteContent(
       ? doc.featuredImageUrl.trim()
       : null;
   const postDoc = doc as PayloadPostDoc;
+  const pageDoc = doc as PayloadPageDoc;
 
   return normalizeContent({
     id: String(doc.id ?? doc.slug),
@@ -144,6 +178,7 @@ function payloadDocToSiteContent(
     featuredImage:
       featuredFromUrl ||
       payloadMediaToUrl(postDoc.heroImage || null) ||
+      payloadMediaToUrl(pageDoc.hero?.media || null) ||
       payloadMediaToUrl(doc.meta?.image || null),
     metaTitle: doc.meta?.title || null,
     metaDescription: doc.meta?.description || null,
@@ -412,7 +447,7 @@ async function fetchPayloadPageBySlug(slug: string): Promise<SiteContent | null>
 
   const qs = new URLSearchParams({
     'where[slug][equals]': slug,
-    depth: '1',
+    depth: '2',
     limit: '1',
     draft: 'true',
   });

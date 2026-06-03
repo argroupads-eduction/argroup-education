@@ -89,9 +89,11 @@ export const Pages: CollectionConfig<'pages'> = {
               name: 'layout',
               type: 'blocks',
               blocks: [CallToAction, Content, MediaBlock, Archive, FormBlock],
-              required: true,
+              required: false,
               admin: {
                 initCollapsed: true,
+                description:
+                  'Optional extra sections below the hero content. Hero tab text is always shown on the page body.',
               },
             },
           ],
@@ -127,6 +129,70 @@ export const Pages: CollectionConfig<'pages'> = {
       ],
     },
     {
+      name: 'sitePlacement',
+      type: 'group',
+      label: 'Website placement',
+      admin: {
+        position: 'sidebar',
+        description: 'Choose where this page appears in the live site navigation.',
+      },
+      fields: [
+        {
+          name: 'showInNavigation',
+          type: 'checkbox',
+          label: 'Show in site menu',
+          defaultValue: false,
+        },
+        {
+          name: 'navSection',
+          type: 'select',
+          label: 'Menu section',
+          defaultValue: 'none',
+          options: [
+            { label: 'Standalone (URL only — not in menu)', value: 'none' },
+            { label: 'Top navbar — main link', value: 'main' },
+            { label: 'MBBS India mega menu', value: 'mbbs_india' },
+            { label: 'MBBS Abroad mega menu', value: 'mbbs_abroad' },
+            { label: 'MD/MS mega menu', value: 'md_ms' },
+            { label: 'Footer links', value: 'footer' },
+          ],
+          admin: {
+            condition: (_, siblingData) => Boolean(siblingData?.showInNavigation),
+          },
+        },
+        {
+          name: 'navParent',
+          type: 'text',
+          label: 'Under (state / country)',
+          admin: {
+            description:
+              'For India/Abroad mega menus — e.g. Uttar Pradesh, Russia. Page link is added under that group.',
+            condition: (_, siblingData) =>
+              Boolean(siblingData?.showInNavigation) &&
+              ['mbbs_india', 'mbbs_abroad'].includes(String(siblingData?.navSection ?? '')),
+          },
+        },
+        {
+          name: 'navLabel',
+          type: 'text',
+          label: 'Menu label (short)',
+          admin: {
+            description: 'Short name in the menu. Leave empty to use page title.',
+            condition: (_, siblingData) => Boolean(siblingData?.showInNavigation),
+          },
+        },
+        {
+          name: 'navSortOrder',
+          type: 'number',
+          label: 'Sort order',
+          defaultValue: 0,
+          admin: {
+            condition: (_, siblingData) => Boolean(siblingData?.showInNavigation),
+          },
+        },
+      ],
+    },
+    {
       name: 'publishedAt',
       type: 'date',
       admin: {
@@ -137,7 +203,17 @@ export const Pages: CollectionConfig<'pages'> = {
   ],
   hooks: {
     afterChange: [revalidatePage, syncPageToBackend],
-    beforeChange: [populatePublishedAt],
+    beforeChange: [
+      populatePublishedAt,
+      ({ data }) => {
+        if (typeof data?.slug === 'string') {
+          data.slug = data.slug
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '')
+        }
+        return data
+      },
+    ],
     afterDelete: [revalidateDelete, syncPageDeleteToBackend],
   },
   versions: {

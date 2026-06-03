@@ -439,20 +439,22 @@ button.site-gold-cta {
 }
 
 .wp-content-root .wp-premium-btn-primary {
-  background: linear-gradient(135deg, rgb(15 23 42), rgb(30 41 59));
+  background: linear-gradient(135deg, rgb(15 23 42), rgb(30 41 59)) !important;
   color: rgb(255 255 255) !important;
+  text-decoration: none !important;
 }
 
 .wp-content-root .wp-premium-btn-primary:hover {
-  background: linear-gradient(135deg, rgb(30 41 59), rgb(51 65 85));
+  background: linear-gradient(135deg, rgb(30 41 59), rgb(51 65 85)) !important;
   color: rgb(255 255 255) !important;
   transform: translateY(-2px);
 }
 
 .wp-content-root .wp-premium-btn-outline {
-  border: 2px solid rgb(226 232 240);
-  background: white;
-  color: rgb(15 23 42) !important;
+  border: 2px solid var(--wp-navy, rgb(26 54 93)) !important;
+  background: white !important;
+  color: var(--wp-navy, rgb(26 54 93)) !important;
+  text-decoration: none !important;
 }
 
 .wp-content-root .wp-premium-btn-outline:hover {

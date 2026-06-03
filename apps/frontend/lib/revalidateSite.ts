@@ -9,6 +9,7 @@ export function revalidateAfterContentSync(opts: {
   if (opts.type === 'post') {
     revalidatePath(blogPostPath(opts.slug));
   } else {
+    revalidatePath('/');
     revalidatePath(`/${opts.slug.split('/').map(encodeURIComponent).join('/')}`);
   }
 }

@@ -16,6 +16,11 @@ type SyncPayload = {
   category?: string
   metaTitle?: string | null
   metaDescription?: string | null
+  navEnabled?: boolean
+  navSection?: string | null
+  navParent?: string | null
+  navLabel?: string | null
+  navSortOrder?: number
   published: boolean
   publishedAt?: string | null
 }

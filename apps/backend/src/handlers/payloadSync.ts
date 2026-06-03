@@ -23,6 +23,11 @@ export type PayloadSyncBody = {
   metaTitle?: string | null;
   metaDescription?: string | null;
   canonicalUrl?: string | null;
+  navEnabled?: boolean;
+  navSection?: string | null;
+  navParent?: string | null;
+  navLabel?: string | null;
+  navSortOrder?: number;
   published?: boolean;
   publishedAt?: string | null;
 };
@@ -109,6 +114,11 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
       ogDescription: metaDescription,
       ogImage: body.featuredImage ?? null,
       keywords: [] as string[],
+      navEnabled: body.navEnabled === true,
+      navSection: body.navSection ?? null,
+      navParent: body.navParent ?? null,
+      navLabel: body.navLabel ?? null,
+      navSortOrder: typeof body.navSortOrder === 'number' ? body.navSortOrder : 0,
       published,
       publishedAt,
     };

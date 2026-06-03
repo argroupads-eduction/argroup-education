@@ -206,7 +206,10 @@ export interface Page {
    */
   htmlContent?: string | null;
   featuredImageUrl?: string | null;
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  /**
+   * Optional extra sections below the hero content. Hero tab text is always shown on the page body.
+   */
+  layout?: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[] | null;
   meta?: {
     title?: string | null;
     /**
@@ -214,6 +217,22 @@ export interface Page {
      */
     image?: (number | null) | Media;
     description?: string | null;
+  };
+  /**
+   * Choose where this page appears in the live site navigation.
+   */
+  sitePlacement?: {
+    showInNavigation?: boolean | null;
+    navSection?: ('none' | 'main' | 'mbbs_india' | 'mbbs_abroad' | 'md_ms' | 'footer') | null;
+    /**
+     * For India/Abroad mega menus — e.g. Uttar Pradesh, Russia. Page link is added under that group.
+     */
+    navParent?: string | null;
+    /**
+     * Short name in the menu. Leave empty to use page title.
+     */
+    navLabel?: string | null;
+    navSortOrder?: number | null;
   };
   publishedAt?: string | null;
   /**
@@ -1111,6 +1130,15 @@ export interface PagesSelect<T extends boolean = true> {
         title?: T;
         image?: T;
         description?: T;
+      };
+  sitePlacement?:
+    | T
+    | {
+        showInNavigation?: T;
+        navSection?: T;
+        navParent?: T;
+        navLabel?: T;
+        navSortOrder?: T;
       };
   publishedAt?: T;
   generateSlug?: T;
