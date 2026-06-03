@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url'
 
 import type { Payload } from 'payload'
 
+import { htmlFromPayloadDoc } from './lexicalToHtml'
+
 type MediaDoc = {
   id?: number | string
   url?: string | null
@@ -140,6 +142,3 @@ export async function buildPostSyncPayload(
     metaDescription: doc.meta?.description ?? null,
   }
 }
-
-// re-export for sync script
-export { htmlFromPayloadDoc } from './lexicalToHtml'
