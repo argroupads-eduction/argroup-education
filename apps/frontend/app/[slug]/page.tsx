@@ -6,8 +6,7 @@ import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
-import { BlogPostLayout } from '@/components/blog/BlogPostLayout';
-import { getBlogPosts, getContentBySlug } from '@/lib/contentApi';
+import { getContentBySlug } from '@/lib/contentApi';
 import { PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { findProgramContextBySlug } from '@/lib/programBreadcrumbs';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
@@ -52,27 +51,16 @@ export default async function WpSlugPage({ params }: PageProps) {
     notFound();
   }
 
+  if (content.type === 'post') {
+    redirect(`/blog/${encodeURIComponent(decoded)}`);
+  }
+
   const title = plainTitle(content.title);
   const program = findProgramContextBySlug(decoded);
 
   const breadcrumbs = program?.breadcrumbs ?? [
-    ...(content.type === 'post' ? [{ label: 'Blog', href: '/blog' }] : []),
     { label: title },
   ];
-
-  if (content.type === 'post') {
-    const { data: latestPosts } = await getBlogPosts(1, 12);
-    return (
-      <>
-        <ContentJsonLd content={content} breadcrumbs={breadcrumbs} />
-        <BlogPostLayout
-          content={content}
-          latestPosts={latestPosts}
-          breadcrumbs={breadcrumbs}
-        />
-      </>
-    );
-  }
 
   const theme = program?.theme ?? 'default';
   const badge = program?.badge ?? 'Guide';

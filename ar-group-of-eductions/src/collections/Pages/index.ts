@@ -12,6 +12,7 @@ import { slugField } from 'payload'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
+import { syncPageDeleteToBackend, syncPageToBackend } from './hooks/syncPageToBackend'
 
 import {
   MetaDescriptionField,
@@ -70,6 +71,21 @@ export const Pages: CollectionConfig<'pages'> = {
         {
           fields: [
             {
+              name: 'htmlContent',
+              type: 'code',
+              label: 'WordPress HTML (marketing site)',
+              admin: {
+                language: 'html',
+                description:
+                  'Full HTML from WP export. When set, the marketing frontend renders this with the same WP layout pipeline.',
+              },
+            },
+            {
+              name: 'featuredImageUrl',
+              type: 'text',
+              label: 'Featured image URL (imported)',
+            },
+            {
               name: 'layout',
               type: 'blocks',
               blocks: [CallToAction, Content, MediaBlock, Archive, FormBlock],
@@ -120,9 +136,9 @@ export const Pages: CollectionConfig<'pages'> = {
     slugField(),
   ],
   hooks: {
-    afterChange: [revalidatePage],
+    afterChange: [revalidatePage, syncPageToBackend],
     beforeChange: [populatePublishedAt],
-    afterDelete: [revalidateDelete],
+    afterDelete: [revalidateDelete, syncPageDeleteToBackend],
   },
   versions: {
     drafts: {

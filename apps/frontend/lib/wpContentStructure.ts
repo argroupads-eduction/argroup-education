@@ -64,11 +64,15 @@ export function extractQuickFacts(html: string): { facts: QuickFact[]; html: str
   const rows = [...table.matchAll(/<tr\b[\s\S]*?<\/tr>/gi)];
   const facts: QuickFact[] = [];
 
+  const seen = new Set<string>();
   for (const row of rows) {
     const cells = [...row[0].matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi)].map((c) =>
       stripHtml(c[1])
     );
     if (cells.length >= 2 && cells[0] && cells[1]) {
+      const dedupeKey = `${cells[0]}|${cells[1]}`;
+      if (seen.has(dedupeKey)) continue;
+      seen.add(dedupeKey);
       facts.push({ label: cells[0], value: cells[1] });
     }
   }

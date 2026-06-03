@@ -289,6 +289,21 @@ function extractParagraphs(html: string): string[] {
   return paras;
 }
 
+/** FAQ Q/A lines from paragraphs, subheadings, and list items (Payload + WP). */
+function extractFaqLines(html: string): string[] {
+  const lines: string[] = [];
+  const re = /<(p|h[345]|li)[^>]*>([\s\S]*?)<\/\1>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    if (!isSkippableParagraph(m[2])) lines.push(m[2].trim());
+  }
+  return lines.length ? lines : extractParagraphs(html);
+}
+
+/** Stop FAQ body capture at next major section (Payload has no WP </section> after FAQs). */
+const FAQ_SECTION_BODY_END =
+  '(?=<h2\\b|<div class="xs_social|<\\/section>|<section\\b|$)';
+
 function cleanAnswerHtml(inner: string): string {
   let out = inner.trim();
   out = out.replace(/^(?:<b>\s*)?(?:A\s*\d+\s*[.:]|A\s*:|Ans\.?\s*|Answer\s*:)\s*<\/b>\s*/i, '');
@@ -344,7 +359,54 @@ function isAnswerParagraph(inner: string): boolean {
   if (/Q\s*\d+\s*[.:]/i.test(inner) && !FAQ_ANSWER_PREFIX.test(inner)) return false;
   const text = stripHtml(inner);
   if (/^Q\s*\d+\s*[.:]/i.test(text)) return false;
+  if (/^\d+\.\s+/.test(text)) return false;
   return text.length > 0;
+}
+
+function parseNumberedQuestionParagraph(inner: string): { num: string; question: string } | null {
+  const text = stripHtml(inner);
+  const m = text.match(/^(\d+)\.\s+(.+)$/);
+  if (!m) return null;
+  const question = m[2].trim();
+  if (question.length < 3) return null;
+  return { num: m[1], question };
+}
+
+function parseNumberedFaqItemsFromLines(lines: string[]): FaqItem[] {
+  const items: FaqItem[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const q = parseNumberedQuestionParagraph(lines[i]);
+    if (!q) {
+      i += 1;
+      continue;
+    }
+
+    const answerParts: string[] = [];
+    let j = i + 1;
+    while (j < lines.length) {
+      if (parseNumberedQuestionParagraph(lines[j]) || parseQuestionParagraph(lines[j])) break;
+      const text = stripHtml(lines[j]);
+      if (!text) {
+        j += 1;
+        continue;
+      }
+      answerParts.push(`<p>${lines[j]}</p>`);
+      j += 1;
+    }
+
+    if (answerParts.length) {
+      items.push({ num: q.num, question: q.question, answer: answerParts.join('') });
+      i = j;
+    } else {
+      i += 1;
+    }
+  }
+  return items;
+}
+
+function parseNumberedFaqItemsFromHtml(block: string): FaqItem[] {
+  return parseNumberedFaqItemsFromLines(extractFaqLines(block));
 }
 
 function parseFaqItemsFromHtml(block: string): FaqItem[] {
@@ -369,17 +431,17 @@ function parseFaqItemsFromHtml(block: string): FaqItem[] {
     if (items.length >= 2) return items;
   }
 
-  const paras = extractParagraphs(block);
+  const lines = extractFaqLines(block);
   let i = 0;
-  while (i < paras.length) {
-    const same = parseSameParagraphQa(paras[i]);
+  while (i < lines.length) {
+    const same = parseSameParagraphQa(lines[i]);
     if (same) {
       items.push(same);
       i += 1;
       continue;
     }
 
-    const q = parseQuestionParagraph(paras[i]);
+    const q = parseQuestionParagraph(lines[i]);
     if (!q) {
       i += 1;
       continue;
@@ -393,10 +455,10 @@ function parseFaqItemsFromHtml(block: string): FaqItem[] {
 
     let answer: string | null = null;
     let j = i + 1;
-    while (j < paras.length) {
-      if (parseQuestionParagraph(paras[j])) break;
-      if (isAnswerParagraph(paras[j])) {
-        answer = cleanAnswerHtml(paras[j]);
+    while (j < lines.length) {
+      if (parseQuestionParagraph(lines[j]) || parseNumberedQuestionParagraph(lines[j])) break;
+      if (isAnswerParagraph(lines[j])) {
+        answer = cleanAnswerHtml(lines[j]);
         i = j + 1;
         break;
       }
@@ -408,6 +470,12 @@ function parseFaqItemsFromHtml(block: string): FaqItem[] {
     }
     items.push({ num: q.num, question: q.question, answer });
   }
+
+  if (items.length >= 2) return items;
+
+  const numbered = parseNumberedFaqItemsFromHtml(block);
+  if (numbered.length >= 2) return numbered;
+  if (!items.length && numbered.length) return numbered;
 
   return items;
 }
@@ -498,7 +566,10 @@ export function transformWpsmAccordions(html: string): string {
 /** All FAQ blocks under "FAQs" heading → animated accordion (transforms in place, no content copy). */
 export function transformWpFaqParagraphs(html: string): string {
   return html.replace(
-    /(<h[23][^>]*>[\s\S]*?\bFAQs?\b[\s\S]*?<\/h[23]>)(\s*)([\s\S]*?)(?=<div class="xs_social|<\/section>|<section\b|$)/gi,
+    new RegExp(
+      `(<h[23][^>]*>[\\s\\S]*?\\bFAQs?\\b[\\s\\S]*?<\\/h[23]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
+      'gi'
+    ),
     (full, heading, _sp, body) => {
       if (body.includes('wp-premium-faq-group')) return full;
       const items = parseFaqItemsFromHtml(body);
@@ -511,9 +582,14 @@ export function transformWpFaqParagraphs(html: string): string {
 /** Retry FAQ sections that still show raw Q/A after first pass. */
 function transformRemainingFaqSections(html: string): string {
   return html.replace(
-    /(<h[23][^>]*>[\s\S]*?\bFAQs?\b[\s\S]*?<\/h[23]>)(\s*)([\s\S]*?)(?=<div class="xs_social|<\/section>|<section\b|$)/gi,
+    new RegExp(
+      `(<h[23][^>]*>[\\s\\S]*?\\bFAQs?\\b[\\s\\S]*?<\\/h[23]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
+      'gi'
+    ),
     (full, heading, _sp, body) => {
-      if (!/<p[^>]*>[\s\S]*?Q\s*\d+\s*[.:]/i.test(body) || body.includes('wp-premium-faq-group')) {
+      const hasQa = /<p[^>]*>[\s\S]*?Q\s*\d+\s*[.:]/i.test(body);
+      const hasNumbered = /<p[^>]*>[\s\S]*?\b\d+\.\s+/i.test(body);
+      if ((!hasQa && !hasNumbered) || body.includes('wp-premium-faq-group')) {
         return full;
       }
       const items = parseFaqItemsFromHtml(body);

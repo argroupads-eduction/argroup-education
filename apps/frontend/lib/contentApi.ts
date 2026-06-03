@@ -1,4 +1,11 @@
+import { sortBlogPostsByNewest } from '@/lib/blogUtils';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
+import { readPayloadCms } from '@/lib/payloadCmsRead';
+import {
+  getPayloadCmsBaseUrl,
+  getPayloadCmsServerFetchUrl,
+  isPayloadCmsConfigured,
+} from '@/lib/payloadCmsUrl';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -65,8 +72,437 @@ function apiBase() {
   return API_URL.replace(/\/$/, '');
 }
 
+type PayloadMedia = { url?: string | null } | null | string;
+type PayloadPostDoc = {
+  id?: string | number;
+  title?: string | null;
+  slug?: string | null;
+  content?: unknown;
+  htmlContent?: string | null;
+  featuredImageUrl?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    image?: PayloadMedia;
+  } | null;
+  heroImage?: PayloadMedia;
+  publishedAt?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+  _status?: string;
+  categories?: Array<{ title?: string | null } | string> | null;
+};
+
+type PayloadPageDoc = {
+  id?: string | number;
+  title?: string | null;
+  slug?: string | null;
+  htmlContent?: string | null;
+  featuredImageUrl?: string | null;
+  content?: unknown;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    image?: PayloadMedia;
+  } | null;
+  publishedAt?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+  _status?: string;
+};
+
+function payloadDocToSiteContent(
+  doc: PayloadPostDoc | PayloadPageDoc,
+  type: ContentType
+): SiteContent | null {
+  if (!doc.slug) return null;
+
+  const htmlFromWp =
+    typeof doc.htmlContent === 'string' && doc.htmlContent.trim().length > 0
+      ? doc.htmlContent
+      : null;
+  const htmlContent = htmlFromWp || lexicalToHtml((doc as PayloadPostDoc).content);
+  if (!htmlContent.trim()) return null;
+
+  const excerpt =
+    plainTextFromHtml(doc.meta?.description || '').trim() ||
+    plainTextFromHtml(htmlContent).slice(0, 220);
+
+  const featuredFromUrl =
+    typeof doc.featuredImageUrl === 'string' && doc.featuredImageUrl.trim()
+      ? doc.featuredImageUrl.trim()
+      : null;
+  const postDoc = doc as PayloadPostDoc;
+
+  return normalizeContent({
+    id: String(doc.id ?? doc.slug),
+    type,
+    title: doc.title || doc.slug,
+    slug: doc.slug,
+    content: htmlContent,
+    excerpt,
+    featuredImage:
+      featuredFromUrl ||
+      payloadMediaToUrl(postDoc.heroImage || null) ||
+      payloadMediaToUrl(doc.meta?.image || null),
+    metaTitle: doc.meta?.title || null,
+    metaDescription: doc.meta?.description || null,
+    canonicalUrl: null,
+    ogTitle: doc.meta?.title || null,
+    ogDescription: doc.meta?.description || null,
+    ogImage: featuredFromUrl || payloadMediaToUrl(doc.meta?.image || null),
+    twitterTitle: doc.meta?.title || null,
+    twitterDescription: doc.meta?.description || null,
+    schemaJson: null,
+    publishedAt: doc.publishedAt || null,
+    updatedAt: doc.updatedAt || doc.createdAt || new Date().toISOString(),
+  });
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function lexicalNodeToText(node: unknown): string {
+  if (!node || typeof node !== 'object') return '';
+  const n = node as Record<string, unknown>;
+  if (typeof n.text === 'string') return n.text;
+  if (Array.isArray(n.children)) {
+    return n.children.map(lexicalNodeToText).join('');
+  }
+  return '';
+}
+
+function lexicalTableToHtml(node: Record<string, unknown>): string {
+  const rows = Array.isArray(node.children) ? node.children : [];
+  if (!rows.length) return '';
+
+  const rowHtml = rows
+    .map((row) => {
+      if (!row || typeof row !== 'object') return '';
+      const cells = Array.isArray((row as Record<string, unknown>).children)
+        ? ((row as Record<string, unknown>).children as unknown[])
+        : [];
+      if (!cells.length) return '';
+
+      const cellHtml = cells
+        .map((cell) => {
+          if (!cell || typeof cell !== 'object') return '';
+          const c = cell as Record<string, unknown>;
+          const text = escapeHtml(lexicalNodeToText(c).trim());
+          if (!text) return '';
+          const isHeader = c.headerState === 'row' || c.headerState === 'both';
+          const tag = isHeader ? 'th' : 'td';
+          return `<${tag}>${text}</${tag}>`;
+        })
+        .join('');
+
+      return cellHtml ? `<tr>${cellHtml}</tr>` : '';
+    })
+    .filter(Boolean)
+    .join('');
+
+  return rowHtml ? `<table>${rowHtml}</table>` : '';
+}
+
+function lexicalToHtml(value: unknown): string {
+  if (!value || typeof value !== 'object') return '';
+  const root = (value as Record<string, unknown>).root as Record<string, unknown> | undefined;
+  const children = Array.isArray(root?.children) ? root.children : [];
+  if (!children.length) return '';
+
+  const blocks: string[] = [];
+
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
+    if (!child || typeof child !== 'object') continue;
+
+    const n = child as Record<string, unknown>;
+    const type = typeof n.type === 'string' ? n.type : '';
+    const rawText = lexicalNodeToText(child).trim();
+    const text = escapeHtml(rawText);
+    if (!text) continue;
+
+    // Normalize Q/A and numbered FAQ paragraphs to WP export shape; prepareWpHtml builds accordion.
+    const qMatch = rawText.match(/^Q\s*(\d+)\s*[:.]\s*(.+)$/i);
+    const numMatch = rawText.match(/^(\d+)\.\s+(.+)$/);
+    if (type === 'paragraph' && (qMatch || numMatch)) {
+      const qaItems: Array<{ num: string; q: string; a: string }> = [];
+      const numberedItems: Array<{ num: string; q: string; a: string }> = [];
+      let j = i;
+
+      if (qMatch) {
+        while (j < children.length) {
+          const qNode = children[j] as Record<string, unknown> | undefined;
+          const qText = qNode ? lexicalNodeToText(qNode).trim() : '';
+          const q = qText.match(/^Q\s*(\d+)\s*[:.]\s*(.+)$/i);
+          if (!q) break;
+
+          const aNode = children[j + 1] as Record<string, unknown> | undefined;
+          const aText = aNode ? lexicalNodeToText(aNode).trim() : '';
+          const a = aText.match(/^(?:A\s*\d*\s*[:.]|Ans(?:wer)?\s*[:.])\s*(.+)$/i);
+          if (!a) break;
+
+          qaItems.push({
+            num: q[1] || String(qaItems.length + 1),
+            q: escapeHtml(q[2].trim()),
+            a: escapeHtml(a[1].trim()),
+          });
+          j += 2;
+        }
+      } else {
+        while (j < children.length) {
+          const qNode = children[j] as Record<string, unknown> | undefined;
+          const qText = qNode ? lexicalNodeToText(qNode).trim() : '';
+          const q = qText.match(/^(\d+)\.\s+(.+)$/);
+          if (!q) break;
+
+          const aNode = children[j + 1] as Record<string, unknown> | undefined;
+          const aText = aNode ? lexicalNodeToText(aNode).trim() : '';
+          if (!aText || /^\d+\.\s+/.test(aText) || /^Q\s*\d+\s*[:.]/i.test(aText)) break;
+
+          numberedItems.push({
+            num: q[1] || String(numberedItems.length + 1),
+            q: escapeHtml(q[2].trim()),
+            a: escapeHtml(aText),
+          });
+          j += 2;
+        }
+      }
+
+      const faqItems = qaItems.length >= 2 ? qaItems : numberedItems.length >= 2 ? numberedItems : [];
+      if (faqItems.length >= 2) {
+        const last = blocks[blocks.length - 1] ?? '';
+        if (!/\bFAQs?\b/i.test(last)) {
+          blocks.push('<h2><b>FAQs</b></h2>');
+        }
+
+        if (qaItems.length >= 2) {
+          for (const item of faqItems) {
+            blocks.push(`<p><b>Q${item.num}. ${item.q}</b></p>`);
+            blocks.push(`<p><b>A${item.num}.</b> ${item.a}</p>`);
+          }
+        } else {
+          for (const item of faqItems) {
+            blocks.push(`<p><b>${item.num}. ${item.q}</b></p>`);
+            blocks.push(`<p>${item.a}</p>`);
+          }
+        }
+
+        i = j - 1;
+        continue;
+      }
+    }
+
+    // Numbered FAQ as h3/h4 headings (common in Payload editor).
+    const numHeading = rawText.match(/^(\d+)\.\s+(.+)$/);
+    if (type === 'heading' && numHeading) {
+      const numberedItems: Array<{ num: string; q: string; a: string }> = [];
+      let j = i;
+      while (j < children.length) {
+        const qNode = children[j] as Record<string, unknown> | undefined;
+        if (!qNode || qNode.type !== 'heading') break;
+        const qText = lexicalNodeToText(qNode).trim();
+        const nh = qText.match(/^(\d+)\.\s+(.+)$/);
+        if (!nh) break;
+
+        const aNode = children[j + 1] as Record<string, unknown> | undefined;
+        if (!aNode || aNode.type !== 'paragraph') break;
+        const aText = lexicalNodeToText(aNode).trim();
+        if (!aText || /^\d+\.\s+/.test(aText) || /^Q\s*\d+\s*[:.]/i.test(aText)) break;
+
+        numberedItems.push({
+          num: nh[1] || String(numberedItems.length + 1),
+          q: escapeHtml(nh[2].trim()),
+          a: escapeHtml(aText),
+        });
+        j += 2;
+      }
+
+      if (numberedItems.length >= 2) {
+        const last = blocks[blocks.length - 1] ?? '';
+        if (!/\bFAQs?\b/i.test(last)) {
+          blocks.push('<h2><b>FAQs</b></h2>');
+        }
+        for (const item of numberedItems) {
+          blocks.push(`<p><b>${item.num}. ${item.q}</b></p>`);
+          blocks.push(`<p>${item.a}</p>`);
+        }
+        i = j - 1;
+        continue;
+      }
+    }
+
+    if (type === 'heading') {
+      const tag = typeof n.tag === 'string' ? n.tag : 'h2';
+      blocks.push(`<${tag}>${text}</${tag}>`);
+      continue;
+    }
+
+    if (type === 'list' && Array.isArray(n.children)) {
+      const items = n.children
+        .map((li) => `<li>${escapeHtml(lexicalNodeToText(li).trim())}</li>`)
+        .join('');
+      const listTag = n.listType === 'number' ? 'ol' : 'ul';
+      blocks.push(`<${listTag}>${items}</${listTag}>`);
+      continue;
+    }
+
+    if (type === 'table') {
+      const tableHtml = lexicalTableToHtml(n);
+      if (tableHtml) {
+        blocks.push(tableHtml);
+      }
+      continue;
+    }
+
+    blocks.push(`<p>${text}</p>`);
+  }
+
+  return blocks.filter(Boolean).join('');
+}
+
+function payloadMediaToUrl(media: PayloadMedia): string | null {
+  if (!media) return null;
+  const raw =
+    typeof media === 'string'
+      ? media
+      : typeof media === 'object' && media && typeof media.url === 'string'
+        ? media.url
+        : null;
+  if (!raw) return null;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  const base = getPayloadCmsBaseUrl();
+  return base ? `${base}${raw.startsWith('/') ? raw : `/${raw}`}` : raw;
+}
+
+async function fetchPayloadPostBySlug(slug: string): Promise<SiteContent | null> {
+  if (!isPayloadCmsConfigured()) return null;
+  const base = getPayloadCmsServerFetchUrl();
+  if (!base) return null;
+
+  const qs = new URLSearchParams({
+    'where[slug][equals]': slug,
+    depth: '2',
+    limit: '1',
+    draft: 'true',
+  });
+
+  try {
+    const r = await readPayloadCms(`${base}/api/posts?${qs.toString()}`);
+    if (!r.responseOk || !r.json || typeof r.json !== 'object') return null;
+    const docs = (r.json as { docs?: PayloadPostDoc[] }).docs ?? [];
+    const doc = docs[0];
+    if (!doc) return null;
+    return payloadDocToSiteContent(doc, 'post');
+  } catch {
+    return null;
+  }
+}
+
+async function fetchPayloadPageBySlug(slug: string): Promise<SiteContent | null> {
+  if (!isPayloadCmsConfigured()) return null;
+  const base = getPayloadCmsServerFetchUrl();
+  if (!base) return null;
+
+  const qs = new URLSearchParams({
+    'where[slug][equals]': slug,
+    depth: '1',
+    limit: '1',
+    draft: 'true',
+  });
+
+  try {
+    const r = await readPayloadCms(`${base}/api/pages?${qs.toString()}`);
+    if (!r.responseOk || !r.json || typeof r.json !== 'object') return null;
+    const docs = (r.json as { docs?: PayloadPageDoc[] }).docs ?? [];
+    const doc = docs[0];
+    if (!doc) return null;
+    return payloadDocToSiteContent(doc, 'page');
+  } catch {
+    return null;
+  }
+}
+
+/** Payload post or page with migrated WP HTML (preferred over static bundle when present). */
+async function fetchPayloadContentBySlug(slug: string): Promise<SiteContent | null> {
+  const post = await fetchPayloadPostBySlug(slug);
+  if (post) return post;
+  return fetchPayloadPageBySlug(slug);
+}
+
+async function fetchPayloadBlogPosts(limit = 30): Promise<BlogListItem[]> {
+  if (!isPayloadCmsConfigured()) return [];
+  const base = getPayloadCmsServerFetchUrl();
+  if (!base) return [];
+
+  const qs = new URLSearchParams({
+    limit: String(limit),
+    depth: '2',
+    sort: '-publishedAt',
+  });
+
+  try {
+    const r = await readPayloadCms(`${base}/api/posts?${qs.toString()}`);
+    if (!r.responseOk || !r.json || typeof r.json !== 'object') return [];
+    const docs = (r.json as { docs?: PayloadPostDoc[] }).docs ?? [];
+
+    return docs
+      .filter(
+        (d) =>
+          d &&
+          typeof d.slug === 'string' &&
+          d.slug.trim().length > 0 &&
+          (d._status === 'published' || !d._status)
+      )
+      .map((doc) => {
+        const htmlContent =
+          typeof doc.htmlContent === 'string' && doc.htmlContent.trim()
+            ? doc.htmlContent
+            : lexicalToHtml(doc.content);
+        const excerpt =
+          plainTextFromHtml(doc.meta?.description || '').trim() ||
+          plainTextFromHtml(htmlContent).slice(0, 180);
+        const firstCategory = Array.isArray(doc.categories) ? doc.categories[0] : null;
+        const category =
+          typeof firstCategory === 'string'
+            ? firstCategory
+            : firstCategory?.title || 'Blog';
+
+        const featuredFromUrl =
+          typeof doc.featuredImageUrl === 'string' && doc.featuredImageUrl.trim()
+            ? doc.featuredImageUrl.trim()
+            : null;
+
+        return normalizeBlogItem({
+          id: String(doc.id ?? doc.slug),
+          title: doc.title || doc.slug || 'Untitled',
+          slug: doc.slug || '',
+          excerpt,
+          featuredImage:
+            featuredFromUrl ||
+            payloadMediaToUrl(doc.heroImage || null) ||
+            payloadMediaToUrl(doc.meta?.image || null),
+          category,
+          publishedAt: doc.publishedAt || doc.updatedAt || doc.createdAt || new Date().toISOString(),
+        });
+      });
+  } catch {
+    return [];
+  }
+}
+
 export async function getContentBySlug(slug: string): Promise<SiteContent | null> {
-  // 1) Backend API (Neon DB — production + dev:stack)
+  // 1) Payload CMS (migrated WP HTML or editor content — same layout pipeline)
+  const fromPayload = await fetchPayloadContentBySlug(slug);
+  if (fromPayload) return fromPayload;
+
+  // 2) Backend API (Neon DB — production + dev:stack)
   try {
     const res = await fetch(`${apiBase()}/api/content/${encodeURIComponent(slug)}`, {
       next: { revalidate: 3600 },
@@ -80,10 +516,12 @@ export async function getContentBySlug(slug: string): Promise<SiteContent | null
     /* API offline — fall through to local export */
   }
 
-  // 2) Bundled wp-export JSON (Vercel) or repo data/wp-export (local dev)
+  // 3) Bundled wp-export JSON (Vercel) or repo data/wp-export (local dev)
   const { getWpExportContentBySlug } = await import('@/lib/wpExportContent');
   const local = await getWpExportContentBySlug(slug);
-  return local ? normalizeContent(local) : null;
+  if (local) return normalizeContent(local);
+
+  return null;
 }
 
 export async function getBlogPosts(page = 1, limit = 12): Promise<{
@@ -91,6 +529,8 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   total: number;
   pages: number;
 }> {
+  let baseResult: { data: BlogListItem[]; total: number; pages: number } | null = null;
+
   try {
     const res = await fetch(
       `${apiBase()}/api/blogs?page=${page}&limit=${limit}`,
@@ -98,9 +538,8 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
     );
     if (res.ok) {
       const json = await res.json();
-      const data = (json.data ?? []).map((item: BlogListItem) => normalizeBlogItem(item));
-      return {
-        data,
+      baseResult = {
+        data: (json.data ?? []).map((item: BlogListItem) => normalizeBlogItem(item)),
         total: json.total ?? 0,
         pages: json.pages ?? 0,
       };
@@ -109,10 +548,37 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
     /* fall through */
   }
 
-  try {
-    const { getWpExportBlogPosts } = await import('@/lib/wpExportContent');
-    return getWpExportBlogPosts(page, limit);
-  } catch {
-    return { data: [], total: 0, pages: 0 };
+  if (!baseResult) {
+    try {
+      const { getWpExportBlogPosts } = await import('@/lib/wpExportContent');
+      baseResult = await getWpExportBlogPosts(page, limit);
+    } catch {
+      baseResult = { data: [], total: 0, pages: 0 };
+    }
   }
+
+  // Merge fresh Payload posts on top so newly created CMS blogs appear immediately.
+  const payloadPosts = await fetchPayloadBlogPosts(Math.max(limit * 3, 30));
+  if (!payloadPosts.length) {
+    return {
+      ...baseResult,
+      data: sortBlogPostsByNewest(baseResult.data),
+    };
+  }
+
+  const mergedBySlug = new Map<string, BlogListItem>();
+  // Payload is source of truth for CMS posts; backend/wp-export fills gaps only.
+  for (const item of payloadPosts) mergedBySlug.set(item.slug, item);
+  for (const item of baseResult.data) {
+    if (!mergedBySlug.has(item.slug)) mergedBySlug.set(item.slug, item);
+  }
+
+  const merged = sortBlogPostsByNewest(Array.from(mergedBySlug.values()));
+
+  const offset = Math.max(0, (page - 1) * limit);
+  return {
+    data: merged.slice(offset, offset + limit),
+    total: merged.length,
+    pages: Math.max(1, Math.ceil(merged.length / limit)),
+  };
 }

@@ -31,9 +31,11 @@ const nextConfig = {
   outputFileTracingIncludes: {
     '/api/public-asset/[...path]': ['./public/**/*'],
     '/[slug]': ['./data/wp-export-bundle/**/*'],
+    '/blog/[slug]': ['./data/wp-export-bundle/**/*'],
     '/mbbs-india/[...slug]': ['./data/wp-export-bundle/**/*'],
     '/mbbs-abroad/[...slug]': ['./data/wp-export-bundle/**/*'],
     '/blog': ['./data/wp-export-bundle/**/*'],
+    '/api/google-reviews': ['./data/google-reviews.json'],
   },
 
   images: {
@@ -123,12 +125,6 @@ const nextConfig = {
       // WordPress trailing slashes → Next paths (SEO / backlinks)
       {
         source: '/:slug/',
-        destination: '/:slug',
-        permanent: true,
-      },
-      // Old /blog/post-slug pattern → root slug (matches live WP)
-      {
-        source: '/blog/:slug',
         destination: '/:slug',
         permanent: true,
       },

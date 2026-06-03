@@ -201,6 +201,11 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
+  /**
+   * Full HTML from WP export. When set, the marketing frontend renders this with the same WP layout pipeline.
+   */
+  htmlContent?: string | null;
+  featuredImageUrl?: string | null;
   layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
   meta?: {
     title?: string | null;
@@ -228,6 +233,14 @@ export interface Post {
   id: number;
   title: string;
   heroImage?: (number | null) | Media;
+  /**
+   * Full HTML from WP export. When set, the frontend at localhost:3000 renders this (with FAQ accordion + SEO layout).
+   */
+  htmlContent?: string | null;
+  /**
+   * External image URL from WordPress until uploaded to Media.
+   */
+  featuredImageUrl?: string | null;
   content: {
     root: {
       type: string;
@@ -1081,6 +1094,8 @@ export interface PagesSelect<T extends boolean = true> {
             };
         media?: T;
       };
+  htmlContent?: T;
+  featuredImageUrl?: T;
   layout?:
     | T
     | {
@@ -1195,6 +1210,8 @@ export interface FormBlockSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   heroImage?: T;
+  htmlContent?: T;
+  featuredImageUrl?: T;
   content?: T;
   relatedPosts?: T;
   categories?: T;

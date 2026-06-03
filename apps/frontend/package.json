@@ -13,7 +13,8 @@
     "lint": "npx next lint",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "google-reviews:sync": "node scripts/sync-google-reviews.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
