@@ -19,6 +19,7 @@
     "import:wp-bundle": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/import-wp-bundle.mts",
     "import:wp-media": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/import-wp-media.mts",
     "convert:html-to-lexical": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/convert-html-to-lexical.mts",
+    "backfill:cms-visual": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/backfill-cms-visual.mts",
     "seed:globals": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/seed-site-globals.mts",
     "seed:main-menu": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/seed-main-menu.mts",
     "sync:menu-schema": "node scripts/sync-menu-schema.mjs",

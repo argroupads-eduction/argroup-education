@@ -13,6 +13,7 @@ import { slugField } from 'payload'
 import { seoExtendedFields } from '@/fields/seoExtendedFields'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
+import { migrateVisualContentOnRead } from '../hooks/migrateVisualContentOnRead'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 import { syncPageDeleteToBackend, syncPageToBackend } from './hooks/syncPageToBackend'
 
@@ -236,6 +237,7 @@ export const Pages: CollectionConfig<'pages'> = {
     slugField(),
   ],
   hooks: {
+    afterRead: [migrateVisualContentOnRead('pages')],
     afterChange: [revalidatePage, syncPageToBackend],
     beforeChange: [
       populatePublishedAt,
