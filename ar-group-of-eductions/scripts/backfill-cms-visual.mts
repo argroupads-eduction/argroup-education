@@ -18,8 +18,7 @@ import path from 'node:path'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { fileURLToPath } from 'node:url'
-import { getPayload, type Where } from 'payload'
-import config from '@payload-config'
+import type { Payload, Where } from 'payload'
 
 import { hasSubstantialLexicalContent } from '../src/utilities/lexicalContent.js'
 import { resolveDatabaseUrl } from '../src/utilities/resolveDatabaseUrl.js'
@@ -286,6 +285,8 @@ async function main() {
   const opts = parseArgs(process.argv.slice(2))
   process.env.PAYLOAD_DATABASE_PUSH = 'false'
 
+  const { default: config } = await import('@payload-config')
+  const { getPayload } = await import('payload')
   const payload = await getPayload({ config })
   console.log('[backfill] Starting CMS visual backfill…', opts.dryRun ? '(dry run)' : '')
 

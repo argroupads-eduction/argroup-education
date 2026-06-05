@@ -94,12 +94,14 @@ async function getMarketingEditorConfig(config: SanitizedConfig) {
   return cachedEditorConfig
 }
 
+const MAX_HTML_CHARS = 400_000
+
 export async function wpHtmlToLexical(
   html: string,
   config: SanitizedConfig,
   options?: { featuredImageUrl?: string | null; title?: string | null },
 ): Promise<ReturnType<typeof convertHTMLToLexical>> {
-  const cleaned = simplifyElementorHtml(html, options)
+  const cleaned = simplifyElementorHtml(html, options).slice(0, MAX_HTML_CHARS)
   const editorConfig = await getMarketingEditorConfig(config)
 
   try {

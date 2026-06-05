@@ -4,7 +4,6 @@ import { marketingContentEditor } from '@/fields/contentLexicalEditor'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
-import { migrateVisualContentOnRead } from '../hooks/migrateVisualContentOnRead'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
@@ -231,7 +230,7 @@ export const Posts: CollectionConfig<'posts'> = {
   ],
   hooks: {
     afterChange: [revalidatePost, syncPostToBackend],
-    afterRead: [migrateVisualContentOnRead('posts'), populateAuthors],
+    afterRead: [populateAuthors],
     afterDelete: [revalidateDelete, syncPostDeleteToBackend],
   },
   versions: {
