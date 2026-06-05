@@ -16,7 +16,7 @@ export function ProgramHubCta({ title, description }: ProgramHubCtaProps) {
             <p className="program-hub-cta-desc">{description}</p>
           </div>
           <Link href="/contact" className="program-hub-btn-primary shrink-0">
-            Book free session
+            Book expert session
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
         </div>

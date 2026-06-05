@@ -31,7 +31,12 @@ export function BlogLatestSidebar({
                 </span>
                 <span className="blog-sidebar__thumb">
                   {post.featuredImage ? (
-                    <BlogImage src={post.featuredImage} alt="" variant="thumb" sizes="88px" />
+                    <BlogImage
+                      src={post.featuredImage}
+                      alt=""
+                      variant="thumb"
+                      sizes="80px"
+                    />
                   ) : (
                     <span className="blog-sidebar__thumb-fallback">📰</span>
                   )}

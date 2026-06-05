@@ -16,6 +16,15 @@ const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  labels: {
+    singular: 'Media file',
+    plural: 'Media library (images)',
+  },
+  admin: {
+    group: 'Website content',
+    description:
+      'Uploaded images. Run `npm run wp:import:media` to import featured images from the WordPress export.',
+  },
   folders: true,
   access: {
     create: authenticated,

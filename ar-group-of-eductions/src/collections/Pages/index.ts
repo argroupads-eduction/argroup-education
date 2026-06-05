@@ -9,6 +9,7 @@ import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { hero } from '@/heros/config'
 import { slugField } from 'payload'
+import { seoExtendedFields } from '@/fields/seoExtendedFields'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
@@ -38,7 +39,9 @@ export const Pages: CollectionConfig<'pages'> = {
     slug: true,
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    group: 'Website content',
+    defaultColumns: ['title', 'slug', 'publishedAt', '_status'],
+    defaultSort: '-publishedAt',
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -72,10 +75,11 @@ export const Pages: CollectionConfig<'pages'> = {
           fields: [
             {
               name: 'htmlContent',
-              type: 'code',
+              type: 'textarea',
+              maxLength: 1000000,
               label: 'WordPress HTML (marketing site)',
               admin: {
-                language: 'html',
+                rows: 12,
                 description:
                   'Full HTML from WP export. When set, the marketing frontend renders this with the same WP layout pipeline.',
               },
@@ -195,10 +199,16 @@ export const Pages: CollectionConfig<'pages'> = {
     {
       name: 'publishedAt',
       type: 'date',
+      label: 'Published date (from WordPress export)',
       admin: {
         position: 'sidebar',
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+        description: 'Original publish date from WP export. List is sorted by this (newest first).',
       },
     },
+    ...seoExtendedFields,
     slugField(),
   ],
   hooks: {

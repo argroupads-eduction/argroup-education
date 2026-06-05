@@ -93,7 +93,7 @@ export function ContactPageView() {
             transition={{ duration: 0.45 }}
           >
             <Sparkles className="h-3.5 w-3.5" aria-hidden />
-            Free · Expert · Confidential
+            Expert · Trusted · Confidential
           </motion.span>
 
           <motion.h1
@@ -137,7 +137,7 @@ export function ContactPageView() {
             transition={{ duration: 0.45, delay: 0.18 }}
           >
             <a href="#contact-form" className="contact-hero__cta-primary">
-              <span>Book free counselling</span>
+              <span>Book expert counselling</span>
               <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
             </a>
             <span className="contact-hero__action-divider" aria-hidden />
@@ -231,7 +231,7 @@ export function ContactPageView() {
             <span className="contact-main__kicker">Expert counselling team</span>
             <h2 id="contact-form-heading" className="contact-main__title">
               Book your{' '}
-              <span className="contact-main__accent">free counselling</span> session
+              <span className="contact-main__accent">expert counselling</span> session
             </h2>
             <p className="contact-main__lead">
               Fill in your details — our counsellors call within 24 hours with MBBS India, abroad

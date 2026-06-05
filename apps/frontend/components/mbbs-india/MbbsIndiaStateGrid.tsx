@@ -24,7 +24,7 @@ export function MbbsIndiaStateGrid({ state }: MbbsIndiaStateGridProps) {
           href="/contact"
           className="inline-flex shrink-0 items-center rounded-full bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-800"
         >
-          Free counselling
+          Expert counselling
         </Link>
       </div>
 

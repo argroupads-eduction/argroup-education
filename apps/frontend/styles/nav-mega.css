@@ -8,9 +8,10 @@
 .nav-mega-trigger {
   position: relative;
   display: inline-flex;
+  height: 2.5rem;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.5rem 0.85rem;
+  padding: 0 0.85rem;
   font-family: var(--font-poppins), system-ui, sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
@@ -84,9 +85,9 @@
   pointer-events: none;
 }
 
-/* Keep bridge hover-only so it does not block clicks on nav triggers above */
+/* Bridge captures pointer while open so moving trigger → panel does not close the menu */
 .nav-mega-layer--open::before {
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .nav-mega-layer--open {
@@ -458,6 +459,14 @@
 
   .nav-mega-shell {
     background: rgb(255 255 255 / 0.98);
+  }
+}
+
+@media (max-width: 1279px) {
+  .nav-mega-layer {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 }
 

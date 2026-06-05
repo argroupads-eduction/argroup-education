@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ar-education-config
+  namespace: ar-education
+data:
+  NODE_ENV: production
+  CONTENT_SOURCE: api
+  PAYLOAD_CMS_ENABLED: 'false'
+  NEXT_PUBLIC_SITE_URL: https://argroupofeducation.com
+  RATE_LIMIT_API_MAX: '120'
+  RATE_LIMIT_API_WINDOW_MS: '60000'
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ar-education-secrets
+  namespace: ar-education
+type: Opaque
+stringData:
+  # Replace before apply — never commit real values
+  DATABASE_URL: ''
+  DATABASE_URL_UNPOOLED: ''
+  PAYLOAD_SYNC_SECRET: ''
+  REVALIDATE_SECRET: ''

@@ -1,5 +1,7 @@
+import { getSiteUrl } from '@/lib/siteUrl';
+
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroup.edu';
+  const baseUrl = getSiteUrl();
 
   const robots = `User-agent: *
 Allow: /

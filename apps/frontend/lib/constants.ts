@@ -72,15 +72,21 @@ export const NAV_LINKS = [
       href: item.href,
     })),
   },
-  { 
-    label: 'Latest Updates', 
-    href: '/blog'
+  {
+    label: 'Blog',
+    href: '/blog',
   },
   { 
     label: 'Contact', 
     href: '/contact'
   },
 ] as const;
+
+/** Shown in navbar CTA row (right of Expert Counselling), not in main nav links */
+export const NEET_RANK_PREDICTOR_LINK = {
+  label: 'NEET Rank',
+  href: '/neet-rank-predictor',
+} as const;
 
 // Countries Data
 export const FEATURED_COUNTRIES = [

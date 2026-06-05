@@ -89,7 +89,7 @@ export const MBBS_ABROAD_HUB = {
   licensingNote:
     'Indian graduates from foreign medical colleges must clear the licensing examination prescribed by NMC (FMGE/NExT as applicable) and complete internship requirements to practise in India. University quality, curriculum, and your study discipline directly affect exam preparation — we prioritise recognised institutions with transparent outcomes.',
   whyArGroup: [
-    'Free first counselling with country-wise fee comparison.',
+    'Expert first counselling with country-wise fee comparison.',
     'Document checklist tailored to university and embassy rules.',
     'Admission letter and invitation support with verified timelines.',
     'Visa guidance, forex advice, and pre-departure orientation.',
@@ -130,7 +130,7 @@ export const MBBS_ABROAD_HUB = {
     },
   ],
   process: [
-    { step: '01', title: 'Free counselling', text: 'Share NEET score, budget, and preferred countries.' },
+    { step: '01', title: 'Expert counselling', text: 'Share NEET score, budget, and preferred countries.' },
     { step: '02', title: 'University shortlist', text: 'Compare fees, duration, and recognition for 3–5 options.' },
     { step: '03', title: 'Application & admission', text: 'Submit documents; receive admission or invitation letter.' },
     { step: '04', title: 'Visa & forex', text: 'Embassy filing, medical tests, and tuition payment guidance.' },
@@ -161,7 +161,7 @@ export const MBBS_ABROAD_HUB = {
     {
       question: 'Does AR Group charge for counselling?',
       answer:
-        'Initial counselling is free. Any service fee for documentation or travel support is explained upfront before you proceed.',
+        'Initial counselling is complimentary with AR Group. Any service fee for documentation or travel support is explained upfront before you proceed.',
     },
     {
       question: 'How long does the visa process take?',

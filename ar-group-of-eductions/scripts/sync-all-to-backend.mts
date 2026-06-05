@@ -42,40 +42,14 @@ async function main() {
   let synced = 0;
   let failed = 0;
 
-  const syncDoc = async (
-    type: 'post' | 'page',
-    doc: {
-      slug?: string | null;
-      title?: string | null;
-      htmlContent?: string | null;
-      content?: unknown;
-      meta?: { title?: string | null; description?: string | null; image?: unknown };
-      featuredImageUrl?: string | null;
-      heroImage?: unknown;
-      publishedAt?: string | null;
-      _status?: string | null;
-    }
-  ) => {
+  const syncDoc = async (type: 'post' | 'page', doc: Parameters<typeof buildPostSyncPayload>[1]) => {
     const slug = doc.slug?.trim();
     if (!slug) return;
 
     const published = doc._status === 'published';
 
     try {
-      const fields =
-        type === 'post'
-          ? await buildPostSyncPayload(payload, doc)
-          : {
-              content:
-                typeof doc.htmlContent === 'string' && doc.htmlContent.trim()
-                  ? doc.htmlContent
-                  : '',
-              excerpt: doc.meta?.description ?? null,
-              featuredImage:
-                typeof doc.featuredImageUrl === 'string' ? doc.featuredImageUrl : null,
-              metaTitle: doc.meta?.title ?? null,
-              metaDescription: doc.meta?.description ?? null,
-            };
+      const fields = await buildPostSyncPayload(payload, doc);
 
       await syncToMarketingBackend({
         type,
@@ -87,6 +61,19 @@ async function main() {
         category: type === 'post' ? 'Blog' : undefined,
         metaTitle: fields.metaTitle,
         metaDescription: fields.metaDescription,
+        canonicalUrl: fields.canonicalUrl,
+        focusKeyword: fields.focusKeyword,
+        ogTitle: fields.ogTitle,
+        ogDescription: fields.ogDescription,
+        ogImage: fields.ogImage,
+        twitterTitle: fields.twitterTitle,
+        twitterDescription: fields.twitterDescription,
+        schemaJson: fields.schemaJson,
+        navEnabled: fields.navEnabled,
+        navSection: fields.navSection,
+        navParent: fields.navParent,
+        navLabel: fields.navLabel,
+        navSortOrder: fields.navSortOrder,
         published,
         publishedAt: doc.publishedAt ?? null,
       });

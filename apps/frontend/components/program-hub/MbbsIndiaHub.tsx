@@ -53,7 +53,7 @@ export function MbbsIndiaHub({ wpContent }: MbbsIndiaHubProps) {
         stats={[
           { label: 'States', value: String(MBBS_INDIA_STATES.length) },
           { label: 'Colleges', value: `${collegeCount()}+` },
-          { label: 'Counselling', value: 'Free' },
+          { label: 'Counselling', value: 'Expert' },
         ]}
       />
 
@@ -79,7 +79,7 @@ export function MbbsIndiaHub({ wpContent }: MbbsIndiaHubProps) {
 
       <ProgramHubCta
         title="Not sure which state or college fits your NEET rank?"
-        description="Our counsellors compare cut-offs, fees, and admission timelines — free and confidential."
+        description="Our counsellors compare cut-offs, fees, and admission timelines — expert and confidential."
       />
     </div>
   );

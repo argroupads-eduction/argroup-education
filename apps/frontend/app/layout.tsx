@@ -3,15 +3,21 @@ import { Inter, Lora, Poppins } from 'next/font/google';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
+import { NeetRankPredictorPromoStrip } from '@/components/neet-rank-predictor/NeetRankPredictorPromoStrip';
+import '@/styles/neet-rank-predictor.css';
 import { NavPagesProvider } from '@/components/common/NavPagesProvider';
+import { SiteGlobalsProvider } from '@/components/common/SiteGlobalsProvider';
 import { fetchDynamicNavPages } from '@/lib/dynamicNav';
+import { fetchSiteGlobalsBundle } from '@/lib/siteGlobals';
 import '@/styles/globals.css';
 import '@/styles/wp-content.css';
 import '@/styles/blog.css';
 import '@/styles/nav-mega.css';
+import '@/styles/navbar-premium.css';
 import '@/styles/program-hub.css';
 import '@/styles/mbbs-abroad-premium.css';
 import '@/styles/brand-logo.css';
+import { getSiteUrl } from '@/lib/siteUrl';
 
 // Font imports
 const inter = Inter({
@@ -37,7 +43,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://argroup.edu'),
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: 'AR Group of Education | Medical Education Consultancy',
     template: '%s | AR Group of Education',
@@ -56,7 +62,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://argroup.edu',
+    url: getSiteUrl(),
     siteName: 'AR Group of Education',
   },
   robots: {
@@ -84,6 +90,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const navPages = await fetchDynamicNavPages();
+  const siteGlobals = await fetchSiteGlobalsBundle();
 
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} ${poppins.variable}`}>
@@ -95,12 +102,15 @@ export default async function RootLayout({
       <body
         className={`${inter.className} min-h-dvh min-w-0 overflow-x-hidden [padding-bottom:env(safe-area-inset-bottom,0px)] [padding-left:env(safe-area-inset-left,0px)] [padding-right:env(safe-area-inset-right,0px)]`}
       >
-        <NavPagesProvider pages={navPages}>
-          <Navbar />
-          <main className="min-w-0">{children}</main>
-          <Footer />
-          <LeadCapturePopup />
-        </NavPagesProvider>
+        <SiteGlobalsProvider globals={siteGlobals}>
+          <NavPagesProvider pages={navPages}>
+            <NeetRankPredictorPromoStrip />
+            <Navbar />
+            <main className="min-w-0">{children}</main>
+            <Footer />
+            <LeadCapturePopup />
+          </NavPagesProvider>
+        </SiteGlobalsProvider>
       </body>
     </html>
   );

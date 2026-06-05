@@ -20,18 +20,19 @@
   background: #ffffff;
 }
 
+/* Must fit inside site-navbar-inner (4.25rem) — do not exceed bar height */
 .brand-logo-link__frame--nav {
-  width: 4.25rem;
-  height: 4.25rem;
+  width: 3.25rem;
+  height: 3.25rem;
   padding: 0.2rem;
   box-shadow: 0 0 0 1px rgb(226 232 240 / 0.9);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .brand-logo-link__frame--nav {
-    width: 5rem;
-    height: 5rem;
-    padding: 0.25rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0.22rem;
   }
 }
 

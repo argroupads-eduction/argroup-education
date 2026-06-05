@@ -288,7 +288,7 @@ export const CounsellingForm = ({
               ) : (
                 <>
                   <Send className={compact ? 'h-4 w-4' : 'h-5 w-5'} />
-                  {compact ? 'Get free counselling' : 'Book free counselling session'}
+                  {compact ? 'Get Expert Counselling' : 'Book Expert Counselling Session'}
                 </>
               )}
             </button>

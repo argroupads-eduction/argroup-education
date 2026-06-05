@@ -206,7 +206,7 @@ export function MbbsAbroadHubGuide({ variant }: MbbsAbroadHubGuideProps) {
           </ol>
           <p className="abroad-guide__cta-inline">
             <Link href="/contact" className="program-hub-btn-primary program-hub-btn-primary--lg">
-              Start free counselling
+              Start expert counselling
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </p>

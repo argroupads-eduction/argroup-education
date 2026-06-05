@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { LeadCapturePromoBanner } from '@/components/common/LeadCapturePromoBanner';
 import { LeadCaptureMobileSheet } from '@/components/common/LeadCaptureMobileSheet';
 import { LEAD_CAPTURE_TARGET_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOptions';
+import { LEAD_CAPTURE_OPEN_EVENT } from '@/lib/openLeadCapture';
 import { openThankYouInNewTab } from '@/lib/openThankYouPage';
 import {
   type HeroMbbsFormDoc,
@@ -578,7 +579,8 @@ export function LeadCapturePopup() {
   const [payloadForm, setPayloadForm] = useState<HeroMbbsFormDoc | null>(null);
 
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
+    /** Tablet uses mobile sheet — desktop nav also switches at xl (1280px). */
+    const mq = window.matchMedia('(max-width: 1279px)');
     const apply = () => {
       const next = mq.matches;
       setIsMobile(next);
@@ -593,6 +595,18 @@ export function LeadCapturePopup() {
     loadHeroMbbsFormDefinition('abroad').then((r) => {
       if (r.ok) setPayloadForm(r.doc);
     });
+  }, []);
+
+  useEffect(() => {
+    const onOpenRequest = () => {
+      setValues(EMPTY_VALUES);
+      setSubmitError(null);
+      setSubmitted(false);
+      if (isMobileRef.current) setMobileOpen(true);
+      else setDesktopOpen(true);
+    };
+    window.addEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
+    return () => window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
   }, []);
 
   useEffect(() => {

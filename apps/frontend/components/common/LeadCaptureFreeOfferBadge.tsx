@@ -1,6 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
+import { PROMO_COUNSELLING_BADGE } from '@/lib/brandCopy';
 
 export type LeadCaptureFreeOfferBadgeProps = {
   compact?: boolean;
@@ -8,7 +9,7 @@ export type LeadCaptureFreeOfferBadgeProps = {
 };
 
 /**
- * Mint pill: ₹999 (struck through) + bold "Free!" — for promo/form areas, not the submit CTA.
+ * Mint pill: ₹999 (struck through) + value badge — for promo/form areas, not the submit CTA.
  */
 export function LeadCaptureFreeOfferBadge({
   compact = false,
@@ -22,7 +23,7 @@ export function LeadCaptureFreeOfferBadge({
         className
       )}
       role="status"
-      aria-label="Counselling offer: was nine hundred ninety-nine rupees, now free"
+      aria-label="Counselling offer: nine hundred ninety-nine rupee value session included"
     >
       <span
         className={clsx(
@@ -38,7 +39,7 @@ export function LeadCaptureFreeOfferBadge({
           compact ? 'text-xs' : 'text-sm'
         )}
       >
-        Free!
+        {PROMO_COUNSELLING_BADGE}
       </span>
     </div>
   );

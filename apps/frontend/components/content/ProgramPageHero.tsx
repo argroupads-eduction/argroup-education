@@ -70,7 +70,7 @@ export function ProgramPageHero({
                 href="/contact"
                 className="site-gold-cta inline-flex min-h-[44px] w-full items-center justify-center gap-2 sm:w-auto"
               >
-                Free counselling
+                Expert counselling
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a

@@ -8,7 +8,7 @@ export function ContentSidebar() {
         <div className="mb-4 inline-flex rounded-full bg-gold-500/20 p-2.5">
           <GraduationCap className="h-5 w-5 text-gold-400" />
         </div>
-        <p className="font-serif text-lg font-bold">Free admission counselling</p>
+        <p className="font-serif text-lg font-bold">Expert admission counselling</p>
         <p className="mt-2 text-sm leading-relaxed text-blue-100/85">
           Get expert help with college shortlisting, NEET counselling, fees, and documentation.
         </p>

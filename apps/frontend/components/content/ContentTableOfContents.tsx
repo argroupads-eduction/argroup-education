@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, ChevronDown, ChevronRight } from 'lucide-react';
 import type { ContentHeading } from '@/lib/wpContentStructure';
 
@@ -9,15 +9,22 @@ type ContentTableOfContentsProps = {
   variant?: 'sidebar' | 'mobile';
 };
 
+/** Matches wp-content.css scroll-margin-top (6rem) + small buffer */
+const SCROLL_OFFSET = 100;
+const CLICK_LOCK_MS = 1000;
+
 function scrollToHeading(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
-  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const top = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET;
+  window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
 }
 
 export function ContentTableOfContents({ headings, variant = 'sidebar' }: ContentTableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>('');
   const [open, setOpen] = useState(false);
+  const clickLockUntil = useRef(0);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const visibleHeadings = useMemo(() => {
     if (variant === 'sidebar') {
@@ -26,28 +33,49 @@ export function ContentTableOfContents({ headings, variant = 'sidebar' }: Conten
     return headings.filter((h) => h.level <= 3).slice(0, 18);
   }, [headings, variant]);
 
+  const pickActiveFromScroll = useCallback(() => {
+    if (!visibleHeadings.length) return;
+    if (Date.now() < clickLockUntil.current) return;
+
+    let current = visibleHeadings[0].id;
+    for (const h of visibleHeadings) {
+      const el = document.getElementById(h.id);
+      if (!el) continue;
+      if (el.getBoundingClientRect().top <= SCROLL_OFFSET + 8) {
+        current = h.id;
+      }
+    }
+    setActiveId((prev) => (prev === current ? prev : current));
+  }, [visibleHeadings]);
+
   useEffect(() => {
     if (!visibleHeadings.length) return;
+    setActiveId(visibleHeadings[0].id);
+    pickActiveFromScroll();
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible[0]?.target?.id) {
-          setActiveId(visible[0].target.id);
-        }
-      },
-      { rootMargin: '-15% 0px -60% 0px', threshold: [0, 0.15, 0.4, 1] }
-    );
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        pickActiveFromScroll();
+        ticking = false;
+      });
+    };
 
-    visibleHeadings.forEach((h) => {
-      const el = document.getElementById(h.id);
-      if (el) observer.observe(el);
-    });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [visibleHeadings, pickActiveFromScroll]);
 
-    return () => observer.disconnect();
-  }, [visibleHeadings]);
+  useEffect(() => {
+    if (!activeId || !listRef.current) return;
+    const link = listRef.current.querySelector<HTMLElement>(`a[data-toc-id="${activeId}"]`);
+    link?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [activeId]);
 
   if (!visibleHeadings.length) return null;
 
@@ -57,13 +85,14 @@ export function ContentTableOfContents({ headings, variant = 'sidebar' }: Conten
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
-    scrollToHeading(id);
+    clickLockUntil.current = Date.now() + CLICK_LOCK_MS;
     setActiveId(id);
+    scrollToHeading(id);
     if (isMobile) setOpen(false);
   };
 
   const list = (
-    <ul className="toc-scroll-hide space-y-0.5 p-2 sm:p-2.5">
+    <ul ref={listRef} className="toc-scroll-hide space-y-0.5 p-2 sm:p-2.5">
       {visibleHeadings.map((h, index) => {
         const isActive = activeId === h.id;
         const indent =
@@ -73,9 +102,10 @@ export function ContentTableOfContents({ headings, variant = 'sidebar' }: Conten
           <li key={h.id} className={indent}>
             <a
               href={`#${h.id}`}
+              data-toc-id={h.id}
               onClick={(e) => handleNavClick(e, h.id)}
               className={[
-                'group flex min-h-[44px] items-start gap-2.5 rounded-xl px-2.5 py-2.5 transition-all duration-200',
+                'group flex min-h-[44px] items-start gap-2.5 rounded-xl px-2.5 py-2.5 transition-colors duration-150',
                 isActive ? 'bg-gold-50 shadow-sm ring-1 ring-gold-200/70' : 'hover:bg-slate-50 active:bg-slate-100',
               ].join(' ')}
             >
@@ -138,7 +168,7 @@ export function ContentTableOfContents({ headings, variant = 'sidebar' }: Conten
             </span>
           </span>
           <ChevronDown
-            className={['h-5 w-5 shrink-0 text-gold-300 transition-transform duration-300', open ? 'rotate-180' : ''].join(
+            className={['h-5 w-5 shrink-0 text-gold-300 transition-transform duration-200', open ? 'rotate-180' : ''].join(
               ' '
             )}
             aria-hidden
@@ -146,7 +176,7 @@ export function ContentTableOfContents({ headings, variant = 'sidebar' }: Conten
         </button>
         <div
           className={[
-            'toc-panel grid transition-[grid-template-rows] duration-300 ease-out',
+            'toc-panel grid transition-[grid-template-rows] duration-200 ease-out',
             open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
           ].join(' ')}
         >

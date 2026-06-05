@@ -4,6 +4,22 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Page } from '../../../payload-types'
 
+function safeRevalidatePath(path: string) {
+  try {
+    revalidatePath(path)
+  } catch {
+    /* no-op outside Next.js (bulk import scripts) */
+  }
+}
+
+function safeRevalidateTag(tag: string) {
+  try {
+    revalidateTag(tag, 'max')
+  } catch {
+    /* no-op outside Next.js */
+  }
+}
+
 export const revalidatePage: CollectionAfterChangeHook<Page> = ({
   doc,
   previousDoc,
@@ -15,18 +31,17 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
 
       payload.logger.info(`Revalidating page at path: ${path}`)
 
-      revalidatePath(path)
-      revalidateTag('pages-sitemap', 'max')
+      safeRevalidatePath(path)
+      safeRevalidateTag('pages-sitemap')
     }
 
-    // If the page was previously published, we need to revalidate the old path
     if (previousDoc?._status === 'published' && doc._status !== 'published') {
       const oldPath = previousDoc.slug === 'home' ? '/' : `/${previousDoc.slug}`
 
       payload.logger.info(`Revalidating old page at path: ${oldPath}`)
 
-      revalidatePath(oldPath)
-      revalidateTag('pages-sitemap', 'max')
+      safeRevalidatePath(oldPath)
+      safeRevalidateTag('pages-sitemap')
     }
   }
   return doc
@@ -35,8 +50,8 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
 export const revalidateDelete: CollectionAfterDeleteHook<Page> = ({ doc, req: { context } }) => {
   if (!context.disableRevalidate) {
     const path = doc?.slug === 'home' ? '/' : `/${doc?.slug}`
-    revalidatePath(path)
-    revalidateTag('pages-sitemap', 'max')
+    safeRevalidatePath(path)
+    safeRevalidateTag('pages-sitemap')
   }
 
   return doc

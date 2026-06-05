@@ -39,8 +39,9 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    "**/*.mts",
     ".next/types/**/*.ts",
-    "redirects.js",
+    "redirects.ts",
     "next-env.d.ts",
     "next.config.js",
     "next-sitemap.config.cjs",

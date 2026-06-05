@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import type { SiteContent } from '@/lib/contentApi';
 import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
+import { getSiteUrl } from '@/lib/siteUrl';
+
+const SITE_URL = getSiteUrl();
 
 export type SiteMetadataOptions = {
   /** Override canonical path when slug route differs (e.g. program hubs). */

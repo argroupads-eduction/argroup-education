@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
   Menu,
@@ -14,36 +13,18 @@ import {
   MessageCircle,
   ChevronDown,
 } from 'lucide-react';
-import { NAV_LINKS } from '@/lib/constants';
+import { CTA_EXPERT_COUNSELLING } from '@/lib/brandCopy';
+import { CONTACT_INFO, NAV_LINKS } from '@/lib/constants';
+import { openLeadCapturePopup } from '@/lib/openLeadCapture';
+import { NeetRankNavCta } from '@/components/common/NeetRankNavCta';
+import { MbbsIndiaNavMegaMenu } from '@/components/common/MbbsIndiaNavMegaMenu';
+import { MbbsAbroadNavMegaMenu } from '@/components/common/MbbsAbroadNavMegaMenu';
+import { MdMsNavMegaMenu } from '@/components/common/MdMsNavMegaMenu';
 import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
 import { navPagesForSection } from '@/lib/dynamicNav';
 import { BrandLogoLink } from '@/components/common/BrandLogoLink';
 import { Button } from '@/components/ui/Button';
-import { useMegaMenu, useScrollPosition, type MegaMenuId } from '@/hooks';
-
-const MbbsIndiaNavMegaMenu = dynamic(
-  () =>
-    import('@/components/common/MbbsIndiaNavMegaMenu').then((m) => ({
-      default: m.MbbsIndiaNavMegaMenu,
-    })),
-  { loading: () => null }
-);
-
-const MbbsAbroadNavMegaMenu = dynamic(
-  () =>
-    import('@/components/common/MbbsAbroadNavMegaMenu').then((m) => ({
-      default: m.MbbsAbroadNavMegaMenu,
-    })),
-  { loading: () => null }
-);
-
-const MdMsNavMegaMenu = dynamic(
-  () =>
-    import('@/components/common/MdMsNavMegaMenu').then((m) => ({
-      default: m.MdMsNavMegaMenu,
-    })),
-  { loading: () => null }
-);
+import { useBodyScrollLock, useMegaMenu, useScrollPosition, type MegaMenuId } from '@/hooks';
 
 export const Navbar = () => {
   const dynamicPages = useDynamicNavPages();
@@ -61,8 +42,8 @@ export const Navbar = () => {
   }, [dynamicPages]);
 
   const [isOpen, setIsOpen] = useState(false);
-  const { megaOpen, openMega, scheduleClose, cancelClose, forceClose, rootRef } =
-    useMegaMenu();
+  useBodyScrollLock(isOpen);
+  const { megaOpen, openMega, cancelClose, forceClose, rootRef } = useMegaMenu();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [openMobileState, setOpenMobileState] = useState<string | null>(null);
   const [openMobileUniversity, setOpenMobileUniversity] = useState<string | null>(null);
@@ -83,6 +64,14 @@ export const Navbar = () => {
     setOpenMobileState(null);
     setOpenMobileUniversity(null);
     forceClose();
+  };
+
+  const toggleMobileNav = () => {
+    setIsOpen((open) => {
+      const next = !open;
+      if (next) forceClose();
+      return next;
+    });
   };
 
   const megaGroupClass = (megaMenu?: string) => {
@@ -109,38 +98,34 @@ export const Navbar = () => {
 
   return (
     <>
-      {/* Top Bar */}
-      <div
-        className={`hidden md:block border-b transition-colors duration-200 ${
-          isScrolled ? 'bg-white border-gray-200' : 'bg-navy-50 border-gray-100'
-        }`}
-      >
-        <div className="max-w-6xl mx-auto px-4 py-2 flex justify-between items-center text-sm">
-          <div className="flex gap-6">
+      {/* Top Bar — same white as main navbar; highlighted phone & email */}
+      <div className="site-topbar hidden xl:block">
+        <div className="site-topbar-inner mx-auto max-w-[84rem] px-4 xl:px-6">
+          <div className="site-topbar-contacts">
             <a
-              href="tel:+918001234567"
-              className="flex items-center gap-2 text-gray-600 hover:text-gold-500 font-body font-medium"
+              href={`tel:${CONTACT_INFO.phoneTel}`}
+              className="site-topbar-contact site-topbar-contact--phone"
             >
-              <Phone className="w-4 h-4" />
-              +91 (800) 123-4567
+              <Phone className="h-3.5 w-3.5" aria-hidden />
+              {CONTACT_INFO.phone}
             </a>
             <a
-              href="mailto:info@argroup.edu"
-              className="flex items-center gap-2 text-gray-600 hover:text-gold-500 font-body font-medium"
+              href={`mailto:${CONTACT_INFO.email}`}
+              className="site-topbar-contact site-topbar-contact--email"
             >
-              <Mail className="w-4 h-4" />
-              info@argroup.edu
+              <Mail className="h-3.5 w-3.5" aria-hidden />
+              {CONTACT_INFO.email}
             </a>
           </div>
-          <div className="flex gap-4">
-            <a href="#" className="text-gray-600 hover:text-gold-500 transition-colors">
-              <Facebook className="w-4 h-4" />
+          <div className="site-topbar-social">
+            <a href="#" aria-label="Facebook">
+              <Facebook className="h-4 w-4" />
             </a>
-            <a href="#" className="text-gray-600 hover:text-gold-500 transition-colors">
-              <Instagram className="w-4 h-4" />
+            <a href="#" aria-label="Instagram">
+              <Instagram className="h-4 w-4" />
             </a>
-            <a href="#" className="text-gray-600 hover:text-gold-500 transition-colors">
-              <Linkedin className="w-4 h-4" />
+            <a href="#" aria-label="LinkedIn">
+              <Linkedin className="h-4 w-4" />
             </a>
           </div>
         </div>
@@ -148,24 +133,24 @@ export const Navbar = () => {
 
       {/* Main Navbar */}
       <nav
-        className={`sticky top-0 z-50 overflow-visible border-b transition-shadow duration-200 ${
-          isScrolled ? 'border-gray-200 bg-white shadow-md' : 'border-gray-100 bg-white'
+        className={`sticky top-0 z-50 border-b bg-white transition-shadow duration-200 ${
+          isScrolled ? 'border-gray-200 shadow-md' : 'border-gray-100'
         }`}
       >
         <div
           ref={rootRef}
           className="nav-mega-root relative"
-          onMouseLeave={scheduleClose}
+          onMouseLeave={forceClose}
         >
-          <div className="relative mx-auto flex max-w-6xl items-center justify-between overflow-visible px-4 py-1.5">
-            {/* Logo */}
-            <div onMouseEnter={scheduleClose}>
+          <div className="site-navbar-inner relative mx-auto max-w-[84rem] overflow-visible px-4 xl:px-6">
+            {/* Logo — contained inside navbar height */}
+            <div className="site-navbar-logo" onMouseEnter={forceClose}>
               <BrandLogoLink frameClassName="brand-logo-link__frame--nav">
                 <img
                   src="/ar-group-logo.png"
-                  alt=""
-                  width={96}
-                  height={96}
+                  alt="AR Group of Education"
+                  width={56}
+                  height={56}
                   decoding="async"
                   fetchPriority="high"
                   className="brand-logo-link__img"
@@ -173,8 +158,9 @@ export const Navbar = () => {
               </BrandLogoLink>
             </div>
 
-            {/* Desktop Menu — above mega panel so hub links stay clickable */}
-            <div className="relative z-[80] hidden md:flex flex-1 items-center justify-center gap-1 overflow-visible px-2">
+            {/* Desktop Menu — xl+ only; tablet uses hamburger menu */}
+            <div className="site-navbar-nav relative z-[80] hidden xl:flex">
+              <div className="site-navbar-nav-list">
               {navLinks.map((link: any) => (
                 <div key={link.href} className={megaGroupClass(link.megaMenu)}>
                   {link.submenu ? (
@@ -220,12 +206,11 @@ export const Navbar = () => {
                   ) : (
                     <Link
                       href={link.href}
-                      onMouseEnter={scheduleClose}
+                      onMouseEnter={forceClose}
                       onClick={forceClose}
-                      className="text-navy-900 font-body font-medium text-sm hover:text-gold-600 transition-colors duration-300 px-3 py-2 relative flex items-center gap-1"
+                      className="site-nav-plain-link"
                     >
                       {link.label}
-                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gold-600 group-hover:w-full transition-all duration-300" />
                     </Link>
                   )}
 
@@ -244,20 +229,24 @@ export const Navbar = () => {
                   ) : null}
                 </div>
               ))}
+              </div>
             </div>
 
-            {/* CTA Button */}
-            <div className="hidden md:flex gap-4" onMouseEnter={scheduleClose}>
-              <Button variant="primary" size="md">
-                Free Counselling
+            {/* CTA — aligned on one line, right of nav */}
+            <div className="site-navbar-cta hidden xl:flex" onMouseEnter={forceClose}>
+              <Button type="button" variant="primary" size="md" onClick={() => openLeadCapturePopup()}>
+                {CTA_EXPERT_COUNSELLING}
               </Button>
+              <NeetRankNavCta onClick={forceClose} />
             </div>
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle menu"
+              type="button"
+              className="ms-auto rounded-lg p-2 text-navy-900 transition-colors hover:bg-slate-100 active:bg-slate-200 xl:hidden"
+              onClick={toggleMobileNav}
+              aria-label={isOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isOpen}
             >
               {isOpen ? (
                 <X className="w-6 h-6" />
@@ -273,11 +262,11 @@ export const Navbar = () => {
             role="region"
             aria-labelledby={megaOpen ? `nav-mega-trigger-${megaOpen}` : undefined}
             className={[
-              'nav-mega-layer absolute inset-x-0 top-full hidden md:block',
+              'nav-mega-layer absolute inset-x-0 top-full hidden xl:block',
               megaOpen ? 'nav-mega-layer--open' : '',
             ].join(' ')}
             onMouseEnter={cancelClose}
-            onMouseLeave={scheduleClose}
+            onMouseLeave={forceClose}
           >
             <div className={`mx-auto w-full px-4 pb-2 pt-0 ${megaInnerWidth}`}>
               {megaOpen === 'mbbs-india' ? (
@@ -291,10 +280,15 @@ export const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white animate-in fade-in duration-200">
-            <div className="px-4 py-4 space-y-2">
+        {/* Mobile Menu — keep mounted; hide with CSS for smoother open/close */}
+        <div
+          className={[
+            'xl:hidden overflow-hidden border-t border-gray-200 bg-white transition-[max-height,opacity] duration-200 ease-out',
+            isOpen ? 'max-h-[min(85vh,900px)] opacity-100' : 'max-h-0 opacity-0 pointer-events-none border-t-transparent',
+          ].join(' ')}
+          aria-hidden={!isOpen}
+        >
+            <div className="max-h-[min(85vh,900px)] overflow-y-auto overscroll-contain px-4 py-4 space-y-2">
               {navLinks.map((link: any) => (
                 <div key={link.href}>
                   {link.submenu ? (
@@ -332,15 +326,15 @@ export const Navbar = () => {
                   ) : (
                     <Link
                       href={link.href}
-                      className="block text-navy-900 font-body font-medium hover:text-gold-500 py-2"
-                      onClick={() => setIsOpen(false)}
+                      className="block py-2 font-body font-medium text-navy-900 hover:text-gold-500"
+                      onClick={closeMobileNav}
                     >
                       {link.label}
                     </Link>
                   )}
 
                   {link.submenu && openSubmenu === link.href && (
-                    <div className="pl-2 py-2 max-h-[70vh] overflow-y-auto overscroll-contain">
+                    <div className="pl-2 py-2 max-h-[70vh] overflow-y-auto overscroll-contain [content-visibility:auto]">
                       {link.megaMenu === 'mbbs-india'
                         ? link.submenu.map(
                             (item: {
@@ -528,7 +522,7 @@ export const Navbar = () => {
                           key={item.href}
                           href={item.href}
                                 className="block text-sm font-body text-navy-800 hover:text-gold-600 py-1.5 pl-2"
-                          onClick={() => setIsOpen(false)}
+                          onClick={closeMobileNav}
                         >
                           {item.label}
                         </Link>
@@ -537,12 +531,22 @@ export const Navbar = () => {
                   )}
                 </div>
               ))}
-              <Button variant="primary" className="w-full mt-4" onClick={() => setIsOpen(false)}>
-                Free Counselling
-              </Button>
+              <div className="mt-4 flex flex-col items-center gap-3">
+                <Button
+                  type="button"
+                  variant="primary"
+                  className="w-full"
+                  onClick={() => {
+                    closeMobileNav();
+                    openLeadCapturePopup();
+                  }}
+                >
+                  {CTA_EXPERT_COUNSELLING}
+                </Button>
+                <NeetRankNavCta onClick={closeMobileNav} />
+              </div>
             </div>
-          </div>
-        )}
+        </div>
       </nav>
 
       {/* WhatsApp Floating Button */}

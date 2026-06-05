@@ -36,7 +36,7 @@ export function ProgramHubHero({ theme, badge, title, lead, stats, breadcrumbs }
         </dl>
         <div className="program-hub-actions">
           <Link href="/contact" className="program-hub-btn-primary">
-            Free counselling
+            Expert counselling
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
           <a href="tel:+917076909090" className="program-hub-btn-ghost">

@@ -1,4 +1,12 @@
+import { timingSafeEqual } from 'crypto';
 import { prisma, withPrismaRetry } from '../lib/prisma';
+
+function bearerTokenMatches(secret: string, token: string): boolean {
+  const a = Buffer.from(token);
+  const b = Buffer.from(secret);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -23,6 +31,15 @@ export type PayloadSyncBody = {
   metaTitle?: string | null;
   metaDescription?: string | null;
   canonicalUrl?: string | null;
+  ogImage?: string | null;
+  focusKeyword?: string | null;
+  keywords?: string[];
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  twitterTitle?: string | null;
+  twitterDescription?: string | null;
+  schemaJson?: unknown | null;
+  robotsMeta?: string | null;
   navEnabled?: boolean;
   navSection?: string | null;
   navParent?: string | null;
@@ -43,7 +60,7 @@ export function verifyPayloadSyncAuth(authHeader: string | null): PayloadSyncRes
   }
   const header = authHeader ?? '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
-  if (token !== secret) {
+  if (!bearerTokenMatches(secret, token)) {
     return { ok: false, status: 401, body: { success: false, message: 'Unauthorized' } };
   }
   return null;
@@ -66,6 +83,7 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
     stripHtml(content).slice(0, 500);
   const metaTitle = body.metaTitle ?? title;
   const metaDescription = body.metaDescription ?? excerpt.slice(0, 160);
+  const ogImage = body.ogImage ?? body.featuredImage ?? null;
 
   try {
     if (type === 'post') {
@@ -79,9 +97,14 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
         metaTitle,
         metaDescription,
         canonicalUrl: body.canonicalUrl ?? null,
-        ogTitle: metaTitle,
-        ogDescription: metaDescription,
-        ogImage: body.featuredImage ?? null,
+        focusKeyword: body.focusKeyword ?? null,
+        keywords: Array.isArray(body.keywords) ? body.keywords : [],
+        ogTitle: body.ogTitle ?? metaTitle,
+        ogDescription: body.ogDescription ?? metaDescription,
+        ogImage,
+        twitterTitle: body.twitterTitle ?? body.ogTitle ?? metaTitle,
+        twitterDescription: body.twitterDescription ?? body.ogDescription ?? metaDescription,
+        schemaJson: body.schemaJson ?? undefined,
         published,
         publishedAt,
       };
@@ -110,10 +133,14 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
       metaTitle,
       metaDescription,
       canonicalUrl: body.canonicalUrl ?? null,
-      ogTitle: metaTitle,
-      ogDescription: metaDescription,
-      ogImage: body.featuredImage ?? null,
-      keywords: [] as string[],
+      focusKeyword: body.focusKeyword ?? null,
+      keywords: Array.isArray(body.keywords) ? body.keywords : [],
+      ogTitle: body.ogTitle ?? metaTitle,
+      ogDescription: body.ogDescription ?? metaDescription,
+      ogImage,
+      twitterTitle: body.twitterTitle ?? body.ogTitle ?? metaTitle,
+      twitterDescription: body.twitterDescription ?? body.ogDescription ?? metaDescription,
+      schemaJson: body.schemaJson ?? undefined,
       navEnabled: body.navEnabled === true,
       navSection: body.navSection ?? null,
       navParent: body.navParent ?? null,

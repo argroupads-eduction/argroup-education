@@ -1,16 +1,35 @@
 'use client';
 
+import dynamic from 'next/dynamic';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { CTA_GET_EXPERT_COUNSELLING } from '@/lib/brandCopy';
+import { openLeadCapturePopup } from '@/lib/openLeadCapture';
 import {
   prefetchMbbsHeroFormDefinitions,
   seedHeroMbbsFormDefinitions,
   type HeroMbbsFormDoc,
 } from '@/lib/mbbsHeroFormDefinitionsCache';
-import { MbbsAbroadHeroPayloadForm } from '@/sections/home/MbbsAbroadHeroPayloadForm';
 import { MbbsIndiaHeroPayloadForm } from '@/sections/home/MbbsIndiaHeroPayloadForm';
+import { HeroFormSkeleton } from '@/sections/home/HeroFormSkeleton';
+
+const MbbsAbroadHeroPayloadForm = dynamic(
+  () =>
+    import('@/sections/home/MbbsAbroadHeroPayloadForm').then((m) => ({
+      default: m.MbbsAbroadHeroPayloadForm,
+    })),
+  {
+    loading: () => (
+      <HeroFormSkeleton
+        title="Quick enquiry (MBBS Abroad)"
+        panelClass="w-full max-w-md rounded-2xl border border-white/25 bg-white/10 p-5 shadow-xl backdrop-blur-md lg:max-w-[20.5rem] xl:max-w-md"
+      />
+    ),
+  }
+);
 
 type HeroVariant = 'india' | 'abroad';
 
@@ -119,44 +138,42 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
 
   return (
     <section className="relative min-h-[28rem] overflow-hidden pt-16 md:min-h-[32rem] md:pt-20 lg:min-h-[36rem]">
-      {/* Cross-fading full-bleed backgrounds */}
+      {/* Cross-fading backgrounds — Next/Image + CSS (lighter than framer-motion) */}
       <div className="pointer-events-none absolute inset-0">
-        <motion.div
-          className="absolute inset-0"
-          initial={false}
-          animate={{ opacity: variant === 'india' ? 1 : 0 }}
-          transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
+        <div
+          className={`absolute inset-0 transition-opacity duration-700 ease-out ${
+            variant === 'india' ? 'opacity-100' : 'opacity-0'
+          }`}
           aria-hidden
         >
-          <motion.div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url('${BANNER_INDIA}')` }}
-            aria-hidden
+          <Image
+            src={BANNER_INDIA}
+            alt=""
+            fill
+            priority
+            quality={82}
+            sizes="100vw"
+            className="object-cover object-center"
           />
-          <motion.div
-            className="absolute inset-0"
-            style={{ backgroundImage: overlayIndia }}
-            aria-hidden
-          />
-        </motion.div>
-        <motion.div
-          className="absolute inset-0"
-          initial={false}
-          animate={{ opacity: variant === 'abroad' ? 1 : 0 }}
-          transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
+          <div className="absolute inset-0" style={{ background: overlayIndia }} />
+        </div>
+        <div
+          className={`absolute inset-0 transition-opacity duration-700 ease-out ${
+            variant === 'abroad' ? 'opacity-100' : 'opacity-0'
+          }`}
           aria-hidden
         >
-          <motion.div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url('${BANNER_ABROAD}')` }}
-            aria-hidden
+          <Image
+            src={BANNER_ABROAD}
+            alt=""
+            fill
+            loading="lazy"
+            quality={82}
+            sizes="100vw"
+            className="object-cover object-center"
           />
-          <motion.div
-            className="absolute inset-0"
-            style={{ backgroundImage: overlayAbroad }}
-            aria-hidden
-          />
-        </motion.div>
+          <div className="absolute inset-0" style={{ background: overlayAbroad }} />
+        </div>
       </div>
 
       {variant === 'india' && (
@@ -184,12 +201,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
       )}
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 md:py-24 lg:py-28">
-        <motion.div
-          initial={{ opacity: 0, rotateY: -18, x: 40, scale: 0.96 }}
-          animate={{ opacity: 1, rotateY: 0, x: 0, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-          className="grid gap-10 lg:grid-cols-2 lg:items-stretch lg:gap-12"
-        >
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-stretch lg:gap-12">
           {/* India: copy left, enquiry form right (vertically centred in column) */}
           {variant === 'india' && (
             <>
@@ -218,18 +230,23 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                   Admission guidance for MBBS across India - counseling, college shortlisting, and documentation support.
                 </p>
 
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                  <Button variant="primary" size="lg" className="group">
-                    Get Free Counselling
+                <div className="hero-cta-row mt-7 flex w-full max-w-xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="lg"
+                    className="group w-full sm:min-w-[12.5rem] sm:flex-1"
+                    onClick={() => openLeadCapturePopup()}
+                  >
+                    {CTA_GET_EXPERT_COUNSELLING}
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    className="border-white/60 bg-white/15 text-white hover:bg-white/25"
+                  <Link
+                    href="/#mbbs-india-colleges"
+                    className="ui-btn ui-btn--secondary ui-btn--lg w-full border-white/60 bg-white/15 text-white hover:bg-white/25 sm:min-w-0 sm:flex-1"
                   >
                     Explore States
-                  </Button>
+                  </Link>
                 </div>
               </div>
 
@@ -277,23 +294,28 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                   Trusted support for MBBS abroad - university selection, applications, and visa assistance end to end.
                 </p>
 
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-end">
-                  <Button variant="primary" size="lg" className="group">
-                    Get Free Counselling
+                <div className="hero-cta-row mt-7 flex w-full max-w-xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap lg:ml-auto lg:justify-end">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="lg"
+                    className="group w-full sm:min-w-0 sm:flex-1"
+                    onClick={() => openLeadCapturePopup()}
+                  >
+                    {CTA_GET_EXPERT_COUNSELLING}
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    className="border-white/60 bg-white/15 text-white hover:bg-white/25"
+                  <Link
+                    href="/mbbs-abroad#mbbs-abroad-colleges"
+                    className="ui-btn ui-btn--secondary ui-btn--lg w-full border-white/60 bg-white/15 text-white hover:bg-white/25 sm:min-w-0 sm:flex-1"
                   >
                     Explore Countries
-                  </Button>
+                  </Link>
                 </div>
               </div>
             </>
           )}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
+import { PROMO_COUNSELLING_VALUE } from '@/lib/brandCopy';
 
 export type LeadCapturePromoBannerProps = {
   compact?: boolean;
@@ -8,7 +9,7 @@ export type LeadCapturePromoBannerProps = {
 };
 
 /**
- * Mint promo block: journey headline + ₹999 strikethrough + Free! — left panel / mobile header.
+ * Mint promo block: journey headline + ₹999 value — left panel / mobile header.
  */
 export function LeadCapturePromoBanner({
   compact = false,
@@ -22,7 +23,7 @@ export function LeadCapturePromoBanner({
         className
       )}
       role="status"
-      aria-label="Start your MBBS abroad journey — expert counselling was nine hundred ninety-nine rupees, now free"
+      aria-label="Start your MBBS abroad journey — expert counselling session included"
     >
       <p
         className={clsx(
@@ -42,7 +43,7 @@ export function LeadCapturePromoBanner({
         <span className="font-semibold text-red-600 line-through decoration-red-500 decoration-2">
           ₹999
         </span>{' '}
-        <span className="font-bold text-emerald-600">Free!</span>
+        <span className="font-bold text-emerald-600">{PROMO_COUNSELLING_VALUE}</span>
       </p>
     </div>
   );

@@ -35,7 +35,7 @@ export function MbbsIndiaIndexHero() {
               href="/contact"
               className="site-gold-cta inline-flex items-center gap-2"
             >
-              Get free counselling
+              Get Expert Counselling
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link

@@ -11,7 +11,7 @@ export const PROGRAM_HUB_SEO = {
   india: {
     title: 'MBBS in India — State-wise Colleges, Fees & NEET Counselling',
     description:
-      'Explore MBBS in India across all states. Compare medical colleges, fees, NEET cut-offs, eligibility & get free admission counselling from AR Group of Education.',
+      'Explore MBBS in India across all states. Compare medical colleges, fees, NEET cut-offs, eligibility & get expert admission counselling from AR Group of Education.',
     path: '/mbbs-india',
     badge: 'MBBS in India',
   },

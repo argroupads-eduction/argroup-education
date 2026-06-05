@@ -112,7 +112,7 @@ export const ABOUT_TIMELINE = [
 ] as const;
 
 export const ABOUT_PROCESS = [
-  { step: '01', title: 'Discover', text: 'Free counselling call — goals, NEET rank, budget, and timeline.' },
+  { step: '01', title: 'Discover', text: 'Expert counselling call — goals, NEET rank, budget, and timeline.' },
   { step: '02', title: 'Shortlist', text: 'Compare India vs abroad options with fee, eligibility, and fit scores.' },
   { step: '03', title: 'Apply', text: 'Application, documentation, and university coordination handled with you.' },
   { step: '04', title: 'Visa & travel', text: 'Visa filing, forex, tickets, and pre-departure checklist.' },

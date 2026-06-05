@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { FAQ_DATA } from '@/lib/constants';
+import { CONTACT_INFO, FAQ_DATA } from '@/lib/constants';
 import { Accordion } from '@/components/ui/Accordion';
 
 export const FAQSection = () => {
@@ -55,8 +55,8 @@ export const FAQSection = () => {
             Contact our counselors for personalized guidance
           </p>
           <a
-            href="tel:+918001234567"
-            className="inline-flex min-h-11 items-center justify-center touch-manipulation bg-gold-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gold-600 transition-colors"
+            href={`tel:${CONTACT_INFO.phoneTel}`}
+            className="ui-btn ui-btn--primary ui-btn--lg touch-manipulation"
           >
             Call Us Now
           </a>
