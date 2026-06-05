@@ -82,7 +82,7 @@ async function downloadToFile(url: string, dest: string): Promise<boolean> {
 }
 
 async function ensureMedia(
-  payload: Awaited<ReturnType<typeof getPayload>>,
+  payload: Payload,
   url: string,
   slug: string,
   alt: string,
@@ -131,7 +131,7 @@ function isPlaceholderLayout(layout: unknown): boolean {
 }
 
 async function* iterateDocs(
-  payload: Awaited<ReturnType<typeof getPayload>>,
+  payload: Payload,
   collection: CollectionSlug,
   opts: ReturnType<typeof parseArgs>,
 ) {
@@ -177,7 +177,7 @@ async function* iterateDocs(
 }
 
 async function backfillDoc(
-  payload: Awaited<ReturnType<typeof getPayload>>,
+  payload: Payload,
   collection: CollectionSlug,
   doc: DocRow,
   opts: ReturnType<typeof parseArgs>,
@@ -242,7 +242,7 @@ async function backfillDoc(
 }
 
 async function backfillCollection(
-  payload: Awaited<ReturnType<typeof getPayload>>,
+  payload: Payload,
   collection: CollectionSlug,
   opts: ReturnType<typeof parseArgs>,
 ) {
