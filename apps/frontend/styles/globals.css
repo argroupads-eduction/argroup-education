@@ -190,6 +190,19 @@
     line-height: 0.95;
   }
 
+  /* Home MBBS Abroad scroll — full image visible, no crop or slide peek */
+  .mbbs-abroad-country-visual .fit-image-frame {
+    width: 100%;
+    background: rgb(15 23 42 / 0.45);
+  }
+
+  .mbbs-abroad-country-visual .fit-image-frame__img {
+    max-height: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+
   /* Images — never crop; container fits image */
   .fit-image-frame {
     display: flex;

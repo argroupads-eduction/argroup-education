@@ -143,13 +143,13 @@ export default async function MbbsAbroadPage({ params }: PageProps) {
               ]
             : undefined
         }
-        featuredImage={wpContent?.featuredImage}
+        featuredImage={country.featuredImage ?? wpContent?.featuredImage}
       />
 
       {wpContent ? (
         <ContentPageShell
           html={wpContent.content}
-          featuredImage={wpContent.featuredImage}
+          featuredImage={country.featuredImage ?? wpContent.featuredImage}
           title={title}
           showFeaturedImage={false}
         />

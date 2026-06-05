@@ -138,10 +138,14 @@ async function main() {
         });
         const doc = existing.docs[0];
         if (doc) {
+          const imageField = collection === 'posts' ? 'heroImage' : 'featuredImage';
           await payload.update({
             collection,
             id: doc.id,
-            data: { featuredImageUrl: url },
+            data: {
+              featuredImageUrl: url,
+              [imageField]: mediaId,
+            },
             overrideAccess: true,
             context: { disableBackendSync: true, disableRevalidate: true },
           });

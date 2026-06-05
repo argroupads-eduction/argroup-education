@@ -1,6 +1,7 @@
 /** Prepare migrated WordPress HTML for premium display (content unchanged semantically). */
 
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
+import { rewriteInternalLinks } from '@/lib/rewriteInternalLinks';
 
 function normUrl(url: string): string {
   return url
@@ -186,15 +187,212 @@ export function stripBrokenIconWidgets(html: string): string {
 }
 
 const MIN_GRID_LIST_ITEMS = 6;
+const PARAGRAPH_LIST_MIN_CHARS = 72;
+
+/**
+ * WP/Elementor often exports `<li><span>text</span><span><br /></span></li>`.
+ * Chip cards use flex row — sibling spans become narrow columns and break words vertically.
+ */
+function flattenNestedSpans(html: string): string {
+  let out = html;
+  for (let i = 0; i < 6 && /<span\b[^>]*>\s*<span\b/i.test(out); i += 1) {
+    out = out.replace(
+      /<span\b[^>]*>\s*(<span\b[^>]*>[\s\S]*?<\/span>)\s*<\/span>/gi,
+      '$1'
+    );
+  }
+  return out;
+}
+
+function extractElementorIconListText(inner: string): string | null {
+  const textMatch = inner.match(/<span class="elementor-icon-list-text"[^>]*>([\s\S]*?)<\/span>/i);
+  if (textMatch) return textMatch[1].trim();
+
+  const iconMatch = inner.match(/<span class="elementor-icon-list-icon"[^>]*>([\s\S]*?)<\/span>/i);
+  if (!iconMatch) return null;
+  const text = iconMatch[1]
+    .replace(/<i\b[^>]*>[\s\S]*?<\/i>/gi, '')
+    .replace(/<svg\b[\s\S]*?<\/svg>/gi, '')
+    .trim();
+  return text || null;
+}
+
+/** Elementor icon rows must keep icon + text spans separate (chip grid hides icon spans). */
+export function normalizeElementorIconListItems(html: string): string {
+  return html.replace(/<li(\b[^>]*elementor-icon-list-item[^>]*)>([\s\S]*?)<\/li>/gi, (match, attrs, inner) => {
+    if (/elementor-icon-list-text/i.test(inner)) return match;
+
+    const text = extractElementorIconListText(inner);
+    if (!text) return match;
+
+    const iconMatch = inner.match(/(?:<i\b[^>]*>[\s\S]*?<\/i>|<svg\b[\s\S]*?<\/svg>)/i);
+    const iconHtml = iconMatch ? iconMatch[0] : '';
+
+    return (
+      `<li${attrs}>` +
+      (iconHtml ? `<span class="elementor-icon-list-icon">${iconHtml}</span>` : '') +
+      `<span class="elementor-icon-list-text">${text}</span></li>`
+    );
+  });
+}
+
+/** Numbered chip grids only need document labels — drop decorative icon markup. */
+function simplifyIconChipGridLists(html: string): string {
+  return html.replace(
+    /(<ul[^>]*wp-premium-icon-chip-grid[^>]*>)([\s\S]*?)(<\/ul>)/gi,
+    (_full, open, inner, close) => {
+      const fixed = inner.replace(/<li(\b[^>]*)>([\s\S]*?)<\/li>/gi, (liMatch: string, attrs: string, liInner: string) => {
+        const text = extractElementorIconListText(liInner);
+        if (!text) return liMatch;
+        return `<li${attrs}><span class="elementor-icon-list-text">${text}</span></li>`;
+      });
+      return `${open}${fixed}${close}`;
+    }
+  );
+}
+
+const CTA_CONTACT_LABEL_RE =
+  /Get\s+Consultation|Book\s+(?:Your\s+)?Consultation(?:\s+Now)?|Expert\s+Counsell?ing|Book\s+expert\s+counsell?ing/i;
+
+function contactHrefForPlainText(text: string): string {
+  const t = text.trim();
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return `mailto:${t}`;
+  if (
+    /\b(floor|tower|noida|sec-|road|street|avenue|pincode|pin\s*code|up-|delhi|india|address)\b/i.test(
+      t
+    ) ||
+    /\d{1,4},\s*\d/.test(t)
+  ) {
+    return '/contact';
+  }
+  const digits = t.replace(/[^\d+]/g, '');
+  if (/^\+?\d{10,13}$/.test(digits) && !/\s/.test(t.replace(/[\d+\-()]/g, ''))) {
+    return `tel:${digits}`;
+  }
+  return '/contact';
+}
+
+/** Contact Us icon rows → readable linked cards (tel / mailto / contact page). */
+export function enhanceContactIconLists(html: string): string {
+  return html.replace(
+    /(<h[23]\b[^>]*>[\s\S]*?Contact Us Now![\s\S]*?<\/h[23]>)([\s\S]*?)(<ul)(\s+class=")(elementor-icon-list-items)("[^>]*>)([\s\S]*?)(<\/ul>)/gi,
+    (_full, heading, _between, ulOpen, clsPrefix, cls, clsEnd, inner, ulClose) => {
+      const enhanced = inner.replace(
+        /<li class="elementor-icon-list-item">([\s\S]*?)<\/li>/gi,
+        (liMatch: string, liInner: string) => {
+          const text = extractElementorIconListText(liInner);
+          if (!text) return liMatch;
+
+          const href = contactHrefForPlainText(text);
+          const iconMatch = liInner.match(/<span class="elementor-icon-list-icon"[^>]*>[\s\S]*?<\/span>/i);
+          const iconHtml = iconMatch ? iconMatch[0] : '';
+
+          return (
+            `<li class="elementor-icon-list-item wp-contact-card">` +
+            `${iconHtml}` +
+            `<a class="elementor-icon-list-text wp-contact-card-link" href="${href}">${text}</a></li>`
+          );
+        }
+      );
+      return `${heading}${_between}${ulOpen}${clsPrefix}${cls} wp-contact-strip${clsEnd}${enhanced}${ulClose}`;
+    }
+  );
+}
+
+/** WP Elementor buttons exported without href (popups) → live contact route. */
+export function wireCtaButtonsToContact(html: string): string {
+  return html.replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (full, attrs, inner) => {
+    if (!/elementor-button/i.test(attrs)) return full;
+    if (!CTA_CONTACT_LABEL_RE.test(stripHtml(inner))) return full;
+
+    if (/\bhref\s*=\s*["'](?!#|javascript:)[^"']+["']/i.test(attrs)) return full;
+
+    let nextAttrs = attrs.trim();
+    if (!/\bhref\s*=/i.test(nextAttrs)) {
+      nextAttrs = `${nextAttrs} href="/contact"`;
+    } else {
+      nextAttrs = nextAttrs.replace(/\bhref\s*=\s*["']#["']/i, 'href="/contact"');
+    }
+    return `<a ${nextAttrs}>${inner}</a>`;
+  });
+}
+
+function normalizeListItemContent(inner: string): string {
+  if (/elementor-icon-list-icon/i.test(inner) || /elementor-icon-list-text/i.test(inner)) {
+    return inner.replace(/<span\b[^>]*>\s*(?:<br\s*\/?>\s*)*<\/span>/gi, '');
+  }
+
+  let out = flattenNestedSpans(inner);
+  out = out.replace(/<span\b[^>]*>\s*(?:<br\s*\/?>\s*)*<\/span>/gi, '');
+
+  const spans: { attrs: string; content: string }[] = [];
+  const spanRe = /<span\b([^>]*)>([\s\S]*?)<\/span>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = spanRe.exec(out)) !== null) {
+    const content = m[2].trim();
+    if (content && !/^<br\s*\/?>$/i.test(content)) {
+      spans.push({ attrs: m[1], content });
+    }
+  }
+
+  if (spans.length <= 1) return out.trim() || inner;
+
+  const withoutSpans = out.replace(/<span\b[^>]*>[\s\S]*?<\/span>/gi, '').trim();
+  if (withoutSpans && !/^<br\s*\/?>$/i.test(withoutSpans)) return out;
+
+  const merged = spans
+    .map((s) => s.content.replace(/<br\s*\/?>/gi, ' ').trim())
+    .filter(Boolean)
+    .join(' ');
+
+  if (!merged) return out.trim() || inner;
+  return `<span${spans[0].attrs}>${merged}</span>`;
+}
+
+/** Collapse multi-span list items before grid classification (site-wide CMS export quirk). */
+export function normalizeListItemSpans(html: string): string {
+  return html.replace(/<li(\b[^>]*)>([\s\S]*?)<\/li>/gi, (match, attrs, inner) => {
+    const normalized = normalizeListItemContent(inner);
+    if (normalized === inner) return match;
+    return `<li${attrs}>${normalized}</li>`;
+  });
+}
+
+/** Long body copy per bullet (Student Support, etc.) — chip numbers squeeze paragraphs. */
+function isParagraphStyleList(inner: string): boolean {
+  const items = [...inner.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)].map((m) =>
+    stripHtml(m[1]).trim()
+  );
+  if (items.length < 2) return false;
+  const longCount = items.filter((t) => t.length >= PARAGRAPH_LIST_MIN_CHARS).length;
+  return longCount >= Math.ceil(items.length * 0.4);
+}
 
 /** Title + description in same <li> (e.g. Recognized Institution: Approved by NMC…) */
 function isFeatureStyleList(inner: string): boolean {
   const liCount = (inner.match(/<li\b/gi) || []).length;
-  if (liCount < 3 || liCount > 12) return false;
+  if (liCount < 2 || liCount > 16) return false;
+
   const withTitleDesc = (
-    inner.match(/<li\b[^>]*>[\s\S]*?<(?:b|strong)\b[^>]*>[\s\S]*?<\/(?:b|strong)>[\s\S]*?<span\b/gi) || []
+    inner.match(/<li\b[^>]*>[\s\S]*?<(?:b|strong)\b[^>]*>[\s\S]*?<\/(?:b|strong)>[\s\S]*?<span\b/gi) ||
+      []
   ).length;
-  return withTitleDesc >= Math.min(3, liCount);
+
+  // Even one title+body pair must use feature cards (chip grid squishes <b>+<span> into vertical text).
+  if (withTitleDesc >= 1) return true;
+
+  // Inline rich text: <span>…</span><b>…</b><span>…</span> (chip flex treats each node as a column).
+  const liBodies = [...inner.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)].map((m) => m[1]);
+  const inlineRich = liBodies.filter(
+    (body) => /<span\b/i.test(body) && /<(?:b|strong)\b/i.test(body)
+  ).length;
+  if (inlineRich >= 1) return true;
+
+  const withBoldHeading = (
+    inner.match(/<li\b[^>]*>[\s\S]*?<(?:b|strong)\b[^>]*>[^<]{8,}<\/(?:b|strong)>/gi) || []
+  ).length;
+
+  return withBoldHeading >= 2 && liCount <= 12;
 }
 
 function addGridClassToListTag(tag: string, className: string): string {
@@ -214,7 +412,7 @@ export function transformLongListsToGrid(html: string): string {
       return match;
     }
     const liCount = (inner.match(/<li\b/gi) || []).length;
-    if (isFeatureStyleList(inner)) {
+    if (isFeatureStyleList(inner) || isParagraphStyleList(inner)) {
       const openTag = addGridClassToListTag(`<ul${attrs}>`, 'wp-premium-feature-grid');
       return `${openTag}${inner}</ul>`;
     }
@@ -232,7 +430,7 @@ export function transformLongListsToGrid(html: string): string {
       return match;
     }
     const liCount = (inner.match(/<li\b/gi) || []).length;
-    if (isFeatureStyleList(inner)) {
+    if (isFeatureStyleList(inner) || isParagraphStyleList(inner)) {
       const openTag = addGridClassToListTag(`<ol${attrs}>`, 'wp-premium-feature-grid');
       return `${openTag}${inner}</ol>`;
     }
@@ -628,11 +826,17 @@ export function prepareWpHtml(
   out = demoteBodyH1ToH2(out);
   out = fixHeadingLevelSkips(out);
   out = stripBrokenIconWidgets(out);
+  out = normalizeElementorIconListItems(out);
+  out = normalizeListItemSpans(out);
   out = transformLongListsToGrid(out);
+  out = simplifyIconChipGridLists(out);
   out = transformEaelAccordions(out);
   out = transformAllFaqs(out);
   out = replaceBrokenEmbeddedForms(out);
   out = constrainInlineSvgs(out);
+  out = wireCtaButtonsToContact(out);
+  out = enhanceContactIconLists(out);
+  out = rewriteInternalLinks(out);
   return out;
 }
 

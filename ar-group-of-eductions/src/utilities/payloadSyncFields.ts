@@ -87,17 +87,14 @@ async function resolveMediaId(
 export async function resolveFeaturedImageForSync(
   payload: Payload,
   doc: {
+    featuredImage?: unknown
     featuredImageUrl?: string | null
     heroImage?: unknown
     hero?: { media?: unknown } | null
     meta?: { image?: unknown } | null
   }
 ): Promise<string | null> {
-  if (typeof doc.featuredImageUrl === 'string' && doc.featuredImageUrl.trim()) {
-    return doc.featuredImageUrl.trim()
-  }
-
-  for (const ref of [doc.heroImage, doc.hero?.media, doc.meta?.image]) {
+  for (const ref of [doc.featuredImage, doc.heroImage, doc.hero?.media, doc.meta?.image]) {
     const media = await resolveMediaId(payload, ref)
     if (!media) continue
 
@@ -108,6 +105,10 @@ export async function resolveFeaturedImageForSync(
     if (dataUrl) return dataUrl
 
     if (url) return url
+  }
+
+  if (typeof doc.featuredImageUrl === 'string' && doc.featuredImageUrl.trim()) {
+    return doc.featuredImageUrl.trim()
   }
 
   return null
@@ -123,6 +124,7 @@ export async function buildPostSyncPayload(
     layout?: unknown
     hero?: { richText?: unknown; media?: unknown } | null
     meta?: { title?: string | null; description?: string | null; image?: unknown } | null
+    featuredImage?: unknown
     featuredImageUrl?: string | null
     heroImage?: unknown
     sitePlacement?: {

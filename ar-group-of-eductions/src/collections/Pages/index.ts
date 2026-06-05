@@ -7,6 +7,7 @@ import { CallToAction } from '../../blocks/CallToAction/config'
 import { Content } from '../../blocks/Content/config'
 import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
+import { marketingContentEditor } from '@/fields/contentLexicalEditor'
 import { hero } from '@/heros/config'
 import { slugField } from 'payload'
 import { seoExtendedFields } from '@/fields/seoExtendedFields'
@@ -74,20 +75,25 @@ export const Pages: CollectionConfig<'pages'> = {
         {
           fields: [
             {
-              name: 'htmlContent',
-              type: 'textarea',
-              maxLength: 1000000,
-              label: 'WordPress HTML (marketing site)',
+              name: 'featuredImage',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Featured image',
               admin: {
-                rows: 12,
                 description:
-                  'Full HTML from WP export. When set, the marketing frontend renders this with the same WP layout pipeline.',
+                  'Main page image (hero). Shown on the live site and in search previews. Upload or pick from Media library.',
               },
             },
             {
-              name: 'featuredImageUrl',
-              type: 'text',
-              label: 'Featured image URL (imported)',
+              name: 'content',
+              type: 'richText',
+              editor: marketingContentEditor,
+              label: 'Page content',
+              required: false,
+              admin: {
+                description:
+                  'Edit headings, bold text, lists, tables, and images visually — same structure as the live site.',
+              },
             },
             {
               name: 'layout',
@@ -98,6 +104,24 @@ export const Pages: CollectionConfig<'pages'> = {
                 initCollapsed: true,
                 description:
                   'Optional extra sections below the hero content. Hero tab text is always shown on the page body.',
+              },
+            },
+            {
+              name: 'htmlContent',
+              type: 'textarea',
+              maxLength: 1000000,
+              label: 'Legacy WordPress HTML',
+              admin: {
+                hidden: true,
+                description: 'Imported WP HTML backup. The visual editor above is used on the live site.',
+              },
+            },
+            {
+              name: 'featuredImageUrl',
+              type: 'text',
+              label: 'Featured image URL (imported)',
+              admin: {
+                hidden: true,
               },
             },
           ],

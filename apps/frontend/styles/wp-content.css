@@ -217,12 +217,46 @@
   fill: #fff;
 }
 
-.wp-content-root .elementor-icon-list-text {
+.wp-content-root .elementor-icon-list-text,
+.wp-content-root .wp-contact-card-link {
   font-weight: 600;
   color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
   font-size: 0.975rem;
   line-height: 1.5;
   padding-top: 0.15rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.wp-content-root .wp-contact-card-link {
+  display: block;
+  text-decoration: none !important;
+  padding-top: 0.35rem;
+}
+
+.wp-content-root .wp-contact-card-link:hover {
+  color: #b45309 !important;
+  -webkit-text-fill-color: #b45309 !important;
+}
+
+.wp-content-root .wp-contact-strip .elementor-icon-list-item {
+  align-items: center;
+}
+
+/* Document / curriculum chip cards — never inherit white text from icon styles */
+.wp-content-root ul.wp-premium-chip-grid .elementor-icon-list-text,
+.wp-content-root ul.wp-premium-chip-grid > li > span:not(.elementor-icon-list-icon),
+.wp-content-root ol.wp-premium-chip-grid .elementor-icon-list-text,
+.wp-content-root ol.wp-premium-chip-grid > li > span:not(.elementor-icon-list-icon) {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li::before,
+.wp-content-root ol.wp-premium-chip-grid > li::before {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 /* ── Icon boxes ── */
@@ -845,7 +879,7 @@ html:has(.wp-content-affinity) {
 @media (min-width: 1024px) {
   .wp-content-root ul.wp-premium-chip-grid,
   .wp-content-root ol.wp-premium-chip-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -878,7 +912,7 @@ html:has(.wp-content-affinity) {
 .wp-content-root ul.wp-premium-chip-grid > li,
 .wp-content-root ol.wp-premium-chip-grid > li {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.6rem;
   padding: 0.75rem 0.85rem;
   border-radius: 0.75rem;
@@ -886,14 +920,47 @@ html:has(.wp-content-affinity) {
   background: #fff;
   font-weight: 600;
   font-size: 0.875rem;
-  line-height: 1.35;
+  line-height: 1.45;
   color: #111827 !important;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  min-width: 0;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
     border-color 0.2s ease;
+}
+
+/* Sibling spans (CMS export) must not share a flex row — stack as one text block. */
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ span),
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ span) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+/* Mixed title + description inside one chip (fallback if not promoted to feature-grid). */
+.wp-content-root ul.wp-premium-chip-grid > li:has(> b, > strong),
+.wp-content-root ol.wp-premium-chip-grid > li:has(> b, > strong) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> b, > strong) > b,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> b, > strong) > strong,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> b, > strong) > span,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> b, > strong) > b,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> b, > strong) > strong,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> b, > strong) > span {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  flex: none;
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .wp-content-root ul.wp-premium-chip-grid > li:hover,
@@ -903,13 +970,13 @@ html:has(.wp-content-affinity) {
   box-shadow: 0 6px 18px rgba(26, 54, 93, 0.1);
 }
 
-.wp-content-root ul.wp-premium-chip-grid > li:nth-child(4n + 1),
-.wp-content-root ol.wp-premium-chip-grid > li:nth-child(4n + 1) {
+.wp-content-root ul.wp-premium-chip-grid > li:nth-child(3n + 1),
+.wp-content-root ol.wp-premium-chip-grid > li:nth-child(3n + 1) {
   background: linear-gradient(135deg, #fff 0%, #fffbeb 100%);
 }
 
-.wp-content-root ul.wp-premium-chip-grid > li:nth-child(4n + 3),
-.wp-content-root ol.wp-premium-chip-grid > li:nth-child(4n + 3) {
+.wp-content-root ul.wp-premium-chip-grid > li:nth-child(3n + 2),
+.wp-content-root ol.wp-premium-chip-grid > li:nth-child(3n + 2) {
   background: linear-gradient(135deg, #fff 0%, #eff6ff 100%);
 }
 
@@ -917,16 +984,32 @@ html:has(.wp-content-affinity) {
 .wp-content-root ol.wp-premium-chip-grid > li > span,
 .wp-content-root ul.wp-premium-chip-grid .elementor-icon-list-text,
 .wp-content-root ol.wp-premium-chip-grid .elementor-icon-list-text {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
   color: #111827 !important;
   font-weight: 600;
   padding: 0 !important;
-  min-width: 0;
-  flex: 1;
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
-.wp-content-root ul.wp-premium-icon-chip-grid .elementor-icon-list-icon,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ span) > span,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ span) > span {
+  flex: none;
+  width: 100%;
+}
+
+.wp-content-root ul.wp-premium-icon-chip-grid .elementor-icon-list-icon svg,
+.wp-content-root ul.wp-premium-icon-chip-grid .elementor-icon-list-icon i,
 .wp-content-root ul.wp-premium-icon-chip-grid i[class*='jki'],
 .wp-content-root ul.wp-premium-icon-chip-grid i[class*='fa-'] {
+  display: none !important;
+}
+
+.wp-content-root ul.wp-premium-icon-chip-grid .elementor-icon-list-icon:empty {
   display: none !important;
 }
 
@@ -995,8 +1078,8 @@ html:has(.wp-content-affinity) {
 .wp-content-root ol.wp-premium-feature-grid > li {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.4rem;
+  align-items: stretch;
+  gap: 0.45rem;
   margin: 0;
   padding: 1rem 1.1rem;
   border-radius: 0.85rem;
@@ -1004,7 +1087,7 @@ html:has(.wp-content-affinity) {
   background: #fff;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
   min-width: 0;
-  word-wrap: break-word;
+  word-break: normal;
   overflow-wrap: break-word;
 }
 
@@ -1043,7 +1126,9 @@ html:has(.wp-content-affinity) {
 }
 
 .wp-content-root ul.wp-premium-feature-grid > li > span,
-.wp-content-root ol.wp-premium-feature-grid > li > span {
+.wp-content-root ol.wp-premium-feature-grid > li > span,
+.wp-content-root ul.wp-premium-feature-grid > li > p,
+.wp-content-root ol.wp-premium-feature-grid > li > p {
   display: block;
   width: 100%;
   font-size: 0.875rem;
@@ -1051,6 +1136,72 @@ html:has(.wp-content-affinity) {
   line-height: 1.6;
   color: #111827 !important;
   white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+/* Simple bullet lists inside feature cards (no bold title). */
+.wp-content-root ul.wp-premium-feature-grid > li:not(:has(> b, > strong)),
+.wp-content-root ol.wp-premium-feature-grid > li:not(:has(> b, > strong)) {
+  justify-content: flex-start;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:not(:has(> b, > strong)) > span,
+.wp-content-root ol.wp-premium-feature-grid > li:not(:has(> b, > strong)) > span {
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+/* Inline rich copy: <span>…</span><b>…</b> must flow as one sentence, not stacked blocks. */
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong),
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) {
+  display: block;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > span,
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > strong,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > span,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > strong {
+  display: inline;
+  width: auto;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > strong,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > strong {
+  font-weight: 700;
+  color: #000 !important;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong),
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) {
+  display: block;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > span,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > strong,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > span,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > strong {
+  display: inline;
+  width: auto;
+  flex: none;
+  font-weight: 400;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > strong,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > strong {
+  font-weight: 700;
 }
 
 /* Hidden scrollbars — TOC scrolls smoothly without visible bar */
@@ -1128,6 +1279,17 @@ html:has(.wp-content-affinity) {
 
   .wp-content-root .elementor-icon-list-item {
     padding: 0.85rem 1rem;
+  }
+
+  .wp-content-root .wp-contact-strip .elementor-icon-list-item {
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+  }
+
+  .wp-content-root .wp-contact-card-link {
+    font-size: 0.9rem;
+    line-height: 1.45;
+    word-break: break-word;
   }
 
   .wp-content-root .wp-premium-enquiry {

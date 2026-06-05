@@ -204,14 +204,36 @@ export interface Page {
     media?: (number | null) | Media;
   };
   /**
-   * Full HTML from WP export. When set, the marketing frontend renders this with the same WP layout pipeline.
+   * Main page image (hero). Shown on the live site and in search previews. Upload or pick from Media library.
    */
-  htmlContent?: string | null;
-  featuredImageUrl?: string | null;
+  featuredImage?: (number | null) | Media;
+  /**
+   * Edit headings, bold text, lists, tables, and images visually — same structure as the live site.
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * Optional extra sections below the hero content. Hero tab text is always shown on the page body.
    */
   layout?: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[] | null;
+  /**
+   * Imported WP HTML backup. The visual editor above is used on the live site.
+   */
+  htmlContent?: string | null;
+  featuredImageUrl?: string | null;
   meta?: {
     title?: string | null;
     /**
@@ -269,15 +291,13 @@ export interface Page {
 export interface Post {
   id: number;
   title: string;
+  /**
+   * Blog hero image on the live site. Upload or pick from Media library to change it.
+   */
   heroImage?: (number | null) | Media;
   /**
-   * Full HTML from WP export. When set, the frontend at localhost:3000 renders this (with FAQ accordion + SEO layout).
+   * Edit headings, bold text, lists, tables, and images visually — SEO-friendly like the live blog.
    */
-  htmlContent?: string | null;
-  /**
-   * External image URL from WordPress until uploaded to Media.
-   */
-  featuredImageUrl?: string | null;
   content: {
     root: {
       type: string;
@@ -293,6 +313,11 @@ export interface Post {
     };
     [k: string]: unknown;
   };
+  /**
+   * Imported WP HTML backup. The visual editor above is used on the live site.
+   */
+  htmlContent?: string | null;
+  featuredImageUrl?: string | null;
   relatedPosts?: (number | Post)[] | null;
   categories?: (number | Category)[] | null;
   meta?: {
@@ -1149,8 +1174,8 @@ export interface PagesSelect<T extends boolean = true> {
             };
         media?: T;
       };
-  htmlContent?: T;
-  featuredImageUrl?: T;
+  featuredImage?: T;
+  content?: T;
   layout?:
     | T
     | {
@@ -1160,6 +1185,8 @@ export interface PagesSelect<T extends boolean = true> {
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
+  htmlContent?: T;
+  featuredImageUrl?: T;
   meta?:
     | T
     | {
@@ -1279,9 +1306,9 @@ export interface FormBlockSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   heroImage?: T;
+  content?: T;
   htmlContent?: T;
   featuredImageUrl?: T;
-  content?: T;
   relatedPosts?: T;
   categories?: T;
   meta?:
@@ -1982,42 +2009,6 @@ export interface TaskSchedulePublish {
     user?: (number | null) | User;
   };
   output?: unknown;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock".
- */
-export interface BannerBlock {
-  style: 'info' | 'warning' | 'error' | 'success';
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'banner';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock".
- */
-export interface CodeBlock {
-  language?: ('typescript' | 'javascript' | 'css') | null;
-  code: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'code';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

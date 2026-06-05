@@ -32,6 +32,7 @@
     "wp:import:pages": "npm run wp:import:pages --workspace=ar-education-backend",
     "build:mbbs-india": "node scripts/build-mbbs-india-tree.mjs",
     "build:mbbs-abroad": "node scripts/build-mbbs-abroad-tree.mjs",
+    "wp:link-index": "node scripts/generate-wp-link-index.mjs",
     "build:wp-bundle": "node scripts/build-wp-production-bundle.mjs",
     "wp:import:payload": "npm run import:wp-bundle --prefix ar-group-of-eductions",
     "wp:import:payload:dry": "npm run import:wp-bundle --prefix ar-group-of-eductions -- --dry-run --limit=3",

@@ -11,6 +11,7 @@ import {
   useTransform,
 } from 'framer-motion'
 import { ArrowRight, Globe2 } from 'lucide-react'
+import { FitImage } from '@/components/ui/FitImage'
 import {
   MBBS_ABROAD_SCROLL_COUNTRIES,
   type MbbsAbroadScrollCountry,
@@ -67,6 +68,13 @@ const cardVariants = {
     scale: 0.96,
     x: direction >= 0 ? -48 : 48,
   }),
+}
+
+/** Image cards: fade only — no horizontal slide (prevents next slide peeking at edges). */
+const imageCardVariants = {
+  enter: { opacity: 0, scale: 0.98 },
+  center: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.98 },
 }
 
 /** Single gradient on sticky viewport — navy from top edge, seamless with hero */
@@ -146,34 +154,38 @@ function CountryVisualCard({
   direction,
   compact = false,
 }: CountryVisualCardProps) {
-  const hasImage = Boolean(country.imageSrc);
+  const hasImage = Boolean(country.imageSrc)
+  const imageMaxHeight = compact ? 'min(52vw, 14rem)' : 'min(42vh, 22rem)'
+
   return (
     <AnimatePresence mode="wait" custom={direction}>
       <motion.div
         key={country.slug}
         custom={direction}
-        variants={cardVariants}
+        variants={hasImage ? imageCardVariants : cardVariants}
         initial="enter"
         animate="center"
         exit="exit"
         transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-        className={`relative flex w-full items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br shadow-2xl shadow-black/30 ${country.gradient} ${
-          compact
-            ? 'min-h-[min(52vw,14rem)] max-h-[min(52vw,14rem)]'
-            : 'min-h-[min(42vh,22rem)] lg:rounded-[2rem]'
-        }`}
+        className={`relative w-full max-w-full overflow-hidden rounded-2xl border border-white/20 shadow-2xl shadow-black/30 ${
+          hasImage
+            ? 'mbbs-abroad-country-visual bg-navy-950/50'
+            : `flex items-center justify-center bg-gradient-to-br ${country.gradient} ${
+                compact
+                  ? 'min-h-[min(52vw,14rem)] max-h-[min(52vw,14rem)]'
+                  : 'min-h-[min(42vh,22rem)] lg:rounded-[2rem]'
+              }`
+        } ${!hasImage && !compact ? 'lg:rounded-[2rem]' : ''}`}
       >
         {hasImage ? (
-          <img
-            src={country.imageSrc}
+          <FitImage
+            src={country.imageSrc!}
             alt={`MBBS in ${country.name}`}
-            className="max-h-full max-w-full object-contain object-center p-2"
-            loading="lazy"
-            decoding="async"
+            maxHeight={imageMaxHeight}
+            frameClassName="w-full rounded-2xl bg-navy-950/40"
+            sizes={compact ? '100vw' : '(min-width: 1024px) 50vw, 100vw'}
           />
-        ) : null}
-
-        {!hasImage ? (
+        ) : (
           <>
             <div
               className="absolute inset-0 opacity-50"
@@ -201,16 +213,10 @@ function CountryVisualCard({
               </p>
             </div>
           </>
-        ) : (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-950/80 via-navy-950/30 to-transparent p-4 pt-10">
-            <p className={`font-medium text-white/95 ${compact ? 'text-xs' : 'text-sm md:text-base'}`}>
-              {country.tagline}
-            </p>
-          </div>
         )}
 
         <div
-          className="absolute bottom-0 left-0 right-0 h-1.5 origin-left bg-gold-500"
+          className="pointer-events-none absolute bottom-0 left-0 right-0 h-1.5 origin-left bg-gold-500"
           style={{
             transform: `scaleX(${(activeIndex + 1) / count})`,
             transition: 'transform 0.45s ease',
@@ -254,7 +260,7 @@ function MbbsAbroadScrollSectionMobile({
   const prevIndexRef = useRef(0)
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: 'center',
+    align: 'start',
     containScroll: 'trimSnaps',
     dragFree: false,
   })
@@ -526,7 +532,7 @@ function MbbsAbroadScrollSectionDesktop({
               </AnimatePresence>
             </motion.div>
 
-            <div className="order-2 flex min-h-0 items-center">
+            <div className="order-2 flex min-h-0 w-full max-w-full items-center overflow-hidden">
               <CountryVisualCard
                 country={country}
                 activeIndex={activeIndex}
