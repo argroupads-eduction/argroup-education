@@ -38,10 +38,10 @@ export const Pages: CollectionConfig<'pages'> = {
     title: true,
     slug: true,
   },
+  defaultSort: '-publishedAt',
   admin: {
     group: 'Website content',
     defaultColumns: ['title', 'slug', 'publishedAt', '_status'],
-    defaultSort: '-publishedAt',
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({

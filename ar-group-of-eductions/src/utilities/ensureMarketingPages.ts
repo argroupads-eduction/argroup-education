@@ -31,11 +31,15 @@ export async function ensureMarketingPages(payload: Payload) {
 
       await payload.create({
         collection: 'pages',
+        depth: 0,
+        draft: false,
         data: {
           title: spec.title,
           slug: spec.slug,
           publishedAt: now.toISOString(),
-          _status: 'published',
+          hero: {
+            type: 'none',
+          },
           meta: {
             title: spec.metaTitle ?? spec.title,
             description: spec.metaDescription ?? '',
