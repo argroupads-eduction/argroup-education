@@ -1,4 +1,5 @@
 import { ClipboardList, GraduationCap, LineChart } from 'lucide-react';
+import { ContentSidebar } from '@/components/content/ContentSidebar';
 import {
   CATEGORY_CUTOFF_TABLE,
   HOW_TO_STEPS,
@@ -34,7 +35,10 @@ function MarksLadder({
 
 export function NeetRankPredictorContent() {
   return (
-    <div className="mx-auto max-w-5xl space-y-16 px-4 py-14 md:py-20">
+    <div className="neet-content-zone">
+      <div className="mx-auto max-w-7xl px-4 py-10 md:py-14">
+        <div className="neet-content-grid">
+          <div className="neet-content-main space-y-12 md:space-y-14">
       <section className="neet-how-section">
         <div className="neet-how-section__head">
           <h2 className="neet-section-title">How to use NEET Rank Predictor</h2>
@@ -136,6 +140,13 @@ export function NeetRankPredictorContent() {
           ))}
         </dl>
       </section>
+          </div>
+
+          <aside className="neet-content-aside">
+            <ContentSidebar />
+          </aside>
+        </div>
+      </div>
     </div>
   );
 }
