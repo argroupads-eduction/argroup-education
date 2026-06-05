@@ -58,5 +58,13 @@ export function resolveDatabaseUrl(): string {
     raw += raw.includes('?') ? '&pgbouncer=true' : '?pgbouncer=true'
   }
 
+  if (!/[?&]sslmode=/i.test(raw)) {
+    raw += raw.includes('?') ? '&sslmode=require' : '?sslmode=require'
+  }
+
+  if (!/[?&]connect_timeout=/i.test(raw)) {
+    raw += raw.includes('?') ? '&connect_timeout=15' : '?connect_timeout=15'
+  }
+
   return raw
 }

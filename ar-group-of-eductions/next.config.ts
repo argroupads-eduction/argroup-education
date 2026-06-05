@@ -46,6 +46,8 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: true,
   redirects,
+  // Monorepo: trace deps from CMS package root (must match turbopack.root).
+  outputFileTracingRoot: path.resolve(dirname),
   turbopack: {
     root: path.resolve(dirname),
   },
