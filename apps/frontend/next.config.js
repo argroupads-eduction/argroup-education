@@ -156,6 +156,26 @@ const nextConfig = {
         destination: '/mbbs-abroad',
         permanent: true,
       },
+      {
+        source: '/mbbs-in-india',
+        destination: '/mbbs-india',
+        permanent: true,
+      },
+      {
+        source: '/mbbs-in-india/',
+        destination: '/mbbs-india',
+        permanent: true,
+      },
+      {
+        source: '/contact-ar-group-of-education-mbbs-admission-help',
+        destination: '/contact',
+        permanent: true,
+      },
+      {
+        source: '/contact-ar-group-of-education-mbbs-admission-help/',
+        destination: '/contact',
+        permanent: true,
+      },
       // WordPress trailing slashes → Next paths (SEO / backlinks)
       {
         source: '/:slug/',

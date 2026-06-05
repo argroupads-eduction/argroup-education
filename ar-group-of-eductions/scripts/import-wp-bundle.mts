@@ -21,6 +21,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getPayload } from 'payload';
 import config from '@payload-config';
+import { wpHtmlToLexical } from '../src/utilities/wpHtmlToLexical.js';
 import { minimalLexicalParagraph } from './wp-import/minimalLexical.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -138,12 +139,16 @@ async function upsertPost(
   if (item.status !== 'publish') return 'skipped';
 
   const excerpt = plainExcerpt(item);
+  const content = await wpHtmlToLexical(item.content, payload.config, {
+    featuredImageUrl: item.featuredImage,
+    title: stripHtml(item.title),
+  });
   const data = {
     title: stripHtml(item.title),
     slug: item.slug,
     htmlContent: item.content,
     featuredImageUrl: item.featuredImage,
-    content: minimalLexicalParagraph(excerpt),
+    content,
     meta: {
       title: item.metaTitle || stripHtml(item.title),
       description: item.metaDescription || excerpt.slice(0, 160),
@@ -202,11 +207,16 @@ async function upsertPage(
   if (item.slug === HOME_SLUG) return 'skipped';
 
   const excerpt = plainExcerpt(item);
+  const content = await wpHtmlToLexical(item.content, payload.config, {
+    featuredImageUrl: item.featuredImage,
+    title: stripHtml(item.title),
+  });
   const data = {
     title: stripHtml(item.title),
     slug: item.slug,
     htmlContent: item.content,
     featuredImageUrl: item.featuredImage,
+    content,
     hero: { type: 'none' as const },
     layout: pageLayoutBlock(excerpt),
     meta: {

@@ -58,15 +58,17 @@ export function LeadCaptureMobileSheet({
             }
           >
             <div className="relative shrink-0 overflow-hidden bg-navy-900 text-white">
-              <Dialog.Close asChild>
-                <button
-                  type="button"
-                  className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-navy-800/90 text-white transition-colors hover:border-white/35 hover:bg-navy-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 touch-manipulation"
-                  aria-label="Close lead form"
-                >
-                  <X className="h-4 w-4" aria-hidden />
-                </button>
-              </Dialog.Close>
+              <div className="flex justify-end px-3 pt-2.5">
+                <Dialog.Close asChild>
+                  <button
+                    type="button"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/20 bg-navy-800/90 text-white transition-colors hover:border-white/35 hover:bg-navy-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 touch-manipulation"
+                    aria-label="Close lead form"
+                  >
+                    <X className="h-4 w-4" aria-hidden />
+                  </button>
+                </Dialog.Close>
+              </div>
               {header}
             </div>
 

@@ -1,19 +1,9 @@
 import type { CollectionConfig } from 'payload'
 
-import {
-  BlocksFeature,
-  FixedToolbarFeature,
-  HeadingFeature,
-  HorizontalRuleFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+import { marketingContentEditor } from '@/fields/contentLexicalEditor'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
-import { Banner } from '../../blocks/Banner/config'
-import { Code } from '../../blocks/Code/config'
-import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
@@ -83,16 +73,31 @@ export const Posts: CollectionConfig<'posts'> = {
               name: 'heroImage',
               type: 'upload',
               relationTo: 'media',
+              label: 'Featured image',
+              admin: {
+                description:
+                  'Blog hero image on the live site. Upload or pick from Media library to change it.',
+              },
+            },
+            {
+              name: 'content',
+              type: 'richText',
+              editor: marketingContentEditor,
+              label: 'Article content',
+              required: true,
+              admin: {
+                description:
+                  'Edit headings, bold text, lists, tables, and images visually — SEO-friendly like the live blog.',
+              },
             },
             {
               name: 'htmlContent',
               type: 'textarea',
               maxLength: 1000000,
-              label: 'WordPress HTML (marketing site)',
+              label: 'Legacy WordPress HTML',
               admin: {
-                rows: 12,
-                description:
-                  'Full HTML from WP export. When set, the frontend at localhost:3000 renders this (with FAQ accordion + SEO layout).',
+                hidden: true,
+                description: 'Imported WP HTML backup. The visual editor above is used on the live site.',
               },
             },
             {
@@ -100,26 +105,8 @@ export const Posts: CollectionConfig<'posts'> = {
               type: 'text',
               label: 'Featured image URL (imported)',
               admin: {
-                description: 'External image URL from WordPress until uploaded to Media.',
+                hidden: true,
               },
-            },
-            {
-              name: 'content',
-              type: 'richText',
-              editor: lexicalEditor({
-                features: ({ rootFeatures }) => {
-                  return [
-                    ...rootFeatures,
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                    BlocksFeature({ blocks: [Banner, Code, MediaBlock] }),
-                    FixedToolbarFeature(),
-                    InlineToolbarFeature(),
-                    HorizontalRuleFeature(),
-                  ]
-                },
-              }),
-              label: false,
-              required: true,
             },
           ],
           label: 'Content',

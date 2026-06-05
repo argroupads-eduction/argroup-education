@@ -1,3 +1,5 @@
+import { hasSubstantialLexicalContent } from './lexicalContent'
+
 /** Lexical rich text → HTML with links, bold, italic, underline, colors, images. */
 
 const F_BOLD = 1
@@ -337,11 +339,15 @@ export function htmlFromPayloadDoc(doc: {
   layout?: unknown
   hero?: { richText?: unknown } | null
 }): string {
+  const fromContent = lexicalToHtml(doc.content)
+  if (hasSubstantialLexicalContent(doc.content) && fromContent.trim()) {
+    return fromContent
+  }
+
   if (typeof doc.htmlContent === 'string' && doc.htmlContent.trim()) {
     return doc.htmlContent
   }
 
-  const fromContent = lexicalToHtml(doc.content)
   if (fromContent.trim()) return fromContent
 
   const heroHtml = lexicalToHtml(doc.hero?.richText)
