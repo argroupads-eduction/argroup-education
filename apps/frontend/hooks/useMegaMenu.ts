@@ -4,8 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type MegaMenuId = 'mbbs-india' | 'mbbs-abroad' | 'md-ms';
 
-const CLOSE_MS = 280;
-
 export function useMegaMenu() {
   const [megaOpen, setMegaOpen] = useState<MegaMenuId | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -39,12 +37,10 @@ export function useMegaMenu() {
     [clearCloseTimer]
   );
 
+  /** Close as soon as pointer leaves the mega menu container. */
   const scheduleClose = useCallback(() => {
     clearCloseTimer();
-    closeTimer.current = setTimeout(() => {
-      setMegaOpen(null);
-      closeTimer.current = null;
-    }, CLOSE_MS);
+    setMegaOpen(null);
   }, [clearCloseTimer]);
 
   const cancelClose = useCallback(() => {

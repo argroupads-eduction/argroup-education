@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 export { useMegaMenu, type MegaMenuId } from './useMegaMenu';
+export { useBodyScrollLock } from './useBodyScrollLock';
 
 export function useScrollPosition() {
   const [scrollPosition, setScrollPosition] = useState(0);

@@ -1,14 +1,32 @@
 import { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { getMbbsHeroFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { loadMbbsHeroFormDefinitionsServer } from '@/lib/mbbsHeroFormDefinitionServer';
 import { HeroSection } from '@/sections/home/HeroSection';
-import { MBBSIndiaStateSection } from '@/sections/home/MBBSIndiaStateSection';
-import { AboutSection } from '@/sections/home/AboutSection';
-import { MbbsAbroadScrollSection } from '@/sections/home/MbbsAbroadScrollSection';
-import { CounsellingFormSection } from '@/sections/home/CounsellingFormSection';
-import { AchievementsSection } from '@/sections/home/AchievementsSection';
-import { TestimonialsSection } from '@/sections/home/TestimonialsSection';
-import { FAQSection } from '@/sections/home/FAQSection';
+import { NeetRankPredictorHomeSection } from '@/sections/home/NeetRankPredictorHomeSection';
+import { LazySection } from '@/components/common/LazySection';
+
+const MBBSIndiaStateSection = dynamic(
+  () => import('@/sections/home/MBBSIndiaStateSection').then((m) => ({ default: m.MBBSIndiaStateSection }))
+);
+const AboutSection = dynamic(() =>
+  import('@/sections/home/AboutSection').then((m) => ({ default: m.AboutSection }))
+);
+const MbbsAbroadScrollSection = dynamic(() =>
+  import('@/sections/home/MbbsAbroadScrollSection').then((m) => ({ default: m.MbbsAbroadScrollSection }))
+);
+const CounsellingFormSection = dynamic(() =>
+  import('@/sections/home/CounsellingFormSection').then((m) => ({ default: m.CounsellingFormSection }))
+);
+const AchievementsSection = dynamic(() =>
+  import('@/sections/home/AchievementsSection').then((m) => ({ default: m.AchievementsSection }))
+);
+const TestimonialsSection = dynamic(() =>
+  import('@/sections/home/TestimonialsSection').then((m) => ({ default: m.TestimonialsSection }))
+);
+const FAQSection = dynamic(() =>
+  import('@/sections/home/FAQSection').then((m) => ({ default: m.FAQSection }))
+);
 
 export const metadata: Metadata = {
   title: 'Home - Medical Education Consultancy',
@@ -43,13 +61,28 @@ export default async function HomePage() {
           abroad: forms.abroad.ok ? forms.abroad.doc : getMbbsHeroFallbackForm('abroad'),
         }}
       />
-      <MBBSIndiaStateSection />
-      <AboutSection />
-      <MbbsAbroadScrollSection />
-      <CounsellingFormSection />
-      <AchievementsSection />
-      <TestimonialsSection />
-      <FAQSection />
+      <NeetRankPredictorHomeSection />
+      <LazySection minHeight="22rem">
+        <MBBSIndiaStateSection />
+      </LazySection>
+      <LazySection minHeight="24rem">
+        <AboutSection />
+      </LazySection>
+      <LazySection minHeight="28rem">
+        <MbbsAbroadScrollSection />
+      </LazySection>
+      <LazySection minHeight="20rem">
+        <CounsellingFormSection />
+      </LazySection>
+      <LazySection minHeight="22rem">
+        <AchievementsSection />
+      </LazySection>
+      <LazySection minHeight="20rem">
+        <TestimonialsSection />
+      </LazySection>
+      <LazySection minHeight="18rem">
+        <FAQSection />
+      </LazySection>
     </>
   );
 }

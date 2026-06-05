@@ -42,7 +42,18 @@ type WpItem = {
   metaTitle?: string | null;
   metaDescription?: string | null;
   canonicalUrl?: string | null;
+  ogImage?: string | null;
+  keywords?: string[];
 };
+
+function seoFieldsFromItem(item: WpItem) {
+  return {
+    canonicalUrl: item.canonicalUrl ?? null,
+    focusKeyword: null as string | null,
+    ogImageUrl: item.ogImage ?? item.featuredImage ?? null,
+    schemaJson: null as Record<string, unknown> | null,
+  };
+}
 
 type Report = {
   startedAt: string;
@@ -57,14 +68,31 @@ function parseArgs(argv: string[]) {
   const pagesOnly = argv.includes('--pages-only');
   const skipExisting = argv.includes('--skip-existing');
   const limitMatch = argv.find((a) => a.startsWith('--limit='));
+  const offsetMatch = argv.find((a) => a.startsWith('--offset='));
   const limit = limitMatch ? Math.max(1, parseInt(limitMatch.split('=')[1] ?? '0', 10)) : Infinity;
+  const offset = offsetMatch ? Math.max(0, parseInt(offsetMatch.split('=')[1] ?? '0', 10)) : 0;
   return {
     dryRun,
     importPosts: !pagesOnly,
     importPages: !postsOnly,
     skipExisting,
     limit,
+    offset,
   };
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isConnectionError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return (
+    msg.includes('Connection terminated') ||
+    msg.includes('ECONNRESET') ||
+    msg.includes('ENOTFOUND') ||
+    msg.includes('connect to Postgres')
+  );
 }
 
 function stripHtml(html: string): string {
@@ -120,6 +148,7 @@ async function upsertPost(
       title: item.metaTitle || stripHtml(item.title),
       description: item.metaDescription || excerpt.slice(0, 160),
     },
+    ...seoFieldsFromItem(item),
     publishedAt: item.date,
     _status: 'published' as const,
   };
@@ -131,10 +160,18 @@ async function upsertPost(
     where: { slug: { equals: item.slug } },
     limit: 1,
     pagination: false,
+    depth: 0,
+    select: { id: true, slug: true },
   });
 
   const doc = existing.docs[0];
   if (doc && opts.skipExisting) return 'skipped';
+
+  const importContext = {
+    disableBackendSync: true,
+    disableRevalidate: true,
+    disablePublishedAtDefault: true,
+  };
 
   if (doc) {
     await payload.update({
@@ -142,7 +179,7 @@ async function upsertPost(
       id: doc.id,
       data,
       overrideAccess: true,
-      context: { disableBackendSync: true, disableRevalidate: true },
+      context: importContext,
     });
     return 'updated';
   }
@@ -151,7 +188,7 @@ async function upsertPost(
     collection: 'posts',
     data,
     overrideAccess: true,
-    context: { disableBackendSync: true, disableRevalidate: true },
+    context: importContext,
   });
   return 'created';
 }
@@ -176,6 +213,7 @@ async function upsertPage(
       title: item.metaTitle || stripHtml(item.title),
       description: item.metaDescription || excerpt.slice(0, 160),
     },
+    ...seoFieldsFromItem(item),
     publishedAt: item.date,
     _status: 'published' as const,
   };
@@ -187,10 +225,18 @@ async function upsertPage(
     where: { slug: { equals: item.slug } },
     limit: 1,
     pagination: false,
+    depth: 0,
+    select: { id: true, slug: true },
   });
 
   const doc = existing.docs[0];
   if (doc && opts.skipExisting) return 'skipped';
+
+  const importContext = {
+    disableBackendSync: true,
+    disableRevalidate: true,
+    disablePublishedAtDefault: true,
+  };
 
   if (doc) {
     await payload.update({
@@ -198,7 +244,7 @@ async function upsertPage(
       id: doc.id,
       data,
       overrideAccess: true,
-      context: { disableBackendSync: true, disableRevalidate: true },
+      context: importContext,
     });
     return 'updated';
   }
@@ -207,7 +253,7 @@ async function upsertPage(
     collection: 'pages',
     data,
     overrideAccess: true,
-    context: { disableBackendSync: true, disableRevalidate: true },
+    context: importContext,
   });
   return 'created';
 }
@@ -225,11 +271,18 @@ async function main() {
   const { posts, pages } = await loadBundle();
   console.log(`[wp→payload] Found ${posts.length} posts, ${pages.length} pages`);
 
-  const payload = await getPayload({ config });
+  process.env.PAYLOAD_DATABASE_PUSH = 'false';
+
+  let payload = await getPayload({ config });
+
+  const refreshPayload = async () => {
+    await sleep(1500);
+    payload = await getPayload({ config });
+  };
 
   if (args.importPosts) {
-    const slice = posts.slice(0, args.limit);
-    console.log(`[wp→payload] Importing ${slice.length} posts…`);
+    const slice = posts.slice(args.offset, args.offset + args.limit);
+    console.log(`[wp→payload] Importing ${slice.length} posts (offset ${args.offset})…`);
     for (const item of slice) {
       try {
         const r = await upsertPost(payload, item, args);
@@ -237,16 +290,28 @@ async function main() {
         if ((report.posts.created + report.posts.updated) % 25 === 0) {
           console.log(`  posts: ${report.posts.created} created, ${report.posts.updated} updated`);
         }
+        await sleep(150);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         report.posts.errors.push(`${item.slug}: ${msg}`);
+        if (isConnectionError(e)) {
+          console.warn('[wp→payload] DB connection lost — reconnecting…');
+          try {
+            await refreshPayload();
+            const r = await upsertPost(payload, item, args);
+            report.posts[r === 'created' ? 'created' : r === 'updated' ? 'updated' : 'skipped'] += 1;
+          } catch (retryErr) {
+            const retryMsg = retryErr instanceof Error ? retryErr.message : String(retryErr);
+            report.posts.errors.push(`${item.slug} (retry): ${retryMsg}`);
+          }
+        }
       }
     }
   }
 
   if (args.importPages) {
-    const slice = pages.slice(0, args.limit);
-    console.log(`[wp→payload] Importing ${slice.length} pages…`);
+    const slice = pages.slice(args.offset, args.offset + args.limit);
+    console.log(`[wp→payload] Importing ${slice.length} pages (offset ${args.offset})…`);
     for (const item of slice) {
       try {
         const r = await upsertPage(payload, item, args);
@@ -254,9 +319,21 @@ async function main() {
         if ((report.pages.created + report.pages.updated) % 50 === 0) {
           console.log(`  pages: ${report.pages.created} created, ${report.pages.updated} updated`);
         }
+        await sleep(150);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         report.pages.errors.push(`${item.slug}: ${msg}`);
+        if (isConnectionError(e)) {
+          console.warn('[wp→payload] DB connection lost — reconnecting…');
+          try {
+            await refreshPayload();
+            const r = await upsertPage(payload, item, args);
+            report.pages[r === 'created' ? 'created' : r === 'updated' ? 'updated' : 'skipped'] += 1;
+          } catch (retryErr) {
+            const retryMsg = retryErr instanceof Error ? retryErr.message : String(retryErr);
+            report.pages.errors.push(`${item.slug} (retry): ${retryMsg}`);
+          }
+        }
       }
     }
   }
@@ -272,8 +349,9 @@ async function main() {
   console.log('  Report:', reportPath);
 
   if (report.posts.errors.length || report.pages.errors.length) {
-    process.exitCode = 1;
+    process.exit(1);
   }
+  process.exit(0);
 }
 
 main().catch((e) => {

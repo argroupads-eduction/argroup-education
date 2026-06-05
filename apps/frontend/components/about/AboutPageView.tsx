@@ -430,13 +430,13 @@ export function AboutPageView() {
             <div className="about-cta__mesh" aria-hidden />
             <h2 className="about-cta__title">Ready for honest medical admission guidance?</h2>
             <p className="about-cta__desc">
-              Book a free counselling session — no pressure, no hidden fees. Talk to AR Group before you commit to a
+              Book an expert counselling session — no pressure, no hidden fees. Talk to AR Group before you commit to a
               college or country.
             </p>
             <div className="about-cta__actions">
               <Link href="/contact">
                 <Button variant="primary" size="lg" className="group">
-                  Free counselling
+                  Expert counselling
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
                 </Button>
               </Link>

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Stethoscope } from 'lucide-react';
 import { HorizontalScrollItem, HorizontalScrollRow } from '@/components/ui/HorizontalScrollRow';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
@@ -21,8 +22,19 @@ export function MdMsHubExplorer() {
           {MD_MS_NAV_ITEMS.map((item) => (
             <HorizontalScrollItem key={item.href} className="w-[15rem] sm:w-[16rem]">
               <Link href={item.href} className="program-hub-card group block h-full">
-                <div className="program-hub-card-media">
-                  <Stethoscope className="h-10 w-10 text-indigo-400/80" aria-hidden />
+                <div className="program-hub-card-media program-hub-card-media--photo">
+                  {item.coverImage ? (
+                    <Image
+                      src={item.coverImage}
+                      alt=""
+                      fill
+                      sizes="256px"
+                      className="object-cover object-center"
+                      unoptimized
+                    />
+                  ) : (
+                    <Stethoscope className="h-10 w-10 text-indigo-400/80" aria-hidden />
+                  )}
                 </div>
                 <div className="program-hub-card-body">
                   <span className="inline-flex w-fit rounded-md bg-indigo-600 px-2 py-0.5 text-[10px] font-bold uppercase text-white">

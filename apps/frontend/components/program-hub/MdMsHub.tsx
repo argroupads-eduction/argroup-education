@@ -52,7 +52,7 @@ export function MdMsHub({ wpContent }: MdMsHubProps) {
         lead={seo.description}
         stats={[
           { label: 'States', value: String(MD_MS_NAV_ITEMS.length) },
-          { label: 'Guidance', value: 'Free' },
+          { label: 'Guidance', value: 'Expert' },
           { label: 'Counselling', value: 'Expert' },
         ]}
       />

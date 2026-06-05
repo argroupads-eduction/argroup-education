@@ -11,9 +11,12 @@ import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
+import { SiteSettings } from './globals/SiteSettings/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { resolveDatabaseUrl } from './utilities/resolveDatabaseUrl'
+import { ensureMarketingPages } from './utilities/ensureMarketingPages'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -59,7 +62,7 @@ export default buildConfig({
   editor: defaultLexical,
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || '',
+      connectionString: resolveDatabaseUrl(),
     },
     /**
      * When false, skips Drizzle `push` on boot (no interactive "Accept warnings?" prompt, faster admin).
@@ -69,7 +72,7 @@ export default buildConfig({
   }),
   collections: [Pages, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer],
+  globals: [Header, Footer, SiteSettings],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   sharp,
@@ -93,5 +96,8 @@ export default buildConfig({
       },
     },
     tasks: [],
+  },
+  onInit: async (payload) => {
+    await ensureMarketingPages(payload)
   },
 })

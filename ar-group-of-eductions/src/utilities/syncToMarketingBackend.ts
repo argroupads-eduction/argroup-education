@@ -16,6 +16,14 @@ type SyncPayload = {
   category?: string
   metaTitle?: string | null
   metaDescription?: string | null
+  canonicalUrl?: string | null
+  focusKeyword?: string | null
+  ogTitle?: string | null
+  ogDescription?: string | null
+  ogImage?: string | null
+  twitterTitle?: string | null
+  twitterDescription?: string | null
+  schemaJson?: unknown | null
   navEnabled?: boolean
   navSection?: string | null
   navParent?: string | null

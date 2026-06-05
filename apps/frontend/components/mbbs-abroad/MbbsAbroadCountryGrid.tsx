@@ -28,7 +28,7 @@ export function MbbsAbroadCountryGrid({ country }: MbbsAbroadCountryGridProps) {
           </p>
         </div>
         <Link href="/contact" className="program-hub-btn-primary shrink-0">
-          Free counselling
+          Expert counselling
         </Link>
       </div>
 

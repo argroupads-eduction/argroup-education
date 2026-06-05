@@ -112,10 +112,12 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'site-settings': SiteSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -225,7 +227,7 @@ export interface Page {
     showInNavigation?: boolean | null;
     navSection?: ('none' | 'main' | 'mbbs_india' | 'mbbs_abroad' | 'md_ms' | 'footer') | null;
     /**
-     * For India/Abroad mega menus — e.g. Uttar Pradesh, Russia. Page link is added under that group.
+     * For India/Abroad mega menus — use state/country name (Uttar Pradesh), id (up), or path (mbbs-india/up). Page link appears in that group’s college list.
      */
     navParent?: string | null;
     /**
@@ -234,7 +236,23 @@ export interface Page {
     navLabel?: string | null;
     navSortOrder?: number | null;
   };
+  /**
+   * Original publish date from WP export. List is sorted by this (newest first).
+   */
   publishedAt?: string | null;
+  canonicalUrl?: string | null;
+  focusKeyword?: string | null;
+  ogImageUrl?: string | null;
+  robotsMeta?: string | null;
+  schemaJson?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -285,6 +303,9 @@ export interface Post {
     image?: (number | null) | Media;
     description?: string | null;
   };
+  /**
+   * Original publish date from WP export. List is sorted by this (newest first).
+   */
   publishedAt?: string | null;
   authors?: (number | User)[] | null;
   populatedAuthors?:
@@ -292,6 +313,19 @@ export interface Post {
         id?: string | null;
         name?: string | null;
       }[]
+    | null;
+  canonicalUrl?: string | null;
+  focusKeyword?: string | null;
+  ogImageUrl?: string | null;
+  robotsMeta?: string | null;
+  schemaJson?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
@@ -303,6 +337,8 @@ export interface Post {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Uploaded images. Run `npm run wp:import:media` to import featured images from the WordPress export.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -1141,6 +1177,11 @@ export interface PagesSelect<T extends boolean = true> {
         navSortOrder?: T;
       };
   publishedAt?: T;
+  canonicalUrl?: T;
+  focusKeyword?: T;
+  ogImageUrl?: T;
+  robotsMeta?: T;
+  schemaJson?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -1258,6 +1299,11 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
         name?: T;
       };
+  canonicalUrl?: T;
+  focusKeyword?: T;
+  ogImageUrl?: T;
+  robotsMeta?: T;
+  schemaJson?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -1677,28 +1723,60 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * Build the site header menu. Use “Quick pick” for recent pages, then drag items in the tree below.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
 export interface Header {
   id: number;
-  navItems?:
+  /**
+   * Select pages you just imported (newest first). Copy title/URL into menu items below, or link via “Link to Page”.
+   */
+  quickPickPages?: (number | Page)[] | null;
+  menuItems?:
     | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-        };
+        label: string;
+        linkType?: ('page' | 'custom') | null;
+        /**
+         * Pick a page — newest imports show at the top when sorted by date.
+         */
+        page?: (number | null) | Page;
+        /**
+         * e.g. /mbbs-india/up or /about
+         */
+        url?: string | null;
+        megaMenu?: ('none' | 'mbbs-india' | 'mbbs-abroad' | 'md-ms') | null;
+        subItems?:
+          | {
+              label: string;
+              linkType?: ('page' | 'custom') | null;
+              /**
+               * Pick a page — newest imports show at the top when sorted by date.
+               */
+              page?: (number | null) | Page;
+              /**
+               * e.g. /mbbs-india/up or /about
+               */
+              url?: string | null;
+              collegeLinks?:
+                | {
+                    label: string;
+                    linkType?: ('page' | 'custom') | null;
+                    /**
+                     * Pick a page — newest imports show at the top when sorted by date.
+                     */
+                    page?: (number | null) | Page;
+                    /**
+                     * e.g. /mbbs-india/up or /about
+                     */
+                    url?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -1711,6 +1789,20 @@ export interface Header {
  */
 export interface Footer {
   id: number;
+  companyLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  programLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
   navItems?:
     | {
         link: {
@@ -1736,9 +1828,86 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  phone?: string | null;
+  phoneTel?: string | null;
+  email?: string | null;
+  whatsapp?: string | null;
+  address?: string | null;
+  hours?: string | null;
+  socialLinks?:
+    | {
+        platform: 'facebook' | 'instagram' | 'youtube' | 'linkedin' | 'twitter' | 'whatsapp';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  defaultMetaTitle?: string | null;
+  defaultMetaDescription?: string | null;
+  defaultOgImageUrl?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
+  quickPickPages?: T;
+  menuItems?:
+    | T
+    | {
+        label?: T;
+        linkType?: T;
+        page?: T;
+        url?: T;
+        megaMenu?: T;
+        subItems?:
+          | T
+          | {
+              label?: T;
+              linkType?: T;
+              page?: T;
+              url?: T;
+              collegeLinks?:
+                | T
+                | {
+                    label?: T;
+                    linkType?: T;
+                    page?: T;
+                    url?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  companyLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  programLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
   navItems?:
     | T
     | {
@@ -1759,23 +1928,25 @@ export interface HeaderSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer_select".
+ * via the `definition` "site-settings_select".
  */
-export interface FooterSelect<T extends boolean = true> {
-  navItems?:
+export interface SiteSettingsSelect<T extends boolean = true> {
+  phone?: T;
+  phoneTel?: T;
+  email?: T;
+  whatsapp?: T;
+  address?: T;
+  hours?: T;
+  socialLinks?:
     | T
     | {
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-            };
+        platform?: T;
+        url?: T;
         id?: T;
       };
+  defaultMetaTitle?: T;
+  defaultMetaDescription?: T;
+  defaultOgImageUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

@@ -41,7 +41,7 @@ const STATS = [
 export const CounsellingFormSection = () => {
   return (
     <section
-      id="free-counselling"
+      id="expert-counselling"
       className="relative z-20 overflow-hidden bg-gradient-to-b from-navy-50/80 via-white to-gold-50/40 py-14 md:py-20"
     >
       <div

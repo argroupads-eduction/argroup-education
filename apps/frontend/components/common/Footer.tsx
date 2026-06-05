@@ -18,7 +18,9 @@ import { CONTACT_INFO, SITE_DESCRIPTION, SITE_NAME, SOCIAL_LINKS } from '@/lib/c
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
 import { FooterAirportDiaries } from './footer/FooterAirportDiaries';
 import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
+import { useSiteGlobals } from '@/components/common/SiteGlobalsProvider';
 import { navPagesForSection } from '@/lib/dynamicNav';
+import { mergeContactInfo, mergeLinkLists, mergeSocialLinks } from '@/lib/siteGlobals';
 import '@/styles/footer-main.css';
 
 const COMPANY_LINKS = [
@@ -33,6 +35,7 @@ const PROGRAM_LINKS = [
   { label: 'MBBS in India', href: '/mbbs-india' },
   { label: 'MBBS Abroad', href: '/mbbs-abroad' },
   { label: 'MD / MS', href: '/md-ms' },
+  { label: 'NEET Rank Predictor', href: '/neet-rank-predictor' },
   { label: 'Blog & Updates', href: '/blog' },
   { label: 'Services', href: '/services' },
 ] as const;
@@ -64,13 +67,27 @@ function socialIcon(platform: string) {
 export const Footer = () => {
   const year = new Date().getFullYear();
   const navPages = useDynamicNavPages();
+  const siteGlobals = useSiteGlobals();
+  const contactInfo = useMemo(
+    () => mergeContactInfo(CONTACT_INFO, siteGlobals['site-settings']),
+    [siteGlobals]
+  );
+  const socialLinks = useMemo(
+    () => mergeSocialLinks(SOCIAL_LINKS, siteGlobals['site-settings']?.socialLinks),
+    [siteGlobals]
+  );
+  const programLinks = useMemo(
+    () => mergeLinkLists(PROGRAM_LINKS, siteGlobals.footer?.programLinks),
+    [siteGlobals]
+  );
   const footerLinks = useMemo(() => {
+    const companyBase = mergeLinkLists(COMPANY_LINKS, siteGlobals.footer?.companyLinks);
     const extras = navPagesForSection(navPages, 'footer').map((p) => ({
       label: p.label,
       href: p.href,
     }));
-    return [...COMPANY_LINKS, ...extras];
-  }, [navPages]);
+    return mergeLinkLists(companyBase, extras);
+  }, [navPages, siteGlobals]);
 
   return (
     <footer className="bg-navy-900 text-white">
@@ -100,17 +117,17 @@ export const Footer = () => {
                 </Button>
               </Link>
               <div className="site-footer-main__contact">
-                <a href={telHref(CONTACT_INFO.phone)}>
+                <a href={telHref(contactInfo.phone ?? CONTACT_INFO.phone)}>
                   <Phone className="h-3.5 w-3.5 shrink-0 text-gold-500" />
-                  {CONTACT_INFO.phone}
+                  {contactInfo.phone}
                 </a>
-                <a href={`mailto:${CONTACT_INFO.email}`}>
+                <a href={`mailto:${contactInfo.email}`}>
                   <Mail className="h-3.5 w-3.5 shrink-0 text-gold-500" />
-                  {CONTACT_INFO.email}
+                  {contactInfo.email}
                 </a>
                 <span className="inline-flex items-start gap-2">
                   <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-500" />
-                  {CONTACT_INFO.address}
+                  {contactInfo.address}
                 </span>
               </div>
             </div>
@@ -131,7 +148,7 @@ export const Footer = () => {
               <div className="site-footer-main__col">
                 <h4 className="site-footer-main__col-title">Programs</h4>
                 <ul>
-                  {PROGRAM_LINKS.map((link) => (
+                  {programLinks.map((link) => (
                     <li key={link.href}>
                       <Link href={link.href}>{link.label}</Link>
                     </li>
@@ -177,7 +194,7 @@ export const Footer = () => {
           <div className="site-footer-main__bottom">
             <div className="site-footer-main__social">
               <span className="site-footer-main__social-label">Follow us</span>
-              {SOCIAL_LINKS.map((social) => {
+              {socialLinks.map((social) => {
                 const Icon = socialIcon(social.platform);
                 if (!Icon || social.platform === 'whatsapp') return null;
                 return (

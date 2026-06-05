@@ -1,9 +1,37 @@
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 import { PrismaClient } from '@prisma/client';
 import { isPrismaConnectionError, neonDatabaseUrl } from './neonDatabaseUrl';
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+/** Next.js loads apps/frontend/.env* only; backend .env lives under apps/backend. */
+function loadDatabaseEnv(): void {
+  const tried = new Set<string>();
+  const tryFile = (filePath: string) => {
+    const resolved = path.resolve(filePath);
+    if (tried.has(resolved) || !fs.existsSync(resolved)) return;
+    tried.add(resolved);
+    dotenv.config({ path: resolved });
+  };
+
+  const cwd = process.cwd();
+  const roots = [
+    cwd,
+    path.join(cwd, '..'),
+    path.join(cwd, '../..'),
+    path.resolve(__dirname, '../..'),
+    path.resolve(__dirname, '../../..'),
+  ];
+
+  for (const root of roots) {
+    tryFile(path.join(root, '.env'));
+    tryFile(path.join(root, '.env.local'));
+    tryFile(path.join(root, 'apps/backend/.env'));
+    tryFile(path.join(root, 'apps/frontend/.env.local'));
+  }
+}
+
+loadDatabaseEnv();
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

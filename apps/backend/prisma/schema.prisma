@@ -126,6 +126,26 @@ model University {
   @@index([countryId])
 }
 
+// NEET Rank Predictor submissions
+model NeetRankPredictorSubmission {
+  id              String   @id @default(cuid())
+  name            String
+  email           String
+  phone           String
+  city            String
+  category        String
+  score           Int
+  bestRank        Int
+  expectedRank    Int
+  worstRank       Int
+  percentile      Float
+  collegeChances  String   @db.Text
+  createdAt       DateTime @default(now())
+
+  @@index([phone])
+  @@index([createdAt])
+}
+
 // Leads Models
 model Lead {
   id               String   @id @default(cuid())
@@ -219,4 +239,15 @@ model AdminUser {
   lastLogin        DateTime?
   
   @@index([active])
+}
+
+// Payload CMS globals synced to Neon (header, footer, site-settings)
+model SiteGlobal {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  data      Json
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([slug])
 }

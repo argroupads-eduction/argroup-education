@@ -27,6 +27,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from 'payload'
+import { seoExtendedFields } from '@/fields/seoExtendedFields'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
@@ -49,7 +50,8 @@ export const Posts: CollectionConfig<'posts'> = {
     },
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    group: 'Website content',
+    defaultColumns: ['title', 'slug', 'publishedAt', '_status'],
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -84,10 +86,11 @@ export const Posts: CollectionConfig<'posts'> = {
             },
             {
               name: 'htmlContent',
-              type: 'code',
+              type: 'textarea',
+              maxLength: 1000000,
               label: 'WordPress HTML (marketing site)',
               admin: {
-                language: 'html',
+                rows: 12,
                 description:
                   'Full HTML from WP export. When set, the frontend at localhost:3000 renders this (with FAQ accordion + SEO layout).',
               },
@@ -183,11 +186,13 @@ export const Posts: CollectionConfig<'posts'> = {
     {
       name: 'publishedAt',
       type: 'date',
+      label: 'Published date (from WordPress export)',
       admin: {
         date: {
           pickerAppearance: 'dayAndTime',
         },
         position: 'sidebar',
+        description: 'Original publish date from WP export. List is sorted by this (newest first).',
       },
       hooks: {
         beforeChange: [
@@ -233,6 +238,7 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
+    ...seoExtendedFields,
     slugField(),
   ],
   hooks: {

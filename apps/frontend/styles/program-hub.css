@@ -239,11 +239,25 @@
   background: linear-gradient(180deg, rgb(248 250 252), rgb(241 245 249));
 }
 
+.program-hub-card-media--photo {
+  position: relative;
+  min-height: 8.5rem;
+  padding: 0;
+  overflow: hidden;
+  background: rgb(241 245 249);
+}
+
 .program-hub-card-media img {
   max-height: 6.5rem;
   width: auto;
   max-width: 100%;
   object-fit: contain;
+}
+
+.program-hub-card-media--photo img {
+  max-height: none;
+  width: 100%;
+  max-width: none;
 }
 
 .program-hub-card-body {

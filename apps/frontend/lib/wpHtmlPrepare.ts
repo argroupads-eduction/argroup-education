@@ -108,7 +108,7 @@ export function constrainInlineSvgs(html: string): string {
 const PREMIUM_ENQUIRY_CTA = `<div class="wp-premium-enquiry">
       <p class="wp-premium-enquiry-text">Speak with our admission counsellors for personalised guidance on fees, eligibility, and seat booking.</p>
       <div class="wp-premium-enquiry-actions">
-        <a href="/contact" class="wp-premium-btn wp-premium-btn-primary">Book free counselling</a>
+        <a href="/contact" class="wp-premium-btn wp-premium-btn-primary">Book expert counselling</a>
         <a href="tel:+917076909090" class="wp-premium-btn wp-premium-btn-outline">Call +91-7076909090</a>
       </div>
     </div>`;

@@ -4,6 +4,7 @@ import { fixAbroadWpContent } from '@/lib/fixAbroadWpContent';
 import { prepareAbroadHubHtml } from '@/lib/prepareAbroadHubHtml';
 import { prepareWpHtml } from '@/lib/wpHtmlPrepare';
 import { parseContentStructure } from '@/lib/wpContentStructure';
+import { sanitizeCmsHtml } from '@/lib/sanitizeCmsHtml';
 import { MbbsAbroadWpEnhancer } from '@/components/mbbs-abroad/MbbsAbroadWpEnhancer';
 import { QuickFactsGrid } from './QuickFactsGrid';
 import { ContentTableOfContents } from './ContentTableOfContents';
@@ -41,14 +42,15 @@ export function ContentArticle({
   const parsed =
     structuredHtmlProp !== undefined
       ? {
-          html: structuredHtmlProp,
+          html: sanitizeCmsHtml(structuredHtmlProp),
           headings: headingsProp ?? [],
           quickFacts: quickFactsProp ?? [],
         }
       : parseContentStructure(
-          prepareWpHtml(html, { featuredImage, title })
+          sanitizeCmsHtml(prepareWpHtml(html, { featuredImage, title }))
         );
   const { html: structuredHtml, headings, quickFacts } = parsed;
+  const safeHtml = sanitizeCmsHtml(structuredHtml);
   const displayFeatured = showFeaturedImage && featuredImage;
 
   return (
@@ -82,7 +84,7 @@ export function ContentArticle({
       <div
         className="wp-content wp-content-body"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: structuredHtml }}
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
       />
     </article>
   );

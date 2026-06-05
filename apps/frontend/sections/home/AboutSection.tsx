@@ -1,7 +1,6 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
   ArrowRight,
@@ -13,6 +12,8 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { CTA_SCHEDULE_EXPERT_COUNSELLING } from '@/lib/brandCopy'
+import { openLeadCapturePopup } from '@/lib/openLeadCapture'
 
 const ESTABLISHED_YEAR = 2005
 const YEARS_EXPERIENCE = new Date().getFullYear() - ESTABLISHED_YEAR
@@ -201,12 +202,16 @@ export const AboutSection = () => {
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link href="/contact">
-                <Button variant="primary" size="lg" className="group w-full sm:w-auto">
-                  Schedule free counselling
-                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
+              <Button
+                type="button"
+                variant="primary"
+                size="lg"
+                className="group w-full sm:w-auto"
+                onClick={() => openLeadCapturePopup()}
+              >
+                {CTA_SCHEDULE_EXPERT_COUNSELLING}
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
               <a
                 href="https://wa.me/919999999999"
                 target="_blank"

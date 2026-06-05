@@ -15,7 +15,8 @@ import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 const HOME_WP_SLUG = 'mbbs-admission-in-top-colleges';
 
-export const dynamic = 'force-dynamic';
+/** Cache published pages; bust on Payload sync via /api/revalidate */
+export const revalidate = 300;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -122,7 +123,7 @@ export default async function WpSlugPage({ params }: PageProps) {
             href="/contact"
             className="site-gold-cta inline-flex min-h-[44px] w-full items-center justify-center sm:w-auto"
           >
-            Free counselling
+            Expert counselling
           </Link>
         </div>
       </div>

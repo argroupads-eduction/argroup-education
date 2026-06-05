@@ -35,7 +35,20 @@
     "build:wp-bundle": "node scripts/build-wp-production-bundle.mjs",
     "wp:import:payload": "npm run import:wp-bundle --prefix ar-group-of-eductions",
     "wp:import:payload:dry": "npm run import:wp-bundle --prefix ar-group-of-eductions -- --dry-run --limit=3",
-    "payload:sync:backend": "npm run sync:backend --prefix ar-group-of-eductions"
+    "wp:import:media": "npm run import:wp-media --prefix ar-group-of-eductions",
+    "wp:import:media:batched": "node scripts/wp-migration/import-media-batched.mjs",
+    "payload:sync:backend": "npm run sync:backend --prefix ar-group-of-eductions",
+    "payload:sync:globals": "npm run sync:globals --prefix ar-group-of-eductions",
+    "payload:seed:globals": "npm run seed:globals --prefix ar-group-of-eductions",
+    "payload:seed:main-menu": "npm run seed:main-menu --prefix ar-group-of-eductions",
+    "payload:sync:menu-schema": "npm run sync:menu-schema --prefix ar-group-of-eductions",
+    "payload:dedupe:pages": "npm run dedupe:pages --prefix ar-group-of-eductions",
+    "wp:verify:migration": "node scripts/wp-migration/verify-migration.mjs",
+    "wp:import:payload:batched": "node scripts/wp-migration/import-payload-batched.mjs",
+    "wp:import:payload:pages": "node scripts/wp-migration/import-payload-pages-batched.mjs",
+    "docker:build:frontend": "docker build -f docker/frontend.Dockerfile -t ar-education/frontend:latest .",
+    "docker:build:backend": "docker build -f docker/backend.Dockerfile -t ar-education/backend:latest .",
+    "k8s:apply": "kubectl apply -f k8s/namespace.yaml && kubectl apply -f k8s/configmap.example.yaml && kubectl apply -f k8s/backend-deployment.yaml && kubectl apply -f k8s/frontend-deployment.yaml && kubectl apply -f k8s/ingress.yaml && kubectl apply -f k8s/hpa-frontend.yaml"
   },
   "workspaces": [
     "apps/frontend",

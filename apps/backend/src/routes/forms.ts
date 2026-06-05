@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
 
@@ -74,6 +75,70 @@ router.post(
       });
     } catch (error) {
       res.status(500).json({ success: false, message: 'Error submitting form' });
+    }
+  }
+);
+
+// POST /api/forms/neet-rank-predictor — verified NEET rank predictor lead
+router.post(
+  '/neet-rank-predictor',
+  [
+    body('name').trim().notEmpty(),
+    body('email').isEmail(),
+    body('phone').matches(/^[0-9]{10}$/),
+    body('city').trim().notEmpty(),
+    body('category').trim().notEmpty(),
+    body('score').isInt({ min: 0, max: 720 }),
+    body('bestRank').isInt({ min: 1 }),
+    body('expectedRank').isInt({ min: 1 }),
+    body('worstRank').isInt({ min: 1 }),
+    body('percentile').isFloat({ min: 0, max: 100 }),
+    body('collegeChances').trim().notEmpty(),
+  ],
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const {
+        name,
+        email,
+        phone,
+        city,
+        category,
+        score,
+        bestRank,
+        expectedRank,
+        worstRank,
+        percentile,
+        collegeChances,
+      } = req.body;
+
+      await prisma.neetRankPredictorSubmission.create({
+        data: {
+          name,
+          email,
+          phone,
+          city,
+          category,
+          score,
+          bestRank,
+          expectedRank,
+          worstRank,
+          percentile,
+          collegeChances,
+        },
+      });
+
+      res.json({
+        success: true,
+        message: 'Prediction saved. Our counsellors may reach out to help with admission planning.',
+      });
+    } catch (error) {
+      console.error('[neet-rank-predictor]', error);
+      res.status(500).json({ success: false, message: 'Error saving submission' });
     }
   }
 );

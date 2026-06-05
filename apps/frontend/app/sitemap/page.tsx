@@ -19,6 +19,7 @@ export default function SitemapPage() {
       { title: 'Scholarships', href: '/services' },
     ]},
     { category: 'Resources', links: [
+      { title: 'NEET Rank Predictor', href: '/neet-rank-predictor' },
       { title: 'Blog', href: '/blog' },
       { title: 'FAQs', href: '/' },
       { title: 'Success Stories', href: '/' },

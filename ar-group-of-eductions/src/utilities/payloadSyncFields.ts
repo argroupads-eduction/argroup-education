@@ -132,6 +132,10 @@ export async function buildPostSyncPayload(
       navLabel?: string | null
       navSortOrder?: number | null
     } | null
+    canonicalUrl?: string | null
+    focusKeyword?: string | null
+    ogImageUrl?: string | null
+    schemaJson?: unknown | null
     publishedAt?: string | null
     _status?: string | null
   }
@@ -143,15 +147,27 @@ export async function buildPostSyncPayload(
     plain.slice(0, 500)
 
   const featuredImage = await resolveFeaturedImageForSync(payload, doc)
+  const ogImageUrl =
+    (typeof doc.ogImageUrl === 'string' && doc.ogImageUrl.trim()) || featuredImage
 
   const placement = doc.sitePlacement
+  const metaTitle = doc.meta?.title ?? null
+  const metaDescription = doc.meta?.description ?? null
 
   return {
     content: html || excerpt || doc.title || '',
     excerpt,
     featuredImage,
-    metaTitle: doc.meta?.title ?? null,
-    metaDescription: doc.meta?.description ?? null,
+    metaTitle,
+    metaDescription,
+    canonicalUrl: typeof doc.canonicalUrl === 'string' ? doc.canonicalUrl : null,
+    focusKeyword: typeof doc.focusKeyword === 'string' ? doc.focusKeyword : null,
+    ogTitle: metaTitle,
+    ogDescription: metaDescription,
+    ogImage: ogImageUrl,
+    twitterTitle: metaTitle,
+    twitterDescription: metaDescription,
+    schemaJson: doc.schemaJson ?? null,
     navEnabled: Boolean(placement?.showInNavigation),
     navSection: placement?.navSection ?? null,
     navParent: placement?.navParent ?? null,
