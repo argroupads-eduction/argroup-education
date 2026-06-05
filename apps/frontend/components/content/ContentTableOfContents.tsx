@@ -20,11 +20,24 @@ function scrollToHeading(id: string) {
   window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
 }
 
+/** Scroll only inside the TOC list — never call link.scrollIntoView (it jumps the whole page). */
+function scrollTocLinkIntoView(link: HTMLElement, scroller: HTMLElement) {
+  const linkRect = link.getBoundingClientRect();
+  const scrollerRect = scroller.getBoundingClientRect();
+
+  if (linkRect.top < scrollerRect.top) {
+    scroller.scrollTop -= scrollerRect.top - linkRect.top + 4;
+  } else if (linkRect.bottom > scrollerRect.bottom) {
+    scroller.scrollTop += linkRect.bottom - scrollerRect.bottom + 4;
+  }
+}
+
 export function ContentTableOfContents({ headings, variant = 'sidebar' }: ContentTableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>('');
   const [open, setOpen] = useState(false);
   const clickLockUntil = useRef(0);
   const listRef = useRef<HTMLUListElement>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
 
   const visibleHeadings = useMemo(() => {
     if (variant === 'sidebar') {
@@ -72,10 +85,12 @@ export function ContentTableOfContents({ headings, variant = 'sidebar' }: Conten
   }, [visibleHeadings, pickActiveFromScroll]);
 
   useEffect(() => {
-    if (!activeId || !listRef.current) return;
+    if (variant === 'mobile' && !open) return;
+    if (!activeId || !listRef.current || !scrollerRef.current) return;
     const link = listRef.current.querySelector<HTMLElement>(`a[data-toc-id="${activeId}"]`);
-    link?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }, [activeId]);
+    if (!link) return;
+    scrollTocLinkIntoView(link, scrollerRef.current);
+  }, [activeId, variant, open]);
 
   if (!visibleHeadings.length) return null;
 
@@ -181,7 +196,10 @@ export function ContentTableOfContents({ headings, variant = 'sidebar' }: Conten
           ].join(' ')}
         >
           <div className="overflow-hidden">
-            <div className="toc-scroll-hide max-h-56 overflow-y-auto overscroll-contain border-t border-slate-100">
+            <div
+              ref={scrollerRef}
+              className="toc-scroll-hide max-h-56 overflow-y-auto overscroll-contain border-t border-slate-100"
+            >
               {list}
             </div>
           </div>
@@ -208,7 +226,12 @@ export function ContentTableOfContents({ headings, variant = 'sidebar' }: Conten
           </p>
         ) : null}
       </div>
-      <div className="toc-scroll-hide max-h-[min(70vh,28rem)] overflow-y-auto overscroll-contain">{list}</div>
+      <div
+        ref={scrollerRef}
+        className="toc-scroll-hide max-h-[min(70vh,28rem)] overflow-y-auto overscroll-contain"
+      >
+        {list}
+      </div>
     </nav>
   );
 }
