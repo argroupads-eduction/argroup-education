@@ -46,8 +46,8 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: true,
   redirects,
-  // Monorepo: trace deps from CMS package root (must match turbopack.root).
-  outputFileTracingRoot: path.resolve(dirname),
+  // Self-contained app (own package-lock). Do not set outputFileTracingRoot here —
+  // it breaks Vercel packaging when the repo root also has turbo.json.
   turbopack: {
     root: path.resolve(dirname),
   },

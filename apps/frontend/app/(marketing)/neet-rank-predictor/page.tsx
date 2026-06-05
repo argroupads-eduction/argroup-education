@@ -3,7 +3,6 @@ import { Calculator, GraduationCap, ShieldCheck, Sparkles, Users } from 'lucide-
 import { NeetRankPredictorWizard } from '@/components/neet-rank-predictor/NeetRankPredictorWizard';
 import { NeetRankPredictorContent } from '@/components/neet-rank-predictor/NeetRankPredictorContent';
 import { NEET_EXAM_YEAR_LABEL } from '@/lib/neetRankPredictor/data';
-import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { getContentBySlug } from '@/lib/contentApi';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
@@ -91,19 +90,7 @@ export default async function NeetRankPredictorPage() {
         <NeetRankPredictorWizard />
       </section>
 
-      <div className="neet-content-zone">
-        {cms?.content?.trim() ? (
-          <ContentPageShell
-            html={cms.content}
-            featuredImage={cms.featuredImage}
-            title={cmsTitle ?? 'NEET Rank Predictor'}
-            showFeaturedImage={false}
-            published={null}
-            publishedLabel="Last updated"
-          />
-        ) : null}
-        <NeetRankPredictorContent />
-      </div>
+      <NeetRankPredictorContent />
     </div>
   );
 }
