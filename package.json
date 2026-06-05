@@ -37,6 +37,7 @@
     "wp:import:payload": "npm run import:wp-bundle --prefix ar-group-of-eductions",
     "wp:import:payload:dry": "npm run import:wp-bundle --prefix ar-group-of-eductions -- --dry-run --limit=3",
     "wp:import:media": "npm run import:wp-media --prefix ar-group-of-eductions",
+    "payload:backfill:cms": "npm run backfill:cms-visual --prefix ar-group-of-eductions",
     "wp:import:media:batched": "node scripts/wp-migration/import-media-batched.mjs",
     "payload:sync:backend": "npm run sync:backend --prefix ar-group-of-eductions",
     "payload:sync:globals": "npm run sync:globals --prefix ar-group-of-eductions",
