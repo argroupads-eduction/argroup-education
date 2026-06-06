@@ -176,6 +176,19 @@ export function transformEaelAccordions(html: string): string {
   return out;
 }
 
+/** Remove Elementor sections hidden on all breakpoints (duplicate tables / junk). */
+export function stripElementorHiddenSections(html: string): string {
+  return html.replace(
+    /<section\b[^>]*\belementor-hidden-desktop\b[^>]*\belementor-hidden-tablet\b[^>]*\belementor-hidden-mobile\b[^>]*>[\s\S]*?<\/section>/gi,
+    ''
+  );
+}
+
+/** College card titles must not be h2 — wrapContentSections splits on h2 and breaks image grids. */
+export function demoteJkitCardTitles(html: string): string {
+  return html.replace(/<h2(\b[^>]*\bbody-title\b[^>]*)>([\s\S]*?)<\/h2>/gi, '<p$1>$2</p>');
+}
+
 /** Strip decorative icon-only spans that break without Elementor CSS. */
 export function stripBrokenIconWidgets(html: string): string {
   let out = html;
@@ -234,6 +247,33 @@ export function normalizeElementorIconListItems(html: string): string {
       `<span class="elementor-icon-list-text">${text}</span></li>`
     );
   });
+}
+
+/** Strip decorative icons from feature cards; split "Title: body" into bold title + text. */
+function simplifyFeatureGridIconLists(html: string): string {
+  return html.replace(
+    /(<ul[^>]*wp-premium-feature-grid[^>]*>)([\s\S]*?)(<\/ul>)/gi,
+    (_full, open: string, inner: string, close: string) => {
+      const fixed = inner.replace(
+        /<li(\b[^>]*)>([\s\S]*?)<\/li>/gi,
+        (liMatch: string, attrs: string, liInner: string) => {
+          const text = extractElementorIconListText(liInner) || stripHtml(liInner).trim();
+          if (!text) return liMatch;
+
+          const colonMatch = text.match(/^([^:]{3,48}):\s*(.+)$/);
+          if (colonMatch) {
+            return `<li${attrs}><strong>${escapeHtml(colonMatch[1])}:</strong> ${escapeHtml(colonMatch[2])}</li>`;
+          }
+
+          if (/elementor-icon-list-item/i.test(attrs) || /elementor-icon-list-icon/i.test(liInner)) {
+            return `<li${attrs}>${escapeHtml(text)}</li>`;
+          }
+          return liMatch;
+        }
+      );
+      return `${open}${fixed}${close}`;
+    }
+  );
 }
 
 /** Numbered chip grids only need document labels — drop decorative icon markup. */
@@ -825,10 +865,13 @@ export function prepareWpHtml(
   if (options?.title) out = removeDuplicateTitleHeading(out, options.title);
   out = demoteBodyH1ToH2(out);
   out = fixHeadingLevelSkips(out);
+  out = stripElementorHiddenSections(out);
+  out = demoteJkitCardTitles(out);
   out = stripBrokenIconWidgets(out);
   out = normalizeElementorIconListItems(out);
   out = normalizeListItemSpans(out);
   out = transformLongListsToGrid(out);
+  out = simplifyFeatureGridIconLists(out);
   out = simplifyIconChipGridLists(out);
   out = transformEaelAccordions(out);
   out = transformAllFaqs(out);

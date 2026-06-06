@@ -4,6 +4,20 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type MegaMenuId = 'mbbs-india' | 'mbbs-abroad' | 'md-ms';
 
+const MEGA_CLOSE_DELAY_MS = 90;
+
+function isInsideMegaHoverZone(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return false;
+  return Boolean(
+    target.closest('.nav-mega-shell') ||
+      target.closest('.nav-mega-trigger') ||
+      target.closest('.nav-mega-bridge') ||
+      target.closest('.nav-latest-updates-panel') ||
+      target.closest('.nav-latest-updates-flyout') ||
+      target.closest('.nav-latest-updates-trigger')
+  );
+}
+
 export function useMegaMenu() {
   const [megaOpen, setMegaOpen] = useState<MegaMenuId | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -37,10 +51,13 @@ export function useMegaMenu() {
     [clearCloseTimer]
   );
 
-  /** Close as soon as pointer leaves the mega menu container. */
+  /** Close when pointer leaves trigger + dropdown panel. */
   const scheduleClose = useCallback(() => {
     clearCloseTimer();
-    setMegaOpen(null);
+    closeTimer.current = setTimeout(() => {
+      closeTimer.current = null;
+      setMegaOpen(null);
+    }, MEGA_CLOSE_DELAY_MS);
   }, [clearCloseTimer]);
 
   const cancelClose = useCallback(() => {
@@ -58,18 +75,26 @@ export function useMegaMenu() {
     };
 
     const onPointerDown = (event: PointerEvent) => {
-      const root = rootRef.current;
-      if (!root) return;
-      if (!root.contains(event.target as Node)) forceClose();
+      if (!isInsideMegaHoverZone(event.target)) forceClose();
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (isInsideMegaHoverZone(event.target)) {
+        clearCloseTimer();
+        return;
+      }
+      scheduleClose();
     };
 
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('pointermove', onPointerMove, { passive: true });
     return () => {
       document.removeEventListener('keydown', onKeyDown);
       document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('pointermove', onPointerMove);
     };
-  }, [megaOpen, forceClose]);
+  }, [megaOpen, forceClose, scheduleClose, clearCloseTimer]);
 
   useEffect(() => clearCloseTimer, [clearCloseTimer]);
 

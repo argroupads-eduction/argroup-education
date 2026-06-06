@@ -1,6 +1,7 @@
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadCollegesByCountry';
 import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaCollegesByState';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
+import { LATEST_UPDATES_NAV } from '@/lib/latestUpdatesNav';
 
 // Site Constants
 export const SITE_NAME = 'AR Group of Education';
@@ -73,12 +74,11 @@ export const NAV_LINKS = [
     })),
   },
   {
-    label: 'Blog',
-    href: '/blog',
+    ...LATEST_UPDATES_NAV,
   },
-  { 
-    label: 'Contact', 
-    href: '/contact'
+  {
+    label: 'Contact',
+    href: '/contact',
   },
 ] as const;
 

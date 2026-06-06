@@ -95,7 +95,9 @@ export function addLazyImages(html: string): string {
 
 /** Wrap each h2-led block in a lazy-reveal section container. */
 export function wrapContentSections(html: string): string {
-  const parts = html.split(/(?=<h2\b)/i);
+  /** Skip card titles (jkit image boxes) — splitting on them breaks college/state grids. */
+  const H2_SECTION_SPLIT = /(?=<h2\b(?![^>]*\bbody-title\b))/i;
+  const parts = html.split(H2_SECTION_SPLIT);
   if (parts.length <= 1) return html;
 
   return parts
