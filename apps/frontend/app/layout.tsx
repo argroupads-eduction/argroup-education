@@ -47,25 +47,44 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: 'AR Group of Education | Medical Education Consultancy',
+    default: 'AR Group of Education | MBBS India & Abroad Admission Consultant',
     template: '%s | AR Group of Education',
   },
   description:
-    'Premium educational consultancy for MBBS abroad. Expert guidance, 4000+ successful students, 500+ universities, 98% visa success rate.',
+    'Trusted medical education consultants for MBBS in India & abroad, NEET UG/PG counselling, college shortlisting & visa support. 4000+ students guided since 2010.',
   keywords: [
+    'MBBS admission consultant',
+    'MBBS in India',
     'MBBS abroad',
-    'medical education',
-    'study abroad',
-    'NEET guidance',
-    'university admission',
+    'NEET counselling',
+    'medical education consultancy Delhi NCR',
+    'NEET rank predictor',
+    'study MBBS abroad',
+    'AR Group of Education',
   ],
   authors: [{ name: 'AR Group of Education' }],
   creator: 'AR Group of Education',
+  icons: {
+    icon: [{ url: '/ar-group-logo.png', type: 'image/png' }],
+    shortcut: ['/ar-group-logo.png'],
+    apple: [{ url: '/ar-group-logo.png', type: 'image/png' }],
+  },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
     url: getSiteUrl(),
     siteName: 'AR Group of Education',
+    title: 'AR Group of Education | MBBS India & Abroad Admission Consultant',
+    description:
+      'Expert MBBS admission guidance for India & 15+ countries. NEET counselling, college selection & visa support. 4000+ students placed.',
+    images: [{ url: '/ar-group-logo.png', width: 512, height: 512, alt: 'AR Group of Education logo' }],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'AR Group of Education | MBBS Admission Consultant',
+    description:
+      'MBBS India & abroad admission experts. NEET counselling, college shortlisting & visa guidance.',
+    images: ['/ar-group-logo.png'],
   },
   robots: {
     index: true,
@@ -99,7 +118,6 @@ export default async function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <meta name="theme-color" content="#1a365d" />
-        <link rel="icon" href="/favicon.ico" />
       </head>
       <body
         className={`${inter.className} min-h-dvh min-w-0 overflow-x-hidden [padding-bottom:env(safe-area-inset-bottom,0px)] [padding-left:env(safe-area-inset-left,0px)] [padding-right:env(safe-area-inset-right,0px)]`}
