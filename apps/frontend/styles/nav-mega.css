@@ -85,16 +85,29 @@
   pointer-events: none;
 }
 
-/* Bridge captures pointer while open so moving trigger → panel does not close the menu */
+/* Legacy layer bridge — replaced by .nav-mega-bridge */
 .nav-mega-layer--open::before {
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .nav-mega-layer--open {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto;
+  pointer-events: none;
   transform: translateY(0);
+}
+
+.nav-mega-layer-inner {
+  pointer-events: auto;
+}
+
+.nav-mega-bridge {
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  z-index: 65;
+  height: 0.85rem;
+  pointer-events: auto;
 }
 
 .nav-mega-root:has(.nav-mega-layer--open) {

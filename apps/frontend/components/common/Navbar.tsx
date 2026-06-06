@@ -20,6 +20,8 @@ import { NeetRankNavCta } from '@/components/common/NeetRankNavCta';
 import { MbbsIndiaNavMegaMenu } from '@/components/common/MbbsIndiaNavMegaMenu';
 import { MbbsAbroadNavMegaMenu } from '@/components/common/MbbsAbroadNavMegaMenu';
 import { MdMsNavMegaMenu } from '@/components/common/MdMsNavMegaMenu';
+import { LatestUpdatesNavDropdown } from '@/components/common/LatestUpdatesNavDropdown';
+import { LATEST_UPDATES_NAV_ITEMS } from '@/lib/latestUpdatesNav';
 import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
 import { navPagesForSection } from '@/lib/dynamicNav';
 import { BrandLogoLink } from '@/components/common/BrandLogoLink';
@@ -43,10 +45,11 @@ export const Navbar = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   useBodyScrollLock(isOpen);
-  const { megaOpen, openMega, cancelClose, forceClose, rootRef } = useMegaMenu();
+  const { megaOpen, openMega, cancelClose, scheduleClose, forceClose, rootRef } = useMegaMenu();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [openMobileState, setOpenMobileState] = useState<string | null>(null);
   const [openMobileUniversity, setOpenMobileUniversity] = useState<string | null>(null);
+  const [openMobileLatestNeet, setOpenMobileLatestNeet] = useState(false);
   const scrollPosition = useScrollPosition();
   const isScrolled = scrollPosition > 50;
 
@@ -55,6 +58,7 @@ export const Navbar = () => {
       setOpenSubmenu(null);
       setOpenMobileState(null);
       setOpenMobileUniversity(null);
+      setOpenMobileLatestNeet(false);
     }
   }, [isOpen]);
 
@@ -63,6 +67,7 @@ export const Navbar = () => {
     setOpenSubmenu(null);
     setOpenMobileState(null);
     setOpenMobileUniversity(null);
+    setOpenMobileLatestNeet(false);
     forceClose();
   };
 
@@ -137,11 +142,8 @@ export const Navbar = () => {
           isScrolled ? 'border-gray-200 shadow-md' : 'border-gray-100'
         }`}
       >
-        <div
-          ref={rootRef}
-          className="nav-mega-root relative"
-          onMouseLeave={forceClose}
-        >
+        <div ref={rootRef} className="nav-mega-root relative">
+          {megaOpen ? <div className="nav-mega-bridge" aria-hidden /> : null}
           <div className="site-navbar-inner relative mx-auto max-w-[84rem] overflow-visible px-4 xl:px-6">
             {/* Logo — contained inside navbar height */}
             <div className="site-navbar-logo" onMouseEnter={forceClose}>
@@ -163,7 +165,9 @@ export const Navbar = () => {
               <div className="site-navbar-nav-list">
               {navLinks.map((link: any) => (
                 <div key={link.href} className={megaGroupClass(link.megaMenu)}>
-                  {link.submenu ? (
+                  {link.navMenu === 'latest-updates' ? (
+                    <LatestUpdatesNavDropdown onCloseMega={forceClose} onNavigate={forceClose} />
+                  ) : link.submenu ? (
                     link.megaMenu ? (
                       <Link
                         href={link.href}
@@ -214,7 +218,7 @@ export const Navbar = () => {
                     </Link>
                   )}
 
-                  {link.submenu && !link.megaMenu ? (
+                  {link.submenu && !link.megaMenu && link.navMenu !== 'latest-updates' ? (
                     <div className="absolute left-0 mt-0 w-48 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 py-2 z-50">
                       {link.submenu.map((item: { href: string; label: string }) => (
                         <Link
@@ -265,10 +269,12 @@ export const Navbar = () => {
               'nav-mega-layer absolute inset-x-0 top-full hidden xl:block',
               megaOpen ? 'nav-mega-layer--open' : '',
             ].join(' ')}
-            onMouseEnter={cancelClose}
-            onMouseLeave={forceClose}
           >
-            <div className={`mx-auto w-full px-4 pb-2 pt-0 ${megaInnerWidth}`}>
+            <div
+              className={`nav-mega-layer-inner mx-auto w-full px-4 pb-2 pt-0 ${megaInnerWidth}`}
+              onMouseEnter={cancelClose}
+              onMouseLeave={scheduleClose}
+            >
               {megaOpen === 'mbbs-india' ? (
                 <MbbsIndiaNavMegaMenu onNavigate={forceClose} />
               ) : null}
@@ -309,11 +315,12 @@ export const Navbar = () => {
                             if (!next) {
                               setOpenMobileState(null);
                               setOpenMobileUniversity(null);
+                              setOpenMobileLatestNeet(false);
                             }
                           }}
                           className="rounded-lg p-2 text-navy-900 hover:bg-gold-50"
                           aria-expanded={openSubmenu === link.href}
-                          aria-label={`Show ${link.label} colleges`}
+                          aria-label={`Show ${link.label} menu`}
                         >
                           <ChevronDown
                             className={`h-5 w-5 transition-transform duration-200 ${
@@ -335,7 +342,49 @@ export const Navbar = () => {
 
                   {link.submenu && openSubmenu === link.href && (
                     <div className="pl-2 py-2 max-h-[70vh] overflow-y-auto overscroll-contain [content-visibility:auto]">
-                      {link.megaMenu === 'mbbs-india'
+                      {link.navMenu === 'latest-updates'
+                        ? LATEST_UPDATES_NAV_ITEMS.map((item) =>
+                            item.children?.length ? (
+                              <div key={item.label} className="mb-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setOpenMobileLatestNeet((open) => !open)}
+                                  className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm font-medium text-navy-900 hover:bg-gold-50"
+                                >
+                                  {item.label}
+                                  <ChevronDown
+                                    className={`h-4 w-4 transition-transform ${
+                                      openMobileLatestNeet ? 'rotate-180' : ''
+                                    }`}
+                                  />
+                                </button>
+                                {openMobileLatestNeet ? (
+                                  <div className="nav-latest-updates-mobile-nested pb-2">
+                                    {item.children.map((child) => (
+                                      <Link
+                                        key={child.href}
+                                        href={child.href}
+                                        className="block py-1.5 text-xs text-navy-800 hover:text-gold-600"
+                                        onClick={closeMobileNav}
+                                      >
+                                        {child.label}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                ) : null}
+                              </div>
+                            ) : (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                className="block py-1.5 text-sm font-body text-navy-800 hover:text-gold-600 pl-2"
+                                onClick={closeMobileNav}
+                              >
+                                {item.label}
+                              </Link>
+                            )
+                          )
+                        : link.megaMenu === 'mbbs-india'
                         ? link.submenu.map(
                             (item: {
                               href: string
