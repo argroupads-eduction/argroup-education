@@ -6,9 +6,17 @@ import type { NeetCategory } from '@/lib/neetRankPredictor/types';
 import { validatePersonName } from '@/lib/validatePersonName';
 import { prisma, withPrismaRetry } from '@backend/lib/prisma';
 import { submitWebsiteLead } from '@backend/handlers/websiteLead';
+import { scheduleLeadEmailDelivery } from '@/lib/scheduleLeadEmail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
+
+const TRACK_LABELS: Record<string, string> = {
+  india: 'MBBS India',
+  abroad: 'MBBS Abroad',
+  both: 'MBBS India + Abroad',
+};
 
 function normalizePhone(raw: string): string | null {
   const digits = raw.replace(/\D/g, '');
@@ -17,40 +25,7 @@ function normalizePhone(raw: string): string | null {
   return null;
 }
 
-async function persistLead(body: Record<string, unknown>) {
-  try {
-    await withPrismaRetry(() =>
-      prisma.neetRankPredictorSubmission.create({
-        data: {
-          name: String(body.name),
-          email: String(body.email),
-          phone: String(body.phone),
-          city: String(body.city),
-          category: String(body.category),
-          score: Number(body.score),
-          bestRank: Number(body.bestRank),
-          expectedRank: Number(body.expectedRank),
-          worstRank: Number(body.worstRank),
-          percentile: Number(body.percentile),
-          collegeChances: String(body.collegeChances),
-        },
-      })
-    );
-  } catch (err) {
-    console.error('[neet-rank-predictor] DB save failed:', err);
-  }
-
-  try {
-    await submitWebsiteLead({
-      source: 'neet-rank-predictor',
-      formName: 'NEET Rank Predictor',
-      fields: body,
-    });
-  } catch (err) {
-    console.error('[neet-rank-predictor] lead notify failed:', err);
-  }
-}
-
+/** NEET rank predictor — saves to Neon + same lead email as all other forms */
 export async function POST(req: NextRequest) {
   let body: {
     name?: string;
@@ -102,28 +77,78 @@ export async function POST(req: NextRequest) {
   const roundedScore = Math.round(score);
   const prediction = predictNeetRank(cat, roundedScore);
   const colleges = getCollegeRecommendations(cat, roundedScore);
+  const trackLabel = TRACK_LABELS[track] ?? track;
 
-  await persistLead({
-    name,
+  const leadFields = {
+    fullName: name,
     email,
     phone,
     city,
-    category: cat,
-    score: roundedScore,
-    track,
-    bestRank: prediction.bestRank,
+    reservationCategory: prediction.categoryLabel,
+    neetScore: roundedScore,
+    studyTrack: trackLabel,
     expectedRank: prediction.expectedRank,
+    bestRank: prediction.bestRank,
     worstRank: prediction.worstRank,
-    percentile: prediction.percentile,
-    collegeChances: `${prediction.collegeChances} | track:${track}`,
-  });
+    percentile: prediction.percentileLabel,
+    collegeChances: prediction.collegeChances,
+    category: cat,
+    track,
+  };
 
-  return NextResponse.json({
-    ok: true,
-    prediction,
-    colleges: {
-      india: track === 'abroad' ? [] : colleges.india,
-      abroad: track === 'india' ? [] : colleges.abroad,
-    },
-  });
+  try {
+    try {
+      await withPrismaRetry(() =>
+        prisma.neetRankPredictorSubmission.create({
+          data: {
+            name,
+            email,
+            phone,
+            city,
+            category: cat,
+            score: roundedScore,
+            bestRank: prediction.bestRank,
+            expectedRank: prediction.expectedRank,
+            worstRank: prediction.worstRank,
+            percentile: prediction.percentile,
+            collegeChances: `${prediction.collegeChances} | track:${track}`,
+          },
+        })
+      );
+    } catch (err) {
+      console.error('[neet-rank-predictor] analytics save failed:', err);
+    }
+
+    const leadResult = await submitWebsiteLead(
+      {
+        source: 'neet-rank-predictor',
+        formName: 'NEET Rank Predictor',
+        fields: leadFields,
+        pageUrl: req.headers.get('referer') ?? '/neet-rank-predictor',
+        userAgent: req.headers.get('user-agent') ?? undefined,
+      },
+      { deferEmail: true }
+    );
+
+    if (!leadResult.ok) {
+      return NextResponse.json({ message: leadResult.message }, { status: leadResult.status });
+    }
+
+    scheduleLeadEmailDelivery(leadResult.id);
+
+    return NextResponse.json({
+      ok: true,
+      prediction,
+      colleges: {
+        india: track === 'abroad' ? [] : colleges.india,
+        abroad: track === 'india' ? [] : colleges.abroad,
+      },
+    });
+  } catch (error) {
+    console.error('[neet-rank-predictor/submit]', error);
+    return NextResponse.json(
+      { message: 'Could not save your details. Please try again.' },
+      { status: 500 }
+    );
+  }
 }

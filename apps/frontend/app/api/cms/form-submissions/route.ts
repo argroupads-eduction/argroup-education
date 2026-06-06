@@ -3,9 +3,11 @@ import { getPayloadCmsServerFetchUrl } from '@/lib/payloadCmsUrl';
 import { validateSubmissionDataNames } from '@/lib/validatePersonName';
 import { submissionDataToFields } from '@/lib/submitWebsiteLead';
 import { submitWebsiteLead } from '@backend/handlers/websiteLead';
+import { scheduleLeadEmailDelivery } from '@/lib/scheduleLeadEmail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
 
 type FormSubmissionBody = {
   form?: number | string;
@@ -33,16 +35,20 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const leadResult = await submitWebsiteLead({
-      source: body.source?.trim() || 'cms-form',
-      formName: body.formName || (body.form ? `CMS form #${body.form}` : 'Website form'),
-      fields: submissionDataToFields(body.submissionData),
-      pageUrl: req.headers.get('referer') ?? undefined,
-      userAgent: req.headers.get('user-agent') ?? undefined,
-    });
+    const leadResult = await submitWebsiteLead(
+      {
+        source: body.source?.trim() || 'cms-form',
+        formName: body.formName || (body.form ? `CMS form #${body.form}` : 'Website form'),
+        fields: submissionDataToFields(body.submissionData),
+        pageUrl: req.headers.get('referer') ?? undefined,
+        userAgent: req.headers.get('user-agent') ?? undefined,
+      },
+      { deferEmail: true }
+    );
     if (!leadResult.ok) {
       return NextResponse.json({ message: leadResult.message }, { status: leadResult.status });
     }
+    scheduleLeadEmailDelivery(leadResult.id);
   } catch (error) {
     console.error('[form-submissions] lead save failed:', error);
     return NextResponse.json({ message: 'Could not save your enquiry' }, { status: 500 });

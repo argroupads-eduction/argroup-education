@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { submitWebsiteLead, type WebsiteLeadInput } from '@backend/handlers/websiteLead';
+import { scheduleLeadEmailDelivery } from '@/lib/scheduleLeadEmail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
 
 type LeadSubmitBody = {
   source?: string;
@@ -29,17 +31,22 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await submitWebsiteLead({
-      source,
-      formName: body.formName,
-      fields: body.fields as WebsiteLeadInput['fields'],
-      pageUrl: body.pageUrl,
-      userAgent: req.headers.get('user-agent') ?? undefined,
-    });
+    const result = await submitWebsiteLead(
+      {
+        source,
+        formName: body.formName,
+        fields: body.fields as WebsiteLeadInput['fields'],
+        pageUrl: body.pageUrl,
+        userAgent: req.headers.get('user-agent') ?? undefined,
+      },
+      { deferEmail: true }
+    );
 
     if (!result.ok) {
       return NextResponse.json({ success: false, message: result.message }, { status: result.status });
     }
+
+    scheduleLeadEmailDelivery(result.id);
 
     return NextResponse.json(
       {
