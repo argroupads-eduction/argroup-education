@@ -18,6 +18,7 @@ import '@/styles/navbar-premium.css';
 import '@/styles/program-hub.css';
 import '@/styles/mbbs-abroad-premium.css';
 import '@/styles/brand-logo.css';
+import '@/styles/footer-main.css';
 import { getSiteUrl } from '@/lib/siteUrl';
 
 // Font imports
