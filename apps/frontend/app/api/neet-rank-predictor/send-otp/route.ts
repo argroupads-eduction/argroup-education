@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { NEET_CATEGORIES } from '@/lib/neetRankPredictor/data';
 import { createOtpToken, generateOtp, sendOtpSms } from '@/lib/neetRankPredictor/otpToken';
 import type { NeetCategory, NeetPredictorLeadPayload } from '@/lib/neetRankPredictor/types';
+import { validatePersonName } from '@/lib/validatePersonName';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +30,10 @@ export async function POST(req: NextRequest) {
 
   if (!name || name.length < 2) {
     return NextResponse.json({ message: 'Enter your full name' }, { status: 400 });
+  }
+  const nameErr = validatePersonName(name);
+  if (nameErr) {
+    return NextResponse.json({ message: nameErr }, { status: 400 });
   }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ message: 'Enter a valid email' }, { status: 400 });

@@ -163,15 +163,18 @@ export const formService = {
   },
 
   async subscribeNewsletter(email: string) {
-    try {
-      const { data } = await apiClient.post<ApiResponse<any>>(
-        '/api/newsletter/subscribe',
-        { email }
-      );
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const url =
+      typeof window !== 'undefined'
+        ? '/api/newsletter/subscribe'
+        : `${getApiBaseUrl()}/api/newsletter/subscribe`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = (await res.json()) as ApiResponse<unknown>;
+    if (!res.ok) throw new Error((data as { message?: string }).message || 'Subscribe failed');
+    return data;
   },
 };
 

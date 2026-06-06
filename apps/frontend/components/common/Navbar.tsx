@@ -303,7 +303,12 @@ export const Navbar = () => {
                         <Link
                           href={link.href}
                           onClick={closeMobileNav}
-                          className="flex-1 rounded-lg px-2 py-2 text-navy-900 font-body font-semibold hover:bg-gold-50 hover:text-gold-700"
+                          className={[
+                            'flex-1 rounded-lg px-2 py-2 font-body font-semibold hover:bg-gold-50 hover:text-gold-700',
+                            link.navMenu === 'latest-updates'
+                              ? 'nav-latest-updates-mobile-trigger inline-flex items-center gap-2 text-amber-800'
+                              : 'text-navy-900',
+                          ].join(' ')}
                         >
                           {link.label}
                         </Link>
@@ -377,7 +382,10 @@ export const Navbar = () => {
                               <Link
                                 key={item.href}
                                 href={item.href}
-                                className="block py-1.5 text-sm font-body text-navy-800 hover:text-gold-600 pl-2"
+                                className={[
+                                  'block py-1.5 text-sm font-body text-navy-800 hover:text-gold-600 pl-2',
+                                  item.href === '/blog' ? 'nav-latest-updates-mobile-item--featured' : '',
+                                ].join(' ')}
                                 onClick={closeMobileNav}
                               >
                                 {item.label}

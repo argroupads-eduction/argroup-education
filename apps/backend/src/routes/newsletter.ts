@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
+import { submitWebsiteLead } from '../handlers/websiteLead';
+import { prisma, withPrismaRetry } from '../lib/prisma';
 
 const router = Router();
 
@@ -14,11 +16,23 @@ router.post(
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const { email: _email } = req.body;
-      void _email;
+      const { email } = req.body;
 
-      // TODO: Save to database via Prisma
-      // TODO: Send welcome email
+      await withPrismaRetry(() =>
+        prisma.subscriber.upsert({
+          where: { email },
+          create: { email },
+          update: { active: true, unsubscribedAt: null },
+        })
+      );
+
+      await submitWebsiteLead({
+        source: 'newsletter',
+        formName: 'Newsletter subscription',
+        fields: { email },
+        pageUrl: typeof req.body.pageUrl === 'string' ? req.body.pageUrl : undefined,
+        userAgent: req.get('user-agent') ?? undefined,
+      });
 
       res.json({
         success: true,

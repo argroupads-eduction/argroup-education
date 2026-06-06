@@ -19,6 +19,7 @@ export function ThankYouPageView() {
   useEffect(() => {
     let cancelled = false;
     let t2: number | undefined;
+    let t3: number | undefined;
 
     const acceptSession = () => {
       const session = readCounsellingSubmitted();
@@ -34,16 +35,20 @@ export function ThankYouPageView() {
     const t1 = window.setTimeout(() => {
       if (acceptSession()) return;
       t2 = window.setTimeout(() => {
-        if (!cancelled && !acceptSession()) {
-          router.replace('/contact');
-        }
+        if (acceptSession()) return;
+        t3 = window.setTimeout(() => {
+          if (!cancelled && !acceptSession()) {
+            router.replace('/contact');
+          }
+        }, 400);
       }, 200);
-    }, 80);
+    }, 50);
 
     return () => {
       cancelled = true;
       window.clearTimeout(t1);
       if (t2) window.clearTimeout(t2);
+      if (t3) window.clearTimeout(t3);
     };
   }, [router]);
 

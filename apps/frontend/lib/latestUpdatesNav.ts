@@ -7,6 +7,7 @@ export type LatestUpdatesNavItem = {
 };
 
 export const LATEST_UPDATES_NAV_ITEMS: readonly LatestUpdatesNavItem[] = [
+  { label: 'Blog', href: '/blog' },
   { label: 'MBBS', href: '/mbbs' },
   { label: 'BAMS in India', href: '/bams-in-india' },
   {
@@ -22,7 +23,6 @@ export const LATEST_UPDATES_NAV_ITEMS: readonly LatestUpdatesNavItem[] = [
       { label: 'NEET PG Counselling', href: '/neet-pg-counselling' },
     ],
   },
-  { label: 'Blog', href: '/blog' },
   {
     label: 'Education consultancy in Delhi NCR',
     href: '/education-consultancy-in-delhi-ncr',

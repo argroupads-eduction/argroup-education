@@ -19,7 +19,12 @@ import { LeadCapturePromoBanner } from '@/components/common/LeadCapturePromoBann
 import { LeadCaptureMobileSheet } from '@/components/common/LeadCaptureMobileSheet';
 import { LEAD_CAPTURE_TARGET_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOptions';
 import { LEAD_CAPTURE_OPEN_EVENT } from '@/lib/openLeadCapture';
-import { openThankYouInNewTab } from '@/lib/openThankYouPage';
+import {
+  cancelPreparedThankYouTab,
+  openThankYouInNewTab,
+  prepareThankYouTab,
+} from '@/lib/openThankYouPage';
+import { submitWebsiteLead } from '@/lib/submitWebsiteLead';
 import {
   type HeroMbbsFormDoc,
   type HeroMbbsFormFieldBlock,
@@ -178,8 +183,11 @@ function buildSubmissionPayload(
   };
 }
 
+import { validatePersonName } from '@/lib/validatePersonName';
+
 function validate(values: LeadFormValues): string | null {
-  if (!values.fullName.trim()) return 'Full name is required.';
+  const nameErr = validatePersonName(values.fullName);
+  if (nameErr) return nameErr;
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
     return 'A valid email address is required.';
   }
@@ -680,47 +688,57 @@ export function LeadCapturePopup() {
     };
 
     const payload = buildSubmissionPayload(normalized, payloadForm);
-    if (!payload) {
-      openThankYouInNewTab({
-        name: normalized.fullName,
-        source: 'lead-popup',
-      });
-      setSubmitted(true);
-      return;
-    }
-
+    const thankYouTab = prepareThankYouTab();
     setSubmitting(true);
     setSubmitError(null);
+
     try {
-      const res = await fetch('/api/cms/form-submissions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          form: payload.formId,
-          submissionData: payload.submissionData,
-        }),
-      });
-      const raw = await res.text();
-      let data: { errors?: { message?: string }[]; message?: string } = {};
-      try {
-        if (raw.trim()) data = JSON.parse(raw) as typeof data;
-      } catch {
-        setSubmitError(
-          raw.trim() ? 'Could not read CMS response after submit.' : 'Empty CMS response after submit.'
-        );
-        return;
-      }
-      if (!res.ok) {
-        const msg = data.errors?.[0]?.message || data.message || `Submit failed (${res.status})`;
-        setSubmitError(msg);
-        return;
-      }
-      openThankYouInNewTab({
-        name: normalized.fullName,
+      const leadFields = payload?.submissionData
+        ? Object.fromEntries(payload.submissionData.map(({ field, value }) => [field, value]))
+        : {
+            fullName: normalized.fullName,
+            email: normalized.email,
+            phone: normalized.phone,
+            city: normalized.city,
+            targetCountry: normalized.targetCountry,
+          };
+
+      const lead = await submitWebsiteLead({
         source: 'lead-popup',
+        formName: 'Lead capture popup',
+        fields: leadFields,
       });
+
+      if (!lead.ok) {
+        cancelPreparedThankYouTab(thankYouTab);
+        setSubmitError(lead.message || 'Could not submit your enquiry.');
+        return;
+      }
+
+      if (payload) {
+        void fetch('/api/cms/form-submissions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            form: payload.formId,
+            source: 'lead-popup',
+            formName: 'Lead capture popup',
+            submissionData: payload.submissionData,
+          }),
+        }).catch(() => undefined);
+      }
+
+      openThankYouInNewTab(
+        {
+          name: normalized.fullName,
+          source: 'lead-popup',
+        },
+        undefined,
+        thankYouTab
+      );
       setSubmitted(true);
     } catch {
+      cancelPreparedThankYouTab(thankYouTab);
       setSubmitError('Network error. Please try again.');
     } finally {
       setSubmitting(false);

@@ -26,6 +26,7 @@ import type { CollegeMatch } from '@/lib/neetRankPredictor/collegeMatches';
 import { formatRank, predictNeetRank } from '@/lib/neetRankPredictor/predict';
 import type { NeetCategory, NeetRankPrediction } from '@/lib/neetRankPredictor/types';
 import { NeetRankCollegeResults } from './NeetRankCollegeResults';
+import { validatePersonName } from '@/lib/validatePersonName';
 
 type Step = 'form' | 'result';
 type Track = 'india' | 'abroad' | 'both';
@@ -164,8 +165,9 @@ export function NeetRankPredictorWizard() {
       setError('Maximum score is 720');
       return;
     }
-    if (!name.trim() || name.length < 2) {
-      setError('Enter your full name');
+    const nameErr = validatePersonName(name);
+    if (nameErr) {
+      setError(nameErr);
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {

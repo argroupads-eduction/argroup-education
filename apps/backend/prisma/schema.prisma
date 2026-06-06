@@ -147,6 +147,26 @@ model NeetRankPredictorSubmission {
 }
 
 // Leads Models
+model WebsiteFormLead {
+  id         String   @id @default(cuid())
+  source     String
+  formName   String?
+  name       String?
+  email      String?
+  phone      String?
+  pageUrl    String?
+  userAgent  String?  @db.Text
+  fields     Json
+  emailSent  Boolean  @default(false)
+  emailError String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([source])
+  @@index([email])
+  @@index([phone])
+  @@index([createdAt])
+}
+
 model Lead {
   id               String   @id @default(cuid())
   name             String

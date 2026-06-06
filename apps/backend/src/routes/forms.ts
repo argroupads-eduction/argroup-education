@@ -1,14 +1,24 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { prisma } from '../lib/prisma';
+import { submitWebsiteLead } from '../handlers/websiteLead';
+import { prisma, withPrismaRetry } from '../lib/prisma';
 
 const router = Router();
+
+const PERSON_NAME_REGEX = /^[A-Za-z]+(?:\s+[A-Za-z]+)*$/;
+
+const personNameValidator = body('name')
+  .trim()
+  .notEmpty()
+  .withMessage('Name is required')
+  .matches(PERSON_NAME_REGEX)
+  .withMessage('Name can only contain letters (no numbers or special characters).');
 
 // POST /api/forms/counselling - Submit counselling form
 router.post(
   '/counselling',
   [
-    body('name').trim().notEmpty().withMessage('Name is required'),
+    personNameValidator,
     body('email').isEmail().withMessage('Invalid email'),
     body('phone').matches(/^[0-9\s\-+()]{10,}$/).withMessage('Invalid phone'),
     body('course').notEmpty().withMessage('Course is required'),
@@ -22,23 +32,28 @@ router.post(
       }
 
       const {
-        name: _name,
-        email: _email,
-        phone: _phone,
-        course: _course,
-        neetScore: _neetScore,
-        countryPreference: _countryPreference,
+        name,
+        email,
+        phone,
+        course,
+        neetScore,
+        countryPreference,
       } = req.body;
-      void _name;
-      void _email;
-      void _phone;
-      void _course;
-      void _neetScore;
-      void _countryPreference;
 
-      // TODO: Save to database via Prisma
-      // TODO: Send confirmation email
-      // TODO: Send to WhatsApp
+      await submitWebsiteLead({
+        source: 'counselling-form',
+        formName: 'Counselling enquiry',
+        fields: {
+          name,
+          email,
+          phone,
+          course,
+          neetScore: neetScore ?? '',
+          countryPreference,
+        },
+        pageUrl: typeof req.body.pageUrl === 'string' ? req.body.pageUrl : undefined,
+        userAgent: req.get('user-agent') ?? undefined,
+      });
 
       res.json({
         success: true,
@@ -54,7 +69,7 @@ router.post(
 router.post(
   '/contact',
   [
-    body('name').trim().notEmpty().withMessage('Name is required'),
+    personNameValidator,
     body('email').isEmail().withMessage('Invalid email'),
     body('subject').trim().notEmpty().withMessage('Subject is required'),
     body('message').trim().notEmpty().withMessage('Message is required'),
@@ -66,8 +81,15 @@ router.post(
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      // TODO: Save to database via Prisma
-      // TODO: Send confirmation email
+      const { name, email, subject, message, phone } = req.body;
+
+      await submitWebsiteLead({
+        source: 'contact-form',
+        formName: 'Contact form',
+        fields: { name, email, phone: phone ?? '', subject, message },
+        pageUrl: typeof req.body.pageUrl === 'string' ? req.body.pageUrl : undefined,
+        userAgent: req.get('user-agent') ?? undefined,
+      });
 
       res.json({
         success: true,
@@ -83,7 +105,7 @@ router.post(
 router.post(
   '/neet-rank-predictor',
   [
-    body('name').trim().notEmpty(),
+    personNameValidator,
     body('email').isEmail(),
     body('phone').matches(/^[0-9]{10}$/),
     body('city').trim().notEmpty(),
@@ -116,8 +138,28 @@ router.post(
         collegeChances,
       } = req.body;
 
-      await prisma.neetRankPredictorSubmission.create({
-        data: {
+      await withPrismaRetry(() =>
+        prisma.neetRankPredictorSubmission.create({
+          data: {
+            name,
+            email,
+            phone,
+            city,
+            category,
+            score,
+            bestRank,
+            expectedRank,
+            worstRank,
+            percentile,
+            collegeChances,
+          },
+        })
+      );
+
+      await submitWebsiteLead({
+        source: 'neet-rank-predictor',
+        formName: 'NEET Rank Predictor',
+        fields: {
           name,
           email,
           phone,
@@ -130,6 +172,7 @@ router.post(
           percentile,
           collegeChances,
         },
+        userAgent: req.get('user-agent') ?? undefined,
       });
 
       res.json({

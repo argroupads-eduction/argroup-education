@@ -1,45 +1,24 @@
-import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
 import { PrismaClient } from '@prisma/client';
-import { isPrismaConnectionError, neonDatabaseUrl } from './neonDatabaseUrl';
+import { loadMonorepoEnv } from './loadMonorepoEnv';
+import {
+  isPrismaConnectionError,
+  neonDatabaseUrl,
+} from './neonDatabaseUrl';
 
-/** Next.js loads apps/frontend/.env* only; backend .env lives under apps/backend. */
-function loadDatabaseEnv(): void {
-  const tried = new Set<string>();
-  const tryFile = (filePath: string) => {
-    const resolved = path.resolve(filePath);
-    if (tried.has(resolved) || !fs.existsSync(resolved)) return;
-    tried.add(resolved);
-    dotenv.config({ path: resolved });
-  };
+loadMonorepoEnv();
 
-  const cwd = process.cwd();
-  const roots = [
-    cwd,
-    path.join(cwd, '..'),
-    path.join(cwd, '../..'),
-    path.resolve(__dirname, '../..'),
-    path.resolve(__dirname, '../../..'),
-  ];
-
-  for (const root of roots) {
-    tryFile(path.join(root, '.env'));
-    tryFile(path.join(root, '.env.local'));
-    tryFile(path.join(root, 'apps/backend/.env'));
-    tryFile(path.join(root, 'apps/frontend/.env.local'));
-  }
-}
-
-loadDatabaseEnv();
-
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+type PrismaGlobal = typeof globalThis & {
+  __arPrisma?: PrismaClient;
+  __arPrismaKeepalive?: ReturnType<typeof setInterval>;
 };
+
+const globalForPrisma = globalThis as PrismaGlobal;
 
 /** Placeholder for `next build` / CI when routes are imported but no DB is reachable. */
 const BUILD_TIME_DATABASE_URL =
   'postgresql://build:build@127.0.0.1:5432/build?schema=public';
+
+const KEEPALIVE_MS = 4 * 60 * 1000;
 
 function resolveDatabaseUrl(): string {
   const raw = process.env.DATABASE_URL?.trim();
@@ -59,14 +38,34 @@ function resolveDatabaseUrl(): string {
 
 function createPrismaClient(): PrismaClient {
   const url = resolveDatabaseUrl();
-  return new PrismaClient({
+  const client = new PrismaClient({
     datasources: { db: { url } },
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    // Neon idle TCP closes trigger noisy engine logs (kind: Closed) — not real failures.
+    log: [],
   });
+  startPrismaKeepalive(client);
+  return client;
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-globalForPrisma.prisma = prisma;
+function startPrismaKeepalive(client: PrismaClient): void {
+  if (globalForPrisma.__arPrismaKeepalive) return;
+
+  const tick = () => {
+    void client.$queryRaw`SELECT 1`.catch((err) => {
+      if (!isPrismaConnectionError(err)) return;
+      void reconnectPrisma().catch(() => undefined);
+    });
+  };
+
+  const timer = setInterval(tick, KEEPALIVE_MS);
+  if (typeof timer === 'object' && 'unref' in timer) {
+    timer.unref();
+  }
+  globalForPrisma.__arPrismaKeepalive = timer;
+}
+
+export const prisma = globalForPrisma.__arPrisma ?? createPrismaClient();
+globalForPrisma.__arPrisma = prisma;
 
 let connecting: Promise<void> | null = null;
 
@@ -101,4 +100,17 @@ export async function withPrismaRetry<T>(fn: () => Promise<T>): Promise<T> {
     await reconnectPrisma();
     return fn();
   }
+}
+
+if (process.env.NODE_ENV !== 'production') {
+  const shutdown = () => {
+    if (globalForPrisma.__arPrismaKeepalive) {
+      clearInterval(globalForPrisma.__arPrismaKeepalive);
+      globalForPrisma.__arPrismaKeepalive = undefined;
+    }
+    void prisma.$disconnect().catch(() => undefined);
+  };
+  process.once('beforeExit', shutdown);
+  process.once('SIGINT', shutdown);
+  process.once('SIGTERM', shutdown);
 }

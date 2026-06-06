@@ -7,7 +7,13 @@ import { MBBS_INDIA_HERO_STATE_OPTIONS } from '@/lib/mbbsIndiaHeroStateOptions';
 import { isHeroMbbsFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { useHeroMbbsFormDefinition } from '@/lib/useHeroMbbsFormDefinition';
 import { HeroFormSkeleton } from '@/sections/home/HeroFormSkeleton';
-import { nameFromFormValues, openThankYouInNewTab } from '@/lib/openThankYouPage';
+import {
+  cancelPreparedThankYouTab,
+  nameFromFormValues,
+  openThankYouInNewTab,
+  prepareThankYouTab,
+} from '@/lib/openThankYouPage';
+import { validateDynamicFormNames } from '@/lib/validatePersonName';
 
 type FormFieldBlock = {
   id?: string | null;
@@ -76,6 +82,13 @@ export function MbbsIndiaHeroPayloadForm({
         }
       }
 
+      const nameErr = validateDynamicFormNames(values, fields);
+      if (nameErr) {
+        setSubmitError(nameErr);
+        return;
+      }
+
+      const thankYouTab = prepareThankYouTab();
       setSubmitting(true);
       try {
         const submissionData = fields.map((f) => ({
@@ -91,7 +104,12 @@ export function MbbsIndiaHeroPayloadForm({
             body: JSON.stringify(
               useOffline
                 ? { kind: 'india', submissionData }
-                : { form: form.id, submissionData }
+                : {
+                    form: form.id,
+                    source: 'hero-mbbs-india',
+                    formName: 'MBBS India hero enquiry',
+                    submissionData,
+                  }
             ),
           }
         );
@@ -100,6 +118,7 @@ export function MbbsIndiaHeroPayloadForm({
         try {
           if (raw.trim()) data = JSON.parse(raw) as typeof data;
         } catch {
+          cancelPreparedThankYouTab(thankYouTab);
           setSubmitError(
             raw.trim()
               ? 'Could not read CMS response after submit.'
@@ -108,17 +127,23 @@ export function MbbsIndiaHeroPayloadForm({
           return;
         }
         if (!res.ok) {
+          cancelPreparedThankYouTab(thankYouTab);
           const msg =
             data.errors?.[0]?.message || data.message || `Submit failed (${res.status})`;
           setSubmitError(msg);
           return;
         }
-        openThankYouInNewTab({
-          name: nameFromFormValues(values, fields),
-          source: 'hero-mbbs-india',
-        });
+        openThankYouInNewTab(
+          {
+            name: nameFromFormValues(values, fields),
+            source: 'hero-mbbs-india',
+          },
+          undefined,
+          thankYouTab
+        );
         setSubmitted(true);
       } catch {
+        cancelPreparedThankYouTab(thankYouTab);
         setSubmitError('Network error. Try again.');
       } finally {
         setSubmitting(false);
