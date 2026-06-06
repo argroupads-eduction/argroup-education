@@ -65,9 +65,9 @@ export const metadata: Metadata = {
   authors: [{ name: 'AR Group of Education' }],
   creator: 'AR Group of Education',
   icons: {
-    icon: [{ url: '/ar-group-logo.png', type: 'image/png' }],
-    shortcut: ['/ar-group-logo.png'],
-    apple: [{ url: '/ar-group-logo.png', type: 'image/png' }],
+    icon: [{ url: '/ar-browser-icon.png', type: 'image/png' }],
+    shortcut: ['/ar-browser-icon.png'],
+    apple: [{ url: '/ar-browser-icon.png', type: 'image/png' }],
   },
   openGraph: {
     type: 'website',

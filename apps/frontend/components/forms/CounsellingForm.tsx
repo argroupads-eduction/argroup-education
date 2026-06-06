@@ -11,10 +11,16 @@ import {
   THANK_YOU_PATH,
   markCounsellingSubmitted,
 } from '@/lib/counsellingFormSession';
-import { openThankYouInNewTab } from '@/lib/openThankYouPage';
+import {
+  cancelPreparedThankYouTab,
+  openThankYouInNewTab,
+  prepareThankYouTab,
+} from '@/lib/openThankYouPage';
+import { submitWebsiteLead } from '@/lib/submitWebsiteLead';
+import { personNameZodString } from '@/lib/validatePersonName';
 
 const CounsellingFormSchema = z.object({
-  fullName: z.string().min(2, 'Full name is required'),
+  fullName: personNameZodString(),
   email: z.string().email('Valid email is required'),
   phone: z.string().regex(/^[0-9]{10}$/, 'Valid 10-digit phone number is required'),
   counsellingInterest: z.enum(['mbbs-india', 'mbbs-abroad'], {
@@ -75,25 +81,47 @@ export const CounsellingForm = ({
       name: data.fullName,
     };
 
-    if (redirectOnSuccess) {
-      if (openInNewTab) {
-        openThankYouInNewTab(sessionData, redirectOnSuccess);
-      } else {
-        markCounsellingSubmitted(sessionData);
-        router.push(redirectOnSuccess);
-      }
-      reset();
-      return;
-    }
-
+    const thankYouTab = redirectOnSuccess ? prepareThankYouTab() : null;
     setIsLoading(true);
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const lead = await submitWebsiteLead({
+        source: submitSource,
+        formName: 'Counselling form',
+        fields: {
+          fullName: data.fullName,
+          email: data.email,
+          phone: data.phone,
+          counsellingInterest: data.counsellingInterest,
+          examScore: data.examScore ?? '',
+          preferredDate: data.preferredDate ?? '',
+          message: data.message ?? '',
+        },
+      });
+
+      if (!lead.ok) {
+        if (thankYouTab) cancelPreparedThankYouTab(thankYouTab);
+        setSubmitError(lead.message || 'Something went wrong. Please try again.');
+        return;
+      }
+
+      if (redirectOnSuccess) {
+        if (openInNewTab) {
+          openThankYouInNewTab(sessionData, redirectOnSuccess, thankYouTab);
+        } else {
+          markCounsellingSubmitted(sessionData);
+          router.push(redirectOnSuccess);
+        }
+        reset();
+        return;
+      }
+
       setSubmitted(true);
       reset();
       setTimeout(() => setSubmitted(false), 5000);
     } catch (error) {
       console.error('Submission error:', error);
+      if (thankYouTab) cancelPreparedThankYouTab(thankYouTab);
       setSubmitError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);

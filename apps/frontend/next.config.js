@@ -42,7 +42,8 @@ const nextConfig = {
     '/api/blogs/[slug]': ['../../node_modules/.prisma/client/**/*'],
     '/api/content/[slug]': ['../../node_modules/.prisma/client/**/*'],
     '/api/cms/payload-sync': ['../../node_modules/.prisma/client/**/*'],
-    '/api/health': ['../../node_modules/.prisma/client/**/*'],
+    '/api/leads/submit': ['../../node_modules/.prisma/client/**/*'],
+    '/api/newsletter/subscribe': ['../../node_modules/.prisma/client/**/*'],
   },
 
   images: {

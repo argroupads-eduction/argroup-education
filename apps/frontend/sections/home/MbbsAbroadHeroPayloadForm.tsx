@@ -7,7 +7,13 @@ import { MBBS_ABROAD_HERO_COUNTRY_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOpt
 import { isHeroMbbsFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { useHeroMbbsFormDefinition } from '@/lib/useHeroMbbsFormDefinition';
 import { HeroFormSkeleton } from '@/sections/home/HeroFormSkeleton';
-import { nameFromFormValues, openThankYouInNewTab } from '@/lib/openThankYouPage';
+import {
+  cancelPreparedThankYouTab,
+  nameFromFormValues,
+  openThankYouInNewTab,
+  prepareThankYouTab,
+} from '@/lib/openThankYouPage';
+import { validateDynamicFormNames } from '@/lib/validatePersonName';
 
 type FormFieldBlock = {
   id?: string | null;
@@ -86,6 +92,13 @@ export function MbbsAbroadHeroPayloadForm({
         }
       }
 
+      const nameErr = validateDynamicFormNames(values, fields);
+      if (nameErr) {
+        setSubmitError(nameErr);
+        return;
+      }
+
+      const thankYouTab = prepareThankYouTab();
       setSubmitting(true);
       try {
         const submissionData = fields.map((f) => ({
@@ -101,7 +114,12 @@ export function MbbsAbroadHeroPayloadForm({
             body: JSON.stringify(
               useOffline
                 ? { kind: 'abroad', submissionData }
-                : { form: form.id, submissionData }
+                : {
+                    form: form.id,
+                    source: 'hero-mbbs-abroad',
+                    formName: 'MBBS Abroad hero enquiry',
+                    submissionData,
+                  }
             ),
           }
         );
@@ -110,21 +128,28 @@ export function MbbsAbroadHeroPayloadForm({
         try {
           if (raw.trim()) data = JSON.parse(raw) as typeof data;
         } catch {
+          cancelPreparedThankYouTab(thankYouTab);
           setSubmitError(raw.trim() ? 'Could not read CMS response after submit.' : 'Empty CMS response after submit.');
           return;
         }
         if (!res.ok) {
+          cancelPreparedThankYouTab(thankYouTab);
           const msg =
             data.errors?.[0]?.message || data.message || `Submit failed (${res.status})`;
           setSubmitError(msg);
           return;
         }
-        openThankYouInNewTab({
-          name: nameFromFormValues(values, fields),
-          source: 'hero-mbbs-abroad',
-        });
+        openThankYouInNewTab(
+          {
+            name: nameFromFormValues(values, fields),
+            source: 'hero-mbbs-abroad',
+          },
+          undefined,
+          thankYouTab
+        );
         setSubmitted(true);
       } catch {
+        cancelPreparedThankYouTab(thankYouTab);
         setSubmitError('Network error. Try again.');
       } finally {
         setSubmitting(false);

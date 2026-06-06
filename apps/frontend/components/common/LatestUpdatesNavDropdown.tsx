@@ -58,7 +58,9 @@ export function LatestUpdatesNavDropdown({
               key={item.href}
               href={item.href}
               role="menuitem"
-              className="nav-latest-updates-item"
+              className={`nav-latest-updates-item${
+                item.href === '/blog' ? ' nav-latest-updates-item--featured' : ''
+              }`}
               onClick={onNavigate}
             >
               {item.label}

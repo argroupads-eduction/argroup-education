@@ -19,10 +19,19 @@ export function neonDatabaseUrl(raw?: string): string {
     url += `${key}=${value}`;
   };
 
+  ensureParam('sslmode', 'require');
+  ensureParam('connect_timeout', '30');
+  ensureParam('pool_timeout', '30');
+
   if (isPooler) {
     ensureParam('pgbouncer', 'true');
+    // Limit connections per Node process (backend + frontend each get their own pool).
+    ensureParam('connection_limit', process.env.PRISMA_CONNECTION_LIMIT ?? '5');
+  } else if (process.env.NODE_ENV === 'development') {
+    console.warn(
+      '[database] DATABASE_URL is not a Neon pooler URL (-pooler.). Use the pooled URL from Neon Console to avoid idle disconnect errors.'
+    );
   }
-  ensureParam('connect_timeout', '15');
 
   return url;
 }
@@ -36,6 +45,15 @@ export function isPrismaConnectionError(err: unknown): boolean {
     e.code === 'P1017' ||
     /connection.*closed/i.test(msg) ||
     /Error in PostgreSQL connection/i.test(msg) ||
-    /kind: Closed/i.test(msg)
+    /kind: Closed/i.test(msg) ||
+    /Server has closed the connection/i.test(msg)
+  );
+}
+
+/** Background pool noise when Neon closes idle TCP connections — not a user-facing failure. */
+export function isBenignPrismaConnectionLog(message: string): boolean {
+  return (
+    /Error in PostgreSQL connection/i.test(message) &&
+    (/kind: Closed/i.test(message) || /cause: None/i.test(message))
   );
 }

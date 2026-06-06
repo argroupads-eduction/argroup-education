@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { loadMbbsHeroFormDefinitionServer } from '@/lib/mbbsHeroFormDefinitionServer';
 import { getPayloadCmsServerFetchUrl } from '@/lib/payloadCmsUrl';
 import type { MbbsHeroFormKind } from '@/lib/mbbsHeroFormDefinitionServer';
+import { validateSubmissionDataNames } from '@/lib/validatePersonName';
+import { submitWebsiteLead } from '@backend/handlers/websiteLead';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type SubmissionField = { field: string; value: string };
@@ -102,6 +105,27 @@ export async function POST(req: NextRequest) {
   }
   if (!Array.isArray(submissionData) || submissionData.length === 0) {
     return NextResponse.json({ message: 'submissionData is required' }, { status: 400 });
+  }
+
+  const nameErr = validateSubmissionDataNames(submissionData);
+  if (nameErr) {
+    return NextResponse.json({ message: nameErr }, { status: 400 });
+  }
+
+  try {
+    const leadResult = await submitWebsiteLead({
+      source: kind === 'india' ? 'hero-mbbs-india' : 'hero-mbbs-abroad',
+      formName: kind === 'india' ? 'MBBS India hero enquiry' : 'MBBS Abroad hero enquiry',
+      fields: fieldsToMap(submissionData),
+      pageUrl: req.headers.get('referer') ?? undefined,
+      userAgent: req.headers.get('user-agent') ?? undefined,
+    });
+    if (!leadResult.ok) {
+      return NextResponse.json({ message: leadResult.message }, { status: leadResult.status });
+    }
+  } catch (error) {
+    console.error('[hero-enquiry] lead save failed:', error);
+    return NextResponse.json({ message: 'Could not save your enquiry' }, { status: 500 });
   }
 
   const loaded = await loadMbbsHeroFormDefinitionServer(kind);

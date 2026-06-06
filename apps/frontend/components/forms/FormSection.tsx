@@ -1,7 +1,13 @@
 'use client'
 
 import React, { useState } from 'react'
-import { openThankYouInNewTab } from '@/lib/openThankYouPage'
+import {
+  cancelPreparedThankYouTab,
+  openThankYouInNewTab,
+  prepareThankYouTab,
+} from '@/lib/openThankYouPage'
+import { submitWebsiteLead } from '@/lib/submitWebsiteLead'
+import { validatePersonName } from '@/lib/validatePersonName'
 
 interface FormSectionProps {
   program: 'mbbs-india' | 'mbbs-abroad' | 'md-ms'
@@ -31,31 +37,45 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    const nameErr = validatePersonName(formData.name)
+    if (nameErr) {
+      setError(nameErr)
+      return
+    }
+
+    const thankYouTab = prepareThankYouTab()
     setLoading(true)
 
     try {
-      const response = await fetch('/api/form-submission', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
+      const lead = await submitWebsiteLead({
+        source: `form-section-${program}`,
+        formName: `Program enquiry (${program})`,
+        fields: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
           program,
-        }),
-      })
+        },
+      });
 
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to submit form')
+      if (!lead.ok) {
+        cancelPreparedThankYouTab(thankYouTab);
+        throw new Error(lead.message || 'Failed to submit form');
       }
 
-      openThankYouInNewTab({
-        name: formData.name,
-        source: `form-section-${program}`,
-      })
+      openThankYouInNewTab(
+        {
+          name: formData.name,
+          source: `form-section-${program}`,
+        },
+        undefined,
+        thankYouTab
+      )
       setFormData({ name: '', email: '', phone: '', message: '' })
     } catch (err) {
+      cancelPreparedThankYouTab(thankYouTab)
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)

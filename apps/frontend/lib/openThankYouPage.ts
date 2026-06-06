@@ -13,19 +13,47 @@ export function getThankYouUrl(path: string = THANK_YOU_PATH): string {
 }
 
 /**
- * Open thank-you in a new tab (or same tab if popups blocked).
- * Call synchronously in the submit handler — do NOT await before this.
+ * Open a blank tab synchronously on user click (before any await).
+ * Pass the returned window to `openThankYouInNewTab` after submit succeeds.
+ */
+export function prepareThankYouTab(): Window | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.open('', '_blank');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Navigate to thank-you after a successful submit.
+ * When `preopened` is set (from prepareThankYouTab), navigates that tab instead of window.open.
  */
 export function openThankYouInNewTab(
   data: Omit<CounsellingSubmitSession, 'at'>,
-  path: string = THANK_YOU_PATH
+  path: string = THANK_YOU_PATH,
+  preopened?: Window | null
 ): void {
   if (typeof window === 'undefined') return;
 
   markCounsellingSubmitted(data);
   const url = getThankYouUrl(path);
 
-  const tab = window.open(url, '_blank');
+  if (preopened && !preopened.closed) {
+    try {
+      preopened.location.replace(url);
+      preopened.focus();
+      return;
+    } catch {
+      try {
+        preopened.close();
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
+  const tab = window.open(url, '_blank', 'noopener,noreferrer');
   if (tab) {
     tab.focus();
     return;
@@ -34,18 +62,23 @@ export function openThankYouInNewTab(
   window.location.assign(url);
 }
 
-/** @deprecated Use openThankYouInNewTab — about:blank redirect fails in Edge. */
-export function prepareThankYouTab(): Window | null {
-  return null;
+/** Close a pre-opened tab when submit fails (validation/API error). */
+export function cancelPreparedThankYouTab(preopened?: Window | null): void {
+  if (!preopened || preopened.closed) return;
+  try {
+    preopened.close();
+  } catch {
+    /* ignore */
+  }
 }
 
-/** @deprecated Use openThankYouInNewTab */
+/** @deprecated Use prepareThankYouTab + openThankYouInNewTab */
 export function completeThankYouRedirect(
-  _preparedTab: Window | null,
+  preopenedTab: Window | null,
   data: Omit<CounsellingSubmitSession, 'at'>,
   path: string = THANK_YOU_PATH
 ): void {
-  openThankYouInNewTab(data, path);
+  openThankYouInNewTab(data, path, preopenedTab);
 }
 
 /** @deprecated Use openThankYouInNewTab */
