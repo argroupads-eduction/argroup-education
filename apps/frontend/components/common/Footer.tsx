@@ -21,7 +21,6 @@ import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
 import { useSiteGlobals } from '@/components/common/SiteGlobalsProvider';
 import { navPagesForSection } from '@/lib/dynamicNav';
 import { mergeContactInfo, mergeLinkLists, mergeSocialLinks } from '@/lib/siteGlobals';
-import '@/styles/footer-main.css';
 
 const COMPANY_LINKS = [
   { label: 'About Us', href: '/about' },

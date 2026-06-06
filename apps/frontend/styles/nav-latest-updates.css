@@ -99,8 +99,15 @@
 
 .group\/nav-neet-flyout:hover > .nav-latest-updates-item--parent,
 .group\/nav-neet-flyout:focus-within > .nav-latest-updates-item--parent {
-  background: rgb(245 158 11);
-  color: #fff;
+  background: rgb(255 251 235);
+  color: rgb(180 83 9);
+}
+
+.group\/nav-neet-flyout:hover > .nav-latest-updates-item--parent span,
+.group\/nav-neet-flyout:focus-within > .nav-latest-updates-item--parent span,
+.group\/nav-neet-flyout:hover > .nav-latest-updates-item--parent svg,
+.group\/nav-neet-flyout:focus-within > .nav-latest-updates-item--parent svg {
+  color: rgb(180 83 9);
 }
 
 .nav-latest-updates-flyout {

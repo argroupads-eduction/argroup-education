@@ -189,6 +189,15 @@ export function demoteJkitCardTitles(html: string): string {
   return html.replace(/<h2(\b[^>]*\bbody-title\b[^>]*)>([\s\S]*?)<\/h2>/gi, '<p$1>$2</p>');
 }
 
+/** Demote h2 → h3 inside multi-column card tiles (col-33/50 etc.) so lazy sections don't split per college. */
+export function demoteMultiColumnCardHeadings(html: string): string {
+  return html.replace(
+    /<div class="[^"]*elementor-column elementor-col-(?!100\b)[^"]*"[^>]*>([\s\S]*?)<\/div>(?=\s*(?:<div class="[^"]*elementor-column|<\/div>))/gi,
+    (columnBlock) =>
+      columnBlock.replace(/<h2(\b[^>]*)>([\s\S]*?)<\/h2>/gi, '<h3$1>$2</h3>')
+  );
+}
+
 /** Strip decorative icon-only spans that break without Elementor CSS. */
 export function stripBrokenIconWidgets(html: string): string {
   let out = html;
@@ -867,6 +876,7 @@ export function prepareWpHtml(
   out = fixHeadingLevelSkips(out);
   out = stripElementorHiddenSections(out);
   out = demoteJkitCardTitles(out);
+  out = demoteMultiColumnCardHeadings(out);
   out = stripBrokenIconWidgets(out);
   out = normalizeElementorIconListItems(out);
   out = normalizeListItemSpans(out);

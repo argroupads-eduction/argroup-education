@@ -104,9 +104,12 @@ export function wrapContentSections(html: string): string {
     .map((part, i) => {
       const trimmed = part.trim();
       if (!trimmed) return '';
+      const textLen = stripHtml(trimmed).length;
+      if (textLen < 60) return trimmed;
       if (i === 0 && !/^<h2/i.test(trimmed)) return trimmed;
       return `<section class="wp-lazy-section">${trimmed}</section>`;
     })
+    .filter(Boolean)
     .join('\n');
 }
 
