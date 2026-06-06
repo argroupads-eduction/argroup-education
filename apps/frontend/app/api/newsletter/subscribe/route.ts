@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { submitWebsiteLead } from '@backend/handlers/websiteLead';
 import { prisma, withPrismaRetry } from '@backend/lib/prisma';
+import { scheduleLeadEmailDelivery } from '@/lib/scheduleLeadEmail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   let body: { email?: string; pageUrl?: string };
@@ -27,17 +29,22 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    const result = await submitWebsiteLead({
-      source: 'newsletter',
-      formName: 'Newsletter subscription',
-      fields: { email },
-      pageUrl: body.pageUrl ?? req.headers.get('referer') ?? undefined,
-      userAgent: req.headers.get('user-agent') ?? undefined,
-    });
+    const result = await submitWebsiteLead(
+      {
+        source: 'newsletter',
+        formName: 'Newsletter subscription',
+        fields: { email },
+        pageUrl: body.pageUrl ?? req.headers.get('referer') ?? undefined,
+        userAgent: req.headers.get('user-agent') ?? undefined,
+      },
+      { deferEmail: true }
+    );
 
     if (!result.ok) {
       return NextResponse.json({ success: false, message: result.message }, { status: result.status });
     }
+
+    scheduleLeadEmailDelivery(result.id);
 
     return NextResponse.json({ success: true, message: 'Successfully subscribed to newsletter!' });
   } catch (error) {
