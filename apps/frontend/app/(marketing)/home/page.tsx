@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
+import { getSiteUrl } from '@/lib/siteUrl';
 import { getMbbsHeroFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { loadMbbsHeroFormDefinitionsServer } from '@/lib/mbbsHeroFormDefinitionServer';
 import { HeroSection } from '@/sections/home/HeroSection';
@@ -28,14 +29,42 @@ const FAQSection = dynamic(() =>
   import('@/sections/home/FAQSection').then((m) => ({ default: m.FAQSection }))
 );
 
+const SITE = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: 'Home - Medical Education Consultancy',
+  title: 'MBBS India & Abroad Admission Consultant | NEET Counselling Expert',
   description:
-    'Join 4000+ students who achieved their MBBS dreams abroad. Expert guidance, 500+ universities, 98% visa success rate.',
+    'AR Group of Education — India\'s trusted MBBS admission consultants. NEET UG/PG counselling, MBBS in India & 15+ countries abroad, college shortlisting & visa support. 4000+ students guided. Book free expert counselling.',
+  keywords: [
+    'MBBS admission consultant India',
+    'MBBS abroad consultancy',
+    'NEET counselling Delhi NCR',
+    'medical college admission help',
+    'study MBBS in Russia Nepal Georgia',
+    'AR Group of Education',
+  ],
+  alternates: {
+    canonical: `${SITE}/`,
+  },
   openGraph: {
-    title: 'AR Group of Education | MBBS Abroad Consultancy',
+    title: 'MBBS India & Abroad Admission Consultant | AR Group of Education',
     description:
-      'Premium educational consultancy for medical education abroad. Expert guidance for MBBS admission and visa.',
+      'Expert NEET counselling & MBBS admission for India & abroad. 4000+ students, 500+ partner colleges, end-to-end visa & documentation support.',
+    url: SITE,
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'AR Group of Education',
+    images: [{ url: '/ar-group-logo.png', width: 512, height: 512, alt: 'AR Group of Education' }],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'MBBS India & Abroad | AR Group of Education',
+    description: 'NEET counselling & MBBS admission experts for India & abroad. Free expert session.',
+    images: ['/ar-group-logo.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
