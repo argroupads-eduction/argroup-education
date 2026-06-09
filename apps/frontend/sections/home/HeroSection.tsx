@@ -57,7 +57,7 @@ const INDIA_SHOW_MS = 15_000;
 const ABROAD_SHOW_MS = 15_000;
 
 const BANNER_INDIA = '/india-homepage.jpg';
-const BANNER_ABROAD = '/abroad-homepage.jpg';
+const BANNER_ABROAD = '/abroad-homepage.png';
 
 export type HeroSectionProps = {
   initialForms?: {
@@ -158,7 +158,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
           <div className="absolute inset-0" style={{ background: overlayIndia }} />
         </div>
         <div
-          className={`absolute inset-0 transition-opacity duration-700 ease-out ${
+          className={`absolute inset-0 bg-navy-950 transition-opacity duration-700 ease-out ${
             variant === 'abroad' ? 'opacity-100' : 'opacity-0'
           }`}
           aria-hidden
@@ -170,7 +170,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
             loading="lazy"
             quality={82}
             sizes="100vw"
-            className="object-cover object-center"
+            className="object-contain object-center"
           />
           <div className="absolute inset-0" style={{ background: overlayAbroad }} />
         </div>
@@ -276,8 +276,8 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                 </span>
 
                 <h1 className="mt-4 text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
-                  Study MBBS
-                  <span className="mt-2 block text-gold-400">Abroad World Class Universities</span>
+                  Studying MBBS at
+                  <span className="mt-2 block text-gold-400">Top Universities Abroad</span>
                 </h1>
 
                 <div className="mt-6 rounded-xl border border-white/30 bg-white/10 px-4 py-4 backdrop-blur-sm md:px-5 lg:max-w-md">
