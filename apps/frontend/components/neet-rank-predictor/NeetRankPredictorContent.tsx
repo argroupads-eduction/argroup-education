@@ -71,10 +71,10 @@ export function NeetRankPredictorContent() {
       </section>
 
       <section>
-        <h2 className="neet-section-title">NEET marks vs rank 2026</h2>
+        <h2 className="neet-section-title">NEET marks vs rank (NTA 2025 official)</h2>
         <p className="neet-section-lead">
-          Expected All India Rank from marks — based on NEET 2026 projected trends (rank inflation at 600+
-          scores). Indicative only; final NTA ranks may vary.
+          All India Rank ranges from official NTA NEET 2025 result statistics (22 lakh+ candidates). Used as
+          the best available estimate until NEET 2026 NTA data is published.
         </p>
         <div className="mt-8">
           <MarksLadder rows={MARKS_VS_RANK_TABLE} />

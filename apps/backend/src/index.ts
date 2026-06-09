@@ -10,6 +10,7 @@ import formsRouter from './routes/forms';
 import newsletterRouter from './routes/newsletter';
 import payloadSyncRouter from './routes/payloadSync';
 import leadsRouter from './routes/leads';
+import neetRouter from './routes/neet';
 import { connectPrisma, prisma, reconnectPrisma } from './lib/prisma';
 
 const app: Application = express();
@@ -68,6 +69,7 @@ app.use('/api/countries', countriesRouter);
 app.use('/api/universities', universitiesRouter);
 app.use('/api/forms', formsRouter);
 app.use('/api/leads', leadsRouter);
+app.use('/api/neet', neetRouter);
 app.use('/api/newsletter', newsletterRouter);
 app.use('/api/cms', payloadSyncRouter);
 

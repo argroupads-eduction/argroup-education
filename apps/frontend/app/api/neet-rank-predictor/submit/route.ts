@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NEET_CATEGORIES } from '@/lib/neetRankPredictor/data';
 import { getCollegeRecommendations } from '@/lib/neetRankPredictor/collegeMatches';
-import { predictNeetRank } from '@/lib/neetRankPredictor/predict';
+import { predictNeetRank } from '@backend/lib/neetRankPredictor';
 import type { NeetCategory } from '@/lib/neetRankPredictor/types';
 import { validatePersonName } from '@/lib/validatePersonName';
 import { prisma, withPrismaRetry } from '@backend/lib/prisma';
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
   const cat = category as NeetCategory;
   const roundedScore = Math.round(score);
   const prediction = predictNeetRank(cat, roundedScore);
-  const colleges = getCollegeRecommendations(cat, roundedScore);
+  const colleges = getCollegeRecommendations(cat, roundedScore, prediction.expectedRank);
   const trackLabel = TRACK_LABELS[track] ?? track;
 
   const leadFields = {

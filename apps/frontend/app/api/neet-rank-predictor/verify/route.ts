@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { predictNeetRank } from '@/lib/neetRankPredictor/predict';
+import { predictNeetRank } from '@backend/lib/neetRankPredictor';
 import { verifyOtpToken } from '@/lib/neetRankPredictor/otpToken';
 
 export const dynamic = 'force-dynamic';
