@@ -19,7 +19,7 @@ export function MbbsAbroadDocumentsVault() {
             Documents required to study MBBS abroad
           </h2>
           <p className="abroad-vault__lead">
-            Keep these ready before counselling — we help you verify formats, attestations, and
+            Keep these ready before counselling, we help you verify formats, attestations, and
             embassy-specific checklists.
           </p>
         </div>

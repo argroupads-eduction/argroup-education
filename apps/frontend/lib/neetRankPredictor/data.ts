@@ -19,7 +19,7 @@ export const NEET_CATEGORIES: {
 export const NEET_2026_MAX_RANK = getPrimaryDataset().totalAppeared;
 
 export const RANK_VS_COLLEGE = [
-  { maxRank: 100, label: 'AIIMS Delhi, top AIIMS — AIR under 100' },
+  { maxRank: 100, label: 'AIIMS Delhi, top AIIMS (AIR under 100)' },
   { maxRank: 1500, label: 'All AIIMS, JIPMER, CMC Vellore, top government colleges' },
   { maxRank: 11000, label: 'Strong government MBBS, top state quota options' },
   { maxRank: 40000, label: 'Government MBBS via state quota; competitive private options' },
@@ -64,7 +64,7 @@ export const CATEGORY_CUTOFF_TABLE = [
 export const NEET_PREDICTOR_FAQ = [
   {
     q: 'What is the NEET rank predictor by marks?',
-    a: 'It maps your NEET score to an estimated All India Rank (AIR) using NEET 2026 expected rank trends from Collegedunia, Shiksha, and coaching consensus — the same ranges students see on coaching portals and when asking ChatGPT.',
+    a: 'It maps your NEET score to an estimated All India Rank (AIR) using NEET 2026 expected rank trends from Collegedunia, Shiksha, and coaching consensus, the same ranges students see on coaching portals and when asking ChatGPT.',
   },
   {
     q: 'How accurate is this NEET Rank Predictor?',
@@ -76,7 +76,7 @@ export const NEET_PREDICTOR_FAQ = [
   },
   {
     q: 'Does it work category-wise (General, OBC, SC, ST)?',
-    a: 'AIR is the same for all categories at a given score. Your category affects qualifying cutoff and admission quotas — select it for personalised counselling context.',
+    a: 'AIR is the same for all categories at a given score. Your category affects qualifying cutoff and admission quotas, select it for personalised counselling context.',
   },
 ] as const;
 
@@ -94,7 +94,7 @@ export const HOW_TO_STEPS = [
   {
     step: '03',
     title: 'Get rank & colleges',
-    text: 'Instant AIR estimate from NTA 2025 data, percentile, and matched MBBS colleges — plan counselling with AR Group.',
+    text: 'Instant AIR estimate from NTA 2025 data, percentile, and matched MBBS colleges, plan counselling with AR Group.',
   },
 ] as const;
 

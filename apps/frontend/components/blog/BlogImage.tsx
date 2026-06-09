@@ -15,7 +15,7 @@ const variantClass: Record<BlogImageProps['variant'], string> = {
   hero: 'blog-image-frame--hero',
 };
 
-/** Full image visible — never cropped (object-contain). */
+/** Full image visible, never cropped (object-contain). */
 export function BlogImage({ src, alt, variant, priority, sizes }: BlogImageProps) {
   return (
     <div className={`blog-image-frame ${variantClass[variant]}`}>

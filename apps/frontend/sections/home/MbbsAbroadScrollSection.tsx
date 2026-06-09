@@ -70,14 +70,14 @@ const cardVariants = {
   }),
 }
 
-/** Image cards: fade only — no horizontal slide (prevents next slide peeking at edges). */
+/** Image cards: fade only, no horizontal slide (prevents next slide peeking at edges). */
 const imageCardVariants = {
   enter: { opacity: 0, scale: 0.98 },
   center: { opacity: 1, scale: 1 },
   exit: { opacity: 0, scale: 0.98 },
 }
 
-/** Single gradient on sticky viewport — navy from top edge, seamless with hero */
+/** Single gradient on sticky viewport, navy from top edge, seamless with hero */
 const MBBS_ABROAD_PIN_BG =
   'bg-gradient-to-br from-navy-900 via-navy-800 to-[#0a2540]'
 
@@ -241,14 +241,14 @@ function MbbsAbroadIntro({ count }: { count: number }) {
       <p className="max-w-2xl text-sm leading-relaxed text-slate-200/90 md:text-base md:leading-relaxed">
         <span className="font-semibold text-white">AR Group of Education</span> helps Indian
         students secure MBBS seats at WHO-listed universities in{' '}
-        <span className="font-semibold text-gold-300">{count}+ countries</span> — with end-to-end
+        <span className="font-semibold text-gold-300">{count}+ countries</span>, with end-to-end
         support for counselling, admissions, scholarships, documentation, and visa.
       </p>
     </div>
   )
 }
 
-/** Mobile: natural document scroll, swipeable cards, tappable progress — no pin/jack */
+/** Mobile: natural document scroll, swipeable cards, tappable progress, no pin/jack */
 function MbbsAbroadScrollSectionMobile({
   countries,
 }: {

@@ -21,7 +21,7 @@ export function BrandLogoLink({ children, className = '', frameClassName = '' }:
       href="/"
       onClick={goHomeReload}
       className={['brand-logo-link', className].filter(Boolean).join(' ')}
-      aria-label="AR Group of Education — Home"
+      aria-label="AR Group of Education, Home"
     >
       <span className={['brand-logo-link__frame', frameClassName].filter(Boolean).join(' ')}>
         {children}

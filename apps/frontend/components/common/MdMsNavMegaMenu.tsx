@@ -27,7 +27,7 @@ export function MdMsNavMegaMenu({ onNavigate }: MdMsNavMegaMenuProps) {
     <NavMegaMenuShell
       theme="mdms"
       title="MD / MS Admissions"
-      description="Postgraduate medical programs across top Indian states — counselling, seat guidance & admission support."
+      description="Postgraduate medical programs across top Indian states, counselling, seat guidance & admission support."
       hubHref="/md-ms"
       hubLabel="Explore MD/MS"
       footerHref="/md-ms"

@@ -12,7 +12,7 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0 0.85rem;
-  font-family: var(--font-poppins), system-ui, sans-serif;
+  font-family: var(--font-site);
   font-size: 0.875rem;
   font-weight: 600;
   color: rgb(15 23 42);
@@ -175,7 +175,7 @@
 }
 
 .nav-mega-header-title {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: 1.125rem;
   font-weight: 700;
   letter-spacing: -0.01em;

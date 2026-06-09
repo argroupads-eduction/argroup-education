@@ -292,6 +292,9 @@
   width: 100%;
   border-collapse: collapse;
   margin: 0 !important;
+  font-family: var(--font-site);
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 .wp-content-root .eael-data-table-wrap thead th {
@@ -318,9 +321,12 @@
   background: #fff;
 }
 
-/* ── Typography — black text, bold black headings (readability first) ── */
+/* ── Typography — unified Inter, consistent sizes for posts/tables ── */
 .wp-content-root .wp-content-body {
   color: #111827;
+  font-family: var(--font-site);
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 .wp-content-root .wp-content-body h1,
@@ -330,7 +336,7 @@
 .wp-content-root .wp-content-body h5,
 .wp-content-root .wp-content-body h6,
 .wp-content-root .wp-content-body .elementor-heading-title {
-  font-family: inherit;
+  font-family: var(--font-site);
   color: #000 !important;
   font-weight: 700 !important;
   scroll-margin-top: 6rem;
@@ -519,7 +525,7 @@
 
 /* ── FAQ accordion (collapsible — answers hidden until open) ── */
 .wp-content-root .wp-faq-section-title {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: 1.75rem !important;
   font-weight: 700 !important;
   color: var(--wp-navy) !important;
@@ -802,8 +808,9 @@
   table-layout: auto;
   border-collapse: collapse;
   border-spacing: 0;
-  font-size: 0.9375rem;
-  line-height: 1.5;
+  font-family: var(--font-site);
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 .wp-content-root .wp-table-scroll thead {
@@ -816,7 +823,7 @@
   background: linear-gradient(135deg, #1a365d 0%, #234e82 100%);
   color: #fff !important;
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 1rem;
   letter-spacing: 0.02em;
   text-transform: none;
   padding: 0.85rem 1.1rem;

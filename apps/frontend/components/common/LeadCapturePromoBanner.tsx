@@ -9,7 +9,7 @@ export type LeadCapturePromoBannerProps = {
 };
 
 /**
- * Mint promo block: journey headline + ₹999 value — left panel / mobile header.
+ * Mint promo block: journey headline + ₹999 value, left panel / mobile header.
  */
 export function LeadCapturePromoBanner({
   compact = false,
@@ -23,7 +23,7 @@ export function LeadCapturePromoBanner({
         className
       )}
       role="status"
-      aria-label="Start your MBBS abroad journey — expert counselling session included"
+      aria-label="Start your MBBS abroad journey, expert counselling session included"
     >
       <p
         className={clsx(

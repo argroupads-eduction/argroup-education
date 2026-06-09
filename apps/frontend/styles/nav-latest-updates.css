@@ -7,7 +7,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0 0.85rem;
-  font-family: var(--font-poppins), system-ui, sans-serif;
+  font-family: var(--font-site);
   font-size: 0.875rem;
   font-weight: 700;
   color: rgb(180 83 9);
@@ -89,7 +89,7 @@
   justify-content: space-between;
   gap: 0.5rem;
   padding: 0.55rem 1rem;
-  font-family: var(--font-poppins), system-ui, sans-serif;
+  font-family: var(--font-site);
   font-size: 0.8125rem;
   font-weight: 500;
   line-height: 1.35;
@@ -174,7 +174,7 @@
 .nav-latest-updates-flyout-item {
   display: block;
   padding: 0.55rem 1rem;
-  font-family: var(--font-poppins), system-ui, sans-serif;
+  font-family: var(--font-site);
   font-size: 0.8125rem;
   font-weight: 500;
   line-height: 1.4;

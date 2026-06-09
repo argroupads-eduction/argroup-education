@@ -11,16 +11,16 @@ export type LeadCaptureMobileSheetProps = {
   reduceMotion: boolean;
   /** Radix dialog title (aria-labelledby); visible copy may live in `header` */
   title?: string;
-  /** Compact navy branding strip — keep short; no internal scroll */
+  /** Compact navy branding strip, keep short; no internal scroll */
   header: ReactNode;
-  /** Form body — must fit without scrolling (compact fields) */
+  /** Form body, must fit without scrolling (compact fields) */
   children: ReactNode;
 };
 
 /**
  * Mobile / tablet lead capture: centered card modal (max ~88dvh), overflow hidden.
  */
-const DEFAULT_TITLE = 'MBBS in India or abroad — expert counselling';
+const DEFAULT_TITLE = 'MBBS in India or abroad, expert counselling';
 
 export function LeadCaptureMobileSheet({
   open,
@@ -44,7 +44,7 @@ export function LeadCaptureMobileSheet({
         >
           <Dialog.Title className="sr-only">{title}</Dialog.Title>
           <Dialog.Description className="sr-only">
-            AR Group MBBS counselling for India and abroad — enter your details for a callback.
+            AR Group MBBS counselling for India and abroad, enter your details for a callback.
           </Dialog.Description>
 
           <motion.div

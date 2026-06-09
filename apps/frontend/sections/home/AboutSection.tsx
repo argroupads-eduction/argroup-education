@@ -32,7 +32,7 @@ const HIGHLIGHTS = [
   {
     icon: Award,
     title: 'Transparent admissions',
-    text: 'No hidden capitation — clear fees, documentation, and visa support.',
+    text: 'No hidden capitation, clear fees, documentation, and visa support.',
   },
 ] as const
 
@@ -83,7 +83,7 @@ export const AboutSection = () => {
                 <div className="absolute inset-0 bg-gradient-to-tr from-navy-900/40 via-transparent to-gold-500/10 z-[1]" />
                 <Image
                   src="/about-counsellor.png"
-                  alt="AR Group of Education counsellor — trusted MBBS admission guidance"
+                  alt="AR Group of Education counsellor, trusted MBBS admission guidance"
                   width={560}
                   height={700}
                   sizes="(max-width: 1024px) 100vw, 560px"
@@ -137,7 +137,7 @@ export const AboutSection = () => {
             </span>
 
             <h2 className="mt-5 font-serif text-3xl font-bold leading-tight text-navy-900 md:text-4xl lg:text-[2.65rem]">
-              AR Group of Education — guiding{' '}
+              AR Group of Education, guiding{' '}
               <span className="bg-gradient-to-r from-gold-500 to-gold-600 bg-clip-text text-transparent">
                 future doctors
               </span>{' '}
@@ -146,7 +146,7 @@ export const AboutSection = () => {
 
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
               For over {YEARS_EXPERIENCE} years, we have helped students and families navigate MBBS admissions
-              across India and abroad — from NEET counselling and college selection to documentation, visas,
+              across India and abroad, from NEET counselling and college selection to documentation, visas,
               and pre-departure support. Our team combines medical education expertise with honest, student-first
               advice at every step.
             </p>
@@ -192,7 +192,7 @@ export const AboutSection = () => {
               <div className="flex-1 min-w-[12rem]">
                 <p className="text-sm text-blue-100/90">
                   From a single counselling desk in 2005 to a full-service medical admission partner for India
-                  and global universities — built on results, not promises.
+                  and global universities, built on results, not promises.
                 </p>
               </div>
               <div className="rounded-xl bg-white/10 px-4 py-2 text-center">

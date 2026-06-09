@@ -123,18 +123,24 @@
 
 .airport-diaries__title {
   margin-top: 1rem;
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(2rem, 5vw, 3.15rem);
   font-weight: 700;
-  line-height: 1.08;
+  line-height: 1.2;
   color: white;
 }
 
 .airport-diaries__title-accent {
+  display: inline-block;
+  padding-bottom: 0.12em;
+  line-height: 1.22;
   background: linear-gradient(90deg, #fde68a, #f59e0b, #fcd34d);
   -webkit-background-clip: text;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .airport-diaries__lead {

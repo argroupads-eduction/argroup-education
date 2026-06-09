@@ -63,7 +63,7 @@ export function AboutWpContentClient({
           <p className="about-kicker">Know us deeper</p>
           <h2 className="about-heading">What makes AR Group different</h2>
           <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
-            Tap a topic below — curated from our official profile, without the clutter of a generic content page.
+            Tap a topic below, curated from our official profile, without the clutter of a generic content page.
           </p>
         </div>
 

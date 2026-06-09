@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-/** Mark lazy sections visible — content must never stay hidden (avoids empty white gaps). */
+/** Mark lazy sections visible, content must never stay hidden (avoids empty white gaps). */
 export function WpLazyReveal() {
   useEffect(() => {
     const root = document.querySelector('.wp-content-affinity');

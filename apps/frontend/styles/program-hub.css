@@ -57,18 +57,24 @@
 
 .program-hub-title {
   margin-top: 1.25rem;
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(2rem, 5vw, 3.25rem);
   font-weight: 700;
-  line-height: 1.12;
+  line-height: 1.2;
   color: white;
 }
 
 .program-hub-title-accent {
+  display: inline-block;
+  padding-bottom: 0.12em;
+  line-height: 1.22;
   background: linear-gradient(90deg, #fcd34d, #f59e0b);
   -webkit-background-clip: text;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .program-hub-lead {
@@ -195,7 +201,7 @@
 
 .program-hub-section-title {
   margin-top: 0.45rem;
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(1.65rem, 3vw, 2.25rem);
   font-weight: 700;
   color: rgb(15 23 42);
@@ -312,7 +318,7 @@
 }
 
 .program-hub-cta-title {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
   color: white;

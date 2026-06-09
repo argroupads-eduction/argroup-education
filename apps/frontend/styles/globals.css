@@ -5,6 +5,10 @@
 @import './ui-buttons.css';
 
 @layer base {
+  :root {
+    --font-site: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
   * {
     @apply scroll-smooth;
   }
@@ -15,18 +19,18 @@
 
   body {
     @apply bg-white text-navy-900 antialiased font-sans;
+    font-family: var(--font-site);
   }
 
-  /* Typography - Headings use Lora (standard ampersand, no decorative “&”) */
+  /* Unified site typography — Inter for headings, body, tables, and posts */
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    @apply font-serif font-bold leading-tight tracking-tight;
-    font-variant-ligatures: none;
-    font-feature-settings: 'liga' 0, 'clig' 0, 'calt' 0;
+    @apply font-sans font-bold leading-tight tracking-tight;
+    font-family: var(--font-site);
   }
 
   h1 {
@@ -373,6 +377,22 @@
 }
 
 @layer utilities {
+  /**
+   * Gradient text via background-clip — adds room for descenders (y, g, p, q)
+   * so italic/script lines are not cut off at the bottom.
+   */
+  .text-gradient-clip {
+    display: inline-block;
+    padding-bottom: 0.12em;
+    line-height: 1.22;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
   .center {
     @apply flex items-center justify-center;
   }

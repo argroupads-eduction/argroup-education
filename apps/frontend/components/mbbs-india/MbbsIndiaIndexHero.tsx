@@ -27,7 +27,7 @@ export function MbbsIndiaIndexHero() {
             </span>
           </h1>
           <p className="mt-5 text-base leading-relaxed text-blue-100/90 md:text-lg">
-            Browse {MBBS_INDIA_STATES.length} states and {totalColleges}+ colleges — fees, NEET cut-offs, and expert
+            Browse {MBBS_INDIA_STATES.length} states and {totalColleges}+ colleges, fees, NEET cut-offs, and expert
             admission counselling in one place.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">

@@ -76,7 +76,7 @@ export function NeetRankCollegeResults({
           Colleges matched to your score
         </h3>
         <p className="mt-1 text-sm text-slate-600">
-          Shortlisted options from AR Group — tap any college for fees, eligibility &amp; counselling.
+          Shortlisted options from AR Group, tap any college for fees, eligibility &amp; counselling.
         </p>
       </div>
 

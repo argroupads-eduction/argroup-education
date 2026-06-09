@@ -10,7 +10,7 @@ type LazySectionProps = {
   className?: string;
 };
 
-/** Mount children only when near the viewport — defers heavy section JS & images. */
+/** Mount children only when near the viewport, defers heavy section JS & images. */
 export function LazySection({
   children,
   minHeight,

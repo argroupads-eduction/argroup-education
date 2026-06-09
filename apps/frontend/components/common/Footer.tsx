@@ -173,13 +173,13 @@ export const Footer = () => {
               </div>
             </div>
 
-            {/* Partner brand — Collegedunias */}
+            {/* Partner brand, Collegedunias */}
             <div className="site-footer-main__partner">
               <p className="site-footer-main__partner-label">Partner brand</p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/collegedunias-logo.png"
-                alt="Collegedunias — Surety to Success"
+                alt="Collegedunias, Surety to Success"
                 width={168}
                 height={72}
                 className="site-footer-main__partner-logo"

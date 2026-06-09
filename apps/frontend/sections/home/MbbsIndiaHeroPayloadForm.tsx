@@ -3,7 +3,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/Button';
-import { MBBS_INDIA_HERO_STATE_OPTIONS } from '@/lib/mbbsIndiaHeroStateOptions';
 import { isHeroMbbsFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { useHeroMbbsFormDefinition } from '@/lib/useHeroMbbsFormDefinition';
 import { HeroFormSkeleton } from '@/sections/home/HeroFormSkeleton';
@@ -217,57 +216,30 @@ export function MbbsIndiaHeroPayloadForm({
             );
           }
 
-          if (field.blockType === 'state') {
+          const isStateOrCountryField =
+            field.blockType === 'state' ||
+            field.blockType === 'country' ||
+            field.name?.toLowerCase().includes('state') ||
+            field.name?.toLowerCase().includes('country') ||
+            (field.label && field.label.toLowerCase().includes('state')) ||
+            (field.label && field.label.toLowerCase().includes('country'));
+
+          if (isStateOrCountryField) {
             return (
               <div key={field.id || field.name}>
                 <label className="mb-1 block text-xs font-medium text-white" htmlFor={field.name}>
                   {label}
                   {req && <span className="text-gold-300">{req}</span>}
                 </label>
-                <select
+                <input
                   id={field.name}
                   name={field.name}
+                  type="text"
+                  placeholder={field.placeholder || 'Type here…'}
                   className={inputClass}
                   value={values[field.name] ?? ''}
                   onChange={(e) => setField(field.name, e.target.value)}
-                >
-                  <option value="">Select…</option>
-                  {MBBS_INDIA_HERO_STATE_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            );
-          }
-
-          const isIndiaHeroStateSelect =
-            field.blockType === 'select' &&
-            (field.name?.toLowerCase().includes('state') ||
-              (field.label && field.label.toLowerCase().includes('state')));
-
-          if (isIndiaHeroStateSelect) {
-            return (
-              <div key={field.id || field.name}>
-                <label className="mb-1 block text-xs font-medium text-white" htmlFor={field.name}>
-                  {label}
-                  {req && <span className="text-gold-300">{req}</span>}
-                </label>
-                <select
-                  id={field.name}
-                  name={field.name}
-                  className={inputClass}
-                  value={values[field.name] ?? ''}
-                  onChange={(e) => setField(field.name, e.target.value)}
-                >
-                  <option value="">Select…</option>
-                  {MBBS_INDIA_HERO_STATE_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             );
           }

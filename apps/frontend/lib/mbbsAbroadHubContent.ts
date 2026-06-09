@@ -1,14 +1,14 @@
-/** Native MBBS Abroad hub copy — SEO-friendly, no WordPress body HTML. */
+/** Native MBBS Abroad hub copy, SEO-friendly, no WordPress body HTML. */
 
 export const MBBS_ABROAD_HUB = {
   overviewTitle: 'Study MBBS abroad with clarity',
   overviewLead:
-    'AR Group of Education helps Indian students compare WHO-listed medical universities abroad — fees, NEET eligibility, NMC guidelines, and visa timelines — before you commit to an intake.',
+    'AR Group of Education helps Indian students compare WHO-listed medical universities abroad, fees, NEET eligibility, NMC guidelines, and visa timelines, before you commit to an intake.',
   overviewParagraphs: [
     'Choosing where to study MBBS abroad is a long-term decision. Tuition, living cost, medium of instruction, clinical exposure, and graduate licensing pathways differ sharply between Russia, Nepal, Bangladesh, Kazakhstan, Georgia, and other destinations.',
-    'Our counsellors shortlist universities that match your budget and NEET profile, then support you through application, admission letter, visa filing, forex, and pre-departure briefing — so you arrive prepared, not overwhelmed.',
+    'Our counsellors shortlist universities that match your budget and NEET profile, then support you through application, admission letter, visa filing, forex, and pre-departure briefing, so you arrive prepared, not overwhelmed.',
     'Scroll to the university directory below for every partner college we list. Each card opens a profile with fees, eligibility, and admission steps. Country hubs group universities when a destination has multiple campuses.',
-    'Whether you are comparing your first option or narrowing a final shortlist, use this page as your single reference for MBBS abroad — then speak with a counsellor for a personalised plan.',
+    'Whether you are comparing your first option or narrowing a final shortlist, use this page as your single reference for MBBS abroad, then speak with a counsellor for a personalised plan.',
   ],
   directoryIntro:
     'Below is the complete list of MBBS abroad universities we guide students toward. Filter by country, open any college for detailed fees and documents, or visit a country hub for regional comparisons.',
@@ -36,7 +36,7 @@ export const MBBS_ABROAD_HUB = {
     {
       feature: 'Average tuition (indicative)',
       abroad: 'Often lower than many Indian private colleges; varies by country',
-      india: 'Wide range — government seats vs premium private',
+      india: 'Wide range, government seats vs premium private',
     },
     {
       feature: 'Counselling support',
@@ -55,7 +55,7 @@ export const MBBS_ABROAD_HUB = {
     },
     {
       name: 'Bangladesh',
-      text: 'Strong demand from eastern and northern India. English-medium tracks, competitive fees, and clinical rotations in regional hospitals. Document attestation timelines matter — start early.',
+      text: 'Strong demand from eastern and northern India. English-medium tracks, competitive fees, and clinical rotations in regional hospitals. Document attestation timelines matter, start early.',
     },
     {
       name: 'Kazakhstan & Uzbekistan',
@@ -63,7 +63,7 @@ export const MBBS_ABROAD_HUB = {
     },
     {
       name: 'Georgia',
-      text: 'European-standard campuses and English-taught programmes. Visa and insurance rules differ from CIS countries — verify embassy checklists per intake.',
+      text: 'European-standard campuses and English-taught programmes. Visa and insurance rules differ from CIS countries, verify embassy checklists per intake.',
     },
     {
       name: 'Philippines',
@@ -75,33 +75,33 @@ export const MBBS_ABROAD_HUB = {
     'Hostel or private accommodation near campus.',
     'Food, local transport, and health insurance.',
     'Visa fees, medical tests, and travel (India ↔ destination).',
-    'Currency movement — budget a small buffer for forex rate changes.',
-    'One-time admission or service charges — always ask for written breakdowns.',
+    'Currency movement, budget a small buffer for forex rate changes.',
+    'One-time admission or service charges, always ask for written breakdowns.',
   ],
   choosingCollegeTips: [
     'Verify the university appears on current WHO and NMC reference lists before paying fees.',
-    'Match NEET score and PCB percentage with published eligibility — do not rely on verbal assurances.',
+    'Match NEET score and PCB percentage with published eligibility, do not rely on verbal assurances.',
     'Ask for the latest fee letter in writing, including hostel and mess charges.',
     'Confirm medium of instruction and whether local language classes are mandatory.',
     'Review hospital tie-ups for clinical rotations and internship duration.',
     'Speak with alumni or current students when possible; AR Group shares intake-wise feedback.',
   ],
   licensingNote:
-    'Indian graduates from foreign medical colleges must clear the licensing examination prescribed by NMC (FMGE/NExT as applicable) and complete internship requirements to practise in India. University quality, curriculum, and your study discipline directly affect exam preparation — we prioritise recognised institutions with transparent outcomes.',
+    'Indian graduates from foreign medical colleges must clear the licensing examination prescribed by NMC (FMGE/NExT as applicable) and complete internship requirements to practise in India. University quality, curriculum, and your study discipline directly affect exam preparation, we prioritise recognised institutions with transparent outcomes.',
   whyArGroup: [
     'Expert first counselling with country-wise fee comparison.',
     'Document checklist tailored to university and embassy rules.',
     'Admission letter and invitation support with verified timelines.',
     'Visa guidance, forex advice, and pre-departure orientation.',
     'Dedicated relationship managers for parents and students.',
-    'No hidden promises — every fee discussed against official university communication.',
+    'No hidden promises, every fee discussed against official university communication.',
   ],
   eligibility: [
     'Completed 10+2 with Physics, Chemistry, and Biology (PCB) from a recognised board.',
     'Minimum aggregate marks as per university and NMC guidelines (commonly 50% in PCB for general category).',
     'Valid NEET qualification for the admission year when applying as an Indian student.',
     'Passport, academic transcripts, migration certificate, and medical fitness as per embassy requirements.',
-    'Age criteria per university and country immigration rules — confirm during counselling.',
+    'Age criteria per university and country immigration rules, confirm during counselling.',
   ],
   benefits: [
     {
@@ -126,7 +126,7 @@ export const MBBS_ABROAD_HUB = {
     },
     {
       title: 'Full college directory on one page',
-      text: 'Every partner university is listed below by country — open a college card for fees, intake, and one-click counselling.',
+      text: 'Every partner university is listed below by country, open a college card for fees, intake, and one-click counselling.',
     },
   ],
   process: [
@@ -151,7 +151,7 @@ export const MBBS_ABROAD_HUB = {
     {
       question: 'Can I practice in India after MBBS abroad?',
       answer:
-        'Graduates must clear the prescribed licensing examination (FMGE/NExT as applicable) and meet NMC requirements. University choice and curriculum quality affect preparation — we factor this into shortlisting.',
+        'Graduates must clear the prescribed licensing examination (FMGE/NExT as applicable) and meet NMC requirements. University choice and curriculum quality affect preparation, we factor this into shortlisting.',
     },
     {
       question: 'How do I compare fees safely?',
@@ -166,7 +166,7 @@ export const MBBS_ABROAD_HUB = {
     {
       question: 'How long does the visa process take?',
       answer:
-        'Timelines vary by embassy and intake season — typically several weeks after admission letter and medical checks. We track document readiness to reduce delays.',
+        'Timelines vary by embassy and intake season, typically several weeks after admission letter and medical checks. We track document readiness to reduce delays.',
     },
     {
       question: 'How do I use the college list on this page?',
@@ -176,7 +176,7 @@ export const MBBS_ABROAD_HUB = {
     {
       question: 'What documents are usually required?',
       answer:
-        '10th and 12th marksheets, NEET scorecard, passport, photos, medical fitness, and country-specific forms. Our documents section below summarises the standard checklist — your counsellor will confirm embassy updates.',
+        '10th and 12th marksheets, NEET scorecard, passport, photos, medical fitness, and country-specific forms. Our documents section below summarises the standard checklist, your counsellor will confirm embassy updates.',
     },
   ],
 } as const;

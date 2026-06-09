@@ -11,7 +11,7 @@ type FitImageProps = {
   frameClassName?: string;
 };
 
-/** Image always fully visible — container adapts, no cropping. */
+/** Image always fully visible, container adapts, no cropping. */
 export function FitImage({
   src,
   alt,

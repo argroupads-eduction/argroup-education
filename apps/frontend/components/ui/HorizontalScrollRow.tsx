@@ -12,7 +12,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 type HorizontalScrollRowProps = {
   children: ReactNode;
-  /** Gap between items — tailwind class on inner flex */
+  /** Gap between items, tailwind class on inner flex */
   gapClassName?: string;
   /** Enable auto-scroll on touch devices / narrow screens */
   autoScrollMobile?: boolean;
@@ -132,7 +132,7 @@ export function HorizontalScrollRow({
         </button>
       ) : null}
 
-      {/* Mobile edge arrows — always visible when scrollable */}
+      {/* Mobile edge arrows, always visible when scrollable */}
       {canPrev ? (
         <button
           type="button"

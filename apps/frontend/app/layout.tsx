@@ -29,7 +29,7 @@ const inter = Inter({
   weight: ['400', '500', '600', '700'],
 });
 
-/** Serif headings — Lora uses a standard “&” (Playfair’s default & has decorative swashes). */
+/** Serif headings, Lora uses a standard “&” (Playfair’s default & has decorative swashes). */
 const playfair = Lora({
   subsets: ['latin'],
   display: 'swap',

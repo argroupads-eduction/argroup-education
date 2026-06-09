@@ -19,7 +19,7 @@ type ContentArticleProps = {
   showFeaturedImage?: boolean;
   published?: string | null;
   publishedLabel?: string;
-  /** Pre-parsed on server — avoids double transform + hydration drift */
+  /** Pre-parsed on server, avoids double transform + hydration drift */
   structuredHtml?: string;
   headings?: ReturnType<typeof parseContentStructure>['headings'];
   quickFacts?: ReturnType<typeof parseContentStructure>['quickFacts'];

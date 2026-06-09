@@ -34,7 +34,7 @@ const SITE = getSiteUrl();
 export const metadata: Metadata = {
   title: 'MBBS India & Abroad Admission Consultant | NEET Counselling Expert',
   description:
-    'AR Group of Education — India\'s trusted MBBS admission consultants. NEET UG/PG counselling, MBBS in India & 15+ countries abroad, college shortlisting & visa support. 4000+ students guided. Book expert counselling.',
+    'AR Group of Education, India\'s trusted MBBS admission consultants. NEET UG/PG counselling, MBBS in India & 15+ countries abroad, college shortlisting & visa support. 4000+ students guided. Book expert counselling.',
   keywords: [
     'MBBS admission consultant India',
     'MBBS abroad consultancy',

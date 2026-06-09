@@ -16,7 +16,7 @@ export async function generateMetadata() {
     return {
       title: 'NEET Rank Predictor 2026 | Check Expected Rank & College Chances',
       description:
-        'NEET rank predictor by AR Group — MBBS India & Abroad college matches, rank range, and percentile. Matches our site counselling experience.',
+        'NEET rank predictor by AR Group, MBBS India & Abroad college matches, rank range, and percentile. Matches our site counselling experience.',
       alternates: { canonical: '/neet-rank-predictor' },
     };
   }
@@ -50,18 +50,18 @@ export default async function NeetRankPredictorPage() {
             {cmsTitle ? (
               <>
                 {cmsTitle}{' '}
-                <span className="text-gold-400">— know your rank &amp; colleges</span>
+                <span className="text-gold-400">know your rank &amp; colleges</span>
               </>
             ) : (
               <>
-                NEET Rank Predictor — <span className="text-gold-400">know your rank &amp; colleges</span>
+                NEET Rank Predictor, <span className="text-gold-400">know your rank &amp; colleges</span>
               </>
             )}
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-blue-50/95 md:text-base">
             {cmsSubtitle ||
-              'Same trusted AR Group experience as our MBBS counselling — enter your score, unlock expected AIR, percentile, and matched MBBS India / Abroad colleges.'}
+              'Same trusted AR Group experience as our MBBS counselling, enter your score, unlock expected AIR, percentile, and matched MBBS India / Abroad colleges.'}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-6 md:gap-10">

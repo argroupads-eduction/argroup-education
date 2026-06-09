@@ -33,7 +33,7 @@ const VALUE_PROPS = [
     icon: Building2,
     title: 'Top Universities',
     description:
-      'Partnerships with 500+ accredited medical colleges — vetted for NMC and WHO alignment.',
+      'Partnerships with 500+ accredited medical colleges, vetted for NMC and WHO alignment.',
   },
   {
     icon: Plane,
@@ -226,7 +226,7 @@ function FlightPathArc({ className }: { className?: string }) {
   );
 }
 
-/** Custom SVG plane facing right — gold/navy gradient, high visibility */
+/** Custom SVG plane facing right, gold/navy gradient, high visibility */
 function BrandedPlaneIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -375,7 +375,7 @@ function FlyingPlaneLayer({ reducedMotion }: { reducedMotion: boolean }) {
         }}
       />
 
-      {/* Dashed flight arc — left to right */}
+      {/* Dashed flight arc, left to right */}
       <motion.div
         className="absolute inset-x-0 top-[20%] h-28 md:top-[24%] md:h-36"
         variants={{
@@ -409,7 +409,7 @@ function FlyingPlaneLayer({ reducedMotion }: { reducedMotion: boolean }) {
           />
         ))}
 
-      {/* Primary plane — entry L→R, then infinite R↔L ping-pong */}
+      {/* Primary plane, entry L→R, then infinite R↔L ping-pong */}
       <AnimatedPlane
         controls={primaryControls}
         facingRight={primaryFacingRight}
@@ -420,7 +420,7 @@ function FlyingPlaneLayer({ reducedMotion }: { reducedMotion: boolean }) {
         <BrandedPlaneIcon className="h-16 w-24 drop-shadow-xl sm:h-20 sm:w-28 md:h-24 md:w-36 lg:h-28 lg:w-40" />
       </AnimatedPlane>
 
-      {/* Secondary plane — parallax ghost, same flight pattern */}
+      {/* Secondary plane, parallax ghost, same flight pattern */}
       <AnimatedPlane
         controls={ghostControls}
         facingRight={ghostFacingRight}
@@ -499,12 +499,12 @@ export const AchievementsSection = () => {
             </span>
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
-            Trusted by thousands of aspiring doctors — admissions, visas, and successful
+            Trusted by thousands of aspiring doctors, admissions, visas, and successful
             study-abroad journeys since 2005.
           </p>
         </div>
 
-        {/* KPI stats — glass cards */}
+        {/* KPI stats, glass cards */}
         <motion.div
           className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 md:gap-5"
           variants={containerVariants}

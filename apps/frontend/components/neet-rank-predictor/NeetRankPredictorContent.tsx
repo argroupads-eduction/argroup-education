@@ -43,7 +43,7 @@ export function NeetRankPredictorContent() {
         <div className="neet-how-section__head">
           <h2 className="neet-section-title">How to use NEET Rank Predictor</h2>
           <p className="neet-section-lead">
-            Three quick steps — same trusted AR Group counselling flow. Get your expected rank and college
+            Three quick steps, same trusted AR Group counselling flow. Get your expected rank and college
             matches in seconds.
           </p>
         </div>
@@ -109,7 +109,7 @@ export function NeetRankPredictorContent() {
       <section>
         <h2 className="neet-section-title">Rank vs possible colleges</h2>
         <p className="neet-section-lead">
-          Indicative college tiers from previous year counselling trends — plan with AR Group experts.
+          Indicative college tiers from previous year counselling trends, plan with AR Group experts.
         </p>
         <div className="neet-rank-band-grid mt-8">
           {[
