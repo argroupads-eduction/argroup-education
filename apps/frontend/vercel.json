@@ -6,7 +6,7 @@
   "crons": [
     {
       "path": "/api/cron/resend-leads",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 2 * * *"
     }
   ]
 }
