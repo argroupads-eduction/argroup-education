@@ -3,6 +3,7 @@
  * Survives component unmount so switching slides does not refetch or flash "Loading…".
  */
 
+import { enrichHeroFormProgramSelects } from '@/lib/counsellingProgramOptions';
 import { sleep } from '@/lib/fetchWithRetry';
 import { isTransientHeroCmsError } from '@/lib/heroCmsConnection';
 import { getMbbsHeroFallbackForm, isHeroMbbsFallbackForm } from '@/lib/mbbsHeroFormFallback';
@@ -107,7 +108,7 @@ async function fetchDefinitionOnce(kind: Kind): Promise<HeroMbbsFormDefinitionRe
           : 'No form titled "MBBS ABROAD" found in Payload. Create it in Forms or set PAYLOAD_MBBS_ABROAD_FORM_TITLE / PAYLOAD_MBBS_ABROAD_FORM_ID.',
     };
   }
-  return { ok: true, doc };
+  return { ok: true, doc: enrichHeroFormProgramSelects(doc) };
 }
 
 /** Cache fallback definition so hero forms render without waiting on client retry. */
@@ -151,7 +152,7 @@ export function seedHeroMbbsFormDefinitions(
   for (const kind of ['india', 'abroad'] as const) {
     const doc = entries[kind];
     if (doc != null && typeof doc.id === 'number') {
-      bucket[kind].done = doc;
+      bucket[kind].done = enrichHeroFormProgramSelects(doc);
       delete bucket[kind].lastError;
       delete bucket[kind].inflight;
     }

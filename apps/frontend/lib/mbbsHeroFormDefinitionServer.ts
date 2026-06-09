@@ -1,3 +1,4 @@
+import { enrichHeroFormProgramSelects } from '@/lib/counsellingProgramOptions';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
 import { getPayloadCmsServerFetchUrl, isPayloadCmsConfigured } from '@/lib/payloadCmsUrl';
 import type { HeroMbbsFormDoc } from '@/lib/mbbsHeroFormDefinitionsCache';
@@ -93,7 +94,7 @@ export async function loadMbbsHeroFormDefinitionServer(
         };
       }
       const doc = toHeroDoc(r.json as FormDoc);
-      if (doc) return { ok: true, doc };
+      if (doc) return { ok: true, doc: enrichHeroFormProgramSelects(doc) };
       return {
         ok: false,
         status: 404,
@@ -149,7 +150,7 @@ export async function loadMbbsHeroFormDefinitionServer(
     }
 
     const doc = toHeroDoc(docs[0]);
-    if (doc) return { ok: true, doc };
+    if (doc) return { ok: true, doc: enrichHeroFormProgramSelects(doc) };
 
     return {
       ok: false,

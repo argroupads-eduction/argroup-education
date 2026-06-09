@@ -16,7 +16,7 @@ const outputFileTracingRoot = resolveOutputFileTracingRoot();
 const PUBLIC_MARKETING_ASSETS = [
   'ar-group-logo.png',
   'india-homepage.jpg',
-  'abroad-homepage.png',
+  'abroad-homepage.jpg',
   'about-counsellor.png',
   'lead-mbbs-doctor.png',
 ];
