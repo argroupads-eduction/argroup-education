@@ -7,9 +7,9 @@ const publicDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
 const REQUIRED = [
   'ar-group-logo.png',
   'india-homepage.jpg',
-  'abroad-homepage.jpg',
+  'abroad-homepage.png',
   'about-counsellor.png',
-  'lead-mbbs-doctor.jpg',
+  'lead-mbbs-doctor.png',
 ];
 
 const missing = REQUIRED.filter((file) => !existsSync(join(publicDir, file)));

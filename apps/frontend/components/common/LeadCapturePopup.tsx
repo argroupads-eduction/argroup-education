@@ -237,7 +237,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
           <LeadCapturePromoBanner compact className="mx-auto w-full max-w-full" />
         </div>
       ) : (
-        <h2 className="relative mt-2.5 font-serif text-[1.25rem] font-bold leading-snug text-white md:text-[1.5rem]">
+        <h2 className="relative mt-2.5 font-sans text-[1.25rem] font-bold leading-snug text-white md:text-[1.5rem]">
           Your MBBS in India and abroad journey starts here
         </h2>
       )}
@@ -264,24 +264,25 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
 
       {!isMobileSheet && (
       <motion.div
-        className="relative mt-5 aspect-[5/4] w-full max-h-[11.5rem] overflow-hidden rounded-xl border border-white/12 shadow-inner shadow-black/25"
+        className="relative mt-5 flex min-h-[9.5rem] w-full max-h-[12rem] items-center justify-center overflow-hidden rounded-xl border border-white/12 bg-navy-950/40 shadow-inner shadow-black/25"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.4 }}
       >
         <Image
-          src="/lead-mbbs-doctor.jpg"
-          alt="MBBS doctor, medical education counselling for India and abroad"
-          fill
-          className="object-cover object-[center_20%]"
+          src="/lead-mbbs-doctor.png"
+          alt="Medical team supporting MBBS admission counselling for universities abroad"
+          width={640}
+          height={320}
+          className="h-full max-h-[12rem] w-full object-contain object-center"
           sizes="(max-width: 768px) 90vw, 320px"
         />
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-900/25 to-transparent"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-900/15 to-transparent"
           aria-hidden
         />
         <p className="absolute bottom-2.5 left-3 right-3 text-[11px] font-semibold leading-snug text-white md:text-xs">
-          Expert counselling for MBBS in India and top universities abroad
+          Studying MBBS at Top Universities Abroad
         </p>
       </motion.div>
       )}
@@ -357,7 +358,7 @@ function LeadCaptureFormPanel({
           className={clsx('text-emerald-500', isMobile ? 'mb-3 h-12 w-12' : 'mb-4 h-14 w-14')}
           aria-hidden
         />
-        <h3 className={clsx('font-serif font-bold text-navy-900', isMobile ? 'text-xl' : 'text-2xl')}>
+        <h3 className={clsx('font-sans font-bold text-navy-900', isMobile ? 'text-xl' : 'text-2xl')}>
           Thank you!
         </h3>
         <p className={clsx('mt-2 max-w-sm text-slate-600', isMobile ? 'text-xs' : 'text-sm')}>
@@ -553,7 +554,7 @@ function LeadCaptureFormPanel({
 
   return (
     <>
-      <h2 className="pr-10 font-serif text-[1.25rem] font-bold leading-snug text-navy-900 md:pr-0 md:text-[1.55rem]">
+      <h2 className="pr-10 font-sans text-[1.25rem] font-bold leading-snug text-navy-900 md:pr-0 md:text-[1.55rem]">
         Looking for MBBS in India or Abroad?
       </h2>
       <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600 md:text-sm">

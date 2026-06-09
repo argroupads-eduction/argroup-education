@@ -329,6 +329,11 @@
   line-height: 1.65;
 }
 
+/* CMS inline styles must not override site font stack */
+.wp-content-root .wp-content-body [style] {
+  font-family: inherit !important;
+}
+
 .wp-content-root .wp-content-body h1,
 .wp-content-root .wp-content-body h2,
 .wp-content-root .wp-content-body h3,
@@ -1196,9 +1201,18 @@ html:has(.wp-content-affinity) {
   width: 100%;
   min-width: 0;
   flex: none;
+  font-family: inherit;
   white-space: normal !important;
   word-break: normal;
   overflow-wrap: break-word;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> :is(b, strong) + span) > :is(b, strong),
+.wp-content-root ol.wp-premium-chip-grid > li:has(> :is(b, strong) + span) > :is(b, strong),
+.wp-content-root ul.wp-premium-chip-grid > li:has(> :is(b, strong) + span) > span,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> :is(b, strong) + span) > span {
+  display: inline !important;
+  width: auto !important;
 }
 
 .wp-content-root ul.wp-premium-chip-grid > li:hover,
@@ -1385,6 +1399,7 @@ html:has(.wp-content-affinity) {
 .wp-content-root ol.wp-premium-feature-grid > li > strong {
   display: block;
   width: 100%;
+  font-family: inherit;
   font-size: 0.9375rem;
   font-weight: 700;
   color: #000 !important;
@@ -1397,6 +1412,7 @@ html:has(.wp-content-affinity) {
 .wp-content-root ol.wp-premium-feature-grid > li > p {
   display: block;
   width: 100%;
+  font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.6;
@@ -1404,6 +1420,15 @@ html:has(.wp-content-affinity) {
   white-space: normal !important;
   word-break: normal;
   overflow-wrap: break-word;
+}
+
+/* Title + colon + body stay in one text flow (fixes BPT / long-title cards). */
+.wp-content-root ul.wp-premium-feature-grid > li:has(> :is(b, strong) + span) > :is(b, strong),
+.wp-content-root ol.wp-premium-feature-grid > li:has(> :is(b, strong) + span) > :is(b, strong),
+.wp-content-root ul.wp-premium-feature-grid > li:has(> :is(b, strong) + span) > span,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> :is(b, strong) + span) > span {
+  display: inline !important;
+  width: auto !important;
 }
 
 /* Simple bullet lists inside feature cards (no bold title). */

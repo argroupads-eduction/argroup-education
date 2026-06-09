@@ -393,6 +393,38 @@ export function wireCtaButtonsToContact(html: string): string {
   });
 }
 
+/** CMS exports often add font-weight: 400 inline — strips it so site Inter typography applies. */
+export function stripWpInlineTypography(html: string): string {
+  let out = html.replace(/\s+style="font-weight:\s*400;?"/gi, '');
+
+  out = out.replace(/\s+style="([^"]*)"/gi, (_match, styleContent: string) => {
+    const kept = styleContent
+      .split(';')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .filter((s) => {
+        const key = s.split(':')[0]?.trim().toLowerCase() ?? '';
+        return !['font-weight', 'font-family', 'font-size', 'font-style'].includes(key);
+      });
+    if (!kept.length) return '';
+    return ` style="${kept.join('; ')}"`;
+  });
+
+  return out;
+}
+
+/** Move a leading colon from description span onto the bold title (BPT card font/layout quirk). */
+export function normalizeBoldTitleDescriptionItems(html: string): string {
+  return html.replace(/<li(\b[^>]*)>([\s\S]*?)<\/li>/gi, (match, attrs, inner) => {
+    const normalized = inner.replace(
+      /(<(?:b|strong)\b[^>]*>)([\s\S]*?)(<\/(?:b|strong)>)\s*<span\b([^>]*)>\s*:\s*/i,
+      '$1$2:$3<span$4> '
+    );
+    if (normalized === inner) return match;
+    return `<li${attrs}>${normalized}</li>`;
+  });
+}
+
 function normalizeListItemContent(inner: string): string {
   if (/elementor-icon-list-icon/i.test(inner) || /elementor-icon-list-text/i.test(inner)) {
     return inner.replace(/<span\b[^>]*>\s*(?:<br\s*\/?>\s*)*<\/span>/gi, '');
@@ -906,7 +938,9 @@ export function prepareWpHtml(
   out = demoteJkitCardTitles(out);
   out = demoteMultiColumnCardHeadings(out);
   out = stripBrokenIconWidgets(out);
+  out = stripWpInlineTypography(out);
   out = normalizeElementorIconListItems(out);
+  out = normalizeBoldTitleDescriptionItems(out);
   out = normalizeListItemSpans(out);
   out = transformLongListsToGrid(out);
   out = simplifyFeatureGridIconLists(out);
