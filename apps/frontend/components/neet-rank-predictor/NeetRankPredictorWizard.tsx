@@ -29,7 +29,7 @@ import { NeetRankCollegeResults } from './NeetRankCollegeResults';
 import { validatePersonName } from '@/lib/validatePersonName';
 
 type Step = 'form' | 'result';
-type Track = 'india' | 'abroad' | 'both';
+type Track = 'india' | 'abroad' | 'both' | 'md-ms' | 'bams';
 
 const INDIAN_CITIES = [
   'Delhi',
@@ -53,6 +53,8 @@ const TRACK_OPTIONS: { id: Track; label: string }[] = [
   { id: 'india', label: 'MBBS India' },
   { id: 'abroad', label: 'MBBS Abroad' },
   { id: 'both', label: 'MBBS India + Abroad' },
+  { id: 'md-ms', label: 'MD/MS' },
+  { id: 'bams', label: 'BAMS' },
 ];
 
 function Req({ children }: { children: React.ReactNode }) {

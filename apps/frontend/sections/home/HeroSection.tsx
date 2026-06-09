@@ -57,7 +57,7 @@ const INDIA_SHOW_MS = 15_000;
 const ABROAD_SHOW_MS = 15_000;
 
 const BANNER_INDIA = '/india-homepage.jpg';
-const BANNER_ABROAD = '/abroad-homepage.png';
+const BANNER_ABROAD = '/abroad-homepage.jpg';
 
 export type HeroSectionProps = {
   initialForms?: {
@@ -158,7 +158,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
           <div className="absolute inset-0" style={{ background: overlayIndia }} />
         </div>
         <div
-          className={`absolute inset-0 bg-navy-950 transition-opacity duration-700 ease-out ${
+          className={`absolute inset-0 transition-opacity duration-700 ease-out ${
             variant === 'abroad' ? 'opacity-100' : 'opacity-0'
           }`}
           aria-hidden
@@ -170,7 +170,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
             loading="lazy"
             quality={82}
             sizes="100vw"
-            className="object-contain object-center"
+            className="object-cover object-center"
           />
           <div className="absolute inset-0" style={{ background: overlayAbroad }} />
         </div>

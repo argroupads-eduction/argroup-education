@@ -17,14 +17,15 @@ import {
   prepareThankYouTab,
 } from '@/lib/openThankYouPage';
 import { submitWebsiteLead } from '@/lib/submitWebsiteLead';
+import { COUNSELLING_PROGRAM_SELECT_OPTIONS } from '@/lib/counsellingProgramOptions';
 import { personNameZodString } from '@/lib/validatePersonName';
 
 const CounsellingFormSchema = z.object({
   fullName: personNameZodString(),
   email: z.string().email('Valid email is required'),
   phone: z.string().regex(/^[0-9]{10}$/, 'Valid 10-digit phone number is required'),
-  counsellingInterest: z.enum(['mbbs-india', 'mbbs-abroad'], {
-    errorMap: () => ({ message: 'Please select MBBS India or MBBS Abroad' }),
+  counsellingInterest: z.enum(['mbbs-india', 'mbbs-abroad', 'md-ms', 'bams'], {
+    errorMap: () => ({ message: 'Please select a programme' }),
   }),
   examScore: z.string().optional(),
   preferredDate: z.string().optional(),
@@ -235,8 +236,11 @@ export const CounsellingForm = ({
                 <option value="" disabled>
                   Select option
                 </option>
-                <option value="mbbs-india">MBBS India</option>
-                <option value="mbbs-abroad">MBBS Abroad</option>
+                {COUNSELLING_PROGRAM_SELECT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
               </select>
               {errors.counsellingInterest && (
                 <p className={errorClass}>{errors.counsellingInterest.message}</p>

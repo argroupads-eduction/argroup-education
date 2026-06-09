@@ -10,8 +10,11 @@ export const MBBS_ABROAD_HERO_COUNTRY_OPTIONS: { label: string; value: string }[
   { label: 'Georgia', value: 'Georgia' },
 ]
 
-/** Lead popup — India + abroad destinations */
+/** Lead popup — programmes + abroad destinations */
 export const LEAD_CAPTURE_TARGET_OPTIONS: { label: string; value: string }[] = [
-  { label: 'India (MBBS in India)', value: 'India' },
+  { label: 'MBBS India', value: 'MBBS India' },
+  { label: 'MD/MS', value: 'MD/MS' },
+  { label: 'BAMS', value: 'BAMS' },
+  { label: 'MBBS Abroad (any country)', value: 'MBBS Abroad' },
   ...MBBS_ABROAD_HERO_COUNTRY_OPTIONS,
 ]

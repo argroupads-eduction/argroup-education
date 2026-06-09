@@ -67,20 +67,38 @@ export function NeetRankCollegeResults({
 }: {
   india: CollegeMatch[];
   abroad: CollegeMatch[];
-  track: 'india' | 'abroad' | 'both';
+  track: 'india' | 'abroad' | 'both' | 'md-ms' | 'bams';
 }) {
+  const programOnly = track === 'md-ms' || track === 'bams';
+
   return (
     <div className="space-y-8 border-t border-slate-100 pt-8">
       <div>
         <h3 className="font-serif text-xl font-bold text-navy-900 md:text-2xl">
-          Colleges matched to your score
+          {programOnly ? 'Counselling for your programme' : 'Colleges matched to your score'}
         </h3>
         <p className="mt-1 text-sm text-slate-600">
-          Shortlisted options from AR Group, tap any college for fees, eligibility &amp; counselling.
+          {programOnly
+            ? 'Our counsellors will call you with MD/MS or BAMS college options based on your NEET rank and budget.'
+            : 'Shortlisted options from AR Group, tap any college for fees, eligibility & counselling.'}
         </p>
       </div>
 
-      {(track === 'india' || track === 'both') && (
+      {programOnly ? (
+        <CollegeGrid
+          title={track === 'md-ms' ? 'MD/MS pathways' : 'BAMS pathways'}
+          icon={Globe}
+          accent="bg-gradient-to-br from-navy-800 to-navy-600"
+          colleges={[]}
+          emptyMessage={
+            track === 'md-ms'
+              ? 'Explore MD/MS admission guidance with our counsellors.'
+              : 'Explore BAMS college options with our counsellors.'
+          }
+        />
+      ) : null}
+
+      {!programOnly && (track === 'india' || track === 'both') && (
         <CollegeGrid
           title="MBBS in India"
           icon={MapPin}
@@ -90,7 +108,7 @@ export function NeetRankCollegeResults({
         />
       )}
 
-      {(track === 'abroad' || track === 'both') && (
+      {!programOnly && (track === 'abroad' || track === 'both') && (
         <CollegeGrid
           title="MBBS Abroad"
           icon={Globe}

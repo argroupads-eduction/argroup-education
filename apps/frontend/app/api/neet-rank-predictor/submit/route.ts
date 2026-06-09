@@ -16,6 +16,8 @@ const TRACK_LABELS: Record<string, string> = {
   india: 'MBBS India',
   abroad: 'MBBS Abroad',
   both: 'MBBS India + Abroad',
+  'md-ms': 'MD/MS',
+  bams: 'BAMS',
 };
 
 function normalizePhone(raw: string): string | null {
@@ -34,7 +36,7 @@ export async function POST(req: NextRequest) {
     city?: string;
     category?: NeetCategory;
     score?: number;
-    track?: 'india' | 'abroad' | 'both';
+    track?: 'india' | 'abroad' | 'both' | 'md-ms' | 'bams';
   };
   try {
     body = (await req.json()) as typeof body;
@@ -140,8 +142,10 @@ export async function POST(req: NextRequest) {
       ok: true,
       prediction,
       colleges: {
-        india: track === 'abroad' ? [] : colleges.india,
-        abroad: track === 'india' ? [] : colleges.abroad,
+        india:
+          track === 'abroad' || track === 'md-ms' || track === 'bams' ? [] : colleges.india,
+        abroad:
+          track === 'india' || track === 'md-ms' || track === 'bams' ? [] : colleges.abroad,
       },
     });
   } catch (error) {

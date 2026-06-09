@@ -264,7 +264,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
 
       {!isMobileSheet && (
       <motion.div
-        className="relative mt-5 flex min-h-[9.5rem] w-full max-h-[12rem] items-center justify-center overflow-hidden rounded-xl border border-white/12 bg-navy-950/40 shadow-inner shadow-black/25"
+        className="relative mt-5 h-[12.75rem] w-full overflow-hidden rounded-xl sm:h-[14.25rem]"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.4 }}
@@ -272,13 +272,12 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
         <Image
           src="/lead-mbbs-doctor.png"
           alt="Medical team supporting MBBS admission counselling for universities abroad"
-          width={640}
-          height={320}
-          className="h-full max-h-[12rem] w-full object-contain object-center"
-          sizes="(max-width: 768px) 90vw, 320px"
+          fill
+          className="object-contain object-center"
+          sizes="(max-width: 768px) 90vw, 400px"
         />
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-900/15 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-t from-navy-950/95 via-navy-900/55 to-transparent"
           aria-hidden
         />
         <p className="absolute bottom-2.5 left-3 right-3 text-[11px] font-semibold leading-snug text-white md:text-xs">
@@ -477,7 +476,7 @@ function LeadCaptureFormPanel({
             onChange={(e) => setField('targetCountry', e.target.value)}
           >
             <option value="" disabled>
-              India or abroad
+              Select programme or destination
             </option>
             {LEAD_CAPTURE_TARGET_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
