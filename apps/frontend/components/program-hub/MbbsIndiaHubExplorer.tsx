@@ -19,7 +19,7 @@ export function MbbsIndiaHubExplorer() {
           <p className="program-hub-section-kicker">Explore by state</p>
           <h2 className="program-hub-section-title">Every state. Every college. One guide.</h2>
           <p className="program-hub-section-desc">
-            Swipe through states or use arrows — each hub lists fees, eligibility, and college pages migrated
+            Swipe through states or use arrows, each hub lists fees, eligibility, and college pages migrated
             from argroupofeducation.com.
           </p>
         </div>

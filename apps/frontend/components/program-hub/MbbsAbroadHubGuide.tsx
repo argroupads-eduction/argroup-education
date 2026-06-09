@@ -67,7 +67,7 @@ export function MbbsAbroadHubGuide({ variant }: MbbsAbroadHubGuideProps) {
           </h3>
           <p className="abroad-guide__p abroad-guide__p--tight">
             Each destination below links to universities in our directory. Fees, climate, and visa rules
-            differ — compare at least two countries before you decide.
+            differ, compare at least two countries before you decide.
           </p>
           <ul className="abroad-guide__countries">
             {MBBS_ABROAD_HUB.countryInsights.map((c) => (
@@ -81,7 +81,7 @@ export function MbbsAbroadHubGuide({ variant }: MbbsAbroadHubGuideProps) {
 
         <section className="abroad-guide__block" id="mbbs-abroad-highlights" aria-labelledby="highlights-title">
           <h3 id="highlights-title" className="abroad-guide__h3">
-            MBBS abroad vs MBBS in India — at a glance
+            MBBS abroad vs MBBS in India, at a glance
           </h3>
           <div className="abroad-guide__table-wrap">
             <table className="abroad-guide__table">
@@ -191,7 +191,7 @@ export function MbbsAbroadHubGuide({ variant }: MbbsAbroadHubGuideProps) {
 
         <section className="abroad-guide__block abroad-guide__block--process" id="mbbs-abroad-process" aria-labelledby="process-title">
           <h3 id="process-title" className="abroad-guide__h3">
-            Admission procedure — step by step
+            Admission procedure, step by step
           </h3>
           <ol className="abroad-guide__steps">
             {MBBS_ABROAD_HUB.process.map((s) => (
@@ -227,7 +227,7 @@ export function MbbsAbroadHubGuide({ variant }: MbbsAbroadHubGuideProps) {
         </section>
 
         <p className="sr-only">
-          Official page URL: {SITE_URL}/mbbs-abroad — study MBBS abroad universities directory by AR Group
+          Official page URL: {SITE_URL}/mbbs-abroad, study MBBS abroad universities directory by AR Group
           of Education.
         </p>
       </div>

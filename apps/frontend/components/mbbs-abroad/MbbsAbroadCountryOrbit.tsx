@@ -30,7 +30,7 @@ export function MbbsAbroadCountryOrbit() {
             Choose your <span>MBBS country</span>
           </h2>
           <p className="abroad-orbit__lead">
-            Tap a destination — compare fees, NMC recognition, and universities without scrolling
+            Tap a destination, compare fees, NMC recognition, and universities without scrolling
             through a basic list.
           </p>
         </div>

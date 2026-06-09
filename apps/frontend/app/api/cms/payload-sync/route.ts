@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     {
       ...result.body,
       ...(result.ok && result.body.published
-        ? { revalidated: true, message: 'Synced — live site updated without redeploy' }
+        ? { revalidated: true, message: 'Synced, live site updated without redeploy' }
         : {}),
     },
     { status: result.status }

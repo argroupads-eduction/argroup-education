@@ -102,7 +102,7 @@ export function AboutPageView() {
               <div className="about-story-frame">
                 <Image
                   src="/about-counsellor.png"
-                  alt="AR Group of Education — medical admission counselling team"
+                  alt="AR Group of Education, medical admission counselling team"
                   width={560}
                   height={700}
                   sizes="(max-width: 1024px) 100vw, 560px"
@@ -155,9 +155,9 @@ export function AboutPageView() {
         <div className="mx-auto max-w-7xl px-4">
           <motion.div className="max-w-2xl" {...fadeUp}>
             <p className="about-kicker">Why AR Group</p>
-            <h2 className="about-heading">Built for medical aspirants — not generic study abroad</h2>
+            <h2 className="about-heading">Built for medical aspirants, not generic study abroad</h2>
             <p className="mt-3 text-slate-600">
-              Every service is designed around NEET, medical licensing, and real admission timelines — India and
+              Every service is designed around NEET, medical licensing, and real admission timelines, India and
               abroad under one trusted roof.
             </p>
           </motion.div>
@@ -286,7 +286,7 @@ export function AboutPageView() {
               </div>
 
               <p className="about-journey-showcase__quote">
-                &ldquo;Every milestone on the left reflects real families we&apos;ve walked with — not
+                &ldquo;Every milestone on the left reflects real families we&apos;ve walked with, not
                 marketing numbers on a slide.&rdquo;
               </p>
             </motion.aside>
@@ -294,14 +294,14 @@ export function AboutPageView() {
         </div>
       </section>
 
-      {/* Our commitments — custom trust block (replaces WP export accordion) */}
+      {/* Our commitments, custom trust block (replaces WP export accordion) */}
       <section className="about-section about-section--soft">
         <div className="mx-auto max-w-7xl px-4">
           <motion.div className="max-w-2xl" {...fadeUp}>
             <p className="about-kicker">Our promise</p>
             <h2 className="about-heading">What you can expect from day one</h2>
             <p className="mt-3 text-slate-600">
-              No generic study-abroad pitch — just clear, medical-focused counselling built on
+              No generic study-abroad pitch, just clear, medical-focused counselling built on
               transparency and accountability.
             </p>
           </motion.div>
@@ -332,7 +332,7 @@ export function AboutPageView() {
         <div className="mx-auto max-w-7xl px-4">
           <motion.div {...fadeUp}>
             <p className="about-kicker">How it works</p>
-            <h2 className="about-heading">From first call to campus — five clear steps</h2>
+            <h2 className="about-heading">From first call to campus, five clear steps</h2>
           </motion.div>
 
           <div className="about-process-rail">
@@ -361,7 +361,7 @@ export function AboutPageView() {
             <p className="about-kicker">Global reach</p>
             <h2 className="about-heading">MBBS abroad destinations we guide</h2>
             <p className="mx-auto mt-3 max-w-2xl text-slate-600">
-              Explore country hubs with fees, eligibility, and university lists — same structure as our live guides.
+              Explore country hubs with fees, eligibility, and university lists, same structure as our live guides.
             </p>
           </motion.div>
 
@@ -390,7 +390,7 @@ export function AboutPageView() {
               <h2 className="about-heading">Built differently from typical agents</h2>
               <p className="mt-4 text-slate-600 leading-relaxed">
                 Families come to us when brochures and WhatsApp forwards stop making sense. We replace
-                noise with a structured plan — India, abroad, or PG — under one accountable team.
+                noise with a structured plan, India, abroad, or PG, under one accountable team.
               </p>
               <Link
                 href="/contact"
@@ -430,7 +430,7 @@ export function AboutPageView() {
             <div className="about-cta__mesh" aria-hidden />
             <h2 className="about-cta__title">Ready for honest medical admission guidance?</h2>
             <p className="about-cta__desc">
-              Book an expert counselling session — no pressure, no hidden fees. Talk to AR Group before you commit to a
+              Book an expert counselling session, no pressure, no hidden fees. Talk to AR Group before you commit to a
               college or country.
             </p>
             <div className="about-cta__actions">

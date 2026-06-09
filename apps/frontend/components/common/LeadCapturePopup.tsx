@@ -243,8 +243,8 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       )}
       {!isMobileSheet && (
         <p className="relative mt-2.5 max-w-sm text-[13px] leading-relaxed text-navy-100/90 md:text-sm">
-          WHO-listed universities, transparent fees, and expert guidance from application to campus —
-          trusted by thousands of Indian medical aspirants.
+          WHO-listed universities, transparent fees, and expert guidance from application to campus.
+          Trusted by thousands of Indian medical aspirants.
         </p>
       )}
 
@@ -271,7 +271,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       >
         <Image
           src="/lead-mbbs-doctor.jpg"
-          alt="MBBS doctor — medical education counselling for India and abroad"
+          alt="MBBS doctor, medical education counselling for India and abroad"
           fill
           className="object-cover object-[center_20%]"
           sizes="(max-width: 768px) 90vw, 320px"
@@ -557,7 +557,7 @@ function LeadCaptureFormPanel({
         Looking for MBBS in India or Abroad?
       </h2>
       <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600 md:text-sm">
-        Share your details — AR Group counsellors will call you with tailored options for India and international
+        Share your details, AR Group counsellors will call you with tailored options for India and international
         universities.
       </p>
 
@@ -587,7 +587,7 @@ export function LeadCapturePopup() {
   const [payloadForm, setPayloadForm] = useState<HeroMbbsFormDoc | null>(null);
 
   useEffect(() => {
-    /** Tablet uses mobile sheet — desktop nav also switches at xl (1280px). */
+    /** Tablet uses mobile sheet, desktop nav also switches at xl (1280px). */
     const mq = window.matchMedia('(max-width: 1279px)');
     const apply = () => {
       const next = mq.matches;
@@ -823,7 +823,7 @@ export function LeadCapturePopup() {
                   >
                     <Dialog.Title className="sr-only">Looking for MBBS in India or Abroad?</Dialog.Title>
                     <Dialog.Description id="lead-capture-desc" className="sr-only">
-                      Share your details for MBBS in India or abroad — AR Group counsellors will call you with tailored
+                      Share your details for MBBS in India or abroad, AR Group counsellors will call you with tailored
                       university options.
                     </Dialog.Description>
 

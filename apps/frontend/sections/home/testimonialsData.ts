@@ -18,7 +18,7 @@ export const fallbackTestimonials: Testimonial[] = [
     university: 'Kazan Federal University',
     country: 'Russia',
     review:
-      'AR Group guided me through NEET counselling and university selection in Russia. Visa and hostel paperwork were handled smoothly—I started MBBS on time.',
+      'AR Group guided me through NEET counselling and university selection in Russia. Visa and hostel paperwork were handled smoothly, and I started MBBS on time.',
     rating: 5,
     source: 'static',
   },

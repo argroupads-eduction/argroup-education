@@ -184,6 +184,33 @@ export function stripElementorHiddenSections(html: string): string {
   );
 }
 
+function tableCellPlainText(cellHtml: string): string {
+  return stripHtml(cellHtml).replace(/\s+/g, ' ').trim();
+}
+
+/** Broken WP/Elementor table artifacts (e.g. "-[", lone dashes). */
+function isJunkTableCellText(text: string): boolean {
+  if (!text) return true;
+  const t = text.trim();
+  if (!t) return true;
+  if (t === '-[' || /^-\[\s]*$/.test(t)) return true;
+  if (t === '-' || t === '–' || t === '—' || t === '−') return true;
+  if (/^[-–—_[\](){}.,;:!?…•·|\\/\s]+$/u.test(t)) return true;
+  return false;
+}
+
+/** Drop junk table rows migrated from WordPress (empty, "-[", lone dash cells). */
+export function cleanBrokenTableRows(html: string): string {
+  return html.replace(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi, (row, inner) => {
+    const cells = [...inner.matchAll(/<t[hd]\b[^>]*>([\s\S]*?)<\/t[hd]>/gi)];
+    if (!cells.length) return row;
+    const texts = cells.map((m) => tableCellPlainText(m[1] ?? ''));
+    if (texts.every(isJunkTableCellText)) return '';
+    if (texts.some((t) => t === '-[' || /^-\[\s]*$/.test(t))) return '';
+    return row;
+  });
+}
+
 /** College card titles must not be h2 — wrapContentSections splits on h2 and breaks image grids. */
 export function demoteJkitCardTitles(html: string): string {
   return html.replace(/<h2(\b[^>]*\bbody-title\b[^>]*)>([\s\S]*?)<\/h2>/gi, '<p$1>$2</p>');
@@ -875,6 +902,7 @@ export function prepareWpHtml(
   out = demoteBodyH1ToH2(out);
   out = fixHeadingLevelSkips(out);
   out = stripElementorHiddenSections(out);
+  out = cleanBrokenTableRows(out);
   out = demoteJkitCardTitles(out);
   out = demoteMultiColumnCardHeadings(out);
   out = stripBrokenIconWidgets(out);

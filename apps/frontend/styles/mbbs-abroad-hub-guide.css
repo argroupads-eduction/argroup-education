@@ -188,7 +188,7 @@
 }
 
 .abroad-guide__h3 {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(1.35rem, 2.5vw, 1.75rem);
   font-weight: 700;
   color: #0c1f3f;
@@ -470,7 +470,7 @@
 
 .abroad-directory__country-title {
   margin-top: 0.35rem;
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(1.35rem, 2.5vw, 1.85rem);
   font-weight: 700;
 }

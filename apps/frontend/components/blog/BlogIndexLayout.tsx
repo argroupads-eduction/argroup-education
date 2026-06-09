@@ -26,7 +26,7 @@ export function BlogIndexLayout({ blogs }: BlogIndexLayoutProps) {
             Medical education <span className="text-gold-500">insights</span>
           </h1>
           <p className="blog-index-hero__lead">
-            MBBS India & Abroad — admission guides, fees, eligibility, NEET tips, and expert
+            MBBS India & Abroad, admission guides, fees, eligibility, NEET tips, and expert
             counselling advice for students and parents.
           </p>
         </div>

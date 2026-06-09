@@ -60,7 +60,7 @@ export const MBBS_ABROAD_DOCUMENTS: AbroadDocumentItem[] = [
   {
     id: 'photos',
     title: 'Photographs',
-    hint: '35mm × 45mm — white background',
+    hint: '35mm × 45mm, white background',
     icon: Camera,
   },
   {

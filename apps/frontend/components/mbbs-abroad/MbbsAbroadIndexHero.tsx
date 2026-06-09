@@ -26,7 +26,7 @@ export function MbbsAbroadIndexHero() {
             </span>
           </h1>
           <p className="mt-5 text-base leading-relaxed text-blue-100/90 md:text-lg">
-            {MBBS_ABROAD_COUNTRIES.length} countries · {totalColleges}+ universities — WHO-listed options with end-to-end
+            {MBBS_ABROAD_COUNTRIES.length} countries · {totalColleges}+ universities, WHO-listed options with end-to-end
             admission & visa support.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">

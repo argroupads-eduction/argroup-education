@@ -125,7 +125,7 @@ function BlogPostFooter() {
     <div className="blog-article-cta mt-10 rounded-2xl border border-gold-200/70 bg-gradient-to-r from-amber-50 via-white to-slate-50 p-6 md:p-8">
       <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold-700">Need guidance?</p>
       <p className="mt-2 font-serif text-xl font-bold text-navy-900 md:text-2xl">
-        Expert MBBS counselling — India & Abroad
+        Expert MBBS counselling, India & Abroad
       </p>
       <p className="mt-2 text-sm text-slate-600">
         College shortlisting, fees, NEET eligibility, and documentation support.

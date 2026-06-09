@@ -202,7 +202,7 @@ export function MbbsAbroadCollegesPanel({
       <NavMegaMenuShell
         theme="abroad"
         title="MBBS Abroad"
-        description="Explore countries, universities & colleges — fees, eligibility & visa guidance."
+        description="Explore countries, universities & colleges, fees, eligibility & visa guidance."
         hubHref="/mbbs-abroad"
         hubLabel="All countries"
         footerHref="/mbbs-abroad"

@@ -13,7 +13,7 @@ import { MBBS_ABROAD_HUB } from '@/lib/mbbsAbroadHubContent';
 import { PROGRAM_HUB_SEO } from '@/lib/programHubContent';
 
 type MbbsAbroadHubProps = {
-  /** Yoast / DB metadata only — body HTML is not rendered on the hub. */
+  /** Yoast / DB metadata only, body HTML is not rendered on the hub. */
   seoContent?: SiteContent | null;
 };
 
@@ -70,7 +70,7 @@ export function MbbsAbroadHub({ seoContent }: MbbsAbroadHubProps) {
 
       <ProgramHubCta
         title="Planning MBBS abroad this intake?"
-        description="Compare countries, fees, and NMC guidelines with an expert counsellor — no obligation."
+        description="Compare countries, fees, and NMC guidelines with an expert counsellor, no obligation."
       />
     </div>
   );

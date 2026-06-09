@@ -86,7 +86,7 @@ function PreviewIdlePrompt({ scoreInput }: { scoreInput: string }) {
       <p className="neet-preview-idle__title">{partial ? 'Almost there…' : 'Your AIR unlocks here'}</p>
       <p className="neet-preview-idle__sub">
         {partial
-          ? `${3 - filled} digit${3 - filled > 1 ? 's' : ''} left — rank & colleges load instantly`
+          ? `${3 - filled} digit${3 - filled > 1 ? 's' : ''} left, rank & colleges load instantly`
           : 'Add your score below · live rank & percentile in seconds'}
       </p>
     </div>
@@ -217,7 +217,7 @@ export function NeetRankPredictorWizard() {
         <h2 className="mt-2 font-serif text-xl font-bold text-navy-900 md:text-2xl">
           Predict your rank &amp; colleges
         </h2>
-        <p className="mt-1 text-sm text-slate-600">Fill the form below — get rank range &amp; college matches instantly</p>
+        <p className="mt-1 text-sm text-slate-600">Fill the form below, get rank range &amp; college matches instantly</p>
       </header>
 
       <div className="neet-tool-card__body">

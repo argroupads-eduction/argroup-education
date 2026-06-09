@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight, Calculator, GraduationCap, Sparkles, TrendingUp } from 'lucide-react';
 
-/** Home teaser only — full tool lives on /neet-rank-predictor */
+/** Home teaser only, full tool lives on /neet-rank-predictor */
 export function NeetRankPredictorHomeSection() {
   return (
     <section
@@ -36,13 +36,13 @@ export function NeetRankPredictorHomeSection() {
             </h2>
 
             <p className="mt-4 text-sm leading-relaxed text-slate-600 md:text-base">
-              Trusted AR Group tool — enter your score, see expected AIR, percentile, and MBBS India /
+              Trusted AR Group tool, enter your score, see expected AIR, percentile, and MBBS India /
               Abroad colleges matched to you. Takes under a minute.
             </p>
 
             <ul className="mt-6 space-y-2.5 text-sm text-navy-800">
               {[
-                'MBBS India, Abroad, or both — one smart form',
+                'MBBS India, Abroad, or both, one smart form',
                 'Live rank preview as you enter your score',
                 'College shortlists you can explore instantly',
               ].map((t) => (

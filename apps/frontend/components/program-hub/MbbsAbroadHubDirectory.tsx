@@ -23,7 +23,7 @@ export function MbbsAbroadHubDirectory() {
         <header className="program-hub-section-head">
           <p className="program-hub-section-kicker">University directory</p>
           <h2 id="abroad-directory-title" className="program-hub-section-title">
-            {total}+ MBBS universities abroad — browse by country
+            {total}+ MBBS universities abroad, browse by country
           </h2>
           <p className="program-hub-section-desc">{MBBS_ABROAD_HUB.directoryIntro}</p>
         </header>

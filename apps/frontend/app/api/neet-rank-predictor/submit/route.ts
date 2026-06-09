@@ -25,7 +25,7 @@ function normalizePhone(raw: string): string | null {
   return null;
 }
 
-/** NEET rank predictor — saves to Neon + same lead email as all other forms */
+/** NEET rank predictor, saves to Neon + same lead email as all other forms */
 export async function POST(req: NextRequest) {
   let body: {
     name?: string;

@@ -8,7 +8,7 @@ type AboutWpContentProps = {
   title: string;
 };
 
-/** About-only WP renderer — no sidebar TOC, unique accordion + pill nav layout. */
+/** About-only WP renderer, no sidebar TOC, unique accordion + pill nav layout. */
 export function AboutWpContent({ html, featuredImage, title }: AboutWpContentProps) {
   const prepared = prepareWpHtml(html, { featuredImage, title });
   const { html: structuredHtml, headings, quickFacts } = parseContentStructure(prepared);

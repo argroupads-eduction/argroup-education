@@ -20,7 +20,7 @@ function scrollToHeading(id: string) {
   window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
 }
 
-/** Scroll only inside the TOC list — never call link.scrollIntoView (it jumps the whole page). */
+/** Scroll only inside the TOC list, never call link.scrollIntoView (it jumps the whole page). */
 function scrollTocLinkIntoView(link: HTMLElement, scroller: HTMLElement) {
   const linkRect = link.getBoundingClientRect();
   const scrollerRect = scroller.getBoundingClientRect();

@@ -262,7 +262,7 @@ export const CONTACT_INFO = {
     'Wave Silver Tower',
     'Office No. 523',
   ] as const,
-  hours: '24×7 — open all week',
+  hours: '24×7, open all week',
   hoursShort: '24×7',
   city: 'Noida',
 } as const;

@@ -35,7 +35,7 @@ export function NeetRankPredictorPromoStrip() {
         <p className="flex min-w-0 flex-wrap items-center justify-center gap-2 font-medium leading-snug sm:justify-start">
           <Calculator className="h-4 w-4 shrink-0 text-amber-200" aria-hidden />
           <span className="min-w-0">
-            <strong className="text-amber-200">NEW:</strong> NEET Rank Predictor 2026 — know your
+            <strong className="text-amber-200">NEW:</strong> NEET Rank Predictor 2026, know your
             expected rank &amp; college chances in seconds
           </span>
         </p>

@@ -51,10 +51,10 @@ const COLLEGES_ABROAD = [
   'Bukhara State Medical Institute',
 ];
 
-/** MBBS India hero visible before switching to abroad (5 minutes). */
-const INDIA_SHOW_MS = 5 * 60 * 1000;
+/** MBBS India hero visible before switching to abroad. */
+const INDIA_SHOW_MS = 15_000;
 /** MBBS Abroad hero visible before switching back to India. */
-const ABROAD_SHOW_MS = 12_000;
+const ABROAD_SHOW_MS = 15_000;
 
 const BANNER_INDIA = '/india-homepage.jpg';
 const BANNER_ABROAD = '/abroad-homepage.jpg';
@@ -138,7 +138,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
 
   return (
     <section className="relative min-h-[28rem] overflow-hidden pt-16 md:min-h-[32rem] md:pt-20 lg:min-h-[36rem]">
-      {/* Cross-fading backgrounds — Next/Image + CSS (lighter than framer-motion) */}
+      {/* Cross-fading backgrounds, Next/Image + CSS (lighter than framer-motion) */}
       <div className="pointer-events-none absolute inset-0">
         <div
           className={`absolute inset-0 transition-opacity duration-700 ease-out ${
@@ -269,18 +269,18 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                 />
               </div>
 
-              <div className="order-1 max-w-3xl lg:order-2 lg:ml-auto lg:text-right">
+              <div className="order-1 max-w-3xl lg:order-2 lg:pr-4 lg:text-left">
                 <span className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm md:text-sm">
                   <Sparkles className="h-4 w-4 text-gold-400" />
                   MBBS Abroad - Global Pathways
                 </span>
 
                 <h1 className="mt-4 text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
-                  <span className="block text-gold-400">Abroad</span>
-                  <span className="mt-2 block">Study MBBS - World-Class Universities</span>
+                  Study MBBS
+                  <span className="mt-2 block text-gold-400">Abroad World Class Universities</span>
                 </h1>
 
-                <div className="mt-6 rounded-xl border border-white/30 bg-white/10 px-4 py-4 backdrop-blur-sm md:px-5 lg:mx-auto lg:max-w-md">
+                <div className="mt-6 rounded-xl border border-white/30 bg-white/10 px-4 py-4 backdrop-blur-sm md:px-5 lg:max-w-md">
                   <p className="text-xs font-semibold uppercase tracking-wider text-blue-100">
                     Featured college (Abroad)
                   </p>
@@ -290,11 +290,11 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                   </p>
                 </div>
 
-                <p className="mt-5 max-w-2xl text-base text-blue-50/95 md:text-lg lg:ml-auto">
+                <p className="mt-5 max-w-2xl text-base text-blue-50/95 md:text-lg">
                   Trusted support for MBBS abroad - university selection, applications, and visa assistance end to end.
                 </p>
 
-                <div className="hero-cta-row mt-7 flex w-full max-w-xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap lg:ml-auto lg:justify-end">
+                <div className="hero-cta-row mt-7 flex w-full max-w-xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
                   <Button
                     type="button"
                     variant="primary"

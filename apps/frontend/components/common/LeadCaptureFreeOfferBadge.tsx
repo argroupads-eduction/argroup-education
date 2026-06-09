@@ -9,7 +9,7 @@ export type LeadCaptureFreeOfferBadgeProps = {
 };
 
 /**
- * Mint pill: ₹999 (struck through) + value badge — for promo/form areas, not the submit CTA.
+ * Mint pill: ₹999 (struck through) + value badge, for promo/form areas, not the submit CTA.
  */
 export function LeadCaptureFreeOfferBadge({
   compact = false,

@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(json, { status: res.status });
     }
   } catch {
-    /* CMS optional — Neon lead already saved */
+    /* CMS optional, Neon lead already saved */
   }
 
   return NextResponse.json(

@@ -107,7 +107,7 @@
 
 .contact-hero__title {
   margin-top: 1.15rem;
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(2rem, 5.5vw, 3.35rem);
   font-weight: 700;
   line-height: 1.1;
@@ -184,7 +184,7 @@
   padding: 0.75rem 1.25rem;
   border-radius: 0.9rem;
   background: linear-gradient(135deg, #ffa726, #ffb74d);
-  font-family: var(--font-poppins), system-ui, sans-serif;
+  font-family: var(--font-site);
   font-size: 0.9375rem;
   font-weight: 700;
   color: #051219 !important;
@@ -268,7 +268,7 @@
 }
 
 .contact-hero__call-number {
-  font-family: var(--font-poppins), ui-monospace, monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -299,7 +299,7 @@
 }
 
 .contact-hero__stats strong {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: 1.15rem;
   font-weight: 700;
   color: #ffb74d;
@@ -411,7 +411,7 @@
 }
 
 .contact-channel__title {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: 1.125rem;
   font-weight: 700;
   color: #051219;
@@ -486,7 +486,7 @@
 
 .contact-main__title {
   margin-top: 0.65rem;
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(1.75rem, 3.5vw, 2.4rem);
   font-weight: 700;
   line-height: 1.12;
@@ -589,7 +589,7 @@
 }
 
 .contact-office-card__city {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: 1.125rem;
   font-weight: 700;
   color: #051219;
@@ -718,7 +718,7 @@
 }
 
 .contact-form-shell__title {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: 1.35rem;
   font-weight: 700;
   color: #051219;

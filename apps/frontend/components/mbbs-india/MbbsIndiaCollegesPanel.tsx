@@ -151,7 +151,7 @@ export function MbbsIndiaCollegesPanel({
       <NavMegaMenuShell
         theme="india"
         title="MBBS in India"
-        description="Browse state-wise medical colleges — NEET counselling, fees & admission guidance."
+        description="Browse state-wise medical colleges, NEET counselling, fees & admission guidance."
         hubHref="/mbbs-india"
         hubLabel="All states"
         footerHref="/mbbs-india"

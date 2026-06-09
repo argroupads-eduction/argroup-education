@@ -91,7 +91,7 @@ export const MBBSIndiaStateSection = () => {
                     {currentState.colleges.length} MBBS colleges
                   </h3>
                   <p className="mt-2 text-sm text-slate-600">
-                    Tap any college for the full page — same content as argroupofeducation.com
+                    Tap any college for the full page, same content as argroupofeducation.com
                   </p>
                 </div>
                 <Link

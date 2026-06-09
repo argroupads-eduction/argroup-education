@@ -93,7 +93,7 @@ export function MbbsAbroadAirportShowcase() {
         </div>
 
         <div className="abroad-airport__footer">
-          <p>Real moments from AR Group counselling batches — visa stamped, bags packed.</p>
+          <p>Real moments from AR Group counselling batches, visa stamped, bags packed.</p>
           <Link href={AIRPORT_DIARIES.hubHref} className="abroad-airport__link">
             Explore MBBS abroad
             <ArrowRight className="h-4 w-4" />

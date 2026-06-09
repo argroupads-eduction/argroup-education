@@ -15,19 +15,19 @@ import { Button } from '@/components/ui/Button'
 const COUNSELLING_POINTS = [
   {
     icon: GraduationCap,
-    text: 'MBBS in India — NEET counselling, state-wise college shortlisting & admission support',
+    text: 'MBBS in India, NEET counselling, state-wise college shortlisting & admission support',
   },
   {
     icon: Globe2,
-    text: 'MBBS Abroad — WHO-listed, NMC-aligned universities across 15+ countries',
+    text: 'MBBS Abroad, WHO-listed, NMC-aligned universities across 15+ countries',
   },
   {
     icon: Stethoscope,
-    text: 'MD/MS guidance — postgraduate pathways with transparent fee counselling',
+    text: 'MD/MS guidance, postgraduate pathways with transparent fee counselling',
   },
   {
     icon: Building2,
-    text: 'End-to-end help — documentation, visa, scholarships & pre-departure briefing',
+    text: 'End-to-end help, documentation, visa, scholarships & pre-departure briefing',
   },
 ] as const
 
@@ -73,7 +73,7 @@ export const CounsellingFormSection = () => {
 
               <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
                 <span className="font-semibold text-navy-900">AR Group of Education</span> has
-                helped thousands of Indian students choose the right medical college — with honest
+                helped thousands of Indian students choose the right medical college, with honest
                 counselling, clear fees, and support from application to campus.
               </p>
 
@@ -129,7 +129,7 @@ export const CounsellingFormSection = () => {
                   Book counselling
                 </h3>
                 <p className="mt-0.5 text-xs text-slate-500">
-                  Quick form — we reply within 24 hours
+                  Quick form, we reply within 24 hours
                 </p>
               </div>
               <CounsellingForm embedded compact />

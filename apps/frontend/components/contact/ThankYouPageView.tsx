@@ -89,7 +89,7 @@ export function ThankYouPageView() {
           </li>
           <li>
             <span className="thank-you-page__step-num">3</span>
-            <span>You decide — zero pressure, 100% confidential</span>
+            <span>You decide, zero pressure, 100% confidential</span>
           </li>
         </ul>
 

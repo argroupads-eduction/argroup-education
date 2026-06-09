@@ -334,7 +334,7 @@
 }
 
 .neet-form-panel__title {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: 1.25rem;
   font-weight: 700;
   color: rgb(15 23 42);
@@ -783,7 +783,7 @@
 }
 
 .neet-section-title {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
   color: rgb(15 23 42);

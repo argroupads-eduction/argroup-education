@@ -14,7 +14,7 @@ export function MbbsAbroadHubExplorer() {
           <p className="program-hub-section-kicker">Explore by country</p>
           <h2 className="program-hub-section-title">WHO-listed destinations for Indian students</h2>
           <p className="program-hub-section-desc">
-            Compare countries, universities, fees, and visa pathways — with the same content structure as our
+            Compare countries, universities, fees, and visa pathways, with the same content structure as our
             live WordPress guides.
           </p>
         </div>

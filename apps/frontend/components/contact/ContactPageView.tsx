@@ -25,7 +25,7 @@ const CHANNELS = [
     id: 'call',
     icon: Phone,
     title: 'Call counsellors',
-    desc: '24×7 helpline — NEET rank, fees & admission timelines explained clearly.',
+    desc: '24×7 helpline for NEET rank, fees and admission timelines explained clearly.',
     href: `tel:${CONTACT_INFO.phoneTel}`,
     cta: CONTACT_INFO.phone,
     accent: 'contact-channel--gold',
@@ -35,7 +35,7 @@ const CHANNELS = [
     id: 'email',
     icon: Mail,
     title: 'Email us',
-    desc: 'Share documents or detailed queries — we respond within one business day.',
+    desc: 'Share documents or detailed queries. We respond within one business day.',
     href: `mailto:${CONTACT_INFO.email}`,
     cta: CONTACT_INFO.email,
     accent: 'contact-channel--navy',
@@ -45,7 +45,7 @@ const CHANNELS = [
     id: 'whatsapp',
     icon: MessageCircle,
     title: 'WhatsApp',
-    desc: 'Quick answers on colleges, countries & counselling slots — Hindi or English.',
+    desc: 'Quick answers on colleges, countries and counselling slots in Hindi or English.',
     href: CONTACT_INFO.whatsapp,
     cta: 'Open WhatsApp',
     external: true,
@@ -55,7 +55,7 @@ const CHANNELS = [
 ] as const;
 
 const PROMISES = [
-  { icon: ShieldCheck, text: '100% confidential — no spam calls' },
+  { icon: ShieldCheck, text: '100% confidential. No spam calls.' },
   { icon: GraduationCap, text: 'MBBS India & Abroad under one roof' },
   { icon: Stethoscope, text: 'MD/MS & postgraduate pathways' },
   { icon: Globe2, text: '19+ years · 4,000+ students guided' },
@@ -113,8 +113,9 @@ export function ContactPageView() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.12 }}
           >
-            Visit our Noida office or book online — the same AR Group team from NEET counselling to
-            visa and airport support abroad.
+            Visit our Noida office or book expert counselling online. AR Group helps with MBBS in
+            India and abroad, from NEET counselling and college selection to visa and pre-departure
+            support.
           </motion.p>
 
           <motion.div
@@ -234,8 +235,8 @@ export function ContactPageView() {
               <span className="contact-main__accent">expert counselling</span> session
             </h2>
             <p className="contact-main__lead">
-              Fill in your details — our counsellors call within 24 hours with MBBS India, abroad
-              options, and a clear fee breakdown. No obligation.
+              Fill in your details. Our counsellors call within 24 hours with MBBS India and abroad
+              options, plus a clear fee breakdown. No obligation.
             </p>
 
             <ul className="contact-promises">

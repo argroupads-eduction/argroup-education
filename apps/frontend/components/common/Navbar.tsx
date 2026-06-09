@@ -103,7 +103,7 @@ export const Navbar = () => {
 
   return (
     <>
-      {/* Top Bar — same white as main navbar; highlighted phone & email */}
+      {/* Top Bar, same white as main navbar; highlighted phone & email */}
       <div className="site-topbar hidden xl:block">
         <div className="site-topbar-inner mx-auto max-w-[84rem] px-4 xl:px-6">
           <div className="site-topbar-contacts">
@@ -145,7 +145,7 @@ export const Navbar = () => {
         <div ref={rootRef} className="nav-mega-root relative">
           {megaOpen ? <div className="nav-mega-bridge" aria-hidden /> : null}
           <div className="site-navbar-inner relative mx-auto max-w-[84rem] overflow-visible px-4 xl:px-6">
-            {/* Logo — contained inside navbar height */}
+            {/* Logo, contained inside navbar height */}
             <div className="site-navbar-logo" onMouseEnter={forceClose}>
               <BrandLogoLink frameClassName="brand-logo-link__frame--nav">
                 <img
@@ -160,7 +160,7 @@ export const Navbar = () => {
               </BrandLogoLink>
             </div>
 
-            {/* Desktop Menu — xl+ only; tablet uses hamburger menu */}
+            {/* Desktop Menu, xl+ only; tablet uses hamburger menu */}
             <div className="site-navbar-nav relative z-[80] hidden xl:flex">
               <div className="site-navbar-nav-list">
               {navLinks.map((link: any) => (
@@ -236,7 +236,7 @@ export const Navbar = () => {
               </div>
             </div>
 
-            {/* CTA — aligned on one line, right of nav */}
+            {/* CTA, aligned on one line, right of nav */}
             <div className="site-navbar-cta hidden xl:flex" onMouseEnter={forceClose}>
               <Button type="button" variant="primary" size="md" onClick={() => openLeadCapturePopup()}>
                 {CTA_EXPERT_COUNSELLING}
@@ -260,7 +260,7 @@ export const Navbar = () => {
             </button>
           </div>
 
-          {/* Desktop mega menus — full width, flush under navbar */}
+          {/* Desktop mega menus, full width, flush under navbar */}
           <div
             id={megaOpen ? `nav-mega-panel-${megaOpen}` : undefined}
             role="region"
@@ -286,7 +286,7 @@ export const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu — keep mounted; hide with CSS for smoother open/close */}
+        {/* Mobile Menu, keep mounted; hide with CSS for smoother open/close */}
         <div
           className={[
             'xl:hidden overflow-hidden border-t border-gray-200 bg-white transition-[max-height,opacity] duration-200 ease-out',

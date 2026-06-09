@@ -3,7 +3,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/Button';
-import { MBBS_ABROAD_HERO_COUNTRY_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOptions';
 import { isHeroMbbsFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { useHeroMbbsFormDefinition } from '@/lib/useHeroMbbsFormDefinition';
 import { HeroFormSkeleton } from '@/sections/home/HeroFormSkeleton';
@@ -45,11 +44,10 @@ function isInputField(f: FormFieldBlock): f is FormFieldBlock & { name: string }
 const inputClass =
   'w-full rounded-lg border border-white/40 bg-white/95 px-3 py-2.5 text-sm text-navy-900 placeholder:text-navy-400 shadow-sm outline-none ring-0 focus:border-gold-400 focus:ring-2 focus:ring-gold-400/40';
 
-function isAbroadCountryField(field: FormFieldBlock): boolean {
+function isStateOrCountryField(field: FormFieldBlock): boolean {
   const n = field.name?.toLowerCase() ?? '';
   const l = field.label?.toLowerCase() ?? '';
   if (field.blockType === 'state' || field.blockType === 'country') return true;
-  if (field.blockType !== 'select') return false;
   return (
     n.includes('state') ||
     n.includes('country') ||
@@ -224,27 +222,22 @@ export function MbbsAbroadHeroPayloadForm({
             );
           }
 
-          if (isAbroadCountryField(field)) {
+          if (isStateOrCountryField(field)) {
             return (
               <div key={field.id || field.name}>
                 <label className="mb-1 block text-xs font-medium text-white" htmlFor={field.name}>
                   {label}
                   {req && <span className="text-gold-300">{req}</span>}
                 </label>
-                <select
+                <input
                   id={field.name}
                   name={field.name}
+                  type="text"
+                  placeholder={field.placeholder || 'Type here…'}
                   className={inputClass}
                   value={values[field.name] ?? ''}
                   onChange={(e) => setField(field.name, e.target.value)}
-                >
-                  <option value="">Select…</option>
-                  {MBBS_ABROAD_HERO_COUNTRY_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             );
           }

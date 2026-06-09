@@ -59,17 +59,23 @@
 
 .abroad-orbit__title {
   margin-top: 0.75rem;
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(1.85rem, 4.5vw, 2.75rem);
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 .abroad-orbit__title span {
+  display: inline-block;
+  padding-bottom: 0.12em;
+  line-height: 1.22;
   background: linear-gradient(90deg, #fde68a, #f59e0b);
   -webkit-background-clip: text;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .abroad-orbit__lead {
@@ -203,7 +209,7 @@
 }
 
 .abroad-orbit__country {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: 1.35rem;
   font-weight: 700;
   color: #fff;
@@ -360,7 +366,7 @@
 
 .abroad-vault__title {
   margin-top: 0.65rem;
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   font-size: clamp(1.65rem, 4vw, 2.35rem);
   font-weight: 700;
   line-height: 1.2;
@@ -595,7 +601,7 @@
 
 .wp-content-abroad-hub .wp-content-body h2,
 .wp-content-abroad-hub .wp-content-body h3 {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-site);
   color: #0c1f3f !important;
   border-bottom: 2px solid rgb(232 163 23 / 0.35);
   padding-bottom: 0.35rem;
