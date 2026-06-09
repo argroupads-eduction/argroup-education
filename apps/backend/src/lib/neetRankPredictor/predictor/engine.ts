@@ -51,7 +51,6 @@ export function predictNeetRank(
   targetYear = 2026
 ): NeetRankPrediction {
   const marks = clamp(Math.round(score), 0, 720);
-  const primary = getPrimaryDataset();
   const trend = predictWithTrendModel(marks, targetYear);
   const { value: percentile, label: percentileLabel } = percentileFromAir(trend.expectedAir);
 
