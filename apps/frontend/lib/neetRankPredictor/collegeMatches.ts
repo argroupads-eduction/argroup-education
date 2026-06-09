@@ -1,5 +1,6 @@
 import { flattenAbroadColleges, MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
 import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaTree';
+import { predictNeetRank } from '@backend/lib/neetRankPredictor';
 import type { NeetCategory } from './types';
 
 export type CollegeMatch = {
@@ -28,21 +29,21 @@ const INDIA_PRIORITY = [
   'bj medical',
 ];
 
-function indiaTier(score: number): 'elite' | 'competitive' | 'broad' | 'abroad_focus' {
-  if (score >= 600) return 'elite';
-  if (score >= 450) return 'competitive';
-  if (score >= 350) return 'broad';
+function indiaTierByRank(air: number): 'elite' | 'competitive' | 'broad' | 'abroad_focus' {
+  if (air <= 1500) return 'elite';
+  if (air <= 40000) return 'competitive';
+  if (air <= 130000) return 'broad';
   return 'abroad_focus';
 }
 
-function abroadTier(score: number): 'premium' | 'value' | 'budget' {
-  if (score >= 550) return 'premium';
-  if (score >= 400) return 'value';
+function abroadTierByRank(air: number): 'premium' | 'value' | 'budget' {
+  if (air <= 11000) return 'premium';
+  if (air <= 70000) return 'value';
   return 'budget';
 }
 
-function pickIndiaColleges(score: number, limit = 6): CollegeMatch[] {
-  const tier = indiaTier(score);
+function pickIndiaColleges(air: number, limit = 6): CollegeMatch[] {
+  const tier = indiaTierByRank(air);
   const all = MBBS_INDIA_STATES.flatMap((state) =>
     state.colleges.map((c) => ({
       name: c.name,
@@ -104,8 +105,8 @@ const ABROAD_BY_TIER: Record<'premium' | 'value' | 'budget', string[]> = {
   budget: ['kyrgyzstan', 'uzbekistan', 'bangladesh', 'nepal', 'kazakhstan'],
 };
 
-function pickAbroadColleges(score: number, limit = 6): CollegeMatch[] {
-  const tier = abroadTier(score);
+function pickAbroadColleges(air: number, limit = 6): CollegeMatch[] {
+  const tier = abroadTierByRank(air);
   const countryIds = ABROAD_BY_TIER[tier];
   const out: CollegeMatch[] = [];
   const seen = new Set<string>();
@@ -143,10 +144,12 @@ function pickAbroadColleges(score: number, limit = 6): CollegeMatch[] {
 
 export function getCollegeRecommendations(
   _category: NeetCategory,
-  score: number
+  score: number,
+  expectedRank?: number
 ): NeetCollegeRecommendations {
+  const air = expectedRank ?? predictNeetRank('general_ews', score).expectedRank;
   return {
-    india: pickIndiaColleges(score),
-    abroad: pickAbroadColleges(score),
+    india: pickIndiaColleges(air),
+    abroad: pickAbroadColleges(air),
   };
 }

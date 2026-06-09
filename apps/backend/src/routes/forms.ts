@@ -101,7 +101,7 @@ router.post(
   }
 );
 
-// POST /api/forms/neet-rank-predictor — verified NEET rank predictor lead
+// POST /api/forms/neet-rank-predictor — NEET rank predictor lead (server-side prediction)
 router.post(
   '/neet-rank-predictor',
   [
@@ -111,11 +111,6 @@ router.post(
     body('city').trim().notEmpty(),
     body('category').trim().notEmpty(),
     body('score').isInt({ min: 0, max: 720 }),
-    body('bestRank').isInt({ min: 1 }),
-    body('expectedRank').isInt({ min: 1 }),
-    body('worstRank').isInt({ min: 1 }),
-    body('percentile').isFloat({ min: 0, max: 100 }),
-    body('collegeChances').trim().notEmpty(),
   ],
   async (req: Request, res: Response) => {
     try {
@@ -124,19 +119,11 @@ router.post(
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const {
-        name,
-        email,
-        phone,
-        city,
-        category,
-        score,
-        bestRank,
-        expectedRank,
-        worstRank,
-        percentile,
-        collegeChances,
-      } = req.body;
+      const { name, email, phone, city, category, score } = req.body;
+
+      const { predictNeetRank } = await import('../lib/neetRankPredictor');
+      const cat = String(category) as import('../lib/neetRankPredictor/types').NeetCategory;
+      const prediction = predictNeetRank(cat, Number(score));
 
       await withPrismaRetry(() =>
         prisma.neetRankPredictorSubmission.create({
@@ -145,13 +132,13 @@ router.post(
             email,
             phone,
             city,
-            category,
-            score,
-            bestRank,
-            expectedRank,
-            worstRank,
-            percentile,
-            collegeChances,
+            category: cat,
+            score: Number(score),
+            bestRank: prediction.bestRank,
+            expectedRank: prediction.expectedRank,
+            worstRank: prediction.worstRank,
+            percentile: prediction.percentile,
+            collegeChances: prediction.collegeChances,
           },
         })
       );
@@ -164,19 +151,20 @@ router.post(
           email,
           phone,
           city,
-          category,
+          category: cat,
           score,
-          bestRank,
-          expectedRank,
-          worstRank,
-          percentile,
-          collegeChances,
+          bestRank: prediction.bestRank,
+          expectedRank: prediction.expectedRank,
+          worstRank: prediction.worstRank,
+          percentile: prediction.percentileLabel,
+          collegeChances: prediction.collegeChances,
         },
         userAgent: req.get('user-agent') ?? undefined,
       });
 
       res.json({
         success: true,
+        prediction,
         message: 'Prediction saved. Our counsellors may reach out to help with admission planning.',
       });
     } catch (error) {

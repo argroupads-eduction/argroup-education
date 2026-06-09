@@ -447,6 +447,10 @@ export function NeetRankPredictorWizard() {
                 </div>
 
                 <p className="rounded-lg bg-navy-50 px-4 py-3 text-sm text-slate-700">{result.qualifyingNote}</p>
+                <p className="text-xs text-slate-500">
+                  Based on {result.dataSource} (reference year {result.dataYear}). Exact NEET 2026 AIR will be
+                  confirmed by NTA at result declaration.
+                </p>
 
                 <NeetRankCollegeResults india={colleges.india} abroad={colleges.abroad} track={track} />
 
