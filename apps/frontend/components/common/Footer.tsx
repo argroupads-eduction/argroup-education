@@ -102,8 +102,8 @@ export const Footer = () => {
                 />
               </BrandLogoLink>
               <p className="site-footer-main__desc">
-                <span className="font-semibold text-slate-200">AR Group</span> — your trusted partner
-                for{' '}
+                <span className="font-semibold text-slate-200">AR Group of Education</span> is your
+                trusted partner for{' '}
                 <span className="font-bold text-gold-400">MBBS INDIA</span> &amp;{' '}
                 <span className="font-bold text-gold-400">MBBS ABROAD</span> admissions, NEET
                 counselling &amp; end-to-end visa support.
