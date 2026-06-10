@@ -78,16 +78,11 @@ export interface Config {
     search: Search;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
-    'payload-folders': FolderInterface;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {
-    'payload-folders': {
-      documentsAndFolders: 'payload-folders' | 'media';
-    };
-  };
+  collectionsJoins: {};
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -100,7 +95,6 @@ export interface Config {
     search: SearchSelect<false> | SearchSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
-    'payload-folders': PayloadFoldersSelect<false> | PayloadFoldersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -208,7 +202,11 @@ export interface Page {
    */
   featuredImage?: (number | null) | Media;
   /**
-   * Edit headings, bold text, lists, tables, and images visually — same structure as the live site.
+   * Complete live-site body HTML. Edit headings, tables, FAQs, images, and all sections here. Changes publish to the marketing site when you save.
+   */
+  htmlContent?: string | null;
+  /**
+   * Optional WYSIWYG editor for short sections. For imported WordPress pages, edit the HTML field above — it controls the live site.
    */
   content?: {
     root: {
@@ -226,13 +224,9 @@ export interface Page {
     [k: string]: unknown;
   } | null;
   /**
-   * Optional extra sections below the hero content. Hero tab text is always shown on the page body.
+   * Legacy layout blocks from import (usually a short excerpt). Ignore for full pages — use the HTML field above.
    */
   layout?: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[] | null;
-  /**
-   * Imported WP HTML backup. The visual editor above is used on the live site.
-   */
-  htmlContent?: string | null;
   featuredImageUrl?: string | null;
   meta?: {
     title?: string | null;
@@ -241,6 +235,14 @@ export interface Page {
      */
     image?: (number | null) | Media;
     description?: string | null;
+    /**
+     * Primary SEO keyword for this page or post (e.g. MBBS in Nepal).
+     */
+    focusKeyword?: string | null;
+    /**
+     * Press Enter after each keyword. Used for search and internal tagging.
+     */
+    seoKeywords?: string[] | null;
   };
   /**
    * Choose where this page appears in the live site navigation.
@@ -263,7 +265,6 @@ export interface Page {
    */
   publishedAt?: string | null;
   canonicalUrl?: string | null;
-  focusKeyword?: string | null;
   ogImageUrl?: string | null;
   robotsMeta?: string | null;
   schemaJson?:
@@ -296,9 +297,13 @@ export interface Post {
    */
   heroImage?: (number | null) | Media;
   /**
-   * Edit headings, bold text, lists, tables, and images visually — SEO-friendly like the live blog.
+   * Complete live-site body HTML. Edit headings, tables, FAQs, images, and all sections here. Changes publish to the marketing site when you save.
    */
-  content: {
+  htmlContent?: string | null;
+  /**
+   * Optional WYSIWYG editor. For imported blog posts, edit the HTML field above — it controls the live article.
+   */
+  content?: {
     root: {
       type: string;
       children: {
@@ -312,11 +317,7 @@ export interface Post {
       version: number;
     };
     [k: string]: unknown;
-  };
-  /**
-   * Imported WP HTML backup. The visual editor above is used on the live site.
-   */
-  htmlContent?: string | null;
+  } | null;
   featuredImageUrl?: string | null;
   relatedPosts?: (number | Post)[] | null;
   categories?: (number | Category)[] | null;
@@ -327,6 +328,14 @@ export interface Post {
      */
     image?: (number | null) | Media;
     description?: string | null;
+    /**
+     * Primary SEO keyword for this page or post (e.g. MBBS in Nepal).
+     */
+    focusKeyword?: string | null;
+    /**
+     * Press Enter after each keyword. Used for search and internal tagging.
+     */
+    seoKeywords?: string[] | null;
   };
   /**
    * Original publish date from WP export. List is sorted by this (newest first).
@@ -340,7 +349,6 @@ export interface Post {
       }[]
     | null;
   canonicalUrl?: string | null;
-  focusKeyword?: string | null;
   ogImageUrl?: string | null;
   robotsMeta?: string | null;
   schemaJson?:
@@ -362,7 +370,7 @@ export interface Post {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Uploaded images. Run `npm run wp:import:media` to import featured images from the WordPress export.
+ * Uploaded images. Run `npm run import:wp-media` to import featured images from the WordPress export.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
@@ -385,7 +393,6 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
-  folder?: (number | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -455,32 +462,6 @@ export interface Media {
       filename?: string | null;
     };
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-folders".
- */
-export interface FolderInterface {
-  id: number;
-  name: string;
-  folder?: (number | null) | FolderInterface;
-  documentsAndFolders?: {
-    docs?: (
-      | {
-          relationTo?: 'payload-folders';
-          value: number | FolderInterface;
-        }
-      | {
-          relationTo?: 'media';
-          value: number | Media;
-        }
-    )[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  folderType?: 'media'[] | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1099,10 +1080,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'search';
         value: number | Search;
-      } | null)
-    | ({
-        relationTo: 'payload-folders';
-        value: number | FolderInterface;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1175,6 +1152,7 @@ export interface PagesSelect<T extends boolean = true> {
         media?: T;
       };
   featuredImage?: T;
+  htmlContent?: T;
   content?: T;
   layout?:
     | T
@@ -1185,7 +1163,6 @@ export interface PagesSelect<T extends boolean = true> {
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
-  htmlContent?: T;
   featuredImageUrl?: T;
   meta?:
     | T
@@ -1193,6 +1170,8 @@ export interface PagesSelect<T extends boolean = true> {
         title?: T;
         image?: T;
         description?: T;
+        focusKeyword?: T;
+        seoKeywords?: T;
       };
   sitePlacement?:
     | T
@@ -1205,7 +1184,6 @@ export interface PagesSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   canonicalUrl?: T;
-  focusKeyword?: T;
   ogImageUrl?: T;
   robotsMeta?: T;
   schemaJson?: T;
@@ -1306,8 +1284,8 @@ export interface FormBlockSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   heroImage?: T;
-  content?: T;
   htmlContent?: T;
+  content?: T;
   featuredImageUrl?: T;
   relatedPosts?: T;
   categories?: T;
@@ -1317,6 +1295,8 @@ export interface PostsSelect<T extends boolean = true> {
         title?: T;
         image?: T;
         description?: T;
+        focusKeyword?: T;
+        seoKeywords?: T;
       };
   publishedAt?: T;
   authors?: T;
@@ -1327,7 +1307,6 @@ export interface PostsSelect<T extends boolean = true> {
         name?: T;
       };
   canonicalUrl?: T;
-  focusKeyword?: T;
   ogImageUrl?: T;
   robotsMeta?: T;
   schemaJson?: T;
@@ -1344,7 +1323,6 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
-  folder?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1702,18 +1680,6 @@ export interface PayloadJobsSelect<T extends boolean = true> {
   queue?: T;
   waitUntil?: T;
   processing?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-folders_select".
- */
-export interface PayloadFoldersSelect<T extends boolean = true> {
-  name?: T;
-  folder?: T;
-  documentsAndFolders?: T;
-  folderType?: T;
   updatedAt?: T;
   createdAt?: T;
 }

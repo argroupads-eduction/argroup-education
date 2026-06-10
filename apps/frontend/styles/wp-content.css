@@ -288,6 +288,46 @@
   background: #fff;
 }
 
+/* Avoid double borders when EAEL wrapper + wp-table-scroll both exist */
+.wp-content-root .eael-data-table-wrap:has(> .wp-table-scroll) {
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.wp-content-root .eael-data-table-wrap:has(> .wp-table-scroll) > .wp-table-scroll {
+  margin: 1.5rem 0;
+}
+
+.wp-content-root .eael-data-table-wrap.wp-table-scroll {
+  margin: 1.5rem 0;
+}
+
+/* Tables inside Elementor widgets — single border, no stacked card chrome */
+.wp-content-root .elementor-widget-container:has(.wp-table-scroll),
+.wp-content-root .elementor-widget-container:has(.eael-data-table-wrap) {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2)):has(
+    .elementor-widget-image,
+    .jkit-image-box
+  )
+  > .elementor-column:has(.wp-table-scroll, .eael-data-table-wrap) {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
 .wp-content-root .eael-data-table-wrap table {
   width: 100%;
   border-collapse: collapse;
@@ -327,6 +367,9 @@
   font-family: var(--font-site);
   font-size: 1rem;
   line-height: 1.65;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 /* CMS inline styles must not override site font stack */
@@ -346,6 +389,11 @@
   font-weight: 700 !important;
   scroll-margin-top: 6rem;
   line-height: 1.35;
+  letter-spacing: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: none;
+  max-width: 100%;
 }
 
 .wp-content-root .wp-content-body h2 {
@@ -398,6 +446,9 @@
   font-size: 1.0625rem;
   line-height: 1.8;
   color: #111827 !important;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .wp-content-root .wp-content-body p {
@@ -1301,11 +1352,97 @@ html:has(.wp-content-affinity) {
 }
 
 /* ── Feature cards: title + description lists (Recognized Institution, etc.) ── */
+/* Admission / process steps — compact bullets, not tall feature cards */
+.wp-content-root ul.wp-premium-steps-list,
+.wp-content-root ol.wp-premium-steps-list {
+  display: block;
+  list-style-position: outside;
+  margin: 0.35rem 0 0.85rem;
+  padding-left: 1.35rem;
+  counter-reset: none;
+}
+
+.wp-content-root ul.wp-premium-steps-list {
+  list-style-type: disc;
+}
+
+.wp-content-root ol.wp-premium-steps-list {
+  list-style-type: decimal;
+}
+
+.wp-content-root ul.wp-premium-steps-list > li,
+.wp-content-root ol.wp-premium-steps-list > li {
+  display: list-item;
+  margin: 0.3rem 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none !important;
+  box-shadow: none;
+  min-height: 0;
+  height: auto;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #111827;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.wp-content-root ul.wp-premium-steps-list > li::before,
+.wp-content-root ol.wp-premium-steps-list > li::before {
+  display: none !important;
+  content: none !important;
+}
+
+.wp-content-root ul.wp-premium-steps-list > li > span,
+.wp-content-root ol.wp-premium-steps-list > li > span,
+.wp-content-root ul.wp-premium-steps-list > li > p,
+.wp-content-root ol.wp-premium-steps-list > li > p {
+  display: inline;
+  font-weight: 400;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit !important;
+}
+
+.wp-content-root ul.wp-premium-steps-list > li > b,
+.wp-content-root ul.wp-premium-steps-list > li > strong,
+.wp-content-root ol.wp-premium-steps-list > li > b,
+.wp-content-root ol.wp-premium-steps-list > li > strong {
+  display: inline;
+  font-weight: 700;
+  color: #000 !important;
+}
+
+.wp-content-root .wp-premium-steps-list ul {
+  list-style-type: disc;
+  margin: 0.35rem 0 0.2rem;
+  padding-left: 1.2rem;
+}
+
+.wp-content-root .wp-premium-steps-list ul > li {
+  display: list-item;
+  margin: 0.2rem 0;
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
+.wp-content-root .elementor-widget-heading:has(+ .elementor-widget-text-editor .wp-premium-steps-list) {
+  margin-bottom: 0.15rem;
+}
+
+.wp-content-root .elementor-widget-text-editor:has(.wp-premium-steps-list) {
+  margin-bottom: 0.35rem;
+}
+
 .wp-content-root ul.wp-premium-feature-grid,
 .wp-content-root ol.wp-premium-feature-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.75rem;
+  align-items: stretch;
   list-style: none;
   margin: 1.25rem 0 1.75rem;
   padding: 0;
@@ -1325,6 +1462,8 @@ html:has(.wp-content-affinity) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .wp-content-root ul.wp-premium-feature-grid:has(> li:nth-child(2):last-child),
+  .wp-content-root ol.wp-premium-feature-grid:has(> li:nth-child(2):last-child),
   .wp-content-root ul.wp-premium-feature-grid:has(> li:nth-child(4):last-child),
   .wp-content-root ol.wp-premium-feature-grid:has(> li:nth-child(4):last-child) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1359,6 +1498,7 @@ html:has(.wp-content-affinity) {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  justify-content: flex-start;
   gap: 0.45rem;
   margin: 0;
   padding: 1rem 1.1rem;
@@ -1367,6 +1507,7 @@ html:has(.wp-content-affinity) {
   background: #fff;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
   min-width: 0;
+  height: 100%;
   word-break: normal;
   overflow-wrap: break-word;
 }
@@ -1429,6 +1570,35 @@ html:has(.wp-content-affinity) {
 .wp-content-root ol.wp-premium-feature-grid > li:has(> :is(b, strong) + span) > span {
   display: inline !important;
   width: auto !important;
+}
+
+/* Keep split CMS spans (e.g. "50th" + "percentile") on one line when possible. */
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ span) > span,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ span) > span {
+  display: inline !important;
+  width: auto !important;
+}
+
+.wp-content-root ul.wp-premium-feature-grid:has(> li:nth-child(2):last-child),
+.wp-content-root ol.wp-premium-feature-grid:has(> li:nth-child(2):last-child) {
+  align-items: start;
+}
+
+.wp-content-root ul.wp-premium-feature-grid:has(> li:nth-child(2):last-child) > li,
+.wp-content-root ol.wp-premium-feature-grid:has(> li:nth-child(2):last-child) > li {
+  height: auto;
+  min-height: 0;
+}
+
+/* NEET percentile lines — keep "50th percentile" on one line when possible */
+.wp-content-root ul.wp-premium-feature-grid > li,
+.wp-content-root ol.wp-premium-feature-grid > li {
+  white-space: normal;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:has(:is(b, strong)) :is(b, strong) + span,
+.wp-content-root ol.wp-premium-feature-grid > li:has(:is(b, strong)) :is(b, strong) + span {
+  white-space: normal;
 }
 
 /* Simple bullet lists inside feature cards (no bold title). */
@@ -1634,9 +1804,20 @@ html:has(.wp-content-affinity) {
 
 @media (max-width: 1023px) {
   .wp-content-root .wp-content-body {
-    overflow-x: hidden;
+    min-width: 0;
     word-wrap: break-word;
     overflow-wrap: break-word;
+  }
+
+  .wp-content-root .wp-content-body .elementor-section,
+  .wp-content-root .wp-content-body .elementor-container,
+  .wp-content-root .wp-content-body .elementor-column,
+  .wp-content-root .wp-content-body .elementor-widget-wrap,
+  .wp-content-root .wp-content-body .elementor-widget-container {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .wp-content-root .wp-content-body pre,

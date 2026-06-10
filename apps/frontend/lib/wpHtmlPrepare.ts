@@ -136,42 +136,56 @@ export function replaceBrokenWpForms(html: string): string {
   return replaceBrokenEmbeddedForms(html);
 }
 
-/** Convert Essential Addons accordion → native <details> (no giant +/- SVGs). */
-export function transformEaelAccordions(html: string): string {
+function parseEaelAccordionItems(block: string): FaqItem[] {
   const headerRe =
     /<div id="[^"]*" class="elementor-tab-title eael-accordion-header"[\s\S]*?<span class="eael-accordion-tab-title">([\s\S]*?)<\/span>[\s\S]*?<\/div>\s*<div id="[^"]*" class="eael-accordion-content[^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
 
-  const items: string[] = [];
+  const items: FaqItem[] = [];
   let match: RegExpExecArray | null;
   headerRe.lastIndex = 0;
-  while ((match = headerRe.exec(html)) !== null) {
-    const title = stripHtml(match[1]);
-    const body = match[2].trim();
-    const num = String(items.length + 1).padStart(2, '0');
-    items.push(
-      `<details class="wp-premium-faq" style="--faq-i:${items.length}">` +
-        `<summary class="wp-premium-faq-summary">` +
-        `<span class="wp-premium-faq-qnum">${num}</span>` +
-        `<span class="wp-premium-faq-qtext">${escapeHtml(title)}</span>` +
-        `</summary>` +
-        `<div class="wp-premium-faq-body"><div class="wp-premium-faq-body-inner">${body}</div></div>` +
-        `</details>`
-    );
+  while ((match = headerRe.exec(block)) !== null) {
+    const question = stripHtml(match[1]).trim();
+    const answer = match[2].trim();
+    if (!question || !stripHtml(answer)) continue;
+    items.push({ num: String(items.length + 1), question, answer });
   }
+  return items;
+}
 
-  if (!items.length) return html;
+/** Convert Essential Addons accordion → native <details> (no giant +/- SVGs). */
+export function transformEaelAccordions(html: string): string {
+  if (!html.includes('eael-adv-accordion')) return html;
 
-  let out = html.replace(
-    /<div class="eael-adv-accordion"[\s\S]*?<\/div>\s*(?=<\/div>\s*<\/div>)/i,
-    `<div class="wp-premium-faq-group wp-premium-faq-group--animated">${items.join('')}</div>`
-  );
+  let out = html;
+  const marker = 'eael-adv-accordion';
+  let searchFrom = 0;
 
-  // If wrapper replace missed, append transformed block and hide raw accordion via class
-  if (!out.includes('wp-premium-faq-group')) {
-    out = out.replace(
-      /<div class="eael-adv-accordion"[\s\S]*?<\/div>\s*<\/div>/i,
-      `<div class="wp-premium-faq-group wp-premium-faq-group--animated">${items.join('')}</div>`
-    );
+  while (searchFrom < out.length) {
+    const accIdx = out.indexOf(marker, searchFrom);
+    if (accIdx === -1) break;
+
+    const accOpen = out.lastIndexOf('<div', accIdx);
+    if (accOpen === -1) {
+      searchFrom = accIdx + marker.length;
+      continue;
+    }
+
+    const blockEnd = findClosingDiv(out, accOpen);
+    if (blockEnd === -1) {
+      searchFrom = accIdx + marker.length;
+      continue;
+    }
+
+    const block = out.slice(accOpen, blockEnd);
+    const items = parseEaelAccordionItems(block);
+    if (!items.length) {
+      searchFrom = accIdx + marker.length;
+      continue;
+    }
+
+    const replacement = `<div class="wp-premium-faq-group wp-premium-faq-group--animated">${buildFaqDetailsHtml(items)}</div>`;
+    out = out.slice(0, accOpen) + replacement + out.slice(blockEnd);
+    searchFrom = accOpen + replacement.length;
   }
 
   return out;
@@ -414,6 +428,32 @@ export function stripWpInlineTypography(html: string): string {
   return out;
 }
 
+/** Bold label followed by line-broken spans → nested doc list (MBBS admission export quirk). */
+export function normalizeAdmissionListItems(html: string): string {
+  return html.replace(/<li(\b[^>]*)>([\s\S]*?)<\/li>/gi, (match, attrs, inner) => {
+    if (/<ul\b|<ol\b/i.test(inner)) return match;
+
+    const boldMatch = inner.match(
+      /^(\s*(?:<br\s*\/?>\s*)*)(<(?:b|strong)\b[^>]*>)([\s\S]*?)(<\/(?:b|strong)>)([\s\S]*)$/i
+    );
+    if (!boldMatch) return match;
+
+    const [, prefix, bOpen, bText, bClose, rest] = boldMatch;
+    const title = stripHtml(bText).replace(/:\s*$/, '').trim();
+    if (!title || title.length < 4) return match;
+
+    const spans = [...rest.matchAll(/<span\b[^>]*>([\s\S]*?)<\/span>/gi)]
+      .map((m) => stripHtml(m[1]).replace(/\s+/g, ' ').trim())
+      .filter((t) => t.length > 1);
+
+    if (spans.length < 2) return match;
+
+    const cleanTitle = bText.replace(/<br\s*\/?>/gi, ' ').trim().replace(/:+\s*$/, '');
+    const nested = spans.map((t) => `<li>${t}</li>`).join('');
+    return `<li${attrs}>${prefix}${bOpen}${cleanTitle}:${bClose}<ul>${nested}</ul></li>`;
+  });
+}
+
 /** Move a leading colon from description span onto the bold title (BPT card font/layout quirk). */
 export function normalizeBoldTitleDescriptionItems(html: string): string {
   return html.replace(/<li(\b[^>]*)>([\s\S]*?)<\/li>/gi, (match, attrs, inner) => {
@@ -461,17 +501,83 @@ function normalizeListItemContent(inner: string): string {
 /** Collapse multi-span list items before grid classification (site-wide CMS export quirk). */
 export function normalizeListItemSpans(html: string): string {
   return html.replace(/<li(\b[^>]*)>([\s\S]*?)<\/li>/gi, (match, attrs, inner) => {
-    const normalized = normalizeListItemContent(inner);
+    let normalized = normalizeListItemContent(inner);
+    normalized = normalized.replace(
+      /(\d+(?:st|nd|rd|th))(?:\s*<br\s*\/?>\s*|\s*<\/span>\s*<span[^>]*>\s*)(percentile)/gi,
+      '$1 $2'
+    );
     if (normalized === inner) return match;
     return `<li${attrs}>${normalized}</li>`;
   });
 }
 
+/** Direct children only — nested doc lists must not inflate parent list metrics. */
+function splitTopLevelListItems(inner: string): string[] {
+  const items: string[] = [];
+  const tagRe = /<\/?(?:li|ul|ol)\b[^>]*>/gi;
+  let match: RegExpExecArray | null;
+  let captureStart = -1;
+  let liDepth = 0;
+
+  while ((match = tagRe.exec(inner)) !== null) {
+    const full = match[0];
+    const closing = /^<\//.test(full);
+    const tag = full.match(/<\/?(\w+)/i)?.[1]?.toLowerCase();
+    if (tag !== 'li') continue;
+
+    if (!closing) {
+      if (liDepth === 0) captureStart = match.index;
+      liDepth++;
+      continue;
+    }
+
+    liDepth--;
+    if (liDepth === 0 && captureStart >= 0) {
+      items.push(inner.slice(captureStart, match.index + full.length));
+      captureStart = -1;
+    }
+  }
+
+  return items;
+}
+
+function listItemBodies(inner: string): string[] {
+  return splitTopLevelListItems(inner).map((item) =>
+    item.replace(/^<li\b[^>]*>/i, '').replace(/<\/li>\s*$/i, '')
+  );
+}
+
+function countTopLevelListItems(inner: string): number {
+  return splitTopLevelListItems(inner).length;
+}
+
+function hasTitleDescPattern(body: string): boolean {
+  return /<(?:b|strong)\b[^>]*>[\s\S]*?<\/(?:b|strong)>[\s\S]*?<span\b/i.test(body);
+}
+
+/** Admission / process steps — span-only bullets, not feature-card promos. */
+function isProceduralStepList(inner: string): boolean {
+  const liBodies = listItemBodies(inner);
+  if (liBodies.length < 2 || liBodies.length > 10) return false;
+
+  const spanOnly = liBodies.filter((body) => {
+    if (!stripHtml(body).trim()) return false;
+    return !/<(?:b|strong)\b/i.test(body);
+  }).length;
+
+  if (spanOnly === liBodies.length) return true;
+
+  const titleDescCount = liBodies.filter(hasTitleDescPattern).length;
+  if (liBodies.length <= 4 && titleDescCount <= 1 && spanOnly >= 1) return true;
+
+  return false;
+}
+
 /** Long body copy per bullet (Student Support, etc.) — chip numbers squeeze paragraphs. */
 function isParagraphStyleList(inner: string): boolean {
-  const items = [...inner.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)].map((m) =>
-    stripHtml(m[1]).trim()
-  );
+  if (isProceduralStepList(inner)) return false;
+
+  const items = listItemBodies(inner).map((body) => stripHtml(body).trim());
   if (items.length < 2) return false;
   const longCount = items.filter((t) => t.length >= PARAGRAPH_LIST_MIN_CHARS).length;
   return longCount >= Math.ceil(items.length * 0.4);
@@ -479,7 +585,9 @@ function isParagraphStyleList(inner: string): boolean {
 
 /** Title + description in same <li> (e.g. Recognized Institution: Approved by NMC…) */
 function isFeatureStyleList(inner: string): boolean {
-  const liCount = (inner.match(/<li\b/gi) || []).length;
+  if (isProceduralStepList(inner)) return false;
+
+  const liCount = countTopLevelListItems(inner);
   if (liCount < 2 || liCount > 16) return false;
 
   const withTitleDesc = (
@@ -487,15 +595,13 @@ function isFeatureStyleList(inner: string): boolean {
       []
   ).length;
 
-  // Even one title+body pair must use feature cards (chip grid squishes <b>+<span> into vertical text).
-  if (withTitleDesc >= 1) return true;
+  if (withTitleDesc >= 2) return true;
 
-  // Inline rich text: <span>…</span><b>…</b><span>…</span> (chip flex treats each node as a column).
-  const liBodies = [...inner.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)].map((m) => m[1]);
+  const liBodies = listItemBodies(inner);
   const inlineRich = liBodies.filter(
     (body) => /<span\b/i.test(body) && /<(?:b|strong)\b/i.test(body)
   ).length;
-  if (inlineRich >= 1) return true;
+  if (inlineRich >= 2) return true;
 
   const withBoldHeading = (
     inner.match(/<li\b[^>]*>[\s\S]*?<(?:b|strong)\b[^>]*>[^<]{8,}<\/(?:b|strong)>/gi) || []
@@ -520,7 +626,11 @@ export function transformLongListsToGrid(html: string): string {
     if (match.includes('wp-premium-chip-grid') || match.includes('wp-premium-feature-grid')) {
       return match;
     }
-    const liCount = (inner.match(/<li\b/gi) || []).length;
+    const liCount = countTopLevelListItems(inner);
+    if (isProceduralStepList(inner)) {
+      const openTag = addGridClassToListTag(`<ul${attrs}>`, 'wp-premium-steps-list');
+      return `${openTag}${inner}</ul>`;
+    }
     if (isFeatureStyleList(inner) || isParagraphStyleList(inner)) {
       const openTag = addGridClassToListTag(`<ul${attrs}>`, 'wp-premium-feature-grid');
       return `${openTag}${inner}</ul>`;
@@ -538,7 +648,11 @@ export function transformLongListsToGrid(html: string): string {
     if (match.includes('wp-premium-chip-grid') || match.includes('wp-premium-feature-grid')) {
       return match;
     }
-    const liCount = (inner.match(/<li\b/gi) || []).length;
+    const liCount = countTopLevelListItems(inner);
+    if (isProceduralStepList(inner)) {
+      const openTag = addGridClassToListTag(`<ol${attrs}>`, 'wp-premium-steps-list');
+      return `${openTag}${inner}</ol>`;
+    }
     if (isFeatureStyleList(inner) || isParagraphStyleList(inner)) {
       const openTag = addGridClassToListTag(`<ol${attrs}>`, 'wp-premium-feature-grid');
       return `${openTag}${inner}</ol>`;
@@ -848,26 +962,117 @@ export function transformEbAccordions(html: string): string {
   );
 }
 
+function findClosingDiv(html: string, openIdx: number): number {
+  const openTagEnd = html.indexOf('>', openIdx);
+  if (openTagEnd === -1) return -1;
+
+  let depth = 1;
+  let i = openTagEnd + 1;
+  const openRe = /<div\b/gi;
+  const closeRe = /<\/div>/gi;
+
+  while (depth > 0 && i < html.length) {
+    openRe.lastIndex = i;
+    closeRe.lastIndex = i;
+    const nextOpen = openRe.exec(html);
+    const nextClose = closeRe.exec(html);
+    if (!nextClose) return -1;
+
+    if (nextOpen && nextOpen.index < nextClose.index) {
+      depth += 1;
+      i = nextOpen.index + nextOpen[0].length;
+    } else {
+      depth -= 1;
+      i = nextClose.index + nextClose[0].length;
+      if (depth === 0) return i;
+    }
+  }
+
+  return -1;
+}
+
+function parseWpsmPanelItems(block: string): FaqItem[] {
+  const items: FaqItem[] = [];
+  const panelStartRe = /<div class="wpsm_panel wpsm_panel-default">/gi;
+  let startMatch: RegExpExecArray | null;
+
+  while ((startMatch = panelStartRe.exec(block)) !== null) {
+    const panelOpen = startMatch.index;
+    const panelEnd = findClosingDiv(block, panelOpen);
+    if (panelEnd === -1) continue;
+
+    const panel = block.slice(panelOpen, panelEnd);
+    const titleMatch = panel.match(/<span class="ac_title_class"[^>]*>([\s\S]*?)<\/a>/i);
+    const bodyMatch = panel.match(/<div class="wpsm_panel-body"[^>]*>([\s\S]*?)<\/div>/i);
+    if (!titleMatch || !bodyMatch) continue;
+
+    const question = stripHtml(titleMatch[1]).trim();
+    const answer = bodyMatch[1].trim();
+    if (!question || !stripHtml(answer)) continue;
+
+    items.push({ num: String(items.length + 1), question, answer });
+  }
+
+  return items;
+}
+
+/** Remove WP Smart Accordion assets that break layout without Bootstrap/jQuery. */
+export function stripWpsmAccordionAssets(html: string): string {
+  let out = html;
+  out = out.replace(/<style>[\s\S]*?#wpsm_accordion_\d+[\s\S]*?<\/style>/gi, '');
+  out = out.replace(/<script type="text\/javascript">[\s\S]*?do_resize[\s\S]*?<\/script>/gi, '');
+  out = out.replace(/<!-- Inner panel (?:Start|End) -->/gi, '');
+  if (!out.includes('wp-premium-faq-group')) {
+    return out;
+  }
+  out = out.replace(/<div class="wpsm_panel[\s\S]*?<\/div>\s*(?=\s*(?:<div class="wpsm_panel|<\/p>|$))/gi, '');
+  out = out.replace(/<div class="wpsm_panel-group"[^>]*>\s*<\/div>/gi, '');
+  return out;
+}
+
 /** WP Smart Accordion (wpsm) → same premium FAQ UI. */
 export function transformWpsmAccordions(html: string): string {
-  const accordionRe = /<div[^>]*\bwpsm_accordion_\d+[^>]*>[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/gi;
-  return html.replace(accordionRe, (block) => {
-    const titles = [...block.matchAll(/class="[^"]*ac_title_class"[^>]*>([\s\S]*?)<\/a>/gi)].map(
-      (m) => stripHtml(m[1]).trim()
-    );
-    const bodies = [...block.matchAll(/class="wpsm_panel-body"[^>]*>([\s\S]*?)<\/div>\s*(?=<\/div>)/gi)].map(
-      (m) => m[1].trim()
-    );
-    if (!titles.length || !bodies.length) return block;
+  if (!html.includes('wpsm_panel') && !html.includes('wpsm_accordion_')) return html;
 
-    const items: FaqItem[] = titles.map((title, idx) => ({
-      num: String(idx + 1),
-      question: title,
-      answer: bodies[idx] ?? bodies[bodies.length - 1] ?? '',
-    }));
+  let out = html;
+  const marker = 'wpsm_panel-group';
+  let searchFrom = 0;
 
-    return `<div class="wp-premium-faq-group wp-premium-faq-group--animated">${buildFaqDetailsHtml(items)}</div>`;
-  });
+  while (searchFrom < out.length) {
+    const groupIdx = out.indexOf(marker, searchFrom);
+    if (groupIdx === -1) break;
+
+    const groupOpen = out.lastIndexOf('<div', groupIdx);
+    if (groupOpen === -1) {
+      searchFrom = groupIdx + marker.length;
+      continue;
+    }
+
+    const blockStart = groupOpen;
+    const blockEnd = findClosingDiv(out, groupOpen);
+    if (blockEnd === -1) {
+      searchFrom = groupIdx + marker.length;
+      continue;
+    }
+
+    let end = blockEnd;
+    const trailingScript = out.slice(end).match(/^\s*<script[\s\S]*?<\/script>/i);
+    if (trailingScript) end += trailingScript[0].length;
+
+    const block = out.slice(blockStart, end);
+    const items = parseWpsmPanelItems(block);
+    if (!items.length) {
+      searchFrom = groupIdx + marker.length;
+      continue;
+    }
+
+    const replacement = `<div class="wp-premium-faq-group wp-premium-faq-group--animated">${buildFaqDetailsHtml(items)}</div>`;
+    out = out.slice(0, blockStart) + replacement + out.slice(end);
+    searchFrom = blockStart + replacement.length;
+  }
+
+  out = stripWpsmAccordionAssets(out);
+  return out;
 }
 
 /** All FAQ blocks under "FAQs" heading → animated accordion (transforms in place, no content copy). */
@@ -906,6 +1111,19 @@ function transformRemainingFaqSections(html: string): string {
   );
 }
 
+/** Remove empty style/p wrappers left after WPSM FAQ conversion. */
+export function stripFaqSectionJunk(html: string): string {
+  let out = html;
+  out = out.replace(/<style>[\s\S]*?#wpsm_accordion_\d+[\s\S]*?<\/style>/gi, '');
+  out = out.replace(/<p>\s*<style>\s*(?=<div[^>]*wp-premium-faq-group)/gi, '');
+  out = out.replace(/<style>\s*(?=<div[^>]*wp-premium-faq-group)/gi, '');
+  out = out.replace(/<\/h2>\s*<p>\s*(?=<div[^>]*wp-premium-faq-group)/gi, '</h2>');
+  out = out.replace(/<p>\s*(?=<div[^>]*wp-premium-faq-group)/gi, '');
+  out = out.replace(/<\/style>\s*(?=<div[^>]*wp-premium-faq-group)/gi, '');
+  out = out.replace(/<p>\s*<\/p>/gi, '');
+  return out;
+}
+
 /** Every FAQ format on pages & blogs → one animated accordion system. */
 export function transformAllFaqs(html: string): string {
   let out = html;
@@ -914,6 +1132,7 @@ export function transformAllFaqs(html: string): string {
   out = transformWpsmAccordions(out);
   out = transformWpFaqParagraphs(out);
   out = transformRemainingFaqSections(out);
+  out = stripFaqSectionJunk(out);
   return out;
 }
 
@@ -941,6 +1160,7 @@ export function prepareWpHtml(
   out = stripBrokenIconWidgets(out);
   out = stripWpInlineTypography(out);
   out = normalizeElementorIconListItems(out);
+  out = normalizeAdmissionListItems(out);
   out = normalizeBoldTitleDescriptionItems(out);
   out = normalizeListItemSpans(out);
   out = transformLongListsToGrid(out);
@@ -948,6 +1168,7 @@ export function prepareWpHtml(
   out = simplifyIconChipGridLists(out);
   out = transformEaelAccordions(out);
   out = transformAllFaqs(out);
+  out = stripFaqSectionJunk(out);
   out = replaceBrokenEmbeddedForms(out);
   out = constrainInlineSvgs(out);
   out = wireCtaButtonsToContact(out);

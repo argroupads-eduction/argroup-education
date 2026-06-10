@@ -1,6 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
 import { marketingContentEditor } from '@/fields/contentLexicalEditor'
+import { htmlBodyField } from '@/fields/htmlBodyField'
+import { seoContentFields } from '@/fields/seoContentFields'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
@@ -79,25 +81,16 @@ export const Posts: CollectionConfig<'posts'> = {
                   'Blog hero image on the live site. Upload or pick from Media library to change it.',
               },
             },
+            htmlBodyField('Full article body (HTML)'),
             {
               name: 'content',
               type: 'richText',
               editor: marketingContentEditor,
-              label: 'Article content',
-              required: true,
+              label: 'Visual editor (optional)',
+              required: false,
               admin: {
                 description:
-                  'Edit headings, bold text, lists, tables, and images visually — SEO-friendly like the live blog.',
-              },
-            },
-            {
-              name: 'htmlContent',
-              type: 'textarea',
-              maxLength: 1000000,
-              label: 'Legacy WordPress HTML',
-              admin: {
-                hidden: true,
-                description: 'Imported WP HTML backup. The visual editor above is used on the live site.',
+                  'Optional WYSIWYG editor. For imported blog posts, edit the HTML field above — it controls the live article.',
               },
             },
             {
@@ -166,6 +159,7 @@ export const Posts: CollectionConfig<'posts'> = {
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
             }),
+            ...seoContentFields,
           ],
         },
       ],

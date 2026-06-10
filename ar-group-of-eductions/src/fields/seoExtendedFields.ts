@@ -9,12 +9,6 @@ export const seoExtendedFields: Field[] = [
     admin: { position: 'sidebar' },
   },
   {
-    name: 'focusKeyword',
-    type: 'text',
-    label: 'Focus keyword',
-    admin: { position: 'sidebar' },
-  },
-  {
     name: 'ogImageUrl',
     type: 'text',
     label: 'OG image URL (imported)',

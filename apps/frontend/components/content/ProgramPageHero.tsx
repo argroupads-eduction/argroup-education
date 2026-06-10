@@ -23,6 +23,39 @@ const THEME_STYLES: Record<ProgramTheme, string> = {
   default: 'bg-gradient-to-br from-slate-900 via-navy-900 to-slate-800',
 };
 
+/** Split long college titles so year/pipe segments never overlap the name line. */
+function renderHeroTitle(title: string) {
+  const normalized = title.replace(/\s*\|\s*/g, ' · ').replace(/\s+/g, ' ').trim();
+  const yearSplit = normalized.match(/^(.+?)\s+(\d{4}[-–]\d{2,4})(.*)$/);
+
+  if (yearSplit) {
+    const [, name, year, rest] = yearSplit;
+    const tail = `${year}${rest}`.trim();
+    return (
+      <>
+        <span className="block leading-snug">{name.trim()}</span>
+        <span className="mt-1.5 block text-[0.9em] font-semibold leading-normal tracking-wide text-white/95 sm:text-[0.88em]">
+          {tail}
+        </span>
+      </>
+    );
+  }
+
+  const dotParts = normalized.split(' · ');
+  if (dotParts.length >= 2) {
+    return (
+      <>
+        <span className="block leading-snug">{dotParts[0]}</span>
+        <span className="mt-1.5 block text-[0.9em] font-semibold leading-normal tracking-wide text-white/95 sm:text-[0.88em]">
+          {dotParts.slice(1).join(' · ')}
+        </span>
+      </>
+    );
+  }
+
+  return normalized;
+}
+
 export function ProgramPageHero({
   title,
   subtitle,
@@ -47,8 +80,8 @@ export function ProgramPageHero({
                 {badge}
               </span>
             ) : null}
-            <h1 className="max-w-4xl font-serif text-2xl font-bold leading-tight text-white sm:text-3xl md:text-4xl lg:text-[2.75rem]">
-              {title}
+            <h1 className="max-w-4xl break-words font-serif text-2xl font-bold tracking-normal text-white [font-kerning:normal] [overflow-wrap:anywhere] sm:text-3xl md:text-4xl lg:text-[2.65rem]">
+              {renderHeroTitle(title)}
             </h1>
             {subtitle ? (
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-blue-100/90 md:text-lg">{subtitle}</p>

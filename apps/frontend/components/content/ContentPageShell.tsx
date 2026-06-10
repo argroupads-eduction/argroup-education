@@ -131,7 +131,7 @@ export function ContentPageShell({
               : 'min-w-0'
           }
         >
-          <div className="min-w-0 overflow-x-hidden">
+          <div className="min-w-0">
             {isAbroadHub ? <MbbsAbroadWpEnhancer /> : null}
             <ContentArticle
               {...articleProps}
