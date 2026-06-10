@@ -10,6 +10,7 @@ import { WpLazyReveal } from '@/components/content/WpLazyReveal';
 import { BlogImage } from './BlogImage';
 import { BlogLatestSidebar } from './BlogLatestSidebar';
 import { formatBlogDate, readingTimeMinutes } from '@/lib/blogUtils';
+import { CONTACT_INFO } from '@/lib/constants';
 import { sanitizeCmsHtml } from '@/lib/sanitizeCmsHtml';
 
 type BlogPostLayoutProps = {
@@ -138,10 +139,10 @@ function BlogPostFooter() {
           Book expert counselling
         </Link>
         <a
-          href="tel:+917076909090"
+          href={`tel:${CONTACT_INFO.phoneTel}`}
           className="inline-flex min-h-[44px] items-center justify-center rounded-full border-2 border-navy-900/15 px-6 py-2.5 text-sm font-semibold text-navy-900 hover:border-gold-400"
         >
-          +91-7076909090
+          {CONTACT_INFO.phone}
         </a>
       </div>
     </div>

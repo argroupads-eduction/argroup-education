@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { CounsellingForm } from '@/components/forms/CounsellingForm'
 import { Button } from '@/components/ui/Button'
+import { CONTACT_INFO } from '@/lib/constants'
 
 const COUNSELLING_POINTS = [
   {
@@ -106,7 +107,7 @@ export const CounsellingFormSection = () => {
               </div>
 
               <div className="mt-6 flex flex-wrap gap-2">
-                <Link href="tel:+918001234567" className="counselling-call-link">
+                <Link href={`tel:${CONTACT_INFO.phoneTel}`} className="counselling-call-link">
                   <Button
                     type="button"
                     variant="navy"

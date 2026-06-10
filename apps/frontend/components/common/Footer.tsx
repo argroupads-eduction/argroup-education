@@ -2,19 +2,16 @@
 
 import Link from 'next/link';
 import { useMemo } from 'react';
-import {
-  Facebook,
-  Instagram,
-  Linkedin,
-  Mail,
-  MapPin,
-  Phone,
-  Youtube,
-  Twitter,
-} from 'lucide-react';
+import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from 'lucide-react';
 import { BrandLogoLink } from '@/components/common/BrandLogoLink';
 import { Button } from '@/components/ui/Button';
-import { CONTACT_INFO, SITE_DESCRIPTION, SITE_NAME, SOCIAL_LINKS } from '@/lib/constants';
+import {
+  CONTACT_INFO,
+  FOOTER_SOCIAL_PLATFORMS,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SOCIAL_LINKS,
+} from '@/lib/constants';
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
 import { FooterAirportDiaries } from './footer/FooterAirportDiaries';
 import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
@@ -52,12 +49,8 @@ function socialIcon(platform: string) {
       return Facebook;
     case 'instagram':
       return Instagram;
-    case 'linkedin':
-      return Linkedin;
     case 'youtube':
       return Youtube;
-    case 'twitter':
-      return Twitter;
     default:
       return null;
   }
@@ -101,9 +94,9 @@ export const Footer = () => {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/ar-group-logo.png"
-                  alt=""
-                  width={88}
-                  height={88}
+                  alt="AR Group of Education"
+                  width={84}
+                  height={84}
                   className="brand-logo-link__img"
                   loading="lazy"
                   decoding="async"
@@ -176,16 +169,24 @@ export const Footer = () => {
             {/* Partner brand, Collegedunias */}
             <div className="site-footer-main__partner">
               <p className="site-footer-main__partner-label">Partner brand</p>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/collegedunias-logo.png"
-                alt="Collegedunias, Surety to Success"
-                width={168}
-                height={72}
-                className="site-footer-main__partner-logo"
-                loading="lazy"
-                decoding="async"
-              />
+              <a
+                href="https://collegedunias.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="site-footer-main__partner-link"
+                aria-label="Collegedunias — Surety to Success"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/collegedunias-logo.png"
+                  alt="Collegedunias, Surety to Success"
+                  width={168}
+                  height={72}
+                  className="site-footer-main__partner-logo"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
               <p className="site-footer-main__partner-tag">&ldquo;Surety to Success&rdquo;</p>
             </div>
           </div>
@@ -193,22 +194,28 @@ export const Footer = () => {
           <div className="site-footer-main__bottom">
             <div className="site-footer-main__social">
               <span className="site-footer-main__social-label">Follow us</span>
-              {socialLinks.map((social) => {
-                const Icon = socialIcon(social.platform);
-                if (!Icon || social.platform === 'whatsapp') return null;
-                return (
-                  <a
-                    key={social.platform}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="site-footer-main__social-link"
-                    aria-label={social.platform}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </a>
-                );
-              })}
+              {socialLinks
+                .filter((social) =>
+                  FOOTER_SOCIAL_PLATFORMS.includes(
+                    social.platform as (typeof FOOTER_SOCIAL_PLATFORMS)[number]
+                  )
+                )
+                .map((social) => {
+                  const Icon = socialIcon(social.platform);
+                  if (!Icon) return null;
+                  return (
+                    <a
+                      key={social.platform}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`site-footer-main__social-link site-footer-main__social-link--${social.platform}`}
+                      aria-label={social.platform}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                    </a>
+                  );
+                })}
             </div>
             <div className="site-footer-main__legal">
               <Link href="/privacy">Privacy</Link>

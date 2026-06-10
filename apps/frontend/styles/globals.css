@@ -77,7 +77,9 @@
       .counselling-form-submit
     ):not(.nav-mega-hub):not(.wp-premium-btn):not(.wp-premium-btn-primary    ):not(.wp-premium-btn-outline):not(.site-gold-cta):not(.contact-channel):not(
       .contact-footer-link
-    ):not(.thank-you-page__link):not(.nav-latest-updates-item):not(.nav-latest-updates-flyout-item) {
+    ):not(.thank-you-page__link):not(.nav-latest-updates-item):not(.nav-latest-updates-flyout-item):not(
+      .site-footer-main__social-link
+    ):not(.site-topbar-social-link) {
     @apply text-gold-600;
   }
 

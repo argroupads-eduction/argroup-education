@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { CTA_SCHEDULE_EXPERT_COUNSELLING } from '@/lib/brandCopy'
+import { CONTACT_INFO } from '@/lib/constants'
 import { openLeadCapturePopup } from '@/lib/openLeadCapture'
 
 const ESTABLISHED_YEAR = 2005
@@ -213,7 +214,7 @@ export const AboutSection = () => {
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
               <a
-                href="https://wa.me/919999999999"
+                href={CONTACT_INFO.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ui-btn ui-btn--secondary ui-btn--lg w-full sm:w-auto"

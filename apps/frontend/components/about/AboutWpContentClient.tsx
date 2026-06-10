@@ -7,6 +7,7 @@ import type { ContentHeading, QuickFact } from '@/lib/wpContentStructure';
 import { WpFaqEnhancer } from '@/components/content/WpFaqEnhancer';
 import { WpLazyReveal } from '@/components/content/WpLazyReveal';
 import { QuickFactsGrid } from '@/components/content/QuickFactsGrid';
+import { CONTACT_INFO } from '@/lib/constants';
 
 type AboutWpContentClientProps = {
   html: string;
@@ -147,7 +148,7 @@ export function AboutWpContentClient({
               <ArrowRight className="h-4 w-4" />
             </Link>
             <a
-              href="tel:+917076909090"
+              href={`tel:${CONTACT_INFO.phoneTel}`}
               className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-900 transition hover:border-gold-400"
             >
               <Phone className="h-4 w-4" />
