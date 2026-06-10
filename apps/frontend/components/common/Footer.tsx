@@ -171,28 +171,27 @@ export const Footer = () => {
               </div>
             </div>
 
-            {/* Partner brand, Collegedunias */}
+            {/* Partner brand — Collegedunias */}
             <div className="site-footer-main__partner">
-              <p className="site-footer-main__partner-label">Partner brand</p>
+              <p className="site-footer-main__partner-label">Our Partner</p>
               <a
                 href="https://collegedunias.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="site-footer-main__partner-link"
-                aria-label="Collegedunias — Surety to Success"
+                aria-label="Collegedunias — our partner brand"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/collegedunias-logo.png"
-                  alt="Collegedunias, Surety to Success"
-                  width={168}
-                  height={72}
+                  alt="Collegedunias"
+                  width={240}
+                  height={88}
                   className="site-footer-main__partner-logo"
                   loading="lazy"
                   decoding="async"
                 />
               </a>
-              <p className="site-footer-main__partner-tag">&ldquo;Surety to Success&rdquo;</p>
             </div>
           </div>
 

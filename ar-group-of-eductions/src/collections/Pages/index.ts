@@ -8,6 +8,8 @@ import { Content } from '../../blocks/Content/config'
 import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { marketingContentEditor } from '@/fields/contentLexicalEditor'
+import { htmlBodyField } from '@/fields/htmlBodyField'
+import { seoContentFields } from '@/fields/seoContentFields'
 import { hero } from '@/heros/config'
 import { slugField } from 'payload'
 import { seoExtendedFields } from '@/fields/seoExtendedFields'
@@ -84,15 +86,16 @@ export const Pages: CollectionConfig<'pages'> = {
                   'Main page image (hero). Shown on the live site and in search previews. Upload or pick from Media library.',
               },
             },
+            htmlBodyField('Full page body (HTML)'),
             {
               name: 'content',
               type: 'richText',
               editor: marketingContentEditor,
-              label: 'Page content',
+              label: 'Visual editor (optional)',
               required: false,
               admin: {
                 description:
-                  'Edit headings, bold text, lists, tables, and images visually — same structure as the live site.',
+                  'Optional WYSIWYG editor for short sections. For imported WordPress pages, edit the HTML field above — it controls the live site.',
               },
             },
             {
@@ -103,17 +106,7 @@ export const Pages: CollectionConfig<'pages'> = {
               admin: {
                 initCollapsed: true,
                 description:
-                  'Optional extra sections below the hero content. Hero tab text is always shown on the page body.',
-              },
-            },
-            {
-              name: 'htmlContent',
-              type: 'textarea',
-              maxLength: 1000000,
-              label: 'Legacy WordPress HTML',
-              admin: {
-                hidden: true,
-                description: 'Imported WP HTML backup. The visual editor above is used on the live site.',
+                  'Legacy layout blocks from import (usually a short excerpt). Ignore for full pages — use the HTML field above.',
               },
             },
             {
@@ -152,6 +145,7 @@ export const Pages: CollectionConfig<'pages'> = {
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
             }),
+            ...seoContentFields,
           ],
         },
       ],

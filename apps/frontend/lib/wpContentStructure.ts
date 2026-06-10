@@ -115,8 +115,28 @@ export function wrapContentSections(html: string): string {
 
 /** Wrap tables for aligned layout + horizontal scroll on mobile (content unchanged). */
 export function wrapContentTables(html: string): string {
-  return html.replace(/<table\b[\s\S]*?<\/table>/gi, (table) => {
+  const withEaelMerged = html.replace(
+    /<div\b([^>]*\beael-data-table-wrap\b[^>]*)>\s*(<table\b[\s\S]*?<\/table>)\s*<\/div>/gi,
+    (_match, attrs: string, table: string) => {
+      if (/\bwp-table-scroll\b/.test(attrs)) {
+        return `<div${attrs}>${table}</div>`;
+      }
+      if (/class\s*=\s*"/i.test(attrs)) {
+        return `<div${attrs.replace(/class\s*=\s*"/i, 'class="wp-table-scroll ')}>${table}</div>`;
+      }
+      if (/class\s*=\s*'/i.test(attrs)) {
+        return `<div${attrs.replace(/class\s*=\s*'/i, "class='wp-table-scroll ")}>${table}</div>`;
+      }
+      return `<div class="eael-data-table-wrap wp-table-scroll">${table}</div>`;
+    }
+  );
+
+  return withEaelMerged.replace(/<table\b[\s\S]*?<\/table>/gi, (table, offset, source) => {
     if (table.includes('wp-table-scroll')) return table;
+    const before = source.slice(Math.max(0, offset - 160), offset);
+    if (/\bwp-table-scroll\b[^>]*>\s*$/i.test(before) || /\beael-data-table-wrap\b[^>]*>\s*$/i.test(before)) {
+      return table;
+    }
     return `<div class="wp-table-scroll">${table}</div>`;
   });
 }

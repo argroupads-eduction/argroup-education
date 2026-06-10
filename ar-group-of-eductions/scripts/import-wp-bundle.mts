@@ -45,12 +45,22 @@ type WpItem = {
   canonicalUrl?: string | null;
   ogImage?: string | null;
   keywords?: string[];
+  focusKeyword?: string | null;
 };
 
 function seoFieldsFromItem(item: WpItem) {
+  const keywords = Array.isArray(item.keywords)
+    ? item.keywords.map((k) => String(k).trim()).filter(Boolean)
+    : [];
+  const focusKeyword =
+    (typeof item.focusKeyword === 'string' && item.focusKeyword.trim()) ||
+    keywords[0] ||
+    null;
+
   return {
     canonicalUrl: item.canonicalUrl ?? null,
-    focusKeyword: null as string | null,
+    focusKeyword,
+    seoKeywords: keywords.length > 1 ? keywords.slice(1) : keywords,
     ogImageUrl: item.ogImage ?? item.featuredImage ?? null,
     schemaJson: null as Record<string, unknown> | null,
   };

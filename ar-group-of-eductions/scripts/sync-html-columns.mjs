@@ -12,12 +12,14 @@ dotenv.config({ path: path.join(__dirname, '../.env'), override: true });
 
 const sql = `
 ALTER TABLE IF EXISTS posts ADD COLUMN IF NOT EXISTS html_content text;
+ALTER TABLE IF EXISTS posts ALTER COLUMN html_content TYPE text;
 ALTER TABLE IF EXISTS posts ADD COLUMN IF NOT EXISTS featured_image_url varchar;
 ALTER TABLE IF EXISTS posts ADD COLUMN IF NOT EXISTS content jsonb;
 ALTER TABLE IF EXISTS _posts_v ADD COLUMN IF NOT EXISTS version_html_content text;
 ALTER TABLE IF EXISTS _posts_v ADD COLUMN IF NOT EXISTS version_featured_image_url varchar;
 ALTER TABLE IF EXISTS _posts_v ADD COLUMN IF NOT EXISTS version_content jsonb;
 ALTER TABLE IF EXISTS pages ADD COLUMN IF NOT EXISTS html_content text;
+ALTER TABLE IF EXISTS pages ALTER COLUMN html_content TYPE text;
 ALTER TABLE IF EXISTS pages ADD COLUMN IF NOT EXISTS featured_image_url varchar;
 ALTER TABLE IF EXISTS pages ADD COLUMN IF NOT EXISTS content jsonb;
 ALTER TABLE IF EXISTS pages ADD COLUMN IF NOT EXISTS featured_image_id integer;

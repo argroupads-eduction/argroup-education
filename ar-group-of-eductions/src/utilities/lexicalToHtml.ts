@@ -339,13 +339,21 @@ export function htmlFromPayloadDoc(doc: {
   layout?: unknown
   hero?: { richText?: unknown } | null
 }): string {
+  const htmlContent =
+    typeof doc.htmlContent === 'string' ? doc.htmlContent.trim() : ''
   const fromContent = lexicalToHtml(doc.content)
+
+  // Imported WP pages: full HTML body is the source of truth when present.
+  if (htmlContent.length > 400) {
+    return htmlContent
+  }
+
   if (hasSubstantialLexicalContent(doc.content) && fromContent.trim()) {
     return fromContent
   }
 
-  if (typeof doc.htmlContent === 'string' && doc.htmlContent.trim()) {
-    return doc.htmlContent
+  if (htmlContent) {
+    return htmlContent
   }
 
   if (fromContent.trim()) return fromContent

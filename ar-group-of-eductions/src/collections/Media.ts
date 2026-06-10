@@ -23,9 +23,9 @@ export const Media: CollectionConfig = {
   admin: {
     group: 'Website content',
     description:
-      'Uploaded images. Run `npm run wp:import:media` to import featured images from the WordPress export.',
+      'Uploaded images. Run `npm run import:wp-media` to import featured images from the WordPress export.',
+    useAsTitle: 'filename',
   },
-  folders: true,
   access: {
     create: authenticated,
     delete: authenticated,
@@ -48,11 +48,22 @@ export const Media: CollectionConfig = {
       }),
     },
   ],
+  hooks: {
+    afterRead: [
+      ({ doc }) => {
+        if (doc && !doc.url && typeof doc.filename === 'string' && doc.filename) {
+          doc.url = `/media/${doc.filename}`
+        }
+        return doc
+      },
+    ],
+  },
   upload: {
-    // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
     staticDir: path.resolve(dirname, '../../public/media'),
+    staticURL: '/media',
     adminThumbnail: 'thumbnail',
     focalPoint: true,
+    mimeTypes: ['image/*'],
     imageSizes: [
       {
         name: 'thumbnail',
