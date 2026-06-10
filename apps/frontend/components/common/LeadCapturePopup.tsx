@@ -264,7 +264,7 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
 
       {!isMobileSheet && (
       <motion.div
-        className="relative mt-5 h-[12.75rem] w-full overflow-hidden rounded-xl sm:h-[14.25rem]"
+        className="relative mt-5 aspect-[650/326] w-full overflow-hidden rounded-xl"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.4 }}
@@ -276,13 +276,6 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
           className="object-contain object-center"
           sizes="(max-width: 768px) 90vw, 400px"
         />
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-t from-navy-950/95 via-navy-900/55 to-transparent"
-          aria-hidden
-        />
-        <p className="absolute bottom-2.5 left-3 right-3 text-[11px] font-semibold leading-snug text-white md:text-xs">
-          Studying MBBS at Top Universities Abroad
-        </p>
       </motion.div>
       )}
 
