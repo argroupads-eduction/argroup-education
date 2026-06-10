@@ -34,6 +34,7 @@ import {
   ABOUT_TRUST_PILLARS,
   ABOUT_VISION,
 } from '@/lib/aboutContent';
+import { CONTACT_INFO } from '@/lib/constants';
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
 import '@/styles/about-page.css';
 
@@ -441,7 +442,7 @@ export function AboutPageView() {
                 </Button>
               </Link>
               <a
-                href="https://wa.me/919999999999"
+                href={CONTACT_INFO.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-white/25 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/15"

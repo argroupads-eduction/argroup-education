@@ -9,12 +9,12 @@ import {
   Mail,
   Facebook,
   Instagram,
-  Linkedin,
+  Youtube,
   MessageCircle,
   ChevronDown,
 } from 'lucide-react';
 import { CTA_EXPERT_COUNSELLING } from '@/lib/brandCopy';
-import { CONTACT_INFO, NAV_LINKS } from '@/lib/constants';
+import { CONTACT_INFO, FOOTER_SOCIAL_PLATFORMS, NAV_LINKS, SOCIAL_LINKS } from '@/lib/constants';
 import { openLeadCapturePopup } from '@/lib/openLeadCapture';
 import { NeetRankNavCta } from '@/components/common/NeetRankNavCta';
 import { MbbsIndiaNavMegaMenu } from '@/components/common/MbbsIndiaNavMegaMenu';
@@ -123,15 +123,33 @@ export const Navbar = () => {
             </a>
           </div>
           <div className="site-topbar-social">
-            <a href="#" aria-label="Facebook">
-              <Facebook className="h-4 w-4" />
-            </a>
-            <a href="#" aria-label="Instagram">
-              <Instagram className="h-4 w-4" />
-            </a>
-            <a href="#" aria-label="LinkedIn">
-              <Linkedin className="h-4 w-4" />
-            </a>
+            {SOCIAL_LINKS.filter((social) =>
+              FOOTER_SOCIAL_PLATFORMS.includes(
+                social.platform as (typeof FOOTER_SOCIAL_PLATFORMS)[number]
+              )
+            ).map((social) => {
+              const Icon =
+                social.platform === 'facebook'
+                  ? Facebook
+                  : social.platform === 'instagram'
+                    ? Instagram
+                    : social.platform === 'youtube'
+                      ? Youtube
+                      : null;
+              if (!Icon) return null;
+              return (
+                <a
+                  key={social.platform}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`site-topbar-social-link site-topbar-social-link--${social.platform}`}
+                  aria-label={social.platform}
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -147,11 +165,11 @@ export const Navbar = () => {
           <div className="site-navbar-inner relative mx-auto max-w-[84rem] overflow-visible px-4 xl:px-6">
             {/* Logo, contained inside navbar height */}
             <div className="site-navbar-logo" onMouseEnter={forceClose}>
-              <BrandLogoLink frameClassName="brand-logo-link__frame--nav">
+              <BrandLogoLink frameClassName="brand-logo-link__frame--nav-wide">
                 <img
                   src="/ar-group-logo.png"
                   alt="AR Group of Education"
-                  width={56}
+                  width={140}
                   height={56}
                   decoding="async"
                   fetchPriority="high"
@@ -608,7 +626,7 @@ export const Navbar = () => {
 
       {/* WhatsApp Floating Button */}
       <a
-        href="https://wa.me/919999999999"
+        href={CONTACT_INFO.whatsapp}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 text-white rounded-full shadow-lg flex items-center justify-center z-40 hover:bg-green-600 hover:scale-105 active:scale-95 transition-transform duration-200"

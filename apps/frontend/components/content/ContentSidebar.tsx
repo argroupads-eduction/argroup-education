@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Phone, MessageCircle, GraduationCap } from 'lucide-react';
+import { CONTACT_INFO } from '@/lib/constants';
 
 export function ContentSidebar() {
   return (
@@ -21,11 +22,11 @@ export function ContentSidebar() {
             Book consultation
           </Link>
           <a
-            href="tel:+917076909090"
+            href={`tel:${CONTACT_INFO.phoneTel}`}
             className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/5 px-4 py-3 text-sm font-semibold transition hover:bg-white/10"
           >
             <Phone className="h-4 w-4 text-gold-400" />
-            +91-7076909090
+            {CONTACT_INFO.phone}
           </a>
         </div>
       </div>

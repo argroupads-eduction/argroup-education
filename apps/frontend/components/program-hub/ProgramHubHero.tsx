@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { ContentBreadcrumbs, type BreadcrumbItem } from '@/components/content/ContentBreadcrumbs';
+import { CONTACT_INFO } from '@/lib/constants';
 import type { ProgramHubTheme } from '@/lib/programHubContent';
 
 type ProgramHubHeroProps = {
@@ -39,8 +40,8 @@ export function ProgramHubHero({ theme, badge, title, lead, stats, breadcrumbs }
             Expert counselling
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
-          <a href="tel:+917076909090" className="program-hub-btn-ghost">
-            Call +91-7076909090
+          <a href={`tel:${CONTACT_INFO.phoneTel}`} className="program-hub-btn-ghost">
+            Call {CONTACT_INFO.phone}
           </a>
         </div>
       </div>

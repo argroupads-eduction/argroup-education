@@ -32,14 +32,14 @@ const SOCIAL_LINKS = [
   { platform: 'youtube', url: 'https://youtube.com/@argroupedu' },
   { platform: 'linkedin', url: 'https://linkedin.com/company/argroupedu' },
   { platform: 'twitter', url: 'https://twitter.com/argroupedu' },
-  { platform: 'whatsapp', url: 'https://wa.me/917076909090' },
+  { platform: 'whatsapp', url: 'https://wa.me/919667006402' },
 ];
 
 const CONTACT = {
   phone: '+91-7076909090',
   phoneTel: '+917076909090',
-  email: 'info@argroup.edu',
-  whatsapp: 'https://wa.me/917076909090',
+  email: 'info@argroupofeducation.com',
+  whatsapp: 'https://wa.me/919667006402',
   address: 'Sector 18, Noida · Wave Silver Tower, Office 523',
   hours: '24×7 — open all week',
 };

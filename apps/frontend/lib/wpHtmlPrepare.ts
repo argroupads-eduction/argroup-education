@@ -1,5 +1,6 @@
 /** Prepare migrated WordPress HTML for premium display (content unchanged semantically). */
 
+import { CONTACT_INFO } from '@/lib/constants';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { rewriteInternalLinks } from '@/lib/rewriteInternalLinks';
 
@@ -110,7 +111,7 @@ const PREMIUM_ENQUIRY_CTA = `<div class="wp-premium-enquiry">
       <p class="wp-premium-enquiry-text">Speak with our admission counsellors for personalised guidance on fees, eligibility, and seat booking.</p>
       <div class="wp-premium-enquiry-actions">
         <a href="/contact" class="wp-premium-btn wp-premium-btn-primary">Book expert counselling</a>
-        <a href="tel:+917076909090" class="wp-premium-btn wp-premium-btn-outline">Call +91-7076909090</a>
+        <a href="tel:${CONTACT_INFO.phoneTel}" class="wp-premium-btn wp-premium-btn-outline">Call ${CONTACT_INFO.phone}</a>
       </div>
     </div>`;
 

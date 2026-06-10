@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FitImage } from '@/components/ui/FitImage';
 import { ArrowRight, Phone } from 'lucide-react';
+import { CONTACT_INFO } from '@/lib/constants';
 import { ContentBreadcrumbs, type BreadcrumbItem } from './ContentBreadcrumbs';
 
 type ProgramTheme = 'india' | 'abroad' | 'mdms' | 'default';
@@ -74,11 +75,11 @@ export function ProgramPageHero({
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a
-                href="tel:+917076909090"
+                href={`tel:${CONTACT_INFO.phoneTel}`}
                 className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/10 sm:w-auto"
               >
                 <Phone className="h-4 w-4" />
-                +91-7076909090
+                {CONTACT_INFO.phone}
               </a>
             </div>
           </div>

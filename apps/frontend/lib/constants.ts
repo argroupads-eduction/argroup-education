@@ -240,22 +240,22 @@ export const FAQ_DATA = [
   },
 ] as const;
 
-// Social Links
+// Social Links (footer + topbar)
 export const SOCIAL_LINKS = [
-  { platform: 'facebook', url: 'https://facebook.com/argroupedu' },
-  { platform: 'instagram', url: 'https://instagram.com/argroupedu' },
-  { platform: 'youtube', url: 'https://youtube.com/@argroupedu' },
-  { platform: 'linkedin', url: 'https://linkedin.com/company/argroupedu' },
-  { platform: 'twitter', url: 'https://twitter.com/argroupedu' },
-  { platform: 'whatsapp', url: 'https://wa.me/917076909090' },
+  { platform: 'facebook', url: 'https://www.facebook.com/argroupeducation' },
+  { platform: 'instagram', url: 'https://www.instagram.com/argroupofeducation1/' },
+  { platform: 'youtube', url: 'https://www.youtube.com/@argroupofeducation' },
+  { platform: 'whatsapp', url: 'https://wa.me/919667006402' },
 ] as const;
+
+export const FOOTER_SOCIAL_PLATFORMS = ['facebook', 'instagram', 'youtube'] as const;
 
 // Contact Info
 export const CONTACT_INFO = {
   phone: '+91-7076909090',
   phoneTel: '+917076909090',
-  email: 'info@argroup.edu',
-  whatsapp: 'https://wa.me/917076909090',
+  email: 'info@argroupofeducation.com',
+  whatsapp: 'https://wa.me/919667006402',
   address: 'Sector 18, Noida · Wave Silver Tower, Office 523',
   addressLines: [
     'Sector 18, Noida',

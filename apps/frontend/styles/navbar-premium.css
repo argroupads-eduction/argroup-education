@@ -70,14 +70,25 @@
   gap: 0.65rem;
 }
 
-.site-topbar-social a {
+.site-topbar-social-link {
   display: inline-flex;
   color: #64748b;
   transition: color 0.2s ease;
 }
 
-.site-topbar-social a:hover {
-  color: #d97706;
+.site-topbar-social-link--facebook:hover,
+.site-topbar-social-link--facebook:hover svg {
+  color: #1877f2 !important;
+}
+
+.site-topbar-social-link--instagram:hover,
+.site-topbar-social-link--instagram:hover svg {
+  color: #e4405f !important;
+}
+
+.site-topbar-social-link--youtube:hover,
+.site-topbar-social-link--youtube:hover svg {
+  color: #ff0000 !important;
 }
 
 .site-navbar-inner {
