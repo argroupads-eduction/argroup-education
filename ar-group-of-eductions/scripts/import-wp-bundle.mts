@@ -60,7 +60,8 @@ function seoFieldsFromItem(item: WpItem) {
   return {
     canonicalUrl: item.canonicalUrl ?? null,
     focusKeyword,
-    seoKeywords: keywords.length > 1 ? keywords.slice(1) : keywords,
+    seoKeywords:
+      keywords.length > 1 ? keywords.slice(1).join(', ') : keywords[0] ? '' : '',
     ogImageUrl: item.ogImage ?? item.featuredImage ?? null,
     schemaJson: null as Record<string, unknown> | null,
   };

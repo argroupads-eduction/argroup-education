@@ -19,6 +19,18 @@ function run(cmd) {
   })
 }
 
+if (process.env.DATABASE_URL) {
+  console.log('[vercel-build] Syncing CMS database schema...')
+  try {
+    run('node scripts/sync-cms-runtime-schema.mjs')
+  } catch (error) {
+    console.error('[vercel-build] Schema sync failed:', error?.message ?? error)
+    process.exit(1)
+  }
+} else {
+  console.warn('[vercel-build] DATABASE_URL not set — skipping schema sync')
+}
+
 console.log('[vercel-build] Building Payload CMS (webpack, no turbo orchestration)...')
 
 run('npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack')

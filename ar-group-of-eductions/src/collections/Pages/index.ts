@@ -9,7 +9,7 @@ import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { marketingContentEditor } from '@/fields/contentLexicalEditor'
 import { htmlBodyField } from '@/fields/htmlBodyField'
-import { seoContentFields } from '@/fields/seoContentFields'
+import { seoKeywordFields } from '@/fields/seoContentFields'
 import { hero } from '@/heros/config'
 import { slugField } from 'payload'
 import { seoExtendedFields } from '@/fields/seoExtendedFields'
@@ -145,7 +145,6 @@ export const Pages: CollectionConfig<'pages'> = {
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
             }),
-            ...seoContentFields,
           ],
         },
       ],
@@ -226,6 +225,7 @@ export const Pages: CollectionConfig<'pages'> = {
         description: 'Original publish date from WP export. List is sorted by this (newest first).',
       },
     },
+    ...seoKeywordFields,
     ...seoExtendedFields,
     slugField(),
   ],
