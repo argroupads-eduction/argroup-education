@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { marketingContentEditor } from '@/fields/contentLexicalEditor'
 import { htmlBodyField } from '@/fields/htmlBodyField'
-import { seoContentFields } from '@/fields/seoContentFields'
+import { seoKeywordFields } from '@/fields/seoContentFields'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
@@ -159,11 +159,11 @@ export const Posts: CollectionConfig<'posts'> = {
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
             }),
-            ...seoContentFields,
           ],
         },
       ],
     },
+    ...seoKeywordFields,
     {
       name: 'publishedAt',
       type: 'date',

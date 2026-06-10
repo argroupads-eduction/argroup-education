@@ -235,14 +235,6 @@ export interface Page {
      */
     image?: (number | null) | Media;
     description?: string | null;
-    /**
-     * Primary SEO keyword for this page or post (e.g. MBBS in Nepal).
-     */
-    focusKeyword?: string | null;
-    /**
-     * Press Enter after each keyword. Used for search and internal tagging.
-     */
-    seoKeywords?: string[] | null;
   };
   /**
    * Choose where this page appears in the live site navigation.
@@ -264,6 +256,14 @@ export interface Page {
    * Original publish date from WP export. List is sorted by this (newest first).
    */
   publishedAt?: string | null;
+  /**
+   * Primary SEO keyword for this page or post (e.g. MBBS in Nepal).
+   */
+  focusKeyword?: string | null;
+  /**
+   * Comma-separated keywords for search and internal tagging.
+   */
+  seoKeywords?: string | null;
   canonicalUrl?: string | null;
   ogImageUrl?: string | null;
   robotsMeta?: string | null;
@@ -328,15 +328,15 @@ export interface Post {
      */
     image?: (number | null) | Media;
     description?: string | null;
-    /**
-     * Primary SEO keyword for this page or post (e.g. MBBS in Nepal).
-     */
-    focusKeyword?: string | null;
-    /**
-     * Press Enter after each keyword. Used for search and internal tagging.
-     */
-    seoKeywords?: string[] | null;
   };
+  /**
+   * Primary SEO keyword for this page or post (e.g. MBBS in Nepal).
+   */
+  focusKeyword?: string | null;
+  /**
+   * Comma-separated keywords for search and internal tagging.
+   */
+  seoKeywords?: string | null;
   /**
    * Original publish date from WP export. List is sorted by this (newest first).
    */
@@ -1170,8 +1170,6 @@ export interface PagesSelect<T extends boolean = true> {
         title?: T;
         image?: T;
         description?: T;
-        focusKeyword?: T;
-        seoKeywords?: T;
       };
   sitePlacement?:
     | T
@@ -1183,6 +1181,8 @@ export interface PagesSelect<T extends boolean = true> {
         navSortOrder?: T;
       };
   publishedAt?: T;
+  focusKeyword?: T;
+  seoKeywords?: T;
   canonicalUrl?: T;
   ogImageUrl?: T;
   robotsMeta?: T;
@@ -1295,9 +1295,9 @@ export interface PostsSelect<T extends boolean = true> {
         title?: T;
         image?: T;
         description?: T;
-        focusKeyword?: T;
-        seoKeywords?: T;
       };
+  focusKeyword?: T;
+  seoKeywords?: T;
   publishedAt?: T;
   authors?: T;
   populatedAuthors?:
