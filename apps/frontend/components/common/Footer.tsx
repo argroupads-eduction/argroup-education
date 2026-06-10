@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/Button';
 import {
   CONTACT_INFO,
   FOOTER_SOCIAL_PLATFORMS,
-  SITE_DESCRIPTION,
   SITE_NAME,
   SOCIAL_LINKS,
 } from '@/lib/constants';
@@ -102,7 +101,13 @@ export const Footer = () => {
                   decoding="async"
                 />
               </BrandLogoLink>
-              <p className="site-footer-main__desc">{SITE_DESCRIPTION}</p>
+              <p className="site-footer-main__desc">
+                <span className="font-semibold text-slate-200">AR Group</span> — your trusted partner
+                for{' '}
+                <span className="font-bold text-gold-400">MBBS INDIA</span> &amp;{' '}
+                <span className="font-bold text-gold-400">MBBS ABROAD</span> admissions, NEET
+                counselling &amp; end-to-end visa support.
+              </p>
               <Link href="/contact" className="mt-4 inline-block">
                 <Button variant="primary" size="md">
                   Talk To Advisor

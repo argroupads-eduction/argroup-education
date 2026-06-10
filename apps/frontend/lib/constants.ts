@@ -5,7 +5,8 @@ import { LATEST_UPDATES_NAV } from '@/lib/latestUpdatesNav';
 
 // Site Constants
 export const SITE_NAME = 'AR Group of Education';
-export const SITE_DESCRIPTION = 'Premium educational consultancy platform for medical education abroad';
+export const SITE_DESCRIPTION =
+  'AR Group — trusted experts for MBBS India & MBBS Abroad counselling, from NEET guidance to visa support.';
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroup.edu';
 import { getApiBaseUrl } from '@/lib/apiBase';
 
