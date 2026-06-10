@@ -60,7 +60,6 @@ export const Media: CollectionConfig = {
   },
   upload: {
     staticDir: path.resolve(dirname, '../../public/media'),
-    staticURL: '/media',
     adminThumbnail: 'thumbnail',
     focalPoint: true,
     mimeTypes: ['image/*'],
