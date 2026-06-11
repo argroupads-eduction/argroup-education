@@ -424,14 +424,16 @@
 }
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap tbody td:first-child {
-  width: 38%;
-  min-width: 7.5rem;
-  max-width: 42%;
+  width: 42%;
+  min-width: 9.5rem;
+  max-width: 48%;
   font-weight: 600;
   color: #0f172a !important;
   background: rgba(26, 54, 93, 0.04);
   border-left: 3px solid #d97706;
   text-align: left !important;
+  overflow-wrap: normal;
+  word-break: keep-all;
 }
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.eael-data-table.center th,
@@ -939,17 +941,20 @@
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody td:first-child,
 .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody td:first-child {
-  width: 36% !important;
-  min-width: 8.5rem !important;
-  max-width: 11rem !important;
+  width: 44% !important;
+  min-width: 9.75rem !important;
+  max-width: none !important;
   font-weight: 800 !important;
-  font-size: 0.8125rem !important;
-  letter-spacing: 0.05em;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #92400e !important;
   background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
   border-left: 4px solid #d97706 !important;
   border-radius: 0.65rem 0 0 0.65rem;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+  hyphens: none !important;
 }
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody td:last-child,
@@ -1845,8 +1850,21 @@
   display: block;
 }
 
+/* Hide duplicate Elementor thumb copies in flowing body copy only — not card/profile grids */
 .wp-content-root .wp-content-body img[src*='elementor/thumbs'] {
   display: none;
+}
+
+.wp-content-root .wp-university-profile img[src*='elementor/thumbs'],
+.wp-content-root .wp-college-card-grid img[src*='elementor/thumbs'],
+.wp-content-root .wp-mbbs-state-grid img[src*='elementor/thumbs'],
+.wp-content-root .jkit-image-box img[src*='elementor/thumbs'] {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: cover;
+  margin: 0 auto;
 }
 
 /* ── Premium tables — aligned, zebra rows, AR Group palette ── */

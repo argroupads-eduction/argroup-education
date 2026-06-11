@@ -296,7 +296,7 @@
       "navLabel": "Bangladesh",
       "href": "/mbbs-abroad/bangladesh",
       "wpSlug": "study-mbbs-in-bangladesh",
-      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/09/Night-view-Dhaka-Bangladesh.webp",
+      "featuredImage": "/mbbs-bangladesh-hero.png",
       "colleges": [
         {
           "name": "Dhaka National Medical College",
@@ -542,7 +542,7 @@
       "navLabel": "Serbia",
       "href": "/mbbs-abroad/serbia",
       "wpSlug": "mbbs-in-serbia",
-      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/06/MBBS-in-Serbia-1-1024x581.jpg",
+      "featuredImage": "/mbbs-serbia-hero.png",
       "colleges": [
         {
           "name": "University of Kragujevac, Serbia",
@@ -558,7 +558,7 @@
       "navLabel": "Iran",
       "href": "/mbbs-abroad/iran",
       "wpSlug": "mbbs-in-iran",
-      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/09/LICENSE_Mehrdad-Mzadeh-Tehran_c-Getty-Images_CNT-UK_Sophie-Knight-1024x576.webp"
+      "featuredImage": "/mbbs-iran-hero.png"
     },
     {
       "id": "bosnia",
@@ -566,7 +566,7 @@
       "navLabel": "Bosnia",
       "href": "/mbbs-abroad/bosnia",
       "wpSlug": "mbbs-in-bosnia",
-      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/04/news-Bosnia-1024x682.jpg",
+      "featuredImage": "/mbbs-bosnia-hero.png",
       "colleges": [
         {
           "name": "University of East Sarajevo, Bosnia",
@@ -582,7 +582,7 @@
       "navLabel": "Egypt",
       "href": "/mbbs-abroad/egypt",
       "wpSlug": "mbbs-in-egypt",
-      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/04/news-MBBS-in-Egypt-1024x682.jpg"
+      "featuredImage": "/mbbs-egypt-hero.png"
     },
     {
       "id": "vietnam",
@@ -590,7 +590,7 @@
       "navLabel": "Vietnam",
       "href": "/mbbs-abroad/vietnam",
       "wpSlug": "mbbs-in-vietnam",
-      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/04/1-news-MBBS-in-Vietnam-1024x682.jpg"
+      "featuredImage": "/mbbs-vietnam-hero.png"
     },
     {
       "id": "kyrgyzstan",
@@ -598,7 +598,7 @@
       "navLabel": "Kyrgyzstan",
       "href": "/mbbs-abroad/kyrgyzstan",
       "wpSlug": "study-mbbs-in-kyrgyzstan",
-      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-09-22-at-11.36.19-AM-rc4aemey4vdlw74dcgexyz1b67lbwcxfuib4sfq60w.jpeg",
+      "featuredImage": "/mbbs-kyrgyzstan-hero.png",
       "colleges": [
         {
           "name": "International School Of Medicine",
@@ -650,7 +650,7 @@
       "navLabel": "Philippines",
       "href": "/mbbs-abroad/philippines",
       "wpSlug": "mbbs-in-philippines-3-2",
-      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2022/07/phili.png",
+      "featuredImage": "/mbbs-philippines-hero.png",
       "colleges": [
         {
           "name": "AMA Medical College",
@@ -736,7 +736,7 @@
       "navLabel": "China",
       "href": "/mbbs-abroad/china",
       "wpSlug": "study-mbbs-in-china",
-      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/06/MBBS-in-China-1024x581.jpg",
+      "featuredImage": "/mbbs-china-hero.png",
       "colleges": [
         {
           "name": "Tianjin Medical University",
@@ -824,7 +824,7 @@
       "navLabel": "Romania",
       "href": "/mbbs-abroad/romania",
       "wpSlug": "mbbs-in-romania",
-      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/romania-5-qlx1jo3kjnnmytixyj9bspc5fv0xxa9enuvv4306d8.jpg"
+      "featuredImage": "/mbbs-romania-hero.png"
     },
     {
       "id": "asia",
