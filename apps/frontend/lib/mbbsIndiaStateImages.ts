@@ -14,6 +14,7 @@ export const MBBS_INDIA_STATE_FEATURED_IMAGES: Record<string, string> = {
   'mbbs-in-uttarakhand': '/states/uttarakhand.png',
   'mbbs-in-himachal-pradesh': '/states/himachal-pradesh.png',
   'mbbs-in-jharkhand': '/states/jharkhand.png',
+  'mbbs-in-chhattisgarh': '/states/chhattisgarh.png',
   'mbbs-in-sikkim': '/states/sikkim.png',
   'mbbs-in-pondicherry': '/states/pondicherry.png',
   'mbbs-in-kerala': '/states/kerala.png',

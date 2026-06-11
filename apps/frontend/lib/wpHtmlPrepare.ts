@@ -1,6 +1,7 @@
 /** Prepare migrated WordPress HTML for premium display (content unchanged semantically). */
 
 import { CONTACT_INFO } from '@/lib/constants';
+import { injectMbbsAbroadCountryImages } from '@/lib/mbbsAbroadCountryImages';
 import { injectMbbsIndiaStateImages } from '@/lib/mbbsIndiaStateImages';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { rewriteInternalLinks } from '@/lib/rewriteInternalLinks';
@@ -1490,6 +1491,7 @@ export function prepareWpHtml(
   out = highlightAddressBlocks(out);
   out = rewriteInternalLinks(out);
   out = injectMbbsIndiaStateImages(out, options?.pageSlug);
+  out = injectMbbsAbroadCountryImages(out, options?.pageSlug);
   return out;
 }
 

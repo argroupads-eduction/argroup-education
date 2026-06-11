@@ -14,6 +14,7 @@ import {
   isMbbsAbroadThreeLevel,
   mbbsAbroadCountryCollegeCount,
 } from '@/lib/mbbsAbroadTree';
+import { resolveMbbsAbroadFeaturedImage } from '@/lib/mbbsAbroadCountryImages';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
@@ -44,10 +45,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const wp = country.wpSlug ? await getContentBySlug(country.wpSlug) : null;
   if (wp) {
-    return buildSiteMetadata(wp, {
-      canonicalPath: country.href,
-      fallbackTitle: `MBBS in ${country.name}`,
-    });
+    const featuredImage = resolveMbbsAbroadFeaturedImage(
+      country.wpSlug,
+      country.featuredImage ?? wp.featuredImage
+    );
+    return buildSiteMetadata(
+      { ...wp, featuredImage, ogImage: featuredImage ?? wp.ogImage },
+      {
+        canonicalPath: country.href,
+        fallbackTitle: `MBBS in ${country.name}`,
+      }
+    );
   }
 
   return {
@@ -119,6 +127,10 @@ export default async function MbbsAbroadPage({ params }: PageProps) {
 
   const wpContent = country.wpSlug ? await getContentBySlug(country.wpSlug) : null;
   const title = plainTitle(wpContent?.title || `MBBS in ${country.name}`);
+  const featuredImage = resolveMbbsAbroadFeaturedImage(
+    country.wpSlug,
+    country.featuredImage ?? wpContent?.featuredImage
+  );
   const collegeCount = mbbsAbroadCountryCollegeCount(country);
   const breadcrumbs = [
     { label: 'MBBS Abroad', href: '/mbbs-abroad' },
@@ -143,15 +155,16 @@ export default async function MbbsAbroadPage({ params }: PageProps) {
               ]
             : undefined
         }
-        featuredImage={country.featuredImage ?? wpContent?.featuredImage}
+        featuredImage={featuredImage}
       />
 
       {wpContent ? (
         <ContentPageShell
           html={wpContent.content}
-          featuredImage={country.featuredImage ?? wpContent.featuredImage}
+          featuredImage={featuredImage}
           title={title}
           showFeaturedImage={false}
+          pageSlug={country.wpSlug}
         />
       ) : null}
 
