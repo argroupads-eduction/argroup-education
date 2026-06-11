@@ -383,7 +383,7 @@ function enhanceIconListItems(inner: string, linkify = false): string {
       const href = contactHrefForPlainText(text);
       let liAttrs = attrs;
       if (/\bclass="/i.test(liAttrs)) {
-        liAttrs = liAttrs.replace(/\bclass="([^"]*)"/i, (_, c) => `class="${c} wp-contact-card"`);
+        liAttrs = liAttrs.replace(/\bclass="([^"]*)"/i, (_: string, c: string) => `class="${c} wp-contact-card"`);
       } else {
         liAttrs = `${liAttrs} class="wp-contact-card"`;
       }
