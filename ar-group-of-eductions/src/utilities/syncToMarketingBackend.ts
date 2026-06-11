@@ -44,7 +44,7 @@ export async function syncToMarketingBackend(payload: SyncPayload): Promise<void
 
   if (!base || !secret) {
     console.error(
-      '[payload→backend sync] Missing BACKEND_API_URL or PAYLOAD_SYNC_SECRET. Set BACKEND_API_URL=https://argroup-education-frontend.vercel.app on production Payload.'
+      '[payload→backend sync] Missing BACKEND_API_URL or PAYLOAD_SYNC_SECRET. Set BACKEND_API_URL=https://argroupofeducation.com on production Payload.'
     )
     return
   }
