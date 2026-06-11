@@ -90,7 +90,7 @@ export function replaceMbbsIndiaStateGridImages(html: string): string {
       const stateImage = getMbbsIndiaStateFeaturedImage(slug);
       if (!stateImage || !/<img\b/i.test(inner)) return full;
 
-      const newInner = inner.replace(/<img\b([^>]*)>/i, (_img, imgAttrs) => {
+      const newInner = inner.replace(/<img\b([^>]*)>/i, (_img: string, imgAttrs: string) => {
         const cleaned = stripResponsiveImgAttrs(imgAttrs);
         return `<img${cleaned} src="${stateImage}" loading="lazy" decoding="async" class="wp-state-landmark-img">`;
       });
