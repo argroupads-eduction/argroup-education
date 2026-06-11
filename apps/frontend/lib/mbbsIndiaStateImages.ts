@@ -112,11 +112,22 @@ export function replaceStatePageContentImages(html: string, stateImage: string):
   });
 }
 
+/** Hub intro: drop duplicate image block between Key Highlights and body copy (keep top featured image). */
+export function stripMbbsIndiaHubBodyHeroImage(html: string, pageWpSlug?: string | null): string {
+  if (pageWpSlug !== 'mbbs-in-india') return html;
+  return html.replace(
+    /<section\b[^>]*\belementor-element-e05d4e3\b[^>]*>[\s\S]*?<\/section>\s*/i,
+    ''
+  );
+}
+
 /** Apply grid + per-page landmark swaps for MBBS India CMS HTML. */
 export function injectMbbsIndiaStateImages(html: string, pageWpSlug?: string | null): string {
   let out = replaceMbbsIndiaStateGridImages(html);
 
-  if (pageWpSlug && pageWpSlug !== 'mbbs-in-india') {
+  if (pageWpSlug === 'mbbs-in-india') {
+    out = stripMbbsIndiaHubBodyHeroImage(out, pageWpSlug);
+  } else if (pageWpSlug) {
     const stateImage = getMbbsIndiaStateFeaturedImage(pageWpSlug);
     if (stateImage) out = replaceStatePageContentImages(out, stateImage);
   }
