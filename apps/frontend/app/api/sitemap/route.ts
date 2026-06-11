@@ -13,7 +13,7 @@ function escapeXml(value: string): string {
 }
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroup.edu';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
 
   try {
     const entries = await buildDynamicSitemap(baseUrl);

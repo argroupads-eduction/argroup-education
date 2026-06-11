@@ -59,7 +59,7 @@ Do **not** leave Root Directory empty. There is no root `vercel.json`; building 
 
 Copy from **`apps/frontend/.env.example`**. Set at least:
 
-- `NEXT_PUBLIC_SITE_URL` — your production URL (e.g. `https://argroup-education-frontend.vercel.app`)
+- `NEXT_PUBLIC_SITE_URL` — your production URL (e.g. `https://argroupofeducation.com`)
 - `DATABASE_URL` — Neon **neondb** pooled connection string (blogs + Payload sync storage)
 - `PAYLOAD_SYNC_SECRET` — same value as Payload `ar-group-of-eductions/.env`
 - `PAYLOAD_CMS_ENABLED` — `false` (site reads DB via `/api/blogs`, not live Payload)

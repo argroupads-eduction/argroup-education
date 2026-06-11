@@ -39,7 +39,7 @@ export const generateSlug = (text: string): string => {
 };
 
 export const createCanonicalUrl = (path: string): string => {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroup.edu';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
   return `${baseUrl}${path}`;
 };
 

@@ -76,11 +76,11 @@ When you **publish** a post or page in Payload, it is copied to the marketing ba
 
 ```env
 # ar-group-of-eductions/.env (when you Publish from Payload admin)
-BACKEND_API_URL=https://argroup-education-frontend.vercel.app
+BACKEND_API_URL=https://argroupofeducation.com
 PAYLOAD_SYNC_SECRET=<long-random-string>
 
 # Vercel → Project → Environment Variables
-NEXT_PUBLIC_SITE_URL=https://argroup-education-frontend.vercel.app
+NEXT_PUBLIC_SITE_URL=https://argroupofeducation.com
 DATABASE_URL=<Neon neondb pooled URL>
 PAYLOAD_SYNC_SECRET=<same-string>
 PAYLOAD_CMS_ENABLED=false
