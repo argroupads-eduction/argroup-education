@@ -9,23 +9,23 @@ export type ProgramHubTheme = 'india' | 'abroad' | 'mdms';
 
 export const PROGRAM_HUB_SEO = {
   india: {
-    title: 'MBBS in India | State-wise Colleges, Fees & NEET Counselling',
+    title: 'Study MBBS in India 2026: Admission in Top Medical Colleges',
     description:
-      'Explore MBBS in India across all states. Compare medical colleges, fees, NEET cut-offs, eligibility & get expert admission counselling from AR Group of Education.',
+      'Plan your career and study MBBS in India. Learn about private medical colleges in India, fees, and eligibility. Call us now for expert advice!',
     path: '/mbbs-india',
     badge: 'MBBS in India',
   },
   abroad: {
-    title: 'MBBS Abroad | WHO-listed Universities & Admission Guide',
+    title: 'Study MBBS in Abroad for Indian Students | Low Cost Options',
     description:
-      'Study MBBS abroad in Russia, Nepal, Bangladesh, Kazakhstan & more. Compare fees, eligibility, visa process & get expert counselling.',
+      'Want to study MBBS in abroad for Indian students? Find MCI recognized universities abroad list and low cost options. Apply online for admissions!',
     path: '/mbbs-abroad',
     badge: 'MBBS Abroad',
   },
   mdms: {
-    title: 'MD/MS Admission in India | State-wise PG Medical Counselling',
+    title: 'MD/MS Admission in India 2026: Top PG Medical Colleges & Fees',
     description:
-      'MD/MS admission guidance across top Indian states. Counselling support, seat matrix insights & college selection from AR Group of Education.',
+      'Get direct MD/MS Admission in India without donation. Check top MD MS colleges in Uttar Pradesh and other states. Call our experts to book seats!',
     path: '/md-ms',
     badge: 'MD / MS',
   },

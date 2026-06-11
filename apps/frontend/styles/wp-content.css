@@ -71,29 +71,37 @@
   padding: 0 !important;
 }
 
+/* Inner sections use .elementor-container for columns — not grid on the section node */
 .wp-content-root .wp-content-body .elementor-inner-section {
-  display: grid !important;
-  gap: 1.5rem;
-  grid-template-columns: 1fr;
+  display: block !important;
+  margin: 1rem 0 0;
+  padding: 0 !important;
 }
 
 @media (min-width: 768px) {
   .wp-content-root .wp-content-body .elementor-inner-section .elementor-column {
-    width: 100% !important;
-  }
-
-  .wp-content-root .wp-content-body .elementor-inner-section:has(> .elementor-column:nth-child(2)) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: auto !important;
   }
 }
 
-/* ── State / college image card grids (only when image tiles present) ── */
+/* Local state landmark heroes — never crop, container follows image */
+.wp-content-root img[src^='/states/'],
+.wp-content-root .elementor-widget-image img[src^='/states/'] {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  aspect-ratio: auto !important;
+  display: block;
+}
+
+/* ── State / college image card grids (tile grids only — not 50/50 editorial splits) ── */
 .wp-content-root
   .elementor-section
   > .elementor-container:has(> .elementor-column:nth-child(2)):has(
     .elementor-widget-image,
     .jkit-image-box
-  ) {
+  ):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66)) {
   display: grid !important;
   grid-template-columns: 1fr;
   gap: 1.25rem;
@@ -106,7 +114,7 @@
     > .elementor-container:has(> .elementor-column:nth-child(2)):has(
       .elementor-widget-image,
       .jkit-image-box
-    ) {
+    ):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -127,7 +135,7 @@
   > .elementor-container:has(> .elementor-column:nth-child(2)):has(
     .elementor-widget-image,
     .jkit-image-box
-  )
+  ):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66))
   > .elementor-column {
   width: auto !important;
   max-width: none !important;
@@ -148,15 +156,882 @@
   > .elementor-container:has(> .elementor-column:nth-child(2)):has(
     .elementor-widget-image,
     .jkit-image-box
-  )
+  ):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66))
   > .elementor-column:hover {
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
   transform: translateY(-2px);
 }
 
+/* 50/50 editorial split (image + CTA | copy or data table) — top + inner sections */
+.wp-content-root .elementor-container.wp-editorial-split,
+.wp-content-root .elementor-container.wp-split-collapsed,
 .wp-content-root
   .elementor-section
-  > .elementor-container:has(> .elementor-column:nth-child(2))
+  > .elementor-container:has(> .elementor-column.elementor-col-50) {
+  display: grid !important;
+  gap: 1.25rem 1.75rem;
+  align-items: start !important;
+}
+
+/* Empty spacer column removed — content uses full width */
+.wp-content-root .elementor-container.wp-split-collapsed {
+  grid-template-columns: 1fr !important;
+}
+
+.wp-content-root .elementor-container.wp-split-collapsed > .elementor-column:first-child:has(.elementor-widget-spacer) {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .wp-content-root .elementor-container.wp-editorial-split,
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-50) {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  }
+}
+
+.wp-content-root .elementor-container.wp-editorial-split > .elementor-column,
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column.elementor-col-50)
+  > .elementor-column {
+  width: auto !important;
+  max-width: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: start !important;
+}
+
+.wp-content-root .elementor-container.wp-editorial-split > .elementor-column .elementor-widget-wrap,
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column.elementor-col-50)
+  > .elementor-column
+  .elementor-widget-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  height: auto !important;
+  min-height: 0 !important;
+  gap: 0.75rem;
+}
+
+.wp-content-root .elementor-col-50 .elementor-widget-text-editor,
+.wp-content-root .elementor-col-50 .elementor-widget-text-editor p,
+.wp-content-root .elementor-col-50 .elementor-heading-title {
+  text-align: left !important;
+}
+
+.wp-content-root .elementor-col-50 .elementor-widget-image {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+
+.wp-content-root .elementor-col-50 .elementor-widget-image img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  display: block;
+}
+
+.wp-content-root .elementor-col-50 .elementor-widget-button {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  align-self: flex-start;
+}
+
+/* Image then CTA — tight stack, never overlap (all layouts) */
+.wp-content-root .elementor-widget-image + .elementor-widget-button {
+  margin-top: 0.75rem !important;
+  padding: 0 !important;
+  position: relative !important;
+  z-index: 1;
+}
+
+.wp-content-root .elementor-widget-image + .elementor-widget-button .elementor-button,
+.wp-content-root .elementor-col-50 .elementor-widget-button .elementor-button {
+  position: static !important;
+  margin: 0 !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+}
+
+/* Data table column in 50/50 university blocks */
+.wp-content-root
+  .elementor-col-50
+  .elementor-widget-eael-data-table,
+.wp-content-root
+  .elementor-col-50
+  .eael-data-table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+/* ── University profile (image + CTA | facts table) — full-width premium layout ── */
+.wp-content-root .elementor-col-100 .elementor-widget-wrap > .wp-university-profile,
+.wp-content-root .wp-university-profile {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 1.75rem 0 2rem !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container,
+.wp-content-root .wp-university-profile-grid.elementor-container {
+  display: grid !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  grid-template-columns: 1fr !important;
+  gap: 1.25rem !important;
+  align-items: stretch !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 768px) {
+  .wp-content-root .wp-university-profile > .elementor-container,
+  .wp-content-root .wp-university-profile-grid.elementor-container {
+    grid-template-columns: minmax(260px, 34%) minmax(0, 1fr) !important;
+    gap: 1.5rem 2rem !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .wp-content-root .wp-university-profile > .elementor-container,
+  .wp-content-root .wp-university-profile-grid.elementor-container {
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr) !important;
+  }
+}
+
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column,
+.wp-content-root .wp-university-profile-grid > .elementor-column {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  flex: none !important;
+  align-self: stretch !important;
+}
+
+.wp-content-root .wp-university-profile .elementor-column .elementor-widget-wrap,
+.wp-content-root .wp-university-profile .elementor-widget-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Media + CTA column */
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:first-child .elementor-widget-wrap {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 10px 28px rgba(15, 23, 42, 0.07);
+  gap: 1rem !important;
+}
+
+.wp-content-root .wp-university-profile .elementor-widget-image img {
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+}
+
+.wp-content-root .wp-university-profile .elementor-widget-button {
+  align-self: stretch !important;
+  width: 100% !important;
+}
+
+.wp-content-root .wp-university-profile .elementor-widget-button .elementor-button {
+  width: 100%;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.25rem;
+  border-radius: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  box-shadow: 0 4px 14px rgba(26, 54, 93, 0.25);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.wp-content-root .wp-university-profile .elementor-widget-button .elementor-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(26, 54, 93, 0.32);
+}
+
+/* Facts table column — full width, never clip */
+.wp-content-root .wp-university-profile .elementor-widget-eael-data-table,
+.wp-content-root .wp-university-profile .eael-data-table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap {
+  margin: 0 !important;
+  border-radius: 1rem;
+  border: 1px solid #dbeafe;
+  box-shadow:
+    0 1px 2px rgba(26, 54, 93, 0.06),
+    0 10px 28px rgba(26, 54, 93, 0.08);
+}
+
+.wp-content-root .wp-university-profile .elementor-widget-eael-data-table,
+.wp-content-root .wp-university-profile .elementor-widget-eael-data-table .elementor-widget-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  text-align: left !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table {
+  width: 100% !important;
+  table-layout: fixed;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap thead th,
+.wp-content-root .wp-university-profile .eael-data-table-wrap tbody td {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap thead th {
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap tbody td {
+  padding: 0.7rem 1rem;
+  font-size: 0.9375rem;
+  vertical-align: top;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap tbody td:first-child {
+  width: 38%;
+  min-width: 7.5rem;
+  max-width: 42%;
+  font-weight: 600;
+  color: #0f172a !important;
+  background: rgba(26, 54, 93, 0.04);
+  border-left: 3px solid #d97706;
+  text-align: left !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.eael-data-table.center th,
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.eael-data-table.center td {
+  text-align: left !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap thead:empty {
+  display: none;
+}
+
+.wp-content-root .elementor-inner-section.wp-university-profile {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:first-child .elementor-widget-heading {
+  margin: 0 0 0.65rem !important;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:first-child .elementor-widget-heading .elementor-heading-title {
+  font-size: 1.05rem !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
+}
+
+/* 2-column key-value EAEL tables (college highlights) — readable label | value split */
+.wp-content-root .eael-data-table-wrap:has(tbody tr > td:nth-child(2):last-child) {
+  overflow: visible !important;
+}
+
+.wp-content-root .eael-data-table-wrap:has(tbody tr > td:nth-child(2):last-child) table {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.wp-content-root .eael-data-table-wrap:has(tbody tr > td:nth-child(2):last-child) tbody td {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.wp-content-root .eael-data-table-wrap:has(tbody tr > td:nth-child(2):last-child) tbody td:first-child {
+  width: 38% !important;
+  min-width: 7.5rem;
+  max-width: 42%;
+  font-weight: 600;
+  color: #0f172a !important;
+  background: rgba(26, 54, 93, 0.04);
+  border-left: 3px solid #d97706;
+  text-align: left !important;
+}
+
+.wp-content-root .eael-data-table-wrap:has(tbody tr > td:nth-child(2):last-child) tbody td:last-child {
+  width: auto !important;
+  color: #334155 !important;
+  text-align: left !important;
+}
+
+.wp-content-root .eael-data-table-wrap:has(tbody tr > td:nth-child(2):last-child) table.eael-data-table.center th,
+.wp-content-root .eael-data-table-wrap:has(tbody tr > td:nth-child(2):last-child) table.eael-data-table.center td {
+  text-align: left !important;
+}
+
+.wp-content-root .elementor-container.wp-editorial-split:has(.eael-data-table-wrap tbody tr > td:nth-child(2):last-child) > .elementor-column:last-child,
+.wp-content-root .wp-university-profile-grid > .elementor-column:last-child {
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+/* Mobile: stack media then table; rows stay readable (no clipped Details column) */
+@media (max-width: 1023px) {
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-50):has(.eael-data-table-wrap) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-50):has(.eael-data-table-wrap)
+    > .elementor-column {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .wp-content-root .elementor-col-50 .eael-data-table-wrap thead th,
+  .wp-content-root .elementor-col-50 .eael-data-table-wrap tbody td {
+    white-space: normal !important;
+    word-break: break-word;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap table {
+    table-layout: auto;
+    min-width: 0;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap thead {
+    display: none;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap tbody tr {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 42%) minmax(0, 1fr);
+    gap: 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap tbody td {
+    display: block;
+    width: auto !important;
+    padding: 0.7rem 0.85rem !important;
+    white-space: normal !important;
+    word-break: break-word;
+    border: none !important;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap tbody td:first-child {
+    font-weight: 700;
+    color: #1a365d !important;
+    background: #f8fafc;
+    border-left: 3px solid #d97706 !important;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap tbody td:last-child {
+    color: #334155 !important;
+    font-weight: 500;
+    text-align: left;
+    background: #fff;
+  }
+}
+
+/* 66/33 editorial splits — same treatment as 50/50 */
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column.elementor-col-66) {
+  display: grid !important;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-66) {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column.elementor-col-66)
+  > .elementor-column {
+  width: auto !important;
+  max-width: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+.wp-content-root .elementor-col-66 .elementor-widget-text-editor,
+.wp-content-root .elementor-col-66 .elementor-widget-text-editor p,
+.wp-content-root .elementor-col-66 .elementor-heading-title,
+.wp-content-root .elementor-col-33 .elementor-widget-text-editor,
+.wp-content-root .elementor-col-33 .elementor-widget-text-editor p,
+.wp-content-root .elementor-col-33 .elementor-heading-title {
+  text-align: left !important;
+}
+
+.wp-content-root .elementor-col-66 .elementor-widget-image img,
+.wp-content-root .elementor-col-33 .elementor-widget-image img {
+  border-radius: 0.85rem;
+  aspect-ratio: auto !important;
+  max-height: 22rem;
+  object-fit: cover;
+}
+
+/* MBBS India state landmark tiles — full image, no crop, no empty band below */
+.wp-content-root img.wp-state-landmark-img {
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  height: auto !important;
+  object-fit: contain !important;
+  aspect-ratio: auto !important;
+  display: block;
+  background: rgb(241 245 249);
+}
+
+.wp-content-root .elementor-widget-image:has(img.wp-state-landmark-img) {
+  overflow: visible;
+}
+
+.wp-content-root .elementor-col-33 .elementor-widget-image img.wp-state-landmark-img {
+  object-fit: contain !important;
+  max-height: none !important;
+}
+
+.wp-content-root .elementor-col-66 .elementor-widget-image + .elementor-widget-button,
+.wp-content-root .elementor-col-33 .elementor-widget-image + .elementor-widget-button {
+  margin-top: 1rem !important;
+  padding: 0 !important;
+}
+
+.wp-content-root .elementor-col-66 .elementor-widget-button .elementor-button,
+.wp-content-root .elementor-col-33 .elementor-widget-button .elementor-button {
+  position: static !important;
+  margin: 0 !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+}
+
+/* ── MBBS India state tile grid (Top States section) ── */
+.wp-content-root .wp-mbbs-state-grid {
+  margin: 0.5rem 0 1.25rem !important;
+  padding: 0 !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid + .wp-mbbs-state-grid {
+  margin-top: 0 !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid > .elementor-container {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 1.25rem !important;
+  align-items: stretch !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid > .elementor-container:not(:has(> .elementor-column.elementor-col-33)),
+.wp-content-root .wp-mbbs-state-grid > .elementor-container:has(> .elementor-column.elementor-col-100:only-child) {
+  display: block !important;
+  grid-template-columns: none !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid > .elementor-container > .elementor-column {
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.05),
+    0 8px 24px rgba(15, 23, 42, 0.06);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.wp-content-root .wp-mbbs-state-grid > .elementor-container > .elementor-column:hover {
+  transform: translateY(-3px);
+  border-color: #cbd5e1;
+  box-shadow:
+    0 4px 12px rgba(15, 23, 42, 0.08),
+    0 16px 36px rgba(15, 23, 42, 0.1);
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-widget-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  gap: 0 !important;
+  padding: 0 !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-widget-image {
+  margin: 0 !important;
+  flex: 0 0 auto;
+  background: #f1f5f9;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-widget-image a {
+  display: block;
+  line-height: 0;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-widget-image img.wp-state-landmark-img {
+  border-radius: 0 !important;
+  background: #f1f5f9;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-widget-heading {
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #f1f5f9;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-heading-title {
+  text-align: center !important;
+  width: 100%;
+  margin: 0 !important;
+  padding: 0.85rem 0.75rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.35 !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-heading-title a {
+  color: #1a365d !important;
+  text-decoration: none !important;
+  background: none !important;
+  font-weight: 700 !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-heading-title a:hover {
+  color: #d97706 !important;
+}
+
+/* ── Top medical college cards (jkit image boxes) — unified premium grid ── */
+.wp-content-root .wp-college-card-grid-section {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.wp-content-root .wp-college-card-grid-section + .wp-college-card-grid-section {
+  margin-top: 0 !important;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 1.25rem !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+@media (min-width: 640px) {
+  .wp-content-root .elementor-container.wp-college-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1.35rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-content-root .elementor-container.wp-college-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 1.5rem !important;
+  }
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid > .elementor-column {
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.05),
+    0 10px 28px rgba(15, 23, 42, 0.07);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid > .elementor-column:hover {
+  transform: translateY(-4px);
+  border-color: #cbd5e1;
+  box-shadow:
+    0 8px 20px rgba(15, 23, 42, 0.1),
+    0 20px 44px rgba(26, 54, 93, 0.12);
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .elementor-widget-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box {
+  height: 100% !important;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .image-box-header {
+  aspect-ratio: 16 / 10;
+  flex: 0 0 auto;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .image-box-header img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  aspect-ratio: 16 / 10 !important;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .image-box-body {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.1rem 1.15rem !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-top: 1px solid #f1f5f9;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .body-title {
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  line-height: 1.45 !important;
+  color: #1a365d !important;
+  text-align: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .body-title a {
+  color: #1a365d !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .body-title a:hover {
+  color: #d97706 !important;
+}
+
+/* ── Private college state blocks (image + facts sheet) ── */
+.wp-content-root .elementor-col-100 > .elementor-widget-wrap:has(.wp-university-profile) > .elementor-widget-heading .elementor-heading-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 2rem 0 1.25rem !important;
+  padding: 0.55rem 1.15rem !important;
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1a365d !important;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid #fed7aa;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.12);
+}
+
+.wp-content-root .wp-university-profile {
+  position: relative;
+  border-radius: 1.15rem;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  padding: 1rem !important;
+  border: 1px solid #e2e8f0;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 12px 32px rgba(15, 23, 42, 0.06);
+}
+
+.wp-content-root .wp-university-profile + .elementor-widget-divider {
+  margin: 1.5rem 0 !important;
+}
+
+/* Key-value fact sheet — readable spec rows (fixes dark-on-dark Highlights row) */
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table {
+  border-collapse: separate !important;
+  border-spacing: 0 0.5rem !important;
+  table-layout: fixed !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody tr,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody tr {
+  background: transparent !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody td,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody td {
+  padding: 0.85rem 1rem !important;
+  font-size: 0.9375rem !important;
+  line-height: 1.55 !important;
+  border: none !important;
+  vertical-align: middle !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody td:first-child,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody td:first-child {
+  width: 36% !important;
+  min-width: 8.5rem !important;
+  max-width: 11rem !important;
+  font-weight: 800 !important;
+  font-size: 0.8125rem !important;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #92400e !important;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+  border-left: 4px solid #d97706 !important;
+  border-radius: 0.65rem 0 0 0.65rem;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody td:last-child,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody td:last-child {
+  color: #0f172a !important;
+  font-weight: 500 !important;
+  background: #ffffff !important;
+  border-radius: 0 0.65rem 0.65rem 0;
+  box-shadow: inset 0 0 0 1px #e2e8f0;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table:not(:has(thead)) tbody tr:first-child td {
+  background: inherit !important;
+  color: inherit !important;
+  border-bottom: none !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table:not(:has(thead)) tbody tr:first-child td:first-child {
+  color: #92400e !important;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+  border-left: 4px solid #d97706 !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table:not(:has(thead)) tbody tr:first-child td:last-child {
+  color: #0f172a !important;
+  background: #ffffff !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody tr:hover td:last-child,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody tr:hover td:last-child {
+  background: #f8fafc !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table .td-content,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table .td-content {
+  color: inherit !important;
+}
+
+@media (max-width: 767px) {
+  .wp-content-root .elementor-container.wp-college-card-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wp-content-root .wp-university-profile > .elementor-container,
+  .wp-content-root .wp-university-profile-grid.elementor-container {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 38%) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .wp-content-root .wp-mbbs-state-grid > .elementor-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+
+  .wp-content-root .wp-mbbs-state-grid > .elementor-container > .elementor-column:nth-child(3):last-child {
+    grid-column: 1 / -1;
+    max-width: 22rem;
+    justify-self: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 479px) {
+  .wp-content-root .wp-mbbs-state-grid > .elementor-container {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wp-content-root .wp-mbbs-state-grid > .elementor-container > .elementor-column:nth-child(3):last-child {
+    grid-column: auto;
+    max-width: none;
+  }
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2)):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66))
   .elementor-widget-wrap {
   display: flex;
   flex-direction: column;
@@ -165,12 +1040,12 @@
 
 .wp-content-root
   .elementor-section
-  > .elementor-container:has(> .elementor-column:nth-child(2))
+  > .elementor-container:has(> .elementor-column:nth-child(2)):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66))
   .elementor-widget-image
   img,
 .wp-content-root
   .elementor-section
-  > .elementor-container:has(> .elementor-column:nth-child(2))
+  > .elementor-container:has(> .elementor-column:nth-child(2)):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66))
   .jkit-image-box
   img {
   width: 100% !important;
@@ -465,25 +1340,59 @@
   margin-bottom: 0.5rem;
 }
 
-/* ── Contact icon list → premium cards ── */
-.wp-content-root .elementor-icon-list-items {
-  list-style: none;
+/* ── Elementor icon rows (documents, contact, features) ── */
+.wp-content-root ul.elementor-icon-list-items,
+.wp-content-root ul.elementor-icon-list-items.wp-icon-list-premium {
+  list-style: none !important;
   padding: 0;
   margin: 1.25rem 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
+.wp-content-root ul.elementor-icon-list-items > li.elementor-icon-list-item,
 .wp-content-root .elementor-icon-list-item {
-  display: flex;
-  align-items: flex-start;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
   gap: 0.875rem;
-  padding: 1rem 1.15rem;
+  list-style: none !important;
+  margin: 0;
+  padding: 0.85rem 1rem;
   border-radius: var(--wp-radius);
   border: 1px solid var(--wp-border);
   background: linear-gradient(135deg, #f8fafc, #fff);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* Never let admission step-list typography break icon rows */
+.wp-content-root ul.elementor-icon-list-items.wp-premium-steps-list > li,
+.wp-content-root ul.elementor-icon-list-items.wp-icon-list-premium > li {
+  display: flex !important;
+  border: 1px solid var(--wp-border);
+  background: linear-gradient(135deg, #f8fafc, #fff);
+  padding: 0.85rem 1rem;
+}
+
+.wp-content-root ul.elementor-icon-list-items > li::before,
+.wp-content-root ul.elementor-icon-list-items.wp-premium-steps-list > li::before {
+  display: none !important;
+  content: none !important;
+}
+
+.wp-content-root ul.elementor-icon-list-items > li > span.elementor-icon-list-icon {
+  display: flex !important;
+  flex-shrink: 0;
+}
+
+.wp-content-root ul.elementor-icon-list-items > li > span.elementor-icon-list-text,
+.wp-content-root ul.elementor-icon-list-items > li > a.elementor-icon-list-text {
+  display: block !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+  font-weight: 600;
 }
 
 .wp-content-root .elementor-icon-list-icon {
@@ -510,6 +1419,19 @@
   fill: #fff;
 }
 
+/* Broken JKit font icons → simple checkmark glyph */
+.wp-content-root .elementor-icon-list-icon i.jki {
+  display: none !important;
+}
+
+.wp-content-root .elementor-icon-list-icon:has(i.jki)::after {
+  content: '✓';
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
 .wp-content-root .elementor-icon-list-text,
 .wp-content-root .wp-contact-card-link {
   font-weight: 600;
@@ -525,16 +1447,105 @@
 .wp-content-root .wp-contact-card-link {
   display: block;
   text-decoration: none !important;
-  padding-top: 0.35rem;
+  padding: 0.1rem 0 0;
+  background: none !important;
+  background-image: none !important;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  line-height: 1.55;
+  word-break: break-word;
 }
 
 .wp-content-root .wp-contact-card-link:hover {
   color: #b45309 !important;
   -webkit-text-fill-color: #b45309 !important;
+  background: none !important;
+  text-decoration: none !important;
 }
 
 .wp-content-root .wp-contact-strip .elementor-icon-list-item {
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.95rem 1.1rem;
+  border-left: 3px solid var(--wp-navy);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.wp-content-root .wp-contact-strip .elementor-icon-list-item:hover {
+  border-left-color: var(--wp-accent);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+}
+
+.wp-content-root .wp-contact-strip .elementor-icon-list-icon {
+  margin-top: 0.1rem;
+}
+
+.wp-content-root .elementor-widget-heading:has(+ .elementor-widget-icon-list .wp-contact-strip) .elementor-heading-title {
+  text-align: left !important;
+}
+
+/* Address card — highlighted, premium */
+.wp-content-root .wp-contact-card.wp-contact-address-card {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 42%, #f8fafc 100%) !important;
+  border: 1px solid #fcd34d !important;
+  border-left: 4px solid #d97706 !important;
+  box-shadow:
+    0 2px 8px rgba(217, 119, 6, 0.1),
+    0 12px 32px rgba(26, 54, 93, 0.08) !important;
+  padding: 1.15rem 1.25rem !important;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.wp-content-root .wp-contact-card.wp-contact-address-card:hover {
+  border-color: #f59e0b !important;
+  box-shadow:
+    0 4px 14px rgba(217, 119, 6, 0.16),
+    0 16px 36px rgba(26, 54, 93, 0.1) !important;
+}
+
+.wp-content-root .wp-contact-address-card .elementor-icon-list-icon {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+}
+
+.wp-content-root .wp-contact-address-card .wp-contact-card-link {
+  font-size: 1.02rem !important;
+  line-height: 1.65 !important;
+  color: #1a365d !important;
+  -webkit-text-fill-color: #1a365d !important;
+  font-weight: 600 !important;
+}
+
+.wp-content-root .wp-contact-address-card .wp-contact-card-link:hover {
+  color: #b45309 !important;
+  -webkit-text-fill-color: #b45309 !important;
+}
+
+.wp-content-root .wp-address-highlight {
+  margin: 1.25rem 0;
+  padding: 1.15rem 1.25rem;
+  border-radius: 0.9rem;
+  border: 1px solid #fcd34d;
+  border-left: 4px solid #d97706;
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #f8fafc 100%);
+  box-shadow:
+    0 2px 8px rgba(217, 119, 6, 0.1),
+    0 12px 32px rgba(26, 54, 93, 0.08);
+}
+
+.wp-content-root .wp-address-highlight p {
+  margin: 0 !important;
+  font-size: 1.02rem !important;
+  line-height: 1.65 !important;
+  font-weight: 600 !important;
+  color: #1a365d !important;
 }
 
 /* Document / curriculum chip cards — never inherit white text from icon styles */
@@ -964,9 +1975,9 @@
   text-align: center;
 }
 
-/* Tables without thead — first row as visual header */
-.wp-content-root .wp-table-scroll table:not(:has(thead)) tbody tr:first-child td,
-.wp-content-root .wp-table-scroll table:not(:has(thead)) tbody tr:first-child th {
+/* Tables without thead — first row as visual header (not key-value fact sheets) */
+.wp-content-root .wp-table-scroll table:not(:has(thead)):not(.wp-facts-kv-table) tbody tr:first-child td,
+.wp-content-root .wp-table-scroll table:not(:has(thead)):not(.wp-facts-kv-table) tbody tr:first-child th {
   background: linear-gradient(135deg, #1a365d 0%, #234e82 100%);
   color: #fff !important;
   font-weight: 700;
@@ -1040,16 +2051,16 @@
 }
 
 /* ── Links & buttons (exclude premium CTA + WP buttons) ── */
-.wp-content-root .wp-content-body a:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link) {
+.wp-content-root .wp-content-body a:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link):not(.wp-contact-card-link):not(.elementor-icon-list-text) {
   color: #b45309;
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-/* Payload / Lexical inline links */
-.wp-content-root .wp-content-body a[href^="http"]:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link),
-.wp-content-root .wp-content-body a[href^="/"]:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link) {
+/* Payload / Lexical inline links (not contact icon rows) */
+.wp-content-root .wp-content-body a[href^="http"]:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link):not(.wp-contact-card-link):not(.elementor-icon-list-text),
+.wp-content-root .wp-content-body a[href^="/"]:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link):not(.wp-contact-card-link):not(.elementor-icon-list-text) {
   color: #c2410c;
   background: linear-gradient(transparent 60%, rgba(251, 191, 36, 0.35) 60%);
 }
@@ -1370,8 +2381,8 @@ html:has(.wp-content-affinity) {
   list-style-type: decimal;
 }
 
-.wp-content-root ul.wp-premium-steps-list > li,
-.wp-content-root ol.wp-premium-steps-list > li {
+.wp-content-root ul.wp-premium-steps-list:not(.elementor-icon-list-items) > li,
+.wp-content-root ol.wp-premium-steps-list:not(.elementor-icon-list-items) > li {
   display: list-item;
   margin: 0.3rem 0;
   padding: 0;
@@ -1394,10 +2405,10 @@ html:has(.wp-content-affinity) {
   content: none !important;
 }
 
-.wp-content-root ul.wp-premium-steps-list > li > span,
-.wp-content-root ol.wp-premium-steps-list > li > span,
-.wp-content-root ul.wp-premium-steps-list > li > p,
-.wp-content-root ol.wp-premium-steps-list > li > p {
+.wp-content-root ul.wp-premium-steps-list:not(.elementor-icon-list-items) > li > span,
+.wp-content-root ol.wp-premium-steps-list:not(.elementor-icon-list-items) > li > span,
+.wp-content-root ul.wp-premium-steps-list:not(.elementor-icon-list-items) > li > p,
+.wp-content-root ol.wp-premium-steps-list:not(.elementor-icon-list-items) > li > p {
   display: inline;
   font-weight: 400;
   font-size: inherit;
@@ -1435,6 +2446,75 @@ html:has(.wp-content-affinity) {
 
 .wp-content-root .elementor-widget-text-editor:has(.wp-premium-steps-list) {
   margin-bottom: 0.35rem;
+}
+
+/* Benefits list (Why pursue MBBS — icon rows → card grid) */
+.wp-content-root ul.wp-premium-benefits-grid {
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.25rem 0 1.5rem !important;
+  padding: 0 !important;
+}
+
+@media (min-width: 640px) {
+  .wp-content-root ul.wp-premium-benefits-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
+.wp-content-root ul.wp-premium-benefits-grid > li.elementor-icon-list-item {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 0.65rem !important;
+  padding: 1.1rem 1.15rem !important;
+  border-radius: 0.9rem !important;
+  border: 1px solid #e2e8f0 !important;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
+  height: 100%;
+}
+
+.wp-content-root ul.wp-premium-benefits-grid > li.elementor-icon-list-item:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+.wp-content-root ul.wp-premium-benefits-grid .elementor-icon-list-icon {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  border-radius: 0.7rem !important;
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  box-shadow: 0 4px 12px rgba(26, 54, 93, 0.25);
+}
+
+.wp-content-root ul.wp-premium-benefits-grid .elementor-icon-list-text {
+  font-size: 0.9rem !important;
+  line-height: 1.6 !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+}
+
+.wp-content-root ul.wp-premium-benefits-grid .elementor-icon-list-text::first-line {
+  font-weight: 700;
+  color: #1a365d;
+}
+
+.wp-content-root .elementor-container.wp-split-collapsed .elementor-widget-heading .elementor-heading-title {
+  text-align: left !important;
+}
+
+.wp-content-root .elementor-container.wp-split-collapsed .elementor-widget-button {
+  align-self: stretch !important;
+  width: 100%;
+  margin-top: 0.5rem !important;
+}
+
+.wp-content-root .elementor-container.wp-split-collapsed .elementor-widget-button .elementor-button {
+  width: 100%;
+  justify-content: center;
+  min-height: 2.75rem;
 }
 
 .wp-content-root ul.wp-premium-feature-grid,
@@ -1797,8 +2877,10 @@ html:has(.wp-content-affinity) {
     padding: 0.85rem 0.95rem;
   }
 
-  .wp-content-root .wp-content-body .elementor-inner-section:has(> .elementor-column:nth-child(2)) {
-    grid-template-columns: 1fr;
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-50) {
+    grid-template-columns: 1fr !important;
   }
 }
 

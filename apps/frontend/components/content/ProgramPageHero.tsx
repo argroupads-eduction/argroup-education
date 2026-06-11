@@ -14,6 +14,8 @@ type ProgramPageHeroProps = {
   theme?: ProgramTheme;
   stats?: { label: string; value: string }[];
   featuredImage?: string | null;
+  /** Wide state landmarks — container hugs image, no crop, no empty frame. */
+  heroImageFit?: 'default' | 'state';
 };
 
 const THEME_STYLES: Record<ProgramTheme, string> = {
@@ -64,6 +66,7 @@ export function ProgramPageHero({
   theme = 'default',
   stats,
   featuredImage,
+  heroImageFit = 'default',
 }: ProgramPageHeroProps) {
   return (
     <section className={`relative overflow-hidden py-8 sm:py-10 md:py-14 ${THEME_STYLES[theme]}`}>
@@ -118,13 +121,21 @@ export function ProgramPageHero({
           </div>
 
           {featuredImage ? (
-            <div className="mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-white/15 shadow-2xl lg:max-w-none">
+            <div
+              className={[
+                'mx-auto w-full overflow-hidden rounded-2xl border border-white/15 shadow-2xl',
+                heroImageFit === 'state' ? 'max-w-none' : 'max-w-lg lg:max-w-none',
+              ].join(' ')}
+            >
               <FitImage
                 src={featuredImage}
                 alt={title}
                 priority
-                maxHeight="20rem"
-                frameClassName="rounded-2xl bg-navy-950/40"
+                maxHeight={heroImageFit === 'state' ? undefined : '20rem'}
+                frameClassName={[
+                  'rounded-2xl',
+                  heroImageFit === 'state' ? 'program-hero-state-image' : 'bg-navy-950/40',
+                ].join(' ')}
               />
             </div>
           ) : null}

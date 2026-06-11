@@ -19,6 +19,17 @@ export async function generateMetadata(): Promise<Metadata> {
     title: ABOUT_SEO.title,
     description: ABOUT_SEO.description,
     alternates: { canonical: '/about' },
+    openGraph: {
+      title: ABOUT_SEO.title,
+      description: ABOUT_SEO.description,
+      url: '/about',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary',
+      title: ABOUT_SEO.title,
+      description: ABOUT_SEO.description,
+    },
   };
 }
 

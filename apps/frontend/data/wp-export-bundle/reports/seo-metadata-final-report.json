@@ -1,0 +1,147 @@
+{
+  "updatedAt": "2026-06-10",
+  "summary": "10 marketing pages — SEO title & description updated. Page content, URLs, layout unchanged.",
+  "layersUpdated": [
+    "apps/frontend/data/wp-export-bundle/pages.json (8 WP slugs)",
+    "Neon SitePage via apps/backend/scripts/patch-marketing-seo.ts",
+    "apps/frontend/lib/marketingPageSeo.ts (runtime override for API)",
+    "Static metadata: home/page.tsx, contact/page.tsx",
+    "Fallbacks: aboutContent.ts, programHubContent.ts"
+  ],
+  "verification": {
+    "buildSiteMetadata": "All 8 CMS pages pass — title, description, OG, Twitter aligned",
+    "sitemap": "Unchanged — no edits to app/api/sitemap/route.ts",
+    "canonicalUrls": "Preserved from existing records (argroupofeducation.com paths)"
+  },
+  "pages": [
+    {
+      "url": "/",
+      "source": "static",
+      "previous": {
+        "metaTitle": "MBBS India & Abroad Admission Consultant | NEET Counselling Expert",
+        "metaDescription": "AR Group of Education, India's trusted MBBS admission consultants. NEET UG/PG counselling, MBBS in India & 15+ countries abroad..."
+      },
+      "updated": {
+        "metaTitle": "Medical College Admission | NEET & MBBS Consultants India & Abroad",
+        "metaDescription": "Secure Medical College Admission with AR Group Of Education. Trust on top MBBS Admission Consultants In India & MBBS Admission Consultants Abroad. Contact a NEET Counselling Expert today!"
+      }
+    },
+    {
+      "url": "/about",
+      "wpSlug": "ar-group-of-education",
+      "previous": {
+        "metaTitle": "Consult AR GROUP OF EDUCATION",
+        "metaDescription": "About Our Vision To be an institution of excellence nurturing responsible global leaders. consult AR GROUP OF EDUCATION"
+      },
+      "updated": {
+        "metaTitle": "Best MBBS Consultants in India 2026 | AR Group Of Education",
+        "metaDescription": "Learn about the Best MBBS Consultants in India. We offer genuine MBBS admission guidance India for top medical colleges. Contact our experts today!"
+      },
+      "canonicalUrl": "https://argroupofeducation.com/ar-group-of-education/"
+    },
+    {
+      "url": "/mbbs-india",
+      "wpSlug": "mbbs-in-india",
+      "previous": {
+        "metaTitle": "MBBS in India : Low Fees & High Chances",
+        "metaDescription": "MBBS in India made easy! Check fees, cutoff, top colleges & 2026 admission process. Limited seats—apply smart today."
+      },
+      "updated": {
+        "metaTitle": "Study MBBS in India 2026: Admission in Top Medical Colleges",
+        "metaDescription": "Plan your career and study MBBS in India. Learn about private medical colleges in India, fees, and eligibility. Call us now for expert advice!"
+      },
+      "canonicalUrl": "https://argroupofeducation.com/mbbs-in-india/"
+    },
+    {
+      "url": "/mbbs-abroad",
+      "wpSlug": "study-mbbs-in-abroad",
+      "previous": {
+        "metaTitle": "Study MBBS In Abroad 2026-27 | Fees Structure, Top Medical",
+        "metaDescription": "Check out this comprehensive guide to learn how to study MBBS in abroad, including fees, top countries, eligibility, top universities...."
+      },
+      "updated": {
+        "metaTitle": "Study MBBS in Abroad for Indian Students | Low Cost Options",
+        "metaDescription": "Want to study MBBS in abroad for Indian students? Find MCI recognized universities abroad list and low cost options. Apply online for admissions!"
+      },
+      "canonicalUrl": "https://argroupofeducation.com/study-mbbs-in-abroad/"
+    },
+    {
+      "url": "/md-ms",
+      "wpSlug": "md-ms",
+      "previous": {
+        "metaTitle": "MD/MS NEET Admission : Eligibility, Fees and Admission",
+        "metaDescription": "Medical Graduates seeking to pursue MD/MS in India must go through extensive research but here is everything for you in a more complex format."
+      },
+      "updated": {
+        "metaTitle": "MD/MS Admission in India 2026: Top PG Medical Colleges & Fees",
+        "metaDescription": "Get direct MD/MS Admission in India without donation. Check top MD MS colleges in Uttar Pradesh and other states. Call our experts to book seats!"
+      },
+      "canonicalUrl": "https://argroupofeducation.com/md-ms/"
+    },
+    {
+      "url": "/mbbs",
+      "wpSlug": "mbbs",
+      "previous": {
+        "metaTitle": "MBBS: Course, Full Form, Syllabus, Top Colleges, Eligibility, Scope",
+        "metaDescription": "The full form of the MBBS is Bachelor of Medicine, Bachelor of Surgery. The course duration is 5.5 years, including an internship with......."
+      },
+      "updated": {
+        "metaTitle": "MBBS Admission Guide 2026: Top Private & Govt Medical Colleges",
+        "metaDescription": "Get complete MBBS Admission guidance. Explore low cost MBBS in India and check top private medical colleges. Contact our advisors today to apply!"
+      },
+      "canonicalUrl": "https://argroupofeducation.com/mbbs/"
+    },
+    {
+      "url": "/bams-in-india",
+      "wpSlug": "bams-in-india",
+      "previous": {
+        "metaTitle": "BAMS In India Course, Duration, Fees, Admission, Syllabus",
+        "metaDescription": "BAMS in India: Explore eligibility, NEET admissions, top Ayurvedic colleges, course duration, syllabus & career opportunities in Ayurveda..."
+      },
+      "updated": {
+        "metaTitle": "BAMS in India 2026: Admission in Top Ayurvedic Colleges & Fees",
+        "metaDescription": "Looking for BAMS in India? Find top ayurvedic colleges in india, fee structures, and complete admission assistance. Call us today for a free session!"
+      },
+      "canonicalUrl": "https://argroupofeducation.com/bams-in-india/"
+    },
+    {
+      "url": "/education-consultancy-in-delhi-ncr",
+      "wpSlug": "education-consultancy-in-delhi-ncr",
+      "previous": {
+        "metaTitle": "Top MBBS Education Consultancy In Delhi-Ncr",
+        "metaDescription": "AR GROUP OF EDUCATION is the leading overseas education consultant who provides free guidance on course, country, university selection."
+      },
+      "updated": {
+        "metaTitle": "Top MBBS admission consultancy in Delhi NCR | Expert Guidance",
+        "metaDescription": "Connect with the top MBBS admission consultancy in Delhi NCR. Get trusted MBBS admission guidance India for top universities. Enquire now for help!"
+      },
+      "canonicalUrl": "https://argroupofeducation.com/education-consultancy-in-delhi-ncr/"
+    },
+    {
+      "url": "/neet-ug-counselling",
+      "wpSlug": "neet-ug-counselling",
+      "previous": {
+        "metaTitle": "NEET UG Counselling : Dates, Registration and Fees Process",
+        "metaDescription": "Looking for information on NEET UG Counselling Discover the latest details on fees and registration processes. Get insights to make...."
+      },
+      "updated": {
+        "metaTitle": "NEET UG Counselling 2026: Complete Registration & Process Guide",
+        "metaDescription": "Complete guide to NEET UG Counselling. Learn about UP NEET UG counselling 2026 registration process, fees, and seat matrix. Register with us today!"
+      },
+      "canonicalUrl": "https://argroupofeducation.com/neet-ug-counselling/"
+    },
+    {
+      "url": "/contact",
+      "source": "static",
+      "previous": {
+        "metaTitle": "Contact Us | Expert MBBS Counselling",
+        "metaDescription": "Contact AR Group of Education for expert MBBS India & abroad counselling. Call, WhatsApp, or book a session online."
+      },
+      "updated": {
+        "metaTitle": "Contact Us for Expert Medical Admission Counselling & Guidance",
+        "metaDescription": "Get expert medical admission counselling for MBBS, MD, and MS courses. Speak with our top consultants and secure your seat today. Reach out now!"
+      },
+      "canonicalUrl": "/contact"
+    }
+  ]
+}

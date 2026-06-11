@@ -1,6 +1,7 @@
 /** Prepare migrated WordPress HTML for premium display (content unchanged semantically). */
 
 import { CONTACT_INFO } from '@/lib/constants';
+import { injectMbbsIndiaStateImages } from '@/lib/mbbsIndiaStateImages';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { rewriteInternalLinks } from '@/lib/rewriteInternalLinks';
 
@@ -345,6 +346,10 @@ function simplifyIconChipGridLists(html: string): string {
 const CTA_CONTACT_LABEL_RE =
   /Get\s+Consultation|Book\s+(?:Your\s+)?Consultation(?:\s+Now)?|Expert\s+Counsell?ing|Book\s+expert\s+counsell?ing/i;
 
+function isAddressPlainText(text: string): boolean {
+  return /\b(floor|tower|noida|sec-|wave silver|201301|pin\s*code|uttar pradesh)\b/i.test(text);
+}
+
 function contactHrefForPlainText(text: string): string {
   const t = text.trim();
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return `mailto:${t}`;
@@ -363,31 +368,322 @@ function contactHrefForPlainText(text: string): string {
   return '/contact';
 }
 
-/** Contact Us icon rows → readable linked cards (tel / mailto / contact page). */
-export function enhanceContactIconLists(html: string): string {
-  return html.replace(
-    /(<h[23]\b[^>]*>[\s\S]*?Contact Us Now![\s\S]*?<\/h[23]>)([\s\S]*?)(<ul)(\s+class=")(elementor-icon-list-items)("[^>]*>)([\s\S]*?)(<\/ul>)/gi,
-    (_full, heading, _between, ulOpen, clsPrefix, cls, clsEnd, inner, ulClose) => {
-      const enhanced = inner.replace(
-        /<li class="elementor-icon-list-item">([\s\S]*?)<\/li>/gi,
-        (liMatch: string, liInner: string) => {
-          const text = extractElementorIconListText(liInner);
-          if (!text) return liMatch;
+const GRID_LIST_CLASS_RE =
+  /\bwp-premium-(?:steps-list|chip-grid|feature-grid|icon-chip-grid)(?:\s+\S+)?/g;
 
-          const href = contactHrefForPlainText(text);
-          const iconMatch = liInner.match(/<span class="elementor-icon-list-icon"[^>]*>[\s\S]*?<\/span>/i);
-          const iconHtml = iconMatch ? iconMatch[0] : '';
+function enhanceIconListItems(inner: string, linkify = false): string {
+  return inner.replace(/<li(\b[^>]*elementor-icon-list-item[^>]*)>([\s\S]*?)<\/li>/gi, (liMatch, attrs, liInner) => {
+    const text = extractElementorIconListText(liInner);
+    if (!text) return liMatch;
 
-          return (
-            `<li class="elementor-icon-list-item wp-contact-card">` +
-            `${iconHtml}` +
-            `<a class="elementor-icon-list-text wp-contact-card-link" href="${href}">${text}</a></li>`
-          );
-        }
+    const iconMatch = liInner.match(/<span class="elementor-icon-list-icon"[^>]*>[\s\S]*?<\/span>/i);
+    const iconHtml = iconMatch ? iconMatch[0] : '';
+
+    if (linkify) {
+      const href = contactHrefForPlainText(text);
+      let liAttrs = attrs;
+      if (/\bclass="/i.test(liAttrs)) {
+        liAttrs = liAttrs.replace(/\bclass="([^"]*)"/i, (_, c) => `class="${c} wp-contact-card"`);
+      } else {
+        liAttrs = `${liAttrs} class="wp-contact-card"`;
+      }
+      return (
+        `<li${liAttrs}>` +
+        `${iconHtml}` +
+        `<a class="elementor-icon-list-text wp-contact-card-link" href="${href}">${text}</a></li>`
       );
-      return `${heading}${_between}${ulOpen}${clsPrefix}${cls} wp-contact-strip${clsEnd}${enhanced}${ulClose}`;
+    }
+
+    return `<li${attrs}>${iconHtml}<span class="elementor-icon-list-text">${text}</span></li>`;
+  });
+}
+
+/** Mark image + CTA | copy/table 50/50 containers for layout CSS. */
+export function markEditorialSplitContainers(html: string): string {
+  return html.replace(/<div class="([^"]*\belementor-container\b[^"]*)">/gi, (match, cls, offset) => {
+    if (cls.includes('wp-editorial-split')) return match;
+    const slice = html.slice(offset, offset + 4500);
+    if (!/\belementor-col-50\b/.test(slice)) return match;
+    const hasImageCta = /elementor-widget-image[\s\S]{0,2500}elementor-widget-button/i.test(slice);
+    const hasImageTable =
+      /elementor-widget-image[\s\S]{0,4500}elementor-widget-eael-data-table|elementor-widget-image[\s\S]{0,4500}eael-data-table-wrap/i.test(
+        slice
+      );
+    if (!hasImageCta && !hasImageTable) return match;
+    return `<div class="${cls} wp-editorial-split">`;
+  });
+}
+
+/** Inner HTML of a top-level section (stops at its own closing tag). */
+function topLevelSectionInner(html: string, sectionOpenOffset: number): string {
+  const tagEnd = html.indexOf('>', sectionOpenOffset);
+  if (tagEnd === -1) return '';
+  const start = tagEnd + 1;
+  let depth = 1;
+  let i = start;
+  while (i < html.length && depth > 0) {
+    const nextOpen = html.toLowerCase().indexOf('<section', i);
+    const nextClose = html.toLowerCase().indexOf('</section>', i);
+    if (nextClose === -1) return html.slice(start, Math.min(start + 3000, html.length));
+    if (nextOpen !== -1 && nextOpen < nextClose) {
+      depth++;
+      i = nextOpen + 8;
+    } else {
+      depth--;
+      if (depth === 0) return html.slice(start, nextClose);
+      i = nextClose + 10;
+    }
+  }
+  return html.slice(start, Math.min(start + 3000, html.length));
+}
+
+/** Extract direct elementor-col-33 top-column blocks from a section inner. */
+function extractTopCol33Columns(inner: string): string[] {
+  const cols: string[] = [];
+  const re = /<div\b[^>]*\belementor-column\b[^>]*\belementor-col-33\b[^>]*\belementor-top-column\b[^>]*>/gi;
+  let m;
+  while ((m = re.exec(inner)) !== null) {
+    const start = m.index;
+    let depth = 0;
+    let i = start;
+    while (i < inner.length) {
+      const open = inner.indexOf('<div', i);
+      const close = inner.indexOf('</div>', i);
+      if (close === -1) break;
+      if (open !== -1 && open < close) {
+        depth++;
+        i = open + 4;
+      } else {
+        depth--;
+        i = close + 6;
+        if (depth === 0) {
+          cols.push(inner.slice(start, i));
+          break;
+        }
+      }
+    }
+  }
+  return cols;
+}
+
+function isCollegeCardSectionInner(inner: string): boolean {
+  if (!/\bjkit-image-box\b|\belementor-widget-jkit_image_box\b/i.test(inner)) return false;
+  if (/\beael-data-table-wrap\b|\belementor-widget-eael-data-table\b/i.test(inner)) return false;
+  if (/\belementor-col-50\b|\belementor-col-66\b|\belementor-col-100\b/.test(inner)) return false;
+  if (!/\belementor-col-33\b/.test(inner)) return false;
+  if (/MBBS\s+IN/i.test(inner) && /elementor-widget-image[\s\S]{0,2500}elementor-widget-heading/i.test(inner)) {
+    return false;
+  }
+  return extractTopCol33Columns(inner).length > 0;
+}
+
+function addClassToTag(tag: string, className: string): string {
+  const classAttr = tag.match(/\bclass\s*=\s*["']([^"']*)["']/i);
+  if (classAttr) {
+    if (classAttr[1].includes(className)) return tag;
+    const next = `${classAttr[1]} ${className}`.trim();
+    return tag.replace(classAttr[0], `class="${next}"`);
+  }
+  return tag.replace(/>$/, ` class="${className}">`);
+}
+
+/** Merge consecutive jkit college card rows into one aligned 3-column grid. */
+export function mergeCollegeCardGridSections(html: string): string {
+  type SectionSlice = { start: number; end: number; openTag: string; inner: string; isCollege: boolean };
+  const slices: SectionSlice[] = [];
+  const re = /<section\b([^>]*\belementor-top-section\b[^>]*)>/gi;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const start = m.index;
+    const openTag = m[0];
+    const inner = topLevelSectionInner(html, start);
+    const closeIdx = html.toLowerCase().indexOf('</section>', start);
+    if (closeIdx === -1) continue;
+    const end = closeIdx + '</section>'.length;
+    slices.push({
+      start,
+      end,
+      openTag,
+      inner,
+      isCollege: isCollegeCardSectionInner(inner),
+    });
+  }
+  if (slices.length < 2) return html;
+
+  const removals: Array<{ start: number; end: number }> = [];
+  const replacements: Array<{ start: number; end: number; text: string }> = [];
+
+  let i = 0;
+  while (i < slices.length) {
+    if (!slices[i].isCollege) {
+      i++;
+      continue;
+    }
+    let j = i;
+    while (j < slices.length && slices[j].isCollege) j++;
+    const run = slices.slice(i, j);
+    const allCols = run.flatMap((s) => extractTopCol33Columns(s.inner));
+    const first = run[0];
+    const containerRe = /(<div class="[^"]*\belementor-container\b[^"]*)">([\s\S]*)(<\/div>\s*)$/i;
+    const containerMatch = first.inner.match(containerRe);
+    if (!containerMatch || allCols.length === 0) {
+      i = j;
+      continue;
+    }
+
+    const mergedContainerOpen = addClassToTag(`${containerMatch[1]}>`, 'wp-college-card-grid');
+    const mergedInner = `${mergedContainerOpen}${allCols.join('\n')}${containerMatch[3]}`;
+    const mergedOpenTag = addClassToTag(first.openTag, 'wp-college-card-grid-section');
+    const mergedSection = `${mergedOpenTag}${mergedInner}</section>`;
+
+    replacements.push({ start: first.start, end: first.end, text: mergedSection });
+    for (let k = 1; k < run.length; k++) {
+      removals.push({ start: run[k].start, end: run[k].end });
+    }
+    i = j;
+  }
+
+  if (replacements.length === 0) return html;
+
+  const ops = [
+    ...replacements.map((r) => ({ ...r, kind: 'replace' as const })),
+    ...removals.map((r) => ({ ...r, kind: 'remove' as const, text: '' })),
+  ].sort((a, b) => b.start - a.start);
+
+  let out = html;
+  for (const op of ops) {
+    out = out.slice(0, op.start) + (op.kind === 'replace' ? op.text : '') + out.slice(op.end);
+  }
+  return out;
+}
+
+/** MBBS India state tile rows (col-33 landmark cards). */
+export function markMbbsStateGridSections(html: string): string {
+  return html.replace(/<section\b([^>]*)>/gi, (match, attrs, offset) => {
+    if (/\bwp-mbbs-state-grid\b/.test(attrs)) return match;
+    const inner = topLevelSectionInner(html, offset);
+    if (!/\belementor-col-33\b/.test(inner)) return match;
+    if ((inner.match(/\belementor-col-33\b/g) || []).length < 2) return match;
+    if (!/mbbs-in-[a-z0-9-]+/i.test(inner)) return match;
+    if (!/MBBS\s+IN/i.test(inner)) return match;
+    if (!/elementor-widget-image[\s\S]{0,3500}elementor-widget-heading/i.test(inner)) return match;
+
+    const classAttr = attrs.match(/\bclass\s*=\s*["']([^"']*)["']/i);
+    if (classAttr) {
+      const next = `${classAttr[1]} wp-mbbs-state-grid`.trim();
+      return match.replace(classAttr[0], `class="${next}"`);
+    }
+    return `<section${attrs} class="wp-mbbs-state-grid">`;
+  });
+}
+
+/** 50/50 splits where the first column is only spacer — collapse to single column. */
+export function markCollapsedSpacerSplits(html: string): string {
+  return html.replace(/<div class="([^"]*\belementor-container\b[^"]*)">/gi, (match, cls, offset) => {
+    if (cls.includes('wp-split-collapsed')) return match;
+    const slice = html.slice(offset, offset + 5000);
+    if (!/\belementor-col-50\b/.test(slice)) return match;
+    const spacerOnlyLead =
+      /elementor-col-50[\s\S]{0,2200}elementor-widget-spacer[\s\S]{0,800}<\/div>\s*<\/div>\s*<\/div>\s*<div[^>]*elementor-col-50/i.test(
+        slice
+      );
+    if (!spacerOnlyLead) return match;
+    return `<div class="${cls} wp-split-collapsed">`;
+  });
+}
+
+/** Remove EAEL tables with blank header cells (college fact rows use tbody only). */
+export function stripEmptyEaelTableHeadings(html: string): string {
+  return html.replace(/<thead>[\s\S]*?<\/thead>/gi, (match) => {
+    if (stripHtml(match).trim()) return match;
+    return '';
+  });
+}
+
+/** University profile blocks: image (+ optional CTA) | EAEL facts table. */
+export function markUniversityProfileSections(html: string): string {
+  let out = html.replace(/<section\b([^>]*\belementor-inner-section\b[^>]*)>/gi, (match, attrs, offset) => {
+    if (/\bwp-university-profile\b/.test(attrs)) return match;
+    const slice = html.slice(offset, offset + 9000);
+    if (!/\belementor-col-50\b/.test(slice)) return match;
+    if (!/elementor-widget-image/i.test(slice)) return match;
+    if (!/elementor-widget-eael-data-table|eael-data-table-wrap/i.test(slice)) return match;
+
+    const classAttr = attrs.match(/\bclass\s*=\s*["']([^"']*)["']/i);
+    if (classAttr) {
+      const next = `${classAttr[1]} wp-university-profile`.trim();
+      return match.replace(classAttr[0], `class="${next}"`);
+    }
+    return `<section${attrs} class="wp-university-profile">`;
+  });
+
+  out = out.replace(
+    /<div class="([^"]*\belementor-container\b[^"]*)">/gi,
+    (match, cls, offset) => {
+      if (cls.includes('wp-university-profile-grid')) return match;
+      const before = out.slice(Math.max(0, offset - 400), offset);
+      if (!/\bwp-university-profile\b/.test(before)) return match;
+      const slice = out.slice(offset, offset + 5000);
+      if (!/\belementor-col-50\b/.test(slice)) return match;
+      if (!/eael-data-table-wrap|elementor-widget-eael-data-table/i.test(slice)) return match;
+      return `<div class="${cls} wp-university-profile-grid wp-editorial-split">`;
     }
   );
+
+  return out;
+}
+
+/** Strip grid/step classes wrongly applied to Elementor icon rows; optional contact linkify. */
+export function fixElementorIconListLayout(html: string): string {
+  return html.replace(
+    /<ul(\s+class=")([^"]*)("[^>]*>)([\s\S]*?)<\/ul>/gi,
+    (full, clsOpen, cls, clsEnd, inner) => {
+      if (!/elementor-icon-list-items/i.test(cls) && !/<li\b[^>]*elementor-icon-list-item/i.test(inner)) {
+        return full;
+      }
+
+      const plain = stripHtml(inner);
+      const contactStrip =
+        /Contact Us Now!/i.test(
+          html.slice(Math.max(0, html.indexOf(full) - 1200), html.indexOf(full))
+        ) ||
+        (/\b\d{10}\b/.test(plain) && /@/.test(plain));
+
+      let nextCls = cls.replace(GRID_LIST_CLASS_RE, '').replace(/\s+/g, ' ').trim();
+      nextCls = `${nextCls} wp-icon-list-premium`.trim();
+      if (contactStrip) nextCls = `${nextCls} wp-contact-strip`.trim();
+
+      const liCount = (inner.match(/<li\b/gi) || []).length;
+      const isBenefitsList =
+        !contactStrip &&
+        liCount >= 3 &&
+        liCount <= 8 &&
+        (/Why pursue|Affordability:|Quality Education:/i.test(plain) ||
+          (inner.match(/elementor-icon-list-text">[^<]*:/gi) || []).length >= 3);
+      if (isBenefitsList) nextCls = `${nextCls} wp-premium-benefits-grid`.trim();
+
+      const enhanced = enhanceIconListItems(inner, contactStrip);
+      return `<ul${clsOpen}${nextCls}${clsEnd}${enhanced}</ul>`;
+    }
+  );
+}
+
+/** Standalone address paragraphs → highlighted card. */
+export function highlightAddressBlocks(html: string): string {
+  return html.replace(
+    /<p(\b[^>]*)>([\s\S]*?)<\/p>/gi,
+    (full, attrs, inner) => {
+      if (/wp-address-highlight/.test(full)) return full;
+      const plain = stripHtml(inner);
+      if (!isAddressPlainText(plain) || plain.length > 220) return full;
+      return `<div class="wp-address-highlight"><p${attrs}>${inner}</p></div>`;
+    }
+  );
+}
+
+/** Contact Us icon rows → readable linked cards (tel / mailto / contact page). */
+export function enhanceContactIconLists(html: string): string {
+  return html;
 }
 
 /** WP Elementor buttons exported without href (popups) → live contact route. */
@@ -555,8 +851,17 @@ function hasTitleDescPattern(body: string): boolean {
   return /<(?:b|strong)\b[^>]*>[\s\S]*?<\/(?:b|strong)>[\s\S]*?<span\b/i.test(body);
 }
 
+function isElementorIconList(attrs: string, inner: string): boolean {
+  return (
+    /elementor-icon-list-items/i.test(attrs) ||
+    /<li\b[^>]*elementor-icon-list-item/i.test(inner)
+  );
+}
+
 /** Admission / process steps — span-only bullets, not feature-card promos. */
 function isProceduralStepList(inner: string): boolean {
+  if (/<li\b[^>]*elementor-icon-list-item/i.test(inner)) return false;
+
   const liBodies = listItemBodies(inner);
   if (liBodies.length < 2 || liBodies.length > 10) return false;
 
@@ -626,6 +931,7 @@ export function transformLongListsToGrid(html: string): string {
     if (match.includes('wp-premium-chip-grid') || match.includes('wp-premium-feature-grid')) {
       return match;
     }
+    if (isElementorIconList(attrs, inner)) return match;
     const liCount = countTopLevelListItems(inner);
     if (isProceduralStepList(inner)) {
       const openTag = addGridClassToListTag(`<ul${attrs}>`, 'wp-premium-steps-list');
@@ -648,6 +954,7 @@ export function transformLongListsToGrid(html: string): string {
     if (match.includes('wp-premium-chip-grid') || match.includes('wp-premium-feature-grid')) {
       return match;
     }
+    if (isElementorIconList(attrs, inner)) return match;
     const liCount = countTopLevelListItems(inner);
     if (isProceduralStepList(inner)) {
       const openTag = addGridClassToListTag(`<ol${attrs}>`, 'wp-premium-steps-list');
@@ -1138,7 +1445,7 @@ export function transformAllFaqs(html: string): string {
 
 export function prepareWpHtml(
   html: string,
-  options?: { featuredImage?: string | null; title?: string }
+  options?: { featuredImage?: string | null; title?: string; pageSlug?: string | null }
 ): string {
   let out = html.trim();
   if (out && !/<[a-z][\s\S]*>/i.test(out)) {
@@ -1155,6 +1462,7 @@ export function prepareWpHtml(
   out = fixHeadingLevelSkips(out);
   out = stripElementorHiddenSections(out);
   out = cleanBrokenTableRows(out);
+  out = stripEmptyEaelTableHeadings(out);
   out = demoteJkitCardTitles(out);
   out = demoteMultiColumnCardHeadings(out);
   out = stripBrokenIconWidgets(out);
@@ -1172,8 +1480,16 @@ export function prepareWpHtml(
   out = replaceBrokenEmbeddedForms(out);
   out = constrainInlineSvgs(out);
   out = wireCtaButtonsToContact(out);
+  out = mergeCollegeCardGridSections(out);
+  out = markEditorialSplitContainers(out);
+  out = markCollapsedSpacerSplits(out);
+  out = markUniversityProfileSections(out);
+  out = markMbbsStateGridSections(out);
+  out = fixElementorIconListLayout(out);
   out = enhanceContactIconLists(out);
+  out = highlightAddressBlocks(out);
   out = rewriteInternalLinks(out);
+  out = injectMbbsIndiaStateImages(out, options?.pageSlug);
   return out;
 }
 

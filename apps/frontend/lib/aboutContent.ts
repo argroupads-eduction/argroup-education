@@ -165,7 +165,7 @@ export const ABOUT_DIFFERENTIATORS = [
 ] as const;
 
 export const ABOUT_SEO = {
-  title: 'About AR Group of Education | Medical Admission Counselling Since 2005',
+  title: 'Best MBBS Consultants in India 2026 | AR Group Of Education',
   description:
-    'Learn about AR Group of Education, trusted MBBS India and abroad consultants since 2005. 4000+ students, transparent counselling, visa support and end-to-end admission guidance.',
+    'Learn about the Best MBBS Consultants in India. We offer genuine MBBS admission guidance India for top medical colleges. Contact our experts today!',
 } as const;
