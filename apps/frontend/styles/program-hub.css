@@ -266,6 +266,41 @@
   max-width: none;
 }
 
+/* State landmark cards — full image visible, container height follows image */
+.program-hub-card-media--state {
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  background: rgb(241 245 249);
+}
+
+.program-hub-card-media--state .program-hub-state-image.fit-image-frame {
+  width: 100%;
+  background: rgb(241 245 249);
+}
+
+.program-hub-card-media--state .program-hub-state-image .fit-image-frame__img {
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+.program-hero-state-image.fit-image-frame {
+  width: 100%;
+  max-height: none;
+  background: transparent;
+}
+
+.program-hero-state-image .fit-image-frame__img {
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
 .program-hub-card-body {
   flex: 1;
   display: flex;

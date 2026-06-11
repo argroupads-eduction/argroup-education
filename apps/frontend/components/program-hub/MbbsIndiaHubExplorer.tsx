@@ -1,15 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { ArrowRight, GraduationCap } from 'lucide-react';
+import { FitImage } from '@/components/ui/FitImage';
 import { HorizontalScrollItem, HorizontalScrollRow } from '@/components/ui/HorizontalScrollRow';
+import { getMbbsIndiaStateFeaturedImage } from '@/lib/mbbsIndiaStateImages';
 import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaTree';
-
-function stateCoverImage(stateId: string) {
-  const state = MBBS_INDIA_STATES.find((s) => s.id === stateId);
-  return state?.colleges.find((c) => c.image)?.image ?? null;
-}
 
 export function MbbsIndiaHubExplorer() {
   return (
@@ -25,19 +21,19 @@ export function MbbsIndiaHubExplorer() {
         </div>
         <HorizontalScrollRow ariaLabel="MBBS India states" autoScrollMobile gapClassName="gap-4">
           {MBBS_INDIA_STATES.map((state) => {
-            const image = stateCoverImage(state.id) ?? state.colleges[0]?.image;
+            const image =
+              getMbbsIndiaStateFeaturedImage(state.wpSlug) ??
+              state.colleges.find((c) => c.image)?.image ??
+              state.colleges[0]?.image;
             return (
               <HorizontalScrollItem key={state.id} className="w-[17rem] sm:w-[18.5rem]">
                 <Link href={state.href} className="program-hub-card group block h-full">
-                  <div className="program-hub-card-media">
+                  <div className="program-hub-card-media program-hub-card-media--state">
                     {image ? (
-                      <Image
+                      <FitImage
                         src={image}
-                        alt=""
-                        width={280}
-                        height={180}
-                        className="max-h-[6.5rem] w-auto max-w-full object-contain"
-                        unoptimized
+                        alt={`MBBS in ${state.name}`}
+                        frameClassName="program-hub-state-image"
                       />
                     ) : (
                       <GraduationCap className="h-10 w-10 text-slate-300" aria-hidden />

@@ -5,8 +5,9 @@ import { ProgramHubCta } from '@/components/program-hub/ProgramHubCta';
 import { ProgramHubHero } from '@/components/program-hub/ProgramHubHero';
 import { ProgramHubTrustBar } from '@/components/program-hub/ProgramHubTrustBar';
 import type { SiteContent } from '@/lib/contentApi';
+import { resolveMbbsIndiaFeaturedImage } from '@/lib/mbbsIndiaStateImages';
 import { MBBS_INDIA_STATES, collegeCount } from '@/lib/mbbsIndiaTree';
-import { PROGRAM_HUB_SEO } from '@/lib/programHubContent';
+import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type MbbsIndiaHubProps = {
@@ -16,6 +17,7 @@ type MbbsIndiaHubProps = {
 export function MbbsIndiaHub({ wpContent }: MbbsIndiaHubProps) {
   const seo = PROGRAM_HUB_SEO.india;
   const title = plainTitle(wpContent?.title || 'MBBS in India');
+  const hubFeaturedImage = resolveMbbsIndiaFeaturedImage(PROGRAM_HUB_WP_SLUG.india, wpContent?.featuredImage);
   const breadcrumbs = [{ label: 'MBBS India' }];
 
   const contentForJsonLd: SiteContent =
@@ -69,9 +71,10 @@ export function MbbsIndiaHub({ wpContent }: MbbsIndiaHubProps) {
             </div>
             <ContentPageShell
               html={wpContent.content}
-              featuredImage={wpContent.featuredImage}
+              featuredImage={hubFeaturedImage}
               title={title}
-              showFeaturedImage={Boolean(wpContent.featuredImage)}
+              showFeaturedImage={Boolean(hubFeaturedImage)}
+              pageSlug={PROGRAM_HUB_WP_SLUG.india}
             />
           </div>
         </section>

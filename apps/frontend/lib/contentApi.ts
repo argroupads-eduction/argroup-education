@@ -1,5 +1,6 @@
 import { sortBlogPostsByNewest } from '@/lib/blogUtils';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
+import { applyMarketingPageSeo } from '@/lib/marketingPageSeo';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
 import { getApiBaseUrl } from '@/lib/apiBase';
 import {
@@ -45,7 +46,7 @@ export interface BlogListItem {
 }
 
 function normalizeContent(doc: SiteContent): SiteContent {
-  return {
+  return applyMarketingPageSeo({
     ...doc,
     title: plainTextFromHtml(doc.title),
     excerpt: plainTextFromHtml(doc.excerpt),
@@ -57,7 +58,7 @@ function normalizeContent(doc: SiteContent): SiteContent {
     twitterDescription: doc.twitterDescription
       ? plainTextFromHtml(doc.twitterDescription)
       : null,
-  };
+  });
 }
 
 function normalizeBlogItem(doc: BlogListItem): BlogListItem {

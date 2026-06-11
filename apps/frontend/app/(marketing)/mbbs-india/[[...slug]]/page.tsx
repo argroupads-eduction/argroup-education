@@ -9,6 +9,7 @@ import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { MbbsIndiaStateGrid } from '@/components/mbbs-india/MbbsIndiaStateGrid';
 import { getContentBySlug } from '@/lib/contentApi';
 import { MBBS_INDIA_STATES, getMbbsIndiaStateBySlugPart } from '@/lib/mbbsIndiaTree';
+import { resolveMbbsIndiaFeaturedImage } from '@/lib/mbbsIndiaStateImages';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
@@ -39,10 +40,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const wp = state.wpSlug ? await getContentBySlug(state.wpSlug) : null;
   if (wp) {
-    return buildSiteMetadata(wp, {
-      canonicalPath: state.href,
-      fallbackTitle: `MBBS in ${state.name}`,
-    });
+    const featuredImage = resolveMbbsIndiaFeaturedImage(state.wpSlug, wp.featuredImage);
+    return buildSiteMetadata(
+      { ...wp, featuredImage, ogImage: featuredImage ?? wp.ogImage },
+      {
+        canonicalPath: state.href,
+        fallbackTitle: `MBBS in ${state.name}`,
+      }
+    );
   }
 
   return {
@@ -65,6 +70,8 @@ export default async function MbbsIndiaPage({ params }: PageProps) {
 
   const wpContent = state.wpSlug ? await getContentBySlug(state.wpSlug) : null;
   const title = plainTitle(wpContent?.title || `MBBS in ${state.name}`);
+  const featuredImage = resolveMbbsIndiaFeaturedImage(state.wpSlug, wpContent?.featuredImage);
+  const pageHtml = wpContent?.content ?? null;
 
   const breadcrumbs = [
     { label: 'MBBS India', href: '/mbbs-india' },
@@ -85,15 +92,17 @@ export default async function MbbsIndiaPage({ params }: PageProps) {
           { label: 'Colleges listed', value: String(state.colleges.length) },
           { label: 'Region', value: state.name },
         ]}
-        featuredImage={wpContent?.featuredImage}
+        featuredImage={featuredImage}
+        heroImageFit="state"
       />
 
-      {wpContent ? (
+      {wpContent && pageHtml ? (
         <ContentPageShell
-          html={wpContent.content}
-          featuredImage={wpContent.featuredImage}
+          html={pageHtml}
+          featuredImage={featuredImage}
           title={title}
           showFeaturedImage={false}
+          pageSlug={state.wpSlug}
         />
       ) : null}
 

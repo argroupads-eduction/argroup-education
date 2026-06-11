@@ -31,10 +31,14 @@ const FAQSection = dynamic(() =>
 
 const SITE = getSiteUrl();
 
+const HOME_SEO_TITLE =
+  'Medical College Admission | NEET & MBBS Consultants India & Abroad';
+const HOME_SEO_DESCRIPTION =
+  'Secure Medical College Admission with AR Group Of Education. Trust on top MBBS Admission Consultants In India & MBBS Admission Consultants Abroad. Contact a NEET Counselling Expert today!';
+
 export const metadata: Metadata = {
-  title: 'MBBS India & Abroad Admission Consultant | NEET Counselling Expert',
-  description:
-    'AR Group of Education, India\'s trusted MBBS admission consultants. NEET UG/PG counselling, MBBS in India & 15+ countries abroad, college shortlisting & visa support. 4000+ students guided. Book expert counselling.',
+  title: HOME_SEO_TITLE,
+  description: HOME_SEO_DESCRIPTION,
   keywords: [
     'MBBS admission consultant India',
     'MBBS abroad consultancy',
@@ -47,9 +51,8 @@ export const metadata: Metadata = {
     canonical: `${SITE}/`,
   },
   openGraph: {
-    title: 'MBBS India & Abroad Admission Consultant | AR Group of Education',
-    description:
-      'Expert NEET counselling & MBBS admission for India & abroad. 4000+ students, 500+ partner colleges, end-to-end visa & documentation support.',
+    title: HOME_SEO_TITLE,
+    description: HOME_SEO_DESCRIPTION,
     url: SITE,
     type: 'website',
     locale: 'en_IN',
@@ -58,8 +61,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary',
-    title: 'MBBS India & Abroad | AR Group of Education',
-    description: 'NEET counselling & MBBS admission experts for India & abroad. Expert counselling session.',
+    title: HOME_SEO_TITLE,
+    description: HOME_SEO_DESCRIPTION,
     images: ['/ar-group-logo.png'],
   },
   robots: {

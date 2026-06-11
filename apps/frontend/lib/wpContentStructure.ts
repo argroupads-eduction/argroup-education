@@ -113,21 +113,39 @@ export function wrapContentSections(html: string): string {
     .join('\n');
 }
 
+function isKeyValueFactsTable(table: string): boolean {
+  if (!/eael-data-table/i.test(table)) return false;
+  const firstRow = table.match(/<tbody\b[^>]*>[\s\S]*?<tr\b[^>]*>([\s\S]*?)<\/tr>/i)?.[1] ?? '';
+  return (firstRow.match(/<td\b/gi) || []).length === 2;
+}
+
+function tagKeyValueFactsTable(table: string): string {
+  if (!isKeyValueFactsTable(table)) return table;
+  if (/\bwp-facts-kv-table\b/.test(table)) return table;
+  return table.replace(/<table\b([^>]*)>/i, (_m, attrs: string) => {
+    if (/\bclass\s*=/i.test(attrs)) {
+      return `<table${attrs.replace(/\bclass\s*=\s*["']([^"']*)["']/i, 'class="$1 wp-facts-kv-table"')}>`;
+    }
+    return `<table${attrs} class="wp-facts-kv-table">`;
+  });
+}
+
 /** Wrap tables for aligned layout + horizontal scroll on mobile (content unchanged). */
 export function wrapContentTables(html: string): string {
   const withEaelMerged = html.replace(
     /<div\b([^>]*\beael-data-table-wrap\b[^>]*)>\s*(<table\b[\s\S]*?<\/table>)\s*<\/div>/gi,
     (_match, attrs: string, table: string) => {
+      const tagged = tagKeyValueFactsTable(table);
       if (/\bwp-table-scroll\b/.test(attrs)) {
-        return `<div${attrs}>${table}</div>`;
+        return `<div${attrs}>${tagged}</div>`;
       }
       if (/class\s*=\s*"/i.test(attrs)) {
-        return `<div${attrs.replace(/class\s*=\s*"/i, 'class="wp-table-scroll ')}>${table}</div>`;
+        return `<div${attrs.replace(/class\s*=\s*"/i, 'class="wp-table-scroll ')}>${tagged}</div>`;
       }
       if (/class\s*=\s*'/i.test(attrs)) {
-        return `<div${attrs.replace(/class\s*=\s*'/i, "class='wp-table-scroll ")}>${table}</div>`;
+        return `<div${attrs.replace(/class\s*=\s*'/i, "class='wp-table-scroll ")}>${tagged}</div>`;
       }
-      return `<div class="eael-data-table-wrap wp-table-scroll">${table}</div>`;
+      return `<div class="eael-data-table-wrap wp-table-scroll">${tagged}</div>`;
     }
   );
 

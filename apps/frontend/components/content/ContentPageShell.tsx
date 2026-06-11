@@ -25,6 +25,8 @@ type ContentArticleProps = {
   quickFacts?: ReturnType<typeof parseContentStructure>['quickFacts'];
   /** Extra classes on article root (e.g. wp-content-abroad-hub) */
   articleClassName?: string;
+  /** WP slug for MBBS India state landmark injection in body HTML */
+  pageSlug?: string | null;
 };
 
 export function ContentArticle({
@@ -38,6 +40,7 @@ export function ContentArticle({
   headings: headingsProp,
   quickFacts: quickFactsProp,
   articleClassName,
+  pageSlug,
 }: ContentArticleProps) {
   const parsed =
     structuredHtmlProp !== undefined
@@ -47,7 +50,9 @@ export function ContentArticle({
           quickFacts: quickFactsProp ?? [],
         }
       : parseContentStructure(
-          sanitizeCmsHtml(prepareWpHtml(html, { featuredImage, title }))
+          sanitizeCmsHtml(
+            prepareWpHtml(html, { featuredImage, title, pageSlug })
+          )
         );
   const { html: structuredHtml, headings, quickFacts } = parsed;
   const safeHtml = sanitizeCmsHtml(structuredHtml);
@@ -111,6 +116,7 @@ export function ContentPageShell({
   let prepared = prepareWpHtml(rawHtml, {
     featuredImage: articleProps.featuredImage,
     title: articleProps.title,
+    pageSlug: articleProps.pageSlug,
   });
   if (isAbroadHub) prepared = fixAbroadWpContent(prepared);
   const { html: structuredHtml, headings, quickFacts } = parseContentStructure(prepared);
