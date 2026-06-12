@@ -44,6 +44,7 @@ const nextConfig = {
     '/api/cms/payload-sync': ['../../node_modules/.prisma/client/**/*'],
     '/api/leads/submit': ['../../node_modules/.prisma/client/**/*'],
     '/api/newsletter/subscribe': ['../../node_modules/.prisma/client/**/*'],
+    '/api/wp-media/[...path]': ['./public/wp-content/**/*'],
   },
 
   images: {
@@ -52,6 +53,7 @@ const nextConfig = {
     unoptimized: true,
     localPatterns: [
       { pathname: '/api/wp-media/**' },
+      { pathname: '/wp-content/**' },
     ],
     remotePatterns: [
       {
