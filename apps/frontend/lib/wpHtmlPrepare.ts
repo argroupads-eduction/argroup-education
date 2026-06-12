@@ -605,15 +605,26 @@ export function stripEmptyEaelTableHeadings(html: string): string {
   });
 }
 
-/** Fix EAEL key-value rows exported with 4 cells (label, value, two blanks). */
+/** Fix EAEL rows exported with extra empty cells (common on college/state pages). */
 export function normalizeEaelFactTableRows(html: string): string {
   return html.replace(/<table\b[^>]*\beael-data-table\b[\s\S]*?<\/table>/gi, (table) =>
     table.replace(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi, (row, inner) => {
       const cells = [...inner.matchAll(/<td\b[^>]*>[\s\S]*?<\/td>/gi)];
-      if (cells.length !== 4) return row;
       const texts = cells.map((cell) => tableCellPlainText(cell[0]));
-      if (texts[2] || texts[3]) return row;
-      return `<tr>${cells[0][0]}${cells[1][0]}</tr>`;
+
+      if (cells.length === 4 && !texts[2] && !texts[3]) {
+        return `<tr>${cells[0][0]}${cells[1][0]}</tr>`;
+      }
+
+      if (cells.length === 4 && texts[0] && !texts[1] && !texts[2] && texts[3]) {
+        return `<tr>${cells[0][0]}${cells[3][0]}</tr>`;
+      }
+
+      if (cells.length === 3 && texts[0] && !texts[1] && texts[2]) {
+        return `<tr>${cells[0][0]}${cells[2][0]}</tr>`;
+      }
+
+      return row;
     })
   );
 }

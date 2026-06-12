@@ -128,21 +128,60 @@ export function wrapContentSections(html: string): string {
     .join('\n');
 }
 
+function eaelTableHasThead(table: string): boolean {
+  const thead = table.match(/<thead\b[^>]*>[\s\S]*?<\/thead>/i)?.[0] ?? '';
+  return Boolean(stripHtml(thead).trim());
+}
+
 function isKeyValueFactsTable(table: string): boolean {
   if (!/eael-data-table/i.test(table)) return false;
+  if (eaelTableHasThead(table)) return false;
   const firstRow = table.match(/<tbody\b[^>]*>[\s\S]*?<tr\b[^>]*>([\s\S]*?)<\/tr>/i)?.[1] ?? '';
   return (firstRow.match(/<td\b/gi) || []).length === 2;
 }
 
-function tagKeyValueFactsTable(table: string): string {
-  if (!isKeyValueFactsTable(table)) return table;
-  if (/\bwp-facts-kv-table\b/.test(table)) return table;
+function isLabeledDataTable(table: string): boolean {
+  if (!/eael-data-table/i.test(table)) return false;
+  return eaelTableHasThead(table);
+}
+
+function countEaelTableColumns(table: string): number {
+  const thead = table.match(/<thead\b[^>]*>[\s\S]*?<\/thead>/i)?.[0] ?? '';
+  const thCount = (thead.match(/<th\b/gi) || []).length;
+  if (thCount >= 2) return thCount;
+  const tbody = table.match(/<tbody\b[^>]*>([\s\S]*?)<\/tbody>/i)?.[1] ?? '';
+  let max = 0;
+  for (const row of tbody.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)) {
+    const n = (row[1].match(/<td\b/gi) || []).length;
+    if (n > max) max = n;
+  }
+  return Math.max(2, max);
+}
+
+function addTableClass(table: string, className: string): string {
+  if (new RegExp(`\\b${className}\\b`).test(table)) return table;
   return table.replace(/<table\b([^>]*)>/i, (_m, attrs: string) => {
     if (/\bclass\s*=/i.test(attrs)) {
-      return `<table${attrs.replace(/\bclass\s*=\s*["']([^"']*)["']/i, 'class="$1 wp-facts-kv-table"')}>`;
+      return `<table${attrs.replace(/\bclass\s*=\s*["']([^"']*)["']/i, `class="$1 ${className}"`)}>`;
     }
-    return `<table${attrs} class="wp-facts-kv-table">`;
+    return `<table${attrs} class="${className}">`;
   });
+}
+
+function eaelColumnClass(cols: number): string {
+  if (cols >= 6) return 'wp-table-cols-many';
+  if (cols === 5) return 'wp-table-cols-5';
+  return `wp-table-cols-${Math.min(Math.max(cols, 2), 4)}`;
+}
+
+function tagEaelDataTable(table: string): string {
+  if (!/eael-data-table/i.test(table)) return table;
+
+  const cols = countEaelTableColumns(table);
+  let tagged = addTableClass(table, eaelColumnClass(cols));
+  if (isKeyValueFactsTable(table)) tagged = addTableClass(tagged, 'wp-facts-kv-table');
+  else if (isLabeledDataTable(table) || cols >= 3) tagged = addTableClass(tagged, 'wp-labeled-data-table');
+  return tagged;
 }
 
 /** Wrap tables for aligned layout + horizontal scroll on mobile (content unchanged). */
@@ -150,7 +189,7 @@ export function wrapContentTables(html: string): string {
   const withEaelMerged = html.replace(
     /<div\b([^>]*\beael-data-table-wrap\b[^>]*)>\s*(<table\b[\s\S]*?<\/table>)\s*<\/div>/gi,
     (_match, attrs: string, table: string) => {
-      const tagged = tagKeyValueFactsTable(table);
+      const tagged = tagEaelDataTable(table);
       if (/\bwp-table-scroll\b/.test(attrs)) {
         return `<div${attrs}>${tagged}</div>`;
       }
