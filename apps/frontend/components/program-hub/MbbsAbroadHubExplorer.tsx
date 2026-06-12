@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ArrowRight, Globe } from 'lucide-react';
 import { HorizontalScrollItem, HorizontalScrollRow } from '@/components/ui/HorizontalScrollRow';
 import { MBBS_ABROAD_COUNTRIES, mbbsAbroadCountryCollegeCount } from '@/lib/mbbsAbroadTree';
+import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 export function MbbsAbroadHubExplorer() {
   return (
@@ -21,13 +22,14 @@ export function MbbsAbroadHubExplorer() {
         <HorizontalScrollRow ariaLabel="MBBS Abroad countries" autoScrollMobile gapClassName="gap-4">
           {MBBS_ABROAD_COUNTRIES.map((country) => {
             const count = mbbsAbroadCountryCollegeCount(country);
+            const imageSrc = resolveWpMediaUrl(country.featuredImage);
             return (
               <HorizontalScrollItem key={country.id} className="w-[17rem] sm:w-[18.5rem]">
                 <Link href={country.href} className="program-hub-card group block h-full">
                   <div className="program-hub-card-media">
-                    {country.featuredImage ? (
+                    {imageSrc ? (
                       <Image
-                        src={country.featuredImage}
+                        src={imageSrc}
                         alt=""
                         width={280}
                         height={180}

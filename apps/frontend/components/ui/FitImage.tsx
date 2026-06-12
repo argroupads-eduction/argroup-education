@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 type FitImageProps = {
   src: string;
@@ -21,13 +22,15 @@ export function FitImage({
   className = '',
   frameClassName = '',
 }: FitImageProps) {
+  const resolvedSrc = resolveWpMediaUrl(src) ?? src;
+
   return (
     <div
       className={`fit-image-frame ${frameClassName}`.trim()}
       style={maxHeight ? { maxHeight } : undefined}
     >
       <Image
-        src={src}
+        src={resolvedSrc}
         alt={alt}
         width={1200}
         height={800}

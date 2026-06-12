@@ -74,9 +74,11 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
   }
 
   const [variant, setVariant] = useState<HeroVariant>('india');
+  const [carouselPaused, setCarouselPaused] = useState(false);
   const [text, setText] = useState('');
   const [collegeIndex, setCollegeIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const formZoneRef = useRef<HTMLDivElement>(null);
 
   const colleges = useMemo(
     () => (variant === 'india' ? COLLEGES_INDIA : COLLEGES_ABROAD),
@@ -88,20 +90,55 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
     prefetchMbbsHeroFormDefinitions(['india', 'abroad']);
   }, []);
 
-  // Auto-rotate India -> Abroad -> India
+  // Pause auto-rotate while the user interacts with the hero enquiry form.
   useEffect(() => {
+    const zone = formZoneRef.current;
+    if (!zone) return;
+
+    const pause = () => setCarouselPaused(true);
+
+    const maybeResume = () => {
+      requestAnimationFrame(() => {
+        if (!zone.contains(document.activeElement)) {
+          setCarouselPaused(false);
+        }
+      });
+    };
+
+    const onDocPointerDown = (e: PointerEvent) => {
+      if (!zone.contains(e.target as Node)) maybeResume();
+    };
+
+    zone.addEventListener('pointerdown', pause);
+    zone.addEventListener('focusin', pause);
+    zone.addEventListener('focusout', maybeResume);
+    document.addEventListener('pointerdown', onDocPointerDown);
+
+    return () => {
+      zone.removeEventListener('pointerdown', pause);
+      zone.removeEventListener('focusin', pause);
+      zone.removeEventListener('focusout', maybeResume);
+      document.removeEventListener('pointerdown', onDocPointerDown);
+    };
+  }, [variant]);
+
+  // Auto-rotate India -> Abroad -> India (skipped while form is in use).
+  useEffect(() => {
+    if (carouselPaused) return;
+
     const ms = variant === 'india' ? INDIA_SHOW_MS : ABROAD_SHOW_MS;
     const id = window.setTimeout(() => {
       setVariant((v) => (v === 'india' ? 'abroad' : 'india'));
     }, ms);
     return () => window.clearTimeout(id);
-  }, [variant]);
+  }, [variant, carouselPaused]);
 
   // Reset typewriter when banner mode switches
   useEffect(() => {
     setText('');
     setCollegeIndex(0);
     setIsDeleting(false);
+    setCarouselPaused(false);
   }, [variant]);
 
   useEffect(() => {
@@ -250,7 +287,10 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                 </div>
               </div>
 
-              <div className="flex min-h-0 w-full flex-col items-center justify-center pt-10 lg:min-h-full lg:pt-0">
+              <div
+                ref={formZoneRef}
+                className="flex min-h-0 w-full flex-col items-center justify-center pt-10 lg:min-h-full lg:pt-0"
+              >
                 <MbbsIndiaHeroPayloadForm
                   layout="heroSide"
                   className="w-full max-w-md lg:max-w-[20.5rem] xl:max-w-md"
@@ -262,7 +302,10 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
           {/* Abroad: enquiry form left (desktop), copy right; mobile keeps copy first */}
           {variant === 'abroad' && (
             <>
-              <div className="order-2 flex min-h-0 w-full flex-col items-center justify-center pt-10 lg:order-1 lg:min-h-full lg:items-start lg:pt-0">
+              <div
+                ref={formZoneRef}
+                className="order-2 flex min-h-0 w-full flex-col items-center justify-center pt-10 lg:order-1 lg:min-h-full lg:items-start lg:pt-0"
+              >
                 <MbbsAbroadHeroPayloadForm
                   layout="heroSide"
                   className="w-full max-w-md lg:max-w-[20.5rem] xl:max-w-md"

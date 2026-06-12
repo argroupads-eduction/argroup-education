@@ -50,6 +50,9 @@ const nextConfig = {
     // Serve /public assets directly — matches local dev and avoids Vercel
     // /_next/image 400s for widths outside imageSizes (e.g. logo 56px/80px).
     unoptimized: true,
+    localPatterns: [
+      { pathname: '/api/wp-media/**' },
+    ],
     remotePatterns: [
       {
         protocol: 'https',

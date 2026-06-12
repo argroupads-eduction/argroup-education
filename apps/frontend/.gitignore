@@ -12,3 +12,5 @@ dist/
 .vscode/
 .idea/
 .vercel
+uploads.zip
+.tmp-wp-uploads-extract/
