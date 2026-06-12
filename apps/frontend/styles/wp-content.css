@@ -304,15 +304,16 @@
 @media (min-width: 768px) {
   .wp-content-root .wp-university-profile > .elementor-container,
   .wp-content-root .wp-university-profile-grid.elementor-container {
-    grid-template-columns: minmax(260px, 34%) minmax(0, 1fr) !important;
-    gap: 1.5rem 2rem !important;
+    grid-template-columns: minmax(220px, 28%) minmax(0, 1fr) !important;
+    gap: 1.25rem 1.5rem !important;
   }
 }
 
 @media (min-width: 1200px) {
   .wp-content-root .wp-university-profile > .elementor-container,
   .wp-content-root .wp-university-profile-grid.elementor-container {
-    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr) !important;
+    grid-template-columns: minmax(240px, 280px) minmax(0, 1fr) !important;
+    gap: 1.5rem 2rem !important;
   }
 }
 
@@ -402,7 +403,7 @@
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table {
   width: 100% !important;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap thead th,
@@ -466,7 +467,7 @@
 }
 
 .wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) table {
-  table-layout: fixed !important;
+  table-layout: auto !important;
   width: 100% !important;
 }
 
@@ -478,9 +479,9 @@
 }
 
 .wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) tbody td:first-child {
-  width: 38% !important;
-  min-width: 7.5rem;
-  max-width: 42%;
+  width: auto !important;
+  min-width: 9rem;
+  max-width: none;
   font-weight: 600;
   color: #0f172a !important;
   background: rgba(26, 54, 93, 0.04);
@@ -490,8 +491,10 @@
 
 .wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) tbody td:last-child {
   width: auto !important;
+  min-width: 4.5rem !important;
   color: #334155 !important;
   text-align: left !important;
+  text-transform: none !important;
 }
 
 .wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) table.eael-data-table.center th,
@@ -503,6 +506,17 @@
 .wp-content-root .wp-university-profile-grid > .elementor-column:last-child {
   min-width: 0 !important;
   overflow: visible !important;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:last-child,
+.wp-content-root .wp-university-profile-grid > .elementor-column:last-child {
+  flex: 1 1 auto !important;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:last-child .elementor-widget-wrap,
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:last-child .eael-data-table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 /* Mobile: stack media then table; rows stay readable (no clipped Details column) */
@@ -893,9 +907,12 @@
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table,
 .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table {
   width: 100% !important;
-  table-layout: fixed !important;
   border-collapse: collapse !important;
   border-spacing: 0 !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table {
+  table-layout: auto !important;
 }
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody tr,
@@ -924,26 +941,32 @@
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child,
 .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child {
-  width: 38% !important;
+  width: 10.5rem !important;
+  min-width: 10.5rem !important;
+  max-width: 40% !important;
   font-weight: 800 !important;
-  font-size: 0.75rem !important;
-  letter-spacing: 0.04em;
+  font-size: 0.8125rem !important;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: #92400e !important;
   background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
   border-left: 4px solid #d97706 !important;
+  overflow: visible !important;
   overflow-wrap: normal !important;
-  word-break: normal !important;
+  word-break: keep-all !important;
   hyphens: none !important;
+  white-space: nowrap !important;
 }
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child,
 .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child {
-  width: 62% !important;
+  width: auto !important;
+  min-width: 0 !important;
   color: #0f172a !important;
   font-weight: 500 !important;
   background: #ffffff !important;
   text-align: left !important;
+  text-transform: none !important;
 }
 
 .wp-content-root .wp-table-scroll table.wp-facts-kv-table:not(:has(thead)) tbody tr:first-child td {
@@ -991,11 +1014,15 @@
   }
 
   .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child {
-    width: 34% !important;
+    width: 9rem !important;
+    min-width: 9rem !important;
+    max-width: 42% !important;
+    white-space: normal !important;
+    font-size: 0.75rem !important;
   }
 
   .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child {
-    width: 66% !important;
+    width: auto !important;
   }
 }
 
@@ -2107,6 +2134,27 @@
   background: rgba(26, 54, 93, 0.03);
   border-left: 3px solid #d97706;
   min-width: 9rem;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child {
+  min-width: 0 !important;
+  max-width: 38% !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child {
+  min-width: 4.5rem !important;
+}
+
+/* College profile cards — never crush label column inside wp-table-scroll */
+.wp-content-root .wp-university-profile .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child {
+  min-width: 10.5rem !important;
+  max-width: 40% !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+.wp-content-root .wp-university-profile .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child {
+  width: 100% !important;
 }
 
 .wp-content-root .wp-table-scroll tbody tr:nth-child(even) td:first-child,

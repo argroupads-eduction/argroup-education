@@ -605,6 +605,39 @@ export function stripEmptyEaelTableHeadings(html: string): string {
   });
 }
 
+const ESTABLISHMENT_LABEL_RE = /^(?:year\s+of\s+)?establishment$/i;
+
+function normalizeEstablishmentLabelText(label: string): string | null {
+  if (ESTABLISHMENT_LABEL_RE.test(label.trim())) return 'Established';
+  return null;
+}
+
+function replaceFirstCellLabel(cellHtml: string, nextLabel: string): string {
+  if (/<div class="td-content">/i.test(cellHtml)) {
+    return cellHtml.replace(/(<div class="td-content">)[\s\S]*?(<\/div>)/i, `$1${nextLabel}$2`);
+  }
+  return cellHtml.replace(/(<td\b[^>]*>)[\s\S]*?(<\/td>)/i, `$1${nextLabel}$2`);
+}
+
+/** Standardise founding-year labels in EAEL key-value tables (Establishment → Established). */
+export function normalizeEstablishmentFactLabels(html: string): string {
+  return html.replace(/<table\b[^>]*\beael-data-table\b[\s\S]*?<\/table>/gi, (table) =>
+    table.replace(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi, (row, inner) => {
+      const cells = [...inner.matchAll(/<td\b[^>]*>[\s\S]*?<\/td>/gi)];
+      if (cells.length < 2) return row;
+
+      const label = tableCellPlainText(cells[0][0]);
+      const nextLabel = normalizeEstablishmentLabelText(label);
+      if (!nextLabel) return row;
+
+      return `<tr>${replaceFirstCellLabel(cells[0][0], nextLabel)}${cells
+        .slice(1)
+        .map((cell) => cell[0])
+        .join('')}</tr>`;
+    })
+  );
+}
+
 /** Fix EAEL rows exported with extra empty cells (common on college/state pages). */
 export function normalizeEaelFactTableRows(html: string): string {
   return html.replace(/<table\b[^>]*\beael-data-table\b[\s\S]*?<\/table>/gi, (table) =>
@@ -614,6 +647,10 @@ export function normalizeEaelFactTableRows(html: string): string {
 
       if (cells.length === 4 && !texts[2] && !texts[3]) {
         return `<tr>${cells[0][0]}${cells[1][0]}</tr>`;
+      }
+
+      if (cells.length === 4 && texts[0] && texts[2] && !texts[1] && !texts[3]) {
+        return `<tr>${cells[0][0]}${cells[2][0]}</tr>`;
       }
 
       if (cells.length === 4 && texts[0] && !texts[1] && !texts[2] && texts[3]) {
@@ -1501,6 +1538,7 @@ export function prepareWpHtml(
   out = cleanBrokenTableRows(out);
   out = stripEmptyEaelTableHeadings(out);
   out = normalizeEaelFactTableRows(out);
+  out = normalizeEstablishmentFactLabels(out);
   out = demoteJkitCardTitles(out);
   out = demoteMultiColumnCardHeadings(out);
   out = stripBrokenIconWidgets(out);
