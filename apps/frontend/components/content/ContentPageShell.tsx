@@ -51,7 +51,12 @@ export function ContentArticle({
         }
       : parseContentStructure(
           sanitizeCmsHtml(
-            prepareWpHtml(html, { featuredImage, title, pageSlug })
+            prepareWpHtml(html, {
+              featuredImage,
+              title,
+              pageSlug,
+              dedupeFeaturedInBody: showFeaturedImage,
+            })
           )
         );
   const { html: structuredHtml, headings, quickFacts } = parsed;
@@ -117,6 +122,7 @@ export function ContentPageShell({
     featuredImage: articleProps.featuredImage,
     title: articleProps.title,
     pageSlug: articleProps.pageSlug,
+    dedupeFeaturedInBody: articleProps.showFeaturedImage !== false,
   });
   if (isAbroadHub) prepared = fixAbroadWpContent(prepared);
   const { html: structuredHtml, headings, quickFacts } = parseContentStructure(prepared);

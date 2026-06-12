@@ -1,4 +1,5 @@
 import airportDiariesData from '@/data/airport-diaries.json';
+import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 export type AirportDiaryImage = {
   id: string;
@@ -6,9 +7,12 @@ export type AirportDiaryImage = {
   alt: string;
 };
 
-const VALID_IMAGES = airportDiariesData.images.filter(
-  (img) => img.src.includes('wp-content/uploads') && !img.src.endsWith('.svg')
-) satisfies AirportDiaryImage[];
+const VALID_IMAGES = airportDiariesData.images
+  .filter((img) => img.src.includes('wp-content/uploads') && !img.src.endsWith('.svg'))
+  .map((img) => ({
+    ...img,
+    src: resolveWpMediaUrl(img.src) ?? img.src,
+  })) satisfies AirportDiaryImage[];
 
 export const AIRPORT_DIARIES = {
   title: airportDiariesData.title,

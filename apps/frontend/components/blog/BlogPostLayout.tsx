@@ -23,6 +23,8 @@ export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLa
   const prepared = prepareWpHtml(content.content, {
     featuredImage: content.featuredImage,
     title: content.title,
+    pageSlug: content.slug,
+    dedupeFeaturedInBody: false,
   });
   const { html: structuredHtml, headings, quickFacts } = parseContentStructure(
     sanitizeCmsHtml(prepared),

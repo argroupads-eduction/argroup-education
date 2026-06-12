@@ -44,7 +44,7 @@ const nextConfig = {
     '/api/cms/payload-sync': ['../../node_modules/.prisma/client/**/*'],
     '/api/leads/submit': ['../../node_modules/.prisma/client/**/*'],
     '/api/newsletter/subscribe': ['../../node_modules/.prisma/client/**/*'],
-    '/api/wp-media/[...path]': ['./public/wp-content/**/*'],
+    '/api/wp-media/[...path]': ['./public/wp-content/**/*', '../../_uploads/**/*'],
   },
 
   images: {
@@ -206,6 +206,13 @@ const nextConfig = {
         {
           source: '/robots.txt',
           destination: '/api/robots',
+        },
+      ],
+      // After public/ — wp-content paths missing from public/ fall back to /api/wp-media (_uploads or remote).
+      afterFiles: [
+        {
+          source: '/wp-content/:path*',
+          destination: '/api/wp-media/:path*',
         },
       ],
       // After public/ — serves from bundled public/ when Vercel omits static files.

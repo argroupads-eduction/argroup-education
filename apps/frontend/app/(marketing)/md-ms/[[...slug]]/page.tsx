@@ -91,6 +91,7 @@ export default async function MdMsPage({ params }: PageProps) {
           featuredImage={wpContent.featuredImage}
           title={title}
           showFeaturedImage={false}
+          pageSlug={item.wpSlug}
         />
       ) : null}
 

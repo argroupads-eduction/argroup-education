@@ -5,11 +5,14 @@ import { injectMbbsAbroadCountryImages } from '@/lib/mbbsAbroadCountryImages';
 import { injectMbbsIndiaStateImages } from '@/lib/mbbsIndiaStateImages';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { rewriteInternalLinks } from '@/lib/rewriteInternalLinks';
+import { injectCollegeCardImagesInHtml } from '@/lib/injectCollegeCardImages';
+import { normalizeContentImagesInHtml } from '@/lib/normalizeContentImages';
 import { rewriteWpMediaUrlsInHtml } from '@/lib/wpMediaUrl';
 
 function normUrl(url: string): string {
   return url
     .replace(/^https?:\/\/(www\.)?argroupofeducation\.com/i, '')
+    .replace(/^\/api\/wp-media\//i, '/wp-content/')
     .replace(/-\d+x\d+(?=\.[a-z]+$)/i, '')
     .replace(/elementor\/thumbs\//i, 'uploads/')
     .split('?')[0]
@@ -600,6 +603,19 @@ export function stripEmptyEaelTableHeadings(html: string): string {
     if (stripHtml(match).trim()) return match;
     return '';
   });
+}
+
+/** Fix EAEL key-value rows exported with 4 cells (label, value, two blanks). */
+export function normalizeEaelFactTableRows(html: string): string {
+  return html.replace(/<table\b[^>]*\beael-data-table\b[\s\S]*?<\/table>/gi, (table) =>
+    table.replace(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi, (row, inner) => {
+      const cells = [...inner.matchAll(/<td\b[^>]*>[\s\S]*?<\/td>/gi)];
+      if (cells.length !== 4) return row;
+      const texts = cells.map((cell) => tableCellPlainText(cell[0]));
+      if (texts[2] || texts[3]) return row;
+      return `<tr>${cells[0][0]}${cells[1][0]}</tr>`;
+    })
+  );
 }
 
 /** University profile blocks: image (+ optional CTA) | EAEL facts table. */
@@ -1447,7 +1463,13 @@ export function transformAllFaqs(html: string): string {
 
 export function prepareWpHtml(
   html: string,
-  options?: { featuredImage?: string | null; title?: string; pageSlug?: string | null }
+  options?: {
+    featuredImage?: string | null;
+    title?: string;
+    pageSlug?: string | null;
+    /** When false, keep body images that match the hero featured image (separate ProgramPageHero). */
+    dedupeFeaturedInBody?: boolean;
+  }
 ): string {
   let out = html.trim();
   if (out && !/<[a-z][\s\S]*>/i.test(out)) {
@@ -1458,13 +1480,16 @@ export function prepareWpHtml(
       .map((p) => `<p>${p.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`)
       .join('\n');
   }
-  if (options?.featuredImage) out = removeDuplicateImages(out, options.featuredImage);
+  if (options?.featuredImage && options.dedupeFeaturedInBody) {
+    out = removeDuplicateImages(out, options.featuredImage);
+  }
   if (options?.title) out = removeDuplicateTitleHeading(out, options.title);
   out = demoteBodyH1ToH2(out);
   out = fixHeadingLevelSkips(out);
   out = stripElementorHiddenSections(out);
   out = cleanBrokenTableRows(out);
   out = stripEmptyEaelTableHeadings(out);
+  out = normalizeEaelFactTableRows(out);
   out = demoteJkitCardTitles(out);
   out = demoteMultiColumnCardHeadings(out);
   out = stripBrokenIconWidgets(out);
@@ -1492,6 +1517,11 @@ export function prepareWpHtml(
   out = highlightAddressBlocks(out);
   out = rewriteInternalLinks(out);
   out = rewriteWpMediaUrlsInHtml(out);
+  out = injectCollegeCardImagesInHtml(out, options?.pageSlug);
+  out = normalizeContentImagesInHtml(out, {
+    pageSlug: options?.pageSlug,
+    featuredImage: options?.featuredImage,
+  });
   out = injectMbbsIndiaStateImages(out, options?.pageSlug);
   out = injectMbbsAbroadCountryImages(out, options?.pageSlug);
   return out;

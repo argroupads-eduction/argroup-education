@@ -110,6 +110,7 @@ export default async function WpSlugPage({ params }: PageProps) {
         featuredImage={featuredImage}
         title={title}
         showFeaturedImage={false}
+        pageSlug={decoded}
         published={published}
         publishedLabel="Last updated"
       />

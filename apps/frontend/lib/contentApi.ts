@@ -576,6 +576,10 @@ export async function getContentBySlug(slug: string): Promise<SiteContent | null
   const local = await getWpExportContentBySlug(slug);
   if (local) return normalizeContent(local);
 
+  const { buildCollegeFallbackContent } = await import('@/lib/collegeFallbackContent');
+  const fallback = buildCollegeFallbackContent(slug);
+  if (fallback) return normalizeContent(fallback);
+
   return null;
 }
 
@@ -584,61 +588,49 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   total: number;
   pages: number;
 }> {
-  let baseResult: { data: BlogListItem[]; total: number; pages: number } | null = null;
+  const safePage = Math.max(1, page);
+  const safeLimit = Math.min(50, Math.max(1, limit));
+  const mergedBySlug = new Map<string, BlogListItem>();
 
   try {
-    const res = await fetch(
-      `${apiBase()}/api/blogs?page=${page}&limit=${limit}`,
-      {
-        ...(isBackendPrimaryContent()
-          ? { cache: 'no-store' as const }
-          : { next: { revalidate: 600 } }),
-        signal: AbortSignal.timeout(8000),
-      }
-    );
-    if (res.ok) {
-      const json = await res.json();
-      baseResult = {
-        data: (json.data ?? []).map((item: BlogListItem) => normalizeBlogItem(item)),
-        total: json.total ?? 0,
-        pages: json.pages ?? 0,
-      };
+    const { getAllWpExportBlogPosts } = await import('@/lib/wpExportContent');
+    for (const item of await getAllWpExportBlogPosts()) {
+      mergedBySlug.set(item.slug, item);
     }
   } catch {
-    /* fall through */
+    /* bundle optional */
   }
 
-  if (!baseResult) {
-    try {
-      const { getWpExportBlogPosts } = await import('@/lib/wpExportContent');
-      baseResult = await getWpExportBlogPosts(page, limit);
-    } catch {
-      baseResult = { data: [], total: 0, pages: 0 };
+  try {
+    const res = await fetch(`${apiBase()}/api/blogs?page=1&limit=50`, {
+      ...(isBackendPrimaryContent()
+        ? { cache: 'no-store' as const }
+        : { next: { revalidate: 600 } }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      for (const item of json.data ?? []) {
+        mergedBySlug.set(item.slug, normalizeBlogItem(item as BlogListItem));
+      }
     }
+  } catch {
+    /* API optional */
   }
 
-  const backendFirst = isBackendPrimaryContent();
-  const payloadPosts = backendFirst
-    ? []
-    : await fetchPayloadBlogPosts(Math.max(limit * 3, 30));
-
-  if (!payloadPosts.length) {
-    return {
-      ...baseResult,
-      data: sortBlogPostsByNewest(baseResult.data),
-    };
+  if (!isBackendPrimaryContent()) {
+    const payloadPosts = await fetchPayloadBlogPosts(200);
+    for (const item of payloadPosts) mergedBySlug.set(item.slug, item);
   }
-
-  const mergedBySlug = new Map<string, BlogListItem>();
-  for (const item of baseResult.data) mergedBySlug.set(item.slug, item);
-  for (const item of payloadPosts) mergedBySlug.set(item.slug, item);
 
   const merged = sortBlogPostsByNewest(Array.from(mergedBySlug.values()));
+  const total = merged.length;
+  const pages = Math.max(1, Math.ceil(total / safeLimit));
+  const offset = (safePage - 1) * safeLimit;
 
-  const offset = Math.max(0, (page - 1) * limit);
   return {
-    data: merged.slice(offset, offset + limit),
-    total: merged.length,
-    pages: Math.max(1, Math.ceil(merged.length / limit)),
+    data: merged.slice(offset, offset + safeLimit),
+    total,
+    pages,
   };
 }

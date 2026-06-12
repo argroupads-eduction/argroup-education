@@ -1,6 +1,9 @@
 import { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { getBlogPosts } from '@/lib/contentApi';
 import { BlogIndexLayout } from '@/components/blog/BlogIndexLayout';
+
+const POSTS_PER_PAGE = 12;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
 
@@ -23,10 +26,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function BlogPage() {
-  const { data: blogs } = await getBlogPosts(1, 30);
+type BlogPageProps = {
+  searchParams: Promise<{ page?: string }>;
+};
 
-  if (blogs.length === 0) {
+export default async function BlogPage({ searchParams }: BlogPageProps) {
+  const { page: pageParam } = await searchParams;
+  const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
+  const { data: blogs, total, pages } = await getBlogPosts(currentPage, POSTS_PER_PAGE);
+
+  if (currentPage > 1 && blogs.length === 0) {
+    redirect('/blog');
+  }
+
+  if (blogs.length === 0 && currentPage === 1) {
     return (
       <div className="blog-root mx-auto max-w-3xl px-4 py-20 text-center">
         <h1 className="font-serif text-3xl font-bold text-navy-900">Blog</h1>
@@ -40,5 +53,13 @@ export default async function BlogPage() {
     );
   }
 
-  return <BlogIndexLayout blogs={blogs} />;
+  return (
+    <BlogIndexLayout
+      blogs={blogs}
+      currentPage={currentPage}
+      totalPages={pages}
+      totalPosts={total}
+      postsPerPage={POSTS_PER_PAGE}
+    />
+  );
 }

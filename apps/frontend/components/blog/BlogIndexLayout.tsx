@@ -3,14 +3,27 @@ import type { BlogListItem } from '@/lib/contentApi';
 import { sortBlogPostsByNewest } from '@/lib/blogUtils';
 import { BlogListingCard } from './BlogListingCard';
 import { BlogLatestSidebar } from './BlogLatestSidebar';
+import { BlogPagination } from './BlogPagination';
 
 type BlogIndexLayoutProps = {
   blogs: BlogListItem[];
+  currentPage?: number;
+  totalPages?: number;
+  totalPosts?: number;
+  postsPerPage?: number;
 };
 
-export function BlogIndexLayout({ blogs }: BlogIndexLayoutProps) {
+export function BlogIndexLayout({
+  blogs,
+  currentPage = 1,
+  totalPages = 1,
+  totalPosts = 0,
+  postsPerPage = 12,
+}: BlogIndexLayoutProps) {
   const sorted = sortBlogPostsByNewest(blogs);
-  const [featured, ...rest] = sorted;
+  const showFeatured = currentPage === 1;
+  const featured = showFeatured ? sorted[0] : null;
+  const rest = showFeatured ? sorted.slice(1) : sorted;
 
   return (
     <div className="blog-root">
@@ -38,14 +51,23 @@ export function BlogIndexLayout({ blogs }: BlogIndexLayoutProps) {
             {featured ? <BlogListingCard blog={featured} variant="featured" /> : null}
             {rest.length > 0 ? (
               <div className="blog-index-list">
-                <h2 className="blog-index-list__heading">More articles</h2>
+                <h2 className="blog-index-list__heading">
+                  {currentPage === 1 ? 'More articles' : `Articles · Page ${currentPage}`}
+                </h2>
                 {rest.map((blog) => (
                   <BlogListingCard key={blog.id} blog={blog} variant="compact" />
                 ))}
               </div>
             ) : null}
+
+            <BlogPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalPosts={totalPosts}
+              perPage={postsPerPage}
+            />
           </div>
-          <BlogLatestSidebar posts={rest} title="Latest blogs" />
+          <BlogLatestSidebar posts={sorted} title="On this page" />
         </div>
       </div>
     </div>

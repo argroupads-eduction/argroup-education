@@ -22,3 +22,9 @@ frontend-dev.log
 
 # WordPress migration export (large JSON)
 data/wp-export/
+
+# Local WP uploads mirror (deploy public/wp-content/uploads instead)
+_uploads/
+
+# Payload import run reports (dev artifacts)
+apps/frontend/data/wp-export-bundle/reports/payload-import-*.json

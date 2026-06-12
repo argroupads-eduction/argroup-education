@@ -87,8 +87,23 @@ export function extractQuickFacts(html: string): { facts: QuickFact[]; html: str
 }
 
 export function addLazyImages(html: string): string {
-  return html.replace(/<img\b([^>]*?)>/gi, (match, attrs) => {
+  let profileHeroCount = 0;
+
+  return html.replace(/<img\b([^>]*?)>/gi, (match, attrs, offset) => {
     if (/loading\s*=/.test(attrs)) return match;
+
+    const before = html.slice(Math.max(0, offset - 2000), offset);
+    const inUniversityProfile = /wp-university-profile[\s\S]{0,2000}$/i.test(before);
+    const isProfileHero = inUniversityProfile && profileHeroCount < 12;
+
+    if (isProfileHero) {
+      profileHeroCount += 1;
+      if (/fetchpriority\s*=/i.test(attrs)) {
+        return `<img loading="eager" decoding="async"${attrs}>`;
+      }
+      return `<img loading="eager" fetchpriority="high" decoding="async"${attrs}>`;
+    }
+
     return `<img loading="lazy" decoding="async"${attrs}>`;
   });
 }
