@@ -11,6 +11,8 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
 
   const trimmed = url.trim();
   if (trimmed.startsWith('/api/wp-media/')) return trimmed;
+  // Bundled college banners live in public/ — serve as static assets on Vercel/CDN.
+  if (trimmed.startsWith('/wp-content/uploads/colleges/')) return trimmed;
   if (trimmed.startsWith('/wp-content/')) return wpContentToMediaApi(trimmed);
 
   const withoutHost = trimmed.replace(WP_MEDIA_HOST, '');

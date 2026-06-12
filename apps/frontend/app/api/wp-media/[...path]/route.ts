@@ -94,7 +94,7 @@ export async function GET(
 
   const local = await readLocalWpMedia(relativePath);
   if (local) {
-    return new NextResponse(local, {
+    return new NextResponse(new Uint8Array(local), {
       status: 200,
       headers: {
         'Content-Type': contentTypeFor(relativePath),
