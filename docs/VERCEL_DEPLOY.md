@@ -60,7 +60,7 @@ Do **not** leave Root Directory empty. There is no root `vercel.json`; building 
 Copy from **`apps/frontend/.env.example`**. Set at least:
 
 - `NEXT_PUBLIC_SITE_URL` — your production URL (e.g. `https://argroupofeducation.com`)
-- `WP_MEDIA_ORIGIN` — WordPress host where `wp-content/uploads` still lives (Hostinger/cPanel URL). Required for college card images and legacy WP media after the domain points to Vercel.
+- `WP_MEDIA_ORIGIN` — **Optional** if bundled media is in git (`npm run wp:bundle:media`). Only set this to your **old Hostinger/cPanel WordPress URL** (not `argroupofeducation.com` — that domain is on Vercel and cannot serve legacy `wp-content`).
 - `DATABASE_URL` — Neon **neondb** pooled connection string (blogs + Payload sync storage)
 - `PAYLOAD_SYNC_SECRET` — same value as Payload `ar-group-of-eductions/.env`
 - `PAYLOAD_CMS_ENABLED` — `false` (site reads DB via `/api/blogs`, not live Payload)

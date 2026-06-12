@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "node scripts/verify-wp-bundle.mjs && node scripts/verify-public-assets.mjs && npm run db:generate --prefix ../backend && next build",
+    "wp:bundle:media": "node scripts/bundle-referenced-wp-media.mjs",
+    "build": "node scripts/verify-wp-bundle.mjs && node scripts/verify-public-assets.mjs && node scripts/bundle-referenced-wp-media.mjs && npm run db:generate --prefix ../backend && next build",
     "start": "next start",
     "lint": "npx next lint",
     "type-check": "tsc --noEmit",
