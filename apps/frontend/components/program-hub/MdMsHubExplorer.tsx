@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ArrowRight, Stethoscope } from 'lucide-react';
 import { HorizontalScrollItem, HorizontalScrollRow } from '@/components/ui/HorizontalScrollRow';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
+import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 export function MdMsHubExplorer() {
   return (
@@ -19,13 +20,15 @@ export function MdMsHubExplorer() {
           </p>
         </div>
         <HorizontalScrollRow ariaLabel="MD MS states" autoScrollMobile gapClassName="gap-4">
-          {MD_MS_NAV_ITEMS.map((item) => (
+          {MD_MS_NAV_ITEMS.map((item) => {
+            const imageSrc = resolveWpMediaUrl(item.coverImage);
+            return (
             <HorizontalScrollItem key={item.href} className="w-[15rem] sm:w-[16rem]">
               <Link href={item.href} className="program-hub-card group block h-full">
                 <div className="program-hub-card-media program-hub-card-media--photo">
-                  {item.coverImage ? (
+                  {imageSrc ? (
                     <Image
-                      src={item.coverImage}
+                      src={imageSrc}
                       alt=""
                       fill
                       sizes="256px"
@@ -48,7 +51,8 @@ export function MdMsHubExplorer() {
                 </div>
               </Link>
             </HorizontalScrollItem>
-          ))}
+          );
+          })}
         </HorizontalScrollRow>
       </div>
     </section>

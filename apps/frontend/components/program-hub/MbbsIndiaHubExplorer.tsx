@@ -5,6 +5,7 @@ import { ArrowRight, GraduationCap } from 'lucide-react';
 import { FitImage } from '@/components/ui/FitImage';
 import { HorizontalScrollItem, HorizontalScrollRow } from '@/components/ui/HorizontalScrollRow';
 import { getMbbsIndiaStateFeaturedImage } from '@/lib/mbbsIndiaStateImages';
+import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaTree';
 
 export function MbbsIndiaHubExplorer() {
@@ -21,10 +22,11 @@ export function MbbsIndiaHubExplorer() {
         </div>
         <HorizontalScrollRow ariaLabel="MBBS India states" autoScrollMobile gapClassName="gap-4">
           {MBBS_INDIA_STATES.map((state) => {
-            const image =
+            const image = resolveWpMediaUrl(
               getMbbsIndiaStateFeaturedImage(state.wpSlug) ??
-              state.colleges.find((c) => c.image)?.image ??
-              state.colleges[0]?.image;
+                state.colleges.find((c) => c.image)?.image ??
+                state.colleges[0]?.image
+            );
             return (
               <HorizontalScrollItem key={state.id} className="w-[17rem] sm:w-[18.5rem]">
                 <Link href={state.href} className="program-hub-card group block h-full">

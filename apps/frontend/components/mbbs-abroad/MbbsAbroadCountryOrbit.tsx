@@ -8,6 +8,7 @@ import {
   MBBS_ABROAD_COUNTRIES,
   mbbsAbroadCountryCollegeCount,
 } from '@/lib/mbbsAbroadTree';
+import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 const featuredIds = new Set(['russia', 'georgia', 'philippines', 'bangladesh']);
 
@@ -38,6 +39,7 @@ export function MbbsAbroadCountryOrbit() {
         <div className="abroad-orbit__bento">
           {featured.map((country, i) => {
             const count = mbbsAbroadCountryCollegeCount(country);
+            const imageSrc = resolveWpMediaUrl(country.featuredImage);
             return (
               <motion.div
                 key={country.id}
@@ -49,10 +51,10 @@ export function MbbsAbroadCountryOrbit() {
               >
                 <Link href={country.href} className="abroad-orbit__card abroad-orbit__card--hero group">
                   <span className="abroad-orbit__stamp">MBBS</span>
-                  {country.featuredImage ? (
+                  {imageSrc ? (
                     <div className="abroad-orbit__flag">
                       <Image
-                        src={country.featuredImage}
+                        src={imageSrc}
                         alt=""
                         width={320}
                         height={200}
@@ -80,6 +82,7 @@ export function MbbsAbroadCountryOrbit() {
 
           {rest.map((country, i) => {
             const count = mbbsAbroadCountryCollegeCount(country);
+            const imageSrc = resolveWpMediaUrl(country.featuredImage);
             return (
               <motion.div
                 key={country.id}
@@ -90,9 +93,9 @@ export function MbbsAbroadCountryOrbit() {
                 transition={{ duration: 0.35, delay: 0.08 + i * 0.03 }}
               >
                 <Link href={country.href} className="abroad-orbit__card abroad-orbit__card--compact group">
-                  {country.featuredImage ? (
+                  {imageSrc ? (
                     <Image
-                      src={country.featuredImage}
+                      src={imageSrc}
                       alt=""
                       width={120}
                       height={72}

@@ -5,6 +5,7 @@ import { injectMbbsAbroadCountryImages } from '@/lib/mbbsAbroadCountryImages';
 import { injectMbbsIndiaStateImages } from '@/lib/mbbsIndiaStateImages';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { rewriteInternalLinks } from '@/lib/rewriteInternalLinks';
+import { rewriteWpMediaUrlsInHtml } from '@/lib/wpMediaUrl';
 
 function normUrl(url: string): string {
   return url
@@ -1490,6 +1491,7 @@ export function prepareWpHtml(
   out = enhanceContactIconLists(out);
   out = highlightAddressBlocks(out);
   out = rewriteInternalLinks(out);
+  out = rewriteWpMediaUrlsInHtml(out);
   out = injectMbbsIndiaStateImages(out, options?.pageSlug);
   out = injectMbbsAbroadCountryImages(out, options?.pageSlug);
   return out;

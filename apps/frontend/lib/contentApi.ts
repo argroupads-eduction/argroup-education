@@ -1,6 +1,7 @@
 import { sortBlogPostsByNewest } from '@/lib/blogUtils';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { applyMarketingPageSeo } from '@/lib/marketingPageSeo';
+import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
 import { getApiBaseUrl } from '@/lib/apiBase';
 import {
@@ -50,10 +51,12 @@ function normalizeContent(doc: SiteContent): SiteContent {
     ...doc,
     title: plainTextFromHtml(doc.title),
     excerpt: plainTextFromHtml(doc.excerpt),
+    featuredImage: resolveWpMediaUrl(doc.featuredImage),
     metaTitle: doc.metaTitle ? plainTextFromHtml(doc.metaTitle) : null,
     metaDescription: doc.metaDescription ? plainTextFromHtml(doc.metaDescription) : null,
     ogTitle: doc.ogTitle ? plainTextFromHtml(doc.ogTitle) : null,
     ogDescription: doc.ogDescription ? plainTextFromHtml(doc.ogDescription) : null,
+    ogImage: resolveWpMediaUrl(doc.ogImage),
     twitterTitle: doc.twitterTitle ? plainTextFromHtml(doc.twitterTitle) : null,
     twitterDescription: doc.twitterDescription
       ? plainTextFromHtml(doc.twitterDescription)
@@ -66,6 +69,7 @@ function normalizeBlogItem(doc: BlogListItem): BlogListItem {
     ...doc,
     title: plainTextFromHtml(doc.title),
     excerpt: plainTextFromHtml(doc.excerpt),
+    featuredImage: resolveWpMediaUrl(doc.featuredImage),
   };
 }
 

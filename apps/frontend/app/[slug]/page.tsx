@@ -9,6 +9,10 @@ import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { getContentBySlug } from '@/lib/contentApi';
 import { blogPostPath } from '@/lib/blogUtils';
 import { PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
+import {
+  isLocalCollegeBanner,
+  resolveCollegeFeaturedImage,
+} from '@/lib/collegeFeaturedImage';
 import { findProgramContextBySlug } from '@/lib/programBreadcrumbs';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
@@ -35,7 +39,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Not Found' };
   }
 
-  return buildSiteMetadata(content);
+  const featuredImage = resolveCollegeFeaturedImage(decoded, content.featuredImage);
+  return buildSiteMetadata(
+    featuredImage && featuredImage !== content.featuredImage
+      ? { ...content, featuredImage, ogImage: featuredImage }
+      : content
+  );
 }
 
 export default async function WpSlugPage({ params }: PageProps) {
@@ -65,6 +74,8 @@ export default async function WpSlugPage({ params }: PageProps) {
     : title;
   const heroSubtitle = content.metaDescription?.trim() || undefined;
   const program = findProgramContextBySlug(decoded);
+  const featuredImage = resolveCollegeFeaturedImage(decoded, content.featuredImage);
+  const heroImageFit = isLocalCollegeBanner(featuredImage) ? 'state' : 'default';
 
   const breadcrumbs = program?.breadcrumbs ?? [
     { label: title },
@@ -90,12 +101,13 @@ export default async function WpSlugPage({ params }: PageProps) {
         theme={theme}
         breadcrumbs={breadcrumbs}
         subtitle={heroSubtitle}
-        featuredImage={content.featuredImage}
+        featuredImage={featuredImage}
+        heroImageFit={heroImageFit}
       />
 
       <ContentPageShell
         html={content.content}
-        featuredImage={content.featuredImage}
+        featuredImage={featuredImage}
         title={title}
         showFeaturedImage={false}
         published={published}
