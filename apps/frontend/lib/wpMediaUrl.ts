@@ -24,14 +24,55 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
   return trimmed;
 }
 
-/** Rewrite legacy WP absolute URLs inside prepared HTML. */
-export function rewriteWpMediaUrlsInHtml(html: string): string {
-  if (!html || !/argroupofeducation\.com\/wp-content\//i.test(html)) return html;
+export function rewriteSingleWpMediaUrl(url: string): string {
+  const trimmed = url.trim();
+  if (!trimmed || trimmed.startsWith('data:')) return trimmed;
+  if (trimmed.startsWith('/api/wp-media/')) return trimmed;
 
-  return html.replace(
-    /(\b(?:src|href)=["'])(https?:\/\/(?:www\.)?argroupofeducation\.com\/wp-content\/([^"']+))(["'])/gi,
-    (_match, before: string, _full: string, path: string, after: string) => {
-      return `${before}/wp-content/${path}${after}`;
-    }
+  const resolved = resolveWpMediaUrl(trimmed);
+  if (resolved && resolved !== trimmed) return resolved;
+
+  const hostMatch = trimmed.match(
+    /^https?:\/\/(?:www\.)?argroupofeducation\.com\/wp-content\/(.+)$/i
   );
+  if (hostMatch) {
+    const rel = hostMatch[1];
+    if (rel.startsWith('uploads/colleges/')) return `/wp-content/${rel}`;
+    return `/api/wp-media/${rel}`;
+  }
+
+  if (trimmed.startsWith('/wp-content/')) {
+    const rel = trimmed.replace(/^\/wp-content\//, '');
+    if (rel.startsWith('uploads/colleges/')) return trimmed;
+    return `/api/wp-media/${rel}`;
+  }
+
+  return trimmed;
+}
+
+/** Rewrite legacy WP media URLs inside prepared HTML (src, href, srcset, lazy attrs). */
+export function rewriteWpMediaUrlsInHtml(html: string): string {
+  if (!html || !/wp-content\//i.test(html)) return html;
+
+  let out = html.replace(
+    /(\b(?:src|href|data-src|data-lazy-src)=["'])([^"']+)(["'])/gi,
+    (_match, before: string, url: string, after: string) =>
+      `${before}${rewriteSingleWpMediaUrl(url)}${after}`
+  );
+
+  out = out.replace(/\bsrcset=["']([^"']+)["']/gi, (_match, srcset: string) => {
+    const rewritten = srcset
+      .split(',')
+      .map((part) => {
+        const bits = part.trim().split(/\s+/);
+        const url = bits[0] ?? '';
+        const descriptor = bits.slice(1).join(' ');
+        const next = rewriteSingleWpMediaUrl(url);
+        return descriptor ? `${next} ${descriptor}` : next;
+      })
+      .join(', ');
+    return `srcset="${rewritten}"`;
+  });
+
+  return out;
 }

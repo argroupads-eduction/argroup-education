@@ -1,4 +1,5 @@
 import treeData from '@/data/mbbs-india-tree.json';
+import { resolveCollegeImageUrl } from '@/lib/collegeImageIndex';
 
 export type MbbsIndiaCollege = {
   name: string;
@@ -24,7 +25,18 @@ export type MbbsIndiaTree = {
 };
 
 export const MBBS_INDIA_TREE = treeData as MbbsIndiaTree;
-export const MBBS_INDIA_STATES = MBBS_INDIA_TREE.states;
+
+function withResolvedCollegeImage(college: MbbsIndiaCollege): MbbsIndiaCollege {
+  return {
+    ...college,
+    image: resolveCollegeImageUrl(college.slug, college.image) ?? college.image,
+  };
+}
+
+export const MBBS_INDIA_STATES = MBBS_INDIA_TREE.states.map((state) => ({
+  ...state,
+  colleges: state.colleges.map(withResolvedCollegeImage),
+}));
 
 export function getMbbsIndiaStateById(id: string): MbbsIndiaStateColleges | undefined {
   return MBBS_INDIA_STATES.find((s) => s.id === id);

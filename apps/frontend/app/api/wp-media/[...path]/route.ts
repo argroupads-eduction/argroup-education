@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { NextResponse } from 'next/server';
@@ -26,7 +27,7 @@ function elementorThumbAlternates(relativePath: string): string[] {
   if (!match) return [];
 
   const baseFile = `${match[1]}.${match[2]}`;
-  const years = ['2026', '2025', '2024', '2023'];
+  const years = ['2026', '2025', '2024', '2023', '2022', '2021', '2020', '2018', '2017'];
   const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 
   const alts: string[] = [];
@@ -39,12 +40,23 @@ function elementorThumbAlternates(relativePath: string): string[] {
   return alts;
 }
 
-async function readLocalWpMedia(relativePath: string): Promise<Buffer | null> {
-  const publicRoot = path.join(process.cwd(), 'public', 'wp-content');
-  const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
-  const filePath = path.join(publicRoot, safe);
+function monorepoUploadsRoot(): string | null {
+  const candidates = [
+    path.join(process.cwd(), '..', '..', '_uploads'),
+    path.join(process.cwd(), '_uploads'),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  return null;
+}
 
-  if (!filePath.startsWith(publicRoot + path.sep) && filePath !== publicRoot) {
+async function readFileUnderRoot(root: string, relativePath: string): Promise<Buffer | null> {
+  const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
+  const filePath = path.resolve(root, safe);
+  const resolvedRoot = path.resolve(root);
+
+  if (!filePath.startsWith(resolvedRoot + path.sep) && filePath !== resolvedRoot) {
     return null;
   }
 
@@ -53,6 +65,19 @@ async function readLocalWpMedia(relativePath: string): Promise<Buffer | null> {
   } catch {
     return null;
   }
+}
+
+async function readLocalWpMedia(relativePath: string): Promise<Buffer | null> {
+  const publicRoot = path.join(process.cwd(), 'public', 'wp-content');
+  const fromPublic = await readFileUnderRoot(publicRoot, relativePath);
+  if (fromPublic) return fromPublic;
+
+  const uploadsRoot = monorepoUploadsRoot();
+  if (!uploadsRoot) return null;
+
+  const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
+  const uploadsRelative = safe.replace(/^uploads\//, '');
+  return readFileUnderRoot(uploadsRoot, uploadsRelative);
 }
 
 async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null> {
@@ -92,15 +117,21 @@ export async function GET(
 
   const relativePath = segments.map((s) => path.basename(s)).join('/');
 
-  const local = await readLocalWpMedia(relativePath);
-  if (local) {
-    return new NextResponse(new Uint8Array(local), {
+  const serveLocal = (buf: Buffer) =>
+    new NextResponse(new Uint8Array(buf), {
       status: 200,
       headers: {
         'Content-Type': contentTypeFor(relativePath),
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     });
+
+  const local = await readLocalWpMedia(relativePath);
+  if (local) return serveLocal(local);
+
+  for (const alt of elementorThumbAlternates(relativePath)) {
+    const altLocal = await readLocalWpMedia(alt);
+    if (altLocal) return serveLocal(altLocal);
   }
 
   const remote = await fetchRemoteWpMedia(relativePath);
@@ -118,7 +149,7 @@ export async function GET(
   return NextResponse.json(
     {
       error: 'Media not found',
-      hint: 'Set WP_MEDIA_ORIGIN to your WordPress host (where wp-content still lives) or mirror files to public/wp-content/.',
+      hint: 'Mirror wp-content/uploads to public/wp-content/uploads (npm run wp:setup:uploads), add repo _uploads/, or set WP_MEDIA_ORIGIN.',
     },
     { status: 404 }
   );

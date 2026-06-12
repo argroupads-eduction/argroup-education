@@ -118,6 +118,10 @@ export default async function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <meta name="theme-color" content="#1a365d" />
+        <link rel="preload" href="/ar-group-logo.png" as="image" type="image/png" />
+        <link rel="preload" href="/india-homepage.jpg" as="image" type="image/jpeg" />
+        <link rel="preload" href="/abroad-homepage.jpg" as="image" type="image/jpeg" />
+        <link rel="dns-prefetch" href="https://argroupofeducation.com" />
       </head>
       <body
         className={`${inter.className} min-h-dvh min-w-0 overflow-x-hidden [padding-bottom:env(safe-area-inset-bottom,0px)] [padding-left:env(safe-area-inset-left,0px)] [padding-right:env(safe-area-inset-right,0px)]`}

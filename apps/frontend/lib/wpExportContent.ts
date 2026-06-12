@@ -128,22 +128,10 @@ export async function getWpExportContentBySlug(slug: string): Promise<SiteConten
   }
 }
 
-export async function getWpExportBlogPosts(
-  page = 1,
-  limit = 12
-): Promise<{ data: BlogListItem[]; total: number; pages: number }> {
-  try {
-    const dir = await resolveWpExportDir();
-    if (!dir) return { data: [], total: 0, pages: 0 };
-    const raw = await readFile(path.join(dir, 'posts.json'), 'utf8');
-    const posts = JSON.parse(raw) as WpExportDoc[];
-    const sorted = [...posts].sort(
-      (a, b) => new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime()
-    );
-    const total = sorted.length;
-    const pages = Math.ceil(total / limit) || 0;
-    const slice = sorted.slice((page - 1) * limit, page * limit);
-    const data = slice.map((doc) => ({
+function wpExportPostsToBlogList(posts: WpExportDoc[]): BlogListItem[] {
+  return [...posts]
+    .sort((a, b) => new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime())
+    .map((doc) => ({
       id: String(doc.wpId ?? doc.slug),
       title: normalizeText(doc.title),
       slug: doc.slug,
@@ -152,6 +140,29 @@ export async function getWpExportBlogPosts(
       category: 'Blog',
       publishedAt: doc.date ?? doc.modified ?? new Date().toISOString(),
     }));
+}
+
+export async function getAllWpExportBlogPosts(): Promise<BlogListItem[]> {
+  try {
+    const dir = await resolveWpExportDir();
+    if (!dir) return [];
+    const raw = await readFile(path.join(dir, 'posts.json'), 'utf8');
+    const posts = JSON.parse(raw) as WpExportDoc[];
+    return wpExportPostsToBlogList(posts);
+  } catch {
+    return [];
+  }
+}
+
+export async function getWpExportBlogPosts(
+  page = 1,
+  limit = 12
+): Promise<{ data: BlogListItem[]; total: number; pages: number }> {
+  try {
+    const all = await getAllWpExportBlogPosts();
+    const total = all.length;
+    const pages = Math.ceil(total / limit) || 0;
+    const data = all.slice((page - 1) * limit, page * limit);
     return { data, total, pages };
   } catch {
     return { data: [], total: 0, pages: 0 };

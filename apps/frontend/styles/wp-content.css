@@ -924,11 +924,16 @@
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody tr,
 .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody tr {
+  display: grid !important;
+  grid-template-columns: minmax(9.75rem, 42%) minmax(5.5rem, 1fr) !important;
+  align-items: stretch !important;
   background: transparent !important;
 }
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody td,
 .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody td {
+  display: flex !important;
+  align-items: center !important;
   padding: 0.85rem 1rem !important;
   font-size: 0.9375rem !important;
   line-height: 1.55 !important;
@@ -937,13 +942,15 @@
   white-space: normal !important;
   word-break: normal !important;
   overflow-wrap: break-word !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody td:first-child,
 .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody td:first-child {
-  width: 44% !important;
-  min-width: 9.75rem !important;
-  max-width: none !important;
+  flex-shrink: 0 !important;
   font-weight: 800 !important;
   font-size: 0.75rem !important;
   letter-spacing: 0.04em;
@@ -953,17 +960,19 @@
   border-left: 4px solid #d97706 !important;
   border-radius: 0.65rem 0 0 0.65rem;
   overflow-wrap: normal !important;
-  word-break: keep-all !important;
+  word-break: normal !important;
   hyphens: none !important;
 }
 
 .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody td:last-child,
 .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody td:last-child {
+  flex: 1 1 auto !important;
   color: #0f172a !important;
   font-weight: 500 !important;
   background: #ffffff !important;
   border-radius: 0 0.65rem 0.65rem 0;
   box-shadow: inset 0 0 0 1px #e2e8f0;
+  text-align: left !important;
 }
 
 .wp-content-root .wp-table-scroll table.wp-facts-kv-table:not(:has(thead)) tbody tr:first-child td {
@@ -993,6 +1002,13 @@
   color: inherit !important;
 }
 
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table.center th,
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table.center td,
+.wp-content-root .wp-table-scroll table.eael-data-table.center.wp-facts-kv-table th,
+.wp-content-root .wp-table-scroll table.eael-data-table.center.wp-facts-kv-table td {
+  text-align: left !important;
+}
+
 @media (max-width: 767px) {
   .wp-content-root .elementor-container.wp-college-card-grid {
     grid-template-columns: 1fr !important;
@@ -1004,8 +1020,7 @@
   }
 
   .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody tr {
-    display: grid;
-    grid-template-columns: minmax(7.5rem, 38%) minmax(0, 1fr);
+    grid-template-columns: minmax(7.5rem, 38%) minmax(5rem, 1fr);
   }
 }
 
@@ -2819,8 +2834,8 @@ html:has(.wp-content-affinity) {
     white-space: normal;
   }
 
-  .wp-content-root .wp-table-scroll tbody td:not(:first-child),
-  .wp-content-root .wp-table-scroll tbody th:not(:first-child) {
+  .wp-content-root .wp-table-scroll table:not(.wp-facts-kv-table) tbody td:not(:first-child),
+  .wp-content-root .wp-table-scroll table:not(.wp-facts-kv-table) tbody th:not(:first-child) {
     white-space: nowrap;
   }
 

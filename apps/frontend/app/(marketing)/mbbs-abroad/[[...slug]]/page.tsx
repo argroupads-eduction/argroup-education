@@ -14,6 +14,7 @@ import {
   isMbbsAbroadThreeLevel,
   mbbsAbroadCountryCollegeCount,
 } from '@/lib/mbbsAbroadTree';
+import { resolveCollegeFeaturedImage } from '@/lib/collegeFeaturedImage';
 import { resolveMbbsAbroadFeaturedImage } from '@/lib/mbbsAbroadCountryImages';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
@@ -82,6 +83,10 @@ export default async function MbbsAbroadPage({ params }: PageProps) {
 
     const wpContent = university.slug ? await getContentBySlug(university.slug) : null;
     const title = plainTitle(wpContent?.title || university.name);
+    const featuredImage = resolveCollegeFeaturedImage(
+      university.slug ?? '',
+      wpContent?.featuredImage
+    );
     const breadcrumbs = [
       { label: 'MBBS Abroad', href: '/mbbs-abroad' },
       { label: country.name, href: country.href },
@@ -100,15 +105,16 @@ export default async function MbbsAbroadPage({ params }: PageProps) {
           theme="abroad"
           breadcrumbs={breadcrumbs}
           subtitle={`Universities in ${country.name} · NMC-aligned guidance`}
-          featuredImage={wpContent?.featuredImage}
+          featuredImage={featuredImage}
         />
 
         {wpContent ? (
           <ContentPageShell
             html={wpContent.content}
-            featuredImage={wpContent.featuredImage}
+            featuredImage={featuredImage}
             title={title}
             showFeaturedImage={false}
+            pageSlug={university.slug}
           />
         ) : null}
 
