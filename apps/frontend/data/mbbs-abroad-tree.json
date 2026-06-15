@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-30T10:17:16.064Z",
-  "source": "c:\\Users\\akash\\OneDrive\\Desktop\\ARGROUP OF EDUCTION\\apps\\frontend\\data\\wp-export-bundle\\pages.json",
+  "generatedAt": "2026-06-15T05:36:48.120Z",
+  "source": "C:\\Users\\akash\\OneDrive\\Desktop\\ARGROUP OF EDUCTION\\apps\\frontend\\data\\wp-export-bundle\\pages.json",
   "countries": [
     {
       "id": "russia",
@@ -8,13 +8,13 @@
       "navLabel": "Russia",
       "href": "/mbbs-abroad/russia",
       "wpSlug": "study-mbbs-in-russia",
-      "featuredImage": "/mbbs-russia-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/14a8a80846-_1_-qccewfcrj27cnvy2frjeu2731x05cefd4ut39lgncs.webp",
       "colleges": [
         {
           "name": "North Caucasian State Academy, Russia",
           "slug": "north-caucasian-state-academy-russia",
           "href": "/north-caucasian-state-academy-russia",
-          "image": "/wp-content/uploads/colleges/north-caucasian-state-academy-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-10-at-2.59.30-PM-r8jvq7i9txupba8xbjmux2q29ewyayatdqfs9903r4.jpeg"
         },
         {
           "name": "Privolzhsky Research Medical University",
@@ -26,31 +26,31 @@
           "name": "Yaroslav-the-wise Novgorod State Medical University",
           "slug": "yaroslav-the-wise-novgorod-state-medical-university",
           "href": "/yaroslav-the-wise-novgorod-state-medical-university",
-          "image": "/wp-content/uploads/colleges/yaroslav-the-wise-novgorod-state-medical-university.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-11-at-1.49.07-PM-2.jpeg"
         },
         {
           "name": "Smolensk State Medical University",
           "slug": "smolensk-state-medical-university",
           "href": "/smolensk-state-medical-university",
-          "image": "/wp-content/uploads/colleges/smolensk-state-medical-university.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-11-at-5.33.41-PM.jpeg"
         },
         {
           "name": "Siberian State Medical University",
           "slug": "siberian-state-medical-university-russia",
           "href": "/siberian-state-medical-university-russia",
-          "image": "/wp-content/uploads/colleges/siberian-state-medical-university-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-11-at-5.37.24-PM.jpeg"
         },
         {
           "name": "Kemerovo State Medical University",
           "slug": "kemerovo-state-medical-university-russia",
           "href": "/kemerovo-state-medical-university-russia",
-          "image": "/wp-content/uploads/colleges/kemerovo-state-medical-university-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/unnamed-14-r9m741tl07p0sbgmef5f03bh9xqdcohop8dizftjjw.webp"
         },
         {
           "name": "Tula State Medical University",
           "slug": "tula-state-medical-university",
           "href": "/tula-state-medical-university",
-          "image": "/wp-content/uploads/colleges/tula-state-medical-university.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-26-at-11.37.19-AM-r9bbr4l2fh0rkgeptemiods8d88pg6fxnjc32mm1og.jpeg"
         },
         {
           "name": "Volgograd State Medical University",
@@ -62,7 +62,7 @@
           "name": "Pskov State Medical University, Russia",
           "slug": "pskov-state-medical-university-russia",
           "href": "/pskov-state-medical-university-russia",
-          "image": "/wp-content/uploads/colleges/pskov-state-medical-university-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-26-at-3.02.50-PM-r9bkvlaqnanwmzantdx7zhuxcha78if85a8cbjlfcw.jpeg"
         },
         {
           "name": "Crimea Federal Medical University",
@@ -80,19 +80,19 @@
           "name": "Kazan Federal University",
           "slug": "kazan-federal-medical-university-russia",
           "href": "/kazan-federal-medical-university-russia",
-          "image": "/wp-content/uploads/colleges/kazan-federal-medical-university-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-26-at-11.24.18-AM.jpeg"
         },
         {
           "name": "Kazan State Medical University, Russia",
           "slug": "kazan-state-medical-university-russia",
           "href": "/kazan-state-medical-university-russia",
-          "image": "/wp-content/uploads/colleges/kazan-state-medical-university-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-26-at-11.26.52-AM-r9gifxfyfjaig42i20cm9wtz589kyek4oezvxnm29s.jpeg"
         },
         {
           "name": "Saint Petersburg State Medical University Russia",
           "slug": "saint-petersburg-state-medical-university-russia",
           "href": "/saint-petersburg-state-medical-university-russia",
-          "image": "/wp-content/uploads/colleges/saint-petersburg-state-medical-university-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-26-at-11.29.26-AM-r9gsof47odq7wutdbsie9faas60riqfxo9zhvr8wzk.jpeg"
         },
         {
           "name": "Orel State University, Russia",
@@ -102,45 +102,45 @@
         },
         {
           "name": "Belgorod State University, Russia",
-          "slug": "belgorod-state-university-russia",
-          "href": "/belgorod-state-university-russia",
-          "image": "/wp-content/uploads/colleges/belgorod-state-university-russia.png"
+          "slug": null,
+          "href": "/mbbs-abroad/russia",
+          "image": null
         },
         {
           "name": "Altai State University, Russia",
           "slug": "altai-state-university-russia",
           "href": "/altai-state-university-russia",
-          "image": "/wp-content/uploads/colleges/altai-state-university-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-30-at-3.17.12-PM-r9ippvwv5k57hgjby5cje84mazh0ydkm2709bm0s1s.jpeg"
         },
         {
           "name": "Kursk State Medical University, Russia",
           "slug": "kursk-state-medical-university-russia",
           "href": "/kursk-state-medical-university-russia",
-          "image": "/wp-content/uploads/colleges/kursk-state-medical-university-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-30-at-3.19.33-PM-r9lqu29qdfisvsn35mhd2gphbbznpn5t4v393noav4.jpeg"
         },
         {
           "name": "First Moscow State Medical University",
           "slug": "first-moscow-state-medical-university",
           "href": "/first-moscow-state-medical-university",
-          "image": "/wp-content/uploads/colleges/first-moscow-state-medical-university.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-30-at-3.22.10-PM-r9ntsowrq1qpcwqd24dpnh2yjusiq8j45u42iie2v4.jpeg"
         },
         {
           "name": "Kabardino Balkarian State University Russia",
           "slug": "kabardino-balkarian-state-university",
           "href": "/kabardino-balkarian-state-university",
-          "image": "/wp-content/uploads/colleges/kabardino-balkarian-state-university.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-02-at-3.12.44-PM.jpeg"
         },
         {
           "name": "OMSK State Medical University",
           "slug": "omsk-state-medical-university",
           "href": "/omsk-state-medical-university",
-          "image": "/wp-content/uploads/colleges/omsk-state-medical-university.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-08-02-at-11.12.46-AM-1-r9njmaflny5xoyy9l8q37fnifqqp9oxu4bbayjnqbk.jpeg"
         },
         {
           "name": "Peoples Friendship University Russia",
           "slug": "peoples-friendship-university-russia",
           "href": "/peoples-friendship-university-russia",
-          "image": "/wp-content/uploads/colleges/peoples-friendship-university-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-08-02-at-11.12.45-AM-r9nlco0175jy5ecgcpdt66zpl9al2lkl11uagl67eo.jpeg"
         },
         {
           "name": "Pirogov Russian National Medical University",
@@ -152,19 +152,19 @@
           "name": "Samara State Medical University",
           "slug": "samara-state-medical-university",
           "href": "/samara-state-medical-university",
-          "image": "/wp-content/uploads/colleges/samara-state-medical-university.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-08-02-at-3.28.30-PM-r9sqqzq7a47az5ijz7vzhg8yzee3zl6kbw9t332znk.jpeg"
         },
         {
           "name": "Voronezh State Medical University Russia",
           "slug": "voronezh-state-medical-university",
           "href": "/voronezh-state-medical-university",
-          "image": "/wp-content/uploads/colleges/voronezh-state-medical-university.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-08-02-at-3.31.22-PM-r9ulogao4kklqvn1f7z5hxkh9kgw0bklxm84igjvuo.jpeg"
         },
         {
           "name": "Chuvash State Medical University Russia",
           "slug": "chuvash-state-medical-university-russia",
           "href": "/chuvash-state-medical-university-russia",
-          "image": "/wp-content/uploads/colleges/chuvash-state-medical-university-russia.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-08-02-at-3.31.21-PM-r9ufvkltdympqf1t4xjren4wz20hhqbyjr7p8u9ekg.jpeg"
         }
       ]
     },
@@ -174,61 +174,61 @@
       "navLabel": "Nepal",
       "href": "/mbbs-abroad/nepal",
       "wpSlug": "study-mbbs-in-nepal",
-      "featuredImage": "/mbbs-nepal-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-08-26-at-3.59.04-PM-e1756715465485.webp",
       "universities": [
         {
           "id": "kathmandu-university",
           "name": "Kathmandu University Nepal",
-          "href": "/kathmandu-university",
-          "slug": "kathmandu-university",
+          "href": "/nepal-medical-college-jorpati-kathmandu",
+          "slug": "nepal-medical-college-jorpati-kathmandu",
           "colleges": [
             {
               "name": "College of Medical Science",
-              "slug": "college-of-medical-science-bharatpur",
-              "href": "/college-of-medical-science-bharatpur",
-              "image": "/wp-content/uploads/colleges/college-of-medical-science-bharatpur.png"
+              "slug": null,
+              "href": "/nepal-medical-college-jorpati-kathmandu",
+              "image": null
             },
             {
               "name": "Manipal College of Medical Science",
               "slug": "manipal-college-of-medical-science",
               "href": "/manipal-college-of-medical-science",
-              "image": "/wp-content/uploads/colleges/manipal-college-of-medical-science.png"
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Manipal-College-of-Medical-Science-Pokhara-1024x490.jpg"
             },
             {
               "name": "Kathmandu University School of Medical Sciences",
-              "slug": "kathmandu-university-school-of-medical-sciences",
-              "href": "/kathmandu-university-school-of-medical-sciences",
-              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Kathmandu-University-School-of-Medical-Sciences.jpg"
+              "slug": "institute-of-medicine-kathmandu",
+              "href": "/institute-of-medicine-kathmandu",
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Institute-of-Medicine-Kathmandu-1024x581.jpg"
             },
             {
               "name": "Birat Medical College",
               "slug": "birat-medical-college-biratnagar",
               "href": "/birat-medical-college-biratnagar",
-              "image": "/wp-content/uploads/colleges/birat-medical-college-biratnagar.png"
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/DFFFF-1024x581.jpg"
             },
             {
               "name": "Kathmandu Medical College",
-              "slug": "kathmandu-medical-college",
-              "href": "/kathmandu-medical-college",
-              "image": "/wp-content/uploads/colleges/kathmandu-medical-college.png"
+              "slug": "institute-of-medicine-kathmandu",
+              "href": "/institute-of-medicine-kathmandu",
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Institute-of-Medicine-Kathmandu-1024x581.jpg"
             },
             {
               "name": "Nepal Medical College",
-              "slug": "nepal-medical-college-jorpati-kathmandu",
-              "href": "/nepal-medical-college-jorpati-kathmandu",
-              "image": "/wp-content/uploads/colleges/nepal-medical-college-jorpati-kathmandu.png"
+              "slug": "nepal-army-institute-of-health-sciences",
+              "href": "/nepal-army-institute-of-health-sciences",
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Nepal-Army-Institute-of-Health-Sciences-Kathmandu-1024x581.jpg"
             },
             {
               "name": "Nepalgunj Medical College",
               "slug": "nepalgunj-medical-college",
               "href": "/nepalgunj-medical-college",
-              "image": "/wp-content/uploads/colleges/nepalgunj-medical-college.png"
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Nepalgunj-Medical-College-Nepalgunj-1024x581.jpg"
             },
             {
               "name": "Lumbini Medical College",
               "slug": "lumbini-medical-college-palpa",
               "href": "/lumbini-medical-college-palpa",
-              "image": "/wp-content/uploads/colleges/lumbini-medical-college-palpa.png"
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Lumbini-Medical-College-Palpa-1024x581.jpg"
             }
           ]
         },
@@ -248,13 +248,13 @@
               "name": "KIST Medical College Kathmandu",
               "slug": "kist-medical-college-kathmandu",
               "href": "/kist-medical-college-kathmandu",
-              "image": "/wp-content/uploads/colleges/kist-medical-college-kathmandu.png"
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Kist-Medical-College-Kathmandu-1024x581.jpg"
             },
             {
               "name": "Chitwan Medical College",
               "slug": "chitwan-medical-college-bharatpur",
               "href": "/chitwan-medical-college-bharatpur",
-              "image": "/wp-content/uploads/colleges/chitwan-medical-college-bharatpur.png"
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Chitwan-Medical-College-Bharatpur-1024x581.jpg"
             },
             {
               "name": "Institute of Medicine",
@@ -266,31 +266,13 @@
               "name": "Gandaki Medical College",
               "slug": "gandaki-medical-college-pokhara",
               "href": "/gandaki-medical-college-pokhara",
-              "image": "/wp-content/uploads/colleges/gandaki-medical-college-pokhara.png"
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Gandaki-Medical-College-Pokhara-1024x576.jpg"
             },
             {
               "name": "Universal Medical College",
               "slug": "universal-medical-college-bhairahawa",
               "href": "/universal-medical-college-bhairahawa",
-              "image": "/wp-content/uploads/colleges/universal-medical-college-bhairahawa.png"
-            },
-            {
-              "name": "Devdaha Medical College and Research Institute",
-              "slug": "devdaha-medical-college-and-research-institute",
-              "href": "/devdaha-medical-college-and-research-institute",
-              "image": "/wp-content/uploads/colleges/devdaha-medical-college-and-research-institute.png"
-            },
-            {
-              "name": "National Medical College",
-              "slug": "national-medical-college-nepal",
-              "href": "/national-medical-college-nepal",
-              "image": "/wp-content/uploads/colleges/national-medical-college-nepal.png"
-            },
-            {
-              "name": "Nobel Medical College",
-              "slug": "nobel-medical-college-nepal",
-              "href": "/nobel-medical-college-nepal",
-              "image": "/wp-content/uploads/colleges/nobel-medical-college-nepal.png"
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/maxresdefault-2-1024x576-1.jpg"
             }
           ]
         },
@@ -314,7 +296,7 @@
       "navLabel": "Bangladesh",
       "href": "/mbbs-abroad/bangladesh",
       "wpSlug": "study-mbbs-in-bangladesh",
-      "featuredImage": "/mbbs-bangladesh-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/09/Night-view-Dhaka-Bangladesh.webp",
       "colleges": [
         {
           "name": "Dhaka National Medical College",
@@ -324,15 +306,15 @@
         },
         {
           "name": "Medical College For Women and Hospital",
-          "slug": "medical-college-for-women-and-hospital",
-          "href": "/medical-college-for-women-and-hospital",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2023/10/Medical-college-for-women-and-Hospital-1024x671.jpg"
+          "slug": "zh-sikder-womens-medical-college",
+          "href": "/zh-sikder-womens-medical-college",
+          "image": "https://argroupofeducation.com/wp-content/uploads/2024/04/ZH-Sikder-Medical-College-Bangladesh-2.webp"
         },
         {
           "name": "Bangladesh Medical College",
-          "slug": "bangladesh-medical-college",
-          "href": "/bangladesh-medical-college",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2023/10/Bangladesh-medical-college.jpg"
+          "slug": "adesh-medical-college-and-hospital-kurukshetra",
+          "href": "/adesh-medical-college-and-hospital-kurukshetra",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Adesh-Medical-College-and-Hospital-Kurukshetra-qgqkuruvatl1itnei0fzqz9nyf3skn4x99ygf63ccc.jpg"
         },
         {
           "name": "Holy Family Red Crescent Medical",
@@ -348,9 +330,9 @@
         },
         {
           "name": "International Medical College",
-          "slug": "international-medical-college-bangladesh",
-          "href": "/international-medical-college-bangladesh",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2023/10/International-medical-college-1-1024x500.jpg"
+          "slug": null,
+          "href": "/mbbs-abroad/bangladesh",
+          "image": null
         },
         {
           "name": "Uttara Adhunik Medical College",
@@ -390,9 +372,9 @@
         },
         {
           "name": "Mainamoti Medical College",
-          "slug": "mainamati-medical-college",
-          "href": "/mainamati-medical-college",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2023/10/Add-a-subheading-1-2-1024x581.jpg"
+          "slug": null,
+          "href": "/mbbs-abroad/bangladesh",
+          "image": null
         },
         {
           "name": "Gonoshasthaya Samaj Vittik Medical College",
@@ -452,7 +434,7 @@
           "name": "Universal Medical College",
           "slug": "universal-medical-college-bhairahawa",
           "href": "/universal-medical-college-bhairahawa",
-          "image": "/wp-content/uploads/colleges/universal-medical-college-bhairahawa.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/maxresdefault-2-1024x576-1.jpg"
         },
         {
           "name": "MH Samorita Medical College",
@@ -468,7 +450,7 @@
       "navLabel": "Uzbekistan",
       "href": "/mbbs-abroad/uzbekistan",
       "wpSlug": "study-mbbs-in-uzbekistan",
-      "featuredImage": "/mbbs-uzbekistan-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-01-at-3.39.01-PM.jpeg",
       "colleges": [
         {
           "name": "Tashkent Pediatric Medical Institute",
@@ -490,9 +472,9 @@
         },
         {
           "name": "Tashkent State Medical Academy",
-          "slug": "first-tashkent-state-medical-institute",
-          "href": "/first-tashkent-state-medical-institute",
-          "image": "/wp-content/uploads/colleges/first-tashkent-state-medical-institute.png"
+          "slug": "tashkent-pediatric-medical-institute",
+          "href": "/tashkent-pediatric-medical-institute",
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-21-at-11.54.54-AM.jpeg"
         },
         {
           "name": "Samarkand State Medical University",
@@ -514,37 +496,37 @@
       "navLabel": "Kazakhstan",
       "href": "/mbbs-abroad/kazakhstan",
       "wpSlug": "mbbs-in-kazakhstan",
-      "featuredImage": "/mbbs-kazakhstan-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-11-at-12.23.10-PM.jpeg",
       "colleges": [
         {
           "name": "Kazakh National Medical University",
           "slug": "kazakh-national-medical-university",
           "href": "/kazakh-national-medical-university",
-          "image": "/wp-content/uploads/colleges/kazakh-national-medical-university.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-08-11-at-12.03.07-PM-ra4vgwyp64bweujlzlul4ku4pt17ht4lk6w6ly13wg.jpeg"
         },
         {
           "name": "Astana Medical University",
           "slug": "astana-medical-university-kazakhstan",
           "href": "/astana-medical-university-kazakhstan",
-          "image": "/wp-content/uploads/colleges/astana-medical-university-kazakhstan.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-08-11-at-12.04.21-PM-ra50yykj4hfsl4vgjpnsz3pehewaa0cn4f63pqdyww.jpeg"
         },
         {
           "name": "Al-Farabi Kazakh National University",
           "slug": "al-farabi-kazakh-national-university-kazakhstan",
           "href": "/al-farabi-kazakh-national-university-kazakhstan",
-          "image": "/wp-content/uploads/colleges/al-farabi-kazakh-national-university-kazakhstan.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-08-11-at-12.06.16-PM-ra562kdm3gs4f26cf2sc0rqrqxxdtl94d6oifi5ji8.jpeg"
         },
         {
           "name": "South Kazakhstan Medical Academy",
           "slug": "south-kazakhstan-medical-academy-kazakhstan",
           "href": "/south-kazakhstan-medical-academy-kazakhstan",
-          "image": "/wp-content/uploads/colleges/south-kazakhstan-medical-academy-kazakhstan.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-08-13-at-12.29.54-PM-ra6pvkrdbuyqzbz57hed9sxrajrpkgvwkv4wi3dgjk.jpeg"
         },
         {
           "name": "Karaganda State Medical University",
           "slug": "karaganda-state-medical-university-kazakhstan",
           "href": "/karaganda-state-medical-university-kazakhstan",
-          "image": "/wp-content/uploads/colleges/karaganda-state-medical-university-kazakhstan.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-08-13-at-12.31.26-PM-ra6wg3vb40raiueh183o7m6go3xtiiwarl0izqo0sg.jpeg"
         },
         {
           "name": "Semey State Medical University",
@@ -560,7 +542,7 @@
       "navLabel": "Serbia",
       "href": "/mbbs-abroad/serbia",
       "wpSlug": "mbbs-in-serbia",
-      "featuredImage": "/mbbs-serbia-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/06/MBBS-in-Serbia-1-1024x581.jpg",
       "colleges": [
         {
           "name": "University of Kragujevac, Serbia",
@@ -576,7 +558,7 @@
       "navLabel": "Iran",
       "href": "/mbbs-abroad/iran",
       "wpSlug": "mbbs-in-iran",
-      "featuredImage": "/mbbs-iran-hero.png"
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/09/LICENSE_Mehrdad-Mzadeh-Tehran_c-Getty-Images_CNT-UK_Sophie-Knight-1024x576.webp"
     },
     {
       "id": "bosnia",
@@ -584,7 +566,7 @@
       "navLabel": "Bosnia",
       "href": "/mbbs-abroad/bosnia",
       "wpSlug": "mbbs-in-bosnia",
-      "featuredImage": "/mbbs-bosnia-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/04/news-Bosnia-1024x682.jpg",
       "colleges": [
         {
           "name": "University of East Sarajevo, Bosnia",
@@ -600,7 +582,7 @@
       "navLabel": "Egypt",
       "href": "/mbbs-abroad/egypt",
       "wpSlug": "mbbs-in-egypt",
-      "featuredImage": "/mbbs-egypt-hero.png"
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/04/news-MBBS-in-Egypt-1024x682.jpg"
     },
     {
       "id": "vietnam",
@@ -608,7 +590,7 @@
       "navLabel": "Vietnam",
       "href": "/mbbs-abroad/vietnam",
       "wpSlug": "mbbs-in-vietnam",
-      "featuredImage": "/mbbs-vietnam-hero.png"
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/04/1-news-MBBS-in-Vietnam-1024x682.jpg"
     },
     {
       "id": "kyrgyzstan",
@@ -616,19 +598,19 @@
       "navLabel": "Kyrgyzstan",
       "href": "/mbbs-abroad/kyrgyzstan",
       "wpSlug": "study-mbbs-in-kyrgyzstan",
-      "featuredImage": "/mbbs-kyrgyzstan-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-09-22-at-11.36.19-AM-rc4aemey4vdlw74dcgexyz1b67lbwcxfuib4sfq60w.jpeg",
       "colleges": [
         {
           "name": "International School Of Medicine",
           "slug": "international-school-of-medicine-kyrgyzstan",
           "href": "/international-school-of-medicine-kyrgyzstan",
-          "image": "/wp-content/uploads/colleges/international-school-of-medicine-kyrgyzstan.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-26-at-11.49.50-AM.jpeg"
         },
         {
           "name": "Jalal-Abad International University",
           "slug": "jalal-abad-international-university",
           "href": "/jalal-abad-international-university",
-          "image": "/wp-content/uploads/colleges/jalal-abad-international-university.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-25-at-3.14.20-PM.jpeg"
         },
         {
           "name": "Osh International Medical University",
@@ -640,7 +622,7 @@
           "name": "Asian Medical Institute",
           "slug": "asian-medical-institute-kyrgyzstan",
           "href": "/asian-medical-institute-kyrgyzstan",
-          "image": "/wp-content/uploads/colleges/asian-medical-institute-kyrgyzstan.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-27-at-3.02.31-PM.jpeg"
         },
         {
           "name": "Kyrgyz State Medical Academy",
@@ -652,13 +634,13 @@
           "name": "Osh State Medical University",
           "slug": "osh-state-medical-university-kyrgyzstan",
           "href": "/osh-state-medical-university-kyrgyzstan",
-          "image": "/wp-content/uploads/colleges/osh-state-medical-university-kyrgyzstan.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-25-at-12.08.33-PM.jpeg"
         },
         {
           "name": "Jalal-Abad State University",
           "slug": "jalal-abad-state-university-kyrgyzstan",
           "href": "/jalal-abad-state-university-kyrgyzstan",
-          "image": "/wp-content/uploads/colleges/jalal-abad-state-university-kyrgyzstan.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-25-at-12.11.40-PM.jpeg"
         }
       ]
     },
@@ -668,13 +650,13 @@
       "navLabel": "Philippines",
       "href": "/mbbs-abroad/philippines",
       "wpSlug": "mbbs-in-philippines-3-2",
-      "featuredImage": "/mbbs-philippines-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2022/07/phili.png",
       "colleges": [
         {
           "name": "AMA Medical College",
-          "slug": "rmc-hospital-and-research-centre",
-          "href": "/rmc-hospital-and-research-centre",
-          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-09-20-at-4.08.26-PM-rc14nmn80hn217bt8depabwgv3am2w36666xvjexhc.jpeg"
+          "slug": "rama-medical-college-hapur",
+          "href": "/rama-medical-college-hapur",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Rama-Medical-College-Hapur-Campus-r06ihr1cihlpeij85g9mdoamhsueh6ptzjz3z1o9j0.jpg"
         },
         {
           "name": "Davao Medical School Foundation",
@@ -720,7 +702,7 @@
       "navLabel": "Georgia",
       "href": "/mbbs-abroad/georgia",
       "wpSlug": "mbbs-in-georgia",
-      "featuredImage": "/mbbs-georgia-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/hercules-hall-surrounded-by-greenery-sunlight-daytime-munich-germany-qgqjve7k2b5ij71g37wieeo31bhfuromq5zj58jsjg.jpg",
       "colleges": [
         {
           "name": "Batumi Shota Rustaveli State University",
@@ -754,7 +736,7 @@
       "navLabel": "China",
       "href": "/mbbs-abroad/china",
       "wpSlug": "study-mbbs-in-china",
-      "featuredImage": "/mbbs-china-hero.png",
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/2023/06/MBBS-in-China-1024x581.jpg",
       "colleges": [
         {
           "name": "Tianjin Medical University",
@@ -800,9 +782,9 @@
         },
         {
           "name": "China Medical University",
-          "slug": "china-medical-university",
-          "href": "/china-medical-university",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2023/06/CHINA-MEDICAL-UNIVERSITY-1024x581.jpg"
+          "slug": "study-mbbs-in-china",
+          "href": "/study-mbbs-in-china",
+          "image": "https://argroupofeducation.com/wp-content/uploads/2023/06/MBBS-in-China-1024x581.jpg"
         },
         {
           "name": "China Three Gorges Medical University",
@@ -842,7 +824,7 @@
       "navLabel": "Romania",
       "href": "/mbbs-abroad/romania",
       "wpSlug": "mbbs-in-romania",
-      "featuredImage": "/mbbs-romania-hero.png"
+      "featuredImage": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/romania-5-qlx1jo3kjnnmytixyj9bspc5fv0xxa9enuvv4306d8.jpg"
     },
     {
       "id": "asia",

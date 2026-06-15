@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-30T10:29:11.290Z",
-  "source": "c:\\Users\\akash\\OneDrive\\Desktop\\ARGROUP OF EDUCTION\\apps\\frontend\\data\\wp-export-bundle\\pages.json",
+  "generatedAt": "2026-06-15T05:37:44.705Z",
+  "source": "C:\\Users\\akash\\OneDrive\\Desktop\\ARGROUP OF EDUCTION\\apps\\frontend\\data\\wp-export-bundle\\pages.json",
   "states": [
     {
       "id": "up",
@@ -41,14 +41,14 @@
           "name": "Shri Gorakhnath Medical College",
           "slug": "shri-gorakhnath-medical-college",
           "href": "/shri-gorakhnath-medical-college",
-          "image": "/wp-content/uploads/colleges/shri-gorakhnath-medical-college.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-09-20-at-5.22.38-PM-rc17ujexicxzd2ex8jjslu037ux02t9uyxauyb1atc.jpeg"
         },
         {
           "name": "Muzaffarnagar Medical College - [MMC]",
           "city": "Muzaffarnagar",
           "slug": "muzaffarnagar-medical-college-mmc-muzaffarnagar",
           "href": "/muzaffarnagar-medical-college-mmc-muzaffarnagar",
-          "image": "/wp-content/uploads/colleges/muzaffarnagar-medical-college-mmc-muzaffarnagar.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-09-20-at-5.44.32-PM-rc18tkuca0ws5rimmot4jzooey7l0mdn4csgzn2yv4.jpeg"
         },
         {
           "name": "FH Medical College",
@@ -58,24 +58,17 @@
           "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/FH-Medical-College-Agra-qlx0af59jrpq2l936h4v9mebz41udtmkrwbefk3fwc.jpg"
         },
         {
-          "name": "Era's Lucknow Medical College",
-          "city": "Lucknow",
-          "slug": "eras-lucknow-medical-college-lucknow",
-          "href": "/eras-lucknow-medical-college-lucknow",
-          "image": "/wp-content/uploads/colleges/eras-lucknow-medical-college-lucknow.png"
-        },
-        {
           "name": "Subharti Medical College",
           "slug": "subharti-medical-college",
           "href": "/subharti-medical-college",
-          "image": "/wp-content/uploads/colleges/subharti-medical-college.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Subharti-Medical-College-Meerut3-qlx0jy8cuards9eqj3fp1ptksr2tfcglr2fmljyqt8.jpg"
         },
         {
           "name": "K.D. Medical College - Hospital and Research Center",
           "city": "Mathura",
-          "slug": "naraina-medical-college-research-center-nmrc-kanpur",
-          "href": "/naraina-medical-college-research-center-nmrc-kanpur",
-          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Naraina-Medical-College-Campus-qlx0bev4rh2mbrt7dwkowddujr5sibkdkt3uo2mhbw.jpg"
+          "slug": "k-d-medical-college-hospital-and-research-center-mathura",
+          "href": "/k-d-medical-college-hospital-and-research-center-mathura",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/KD-medical-College-Mathura-qlx0b1pe3sklt8cbiqvwxgpe8cynik44uzz1y75zr0.jpg"
         },
         {
           "name": "Naraina Medical College & Research Center - [NMRC]",
@@ -86,9 +79,9 @@
         },
         {
           "name": "Ajay Sangal Institute Of Medical Sciences",
-          "slug": null,
-          "href": "/mbbs-india/up",
-          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/up-qgqsg592y7t644k876fvwztrinot7mekucc728repo.png"
+          "slug": "ajay-sangaal-institute-of-medical-sciences",
+          "href": "/ajay-sangaal-institute-of-medical-sciences",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Banner_Image_1_638240656582392952-qrprwoxxpr2g4ygfji8lv6b3id1t9p3cat54impu7w.webp"
         },
         {
           "name": "Dr SS Kushwah Institute of Medical Sciences",
@@ -140,7 +133,7 @@
           "name": "Heritage Institute of Medical Sciences",
           "slug": "heritage-institute-of-medical-sciences-hims-varanasi",
           "href": "/heritage-institute-of-medical-sciences-hims-varanasi",
-          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/up-qgqsg592y7t644k876fvwztrinot7mekucc728repo.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Heritage-Institute-of-Medical-Sciences-–-HIMS-Varanasi-qlx0khyyttiek2m2btyv02u99udiwzmyts4tod5h6k.jpg"
         },
         {
           "name": "Hind Institute of Medical Sciences",
@@ -159,9 +152,9 @@
         {
           "name": "Rama Medical College",
           "city": "Hapur",
-          "slug": "rmc-hospital-and-research-centre",
-          "href": "/rmc-hospital-and-research-centre",
-          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-09-20-at-4.08.26-PM-rc14nmn80hn217bt8depabwgv3am2w36666xvjexhc.jpeg"
+          "slug": "rama-medical-college-hapur",
+          "href": "/rama-medical-college-hapur",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Rama-Medical-College-Hapur-Campus-r06ihr1cihlpeij85g9mdoamhsueh6ptzjz3z1o9j0.jpg"
         },
         {
           "name": "Santosh Medical College",
@@ -275,9 +268,9 @@
         {
           "name": "Maharishi Markandeshwar Medical College",
           "city": "Ambala",
-          "slug": "maharishi-markandeshwar-medical-college-solan",
-          "href": "/maharishi-markandeshwar-medical-college-solan",
-          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Maharishi-Markandeshwar-Medical-College-Solan-qgqjcmdlkfgcnkb4plrr3n7nxa0j4e5mh8xf3adut8.jpg"
+          "slug": "maharishi-markandeshwar-medical-college-ambala",
+          "href": "/maharishi-markandeshwar-medical-college-ambala",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/maharishi-markandeshwar-medical-college-ambala-pg-md-ms-fees-cutoff-admission-r5g40k49cm4k3k97w9avuw0xn647qsco6qgij9y530.jpg"
         },
         {
           "name": "Adesh Medical College",
@@ -377,9 +370,9 @@
         {
           "name": "National Institute of Medical Sciences & Research",
           "city": "Jaipur",
-          "slug": "national-institute-of-medical-sciences-and-research-jaipur",
-          "href": "/national-institute-of-medical-sciences-and-research-jaipur",
-          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/large_016_4073aa06cc_64c299fed7-r7td8vn1fzs6r9zvco6fi1cmcdja2y7bsxybi3vtq4.png"
+          "slug": null,
+          "href": "/mbbs-india/rajasthan",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/rajasthan-qgqsgjcnsqcgy9zqwujage9offrbf2yjwa4h9e6i4c.png"
         },
         {
           "name": "Jaipur National University",
@@ -416,7 +409,7 @@
           "city": "Pune",
           "slug": "dy-patil-medical-college-pune",
           "href": "/dy-patil-medical-college-pune",
-          "image": "/wp-content/uploads/colleges/dy-patil-medical-college-pune.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/DY-Patil-Medical-College-Pune-qgqkn5dzv75bcoq30psxiwj2hwom50vavjgoadeat8.jpg"
         },
         {
           "name": "Symbiosis Medical College for Women",
@@ -430,28 +423,20 @@
           "city": "Pune",
           "slug": "bharati-vidyapeeth-medical-college-pune",
           "href": "/bharati-vidyapeeth-medical-college-pune",
-          "image": "/wp-content/uploads/colleges/bharati-vidyapeeth-medical-college-pune.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/bvp_homepage-r879iwi5si5bz5fjglq989qta0f3sqr0maa5u88p68.jpg"
         },
         {
           "name": "MGM Medical College",
-          "city": "Navi Mumbai",
           "slug": "mgm-medical-college",
           "href": "/mgm-medical-college",
-          "image": "/wp-content/uploads/colleges/mgm-medical-college.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-03-at-3.32.20-PM-r87l4ugqlka49ccfyrffeay60qfhbsyfqwvefnk35s.jpeg"
         },
         {
           "name": "Datta Meghe Medical College",
           "city": "Nagpur",
           "slug": "datta-meghe-medical-college-nagpur",
           "href": "/datta-meghe-medical-college-nagpur",
-          "image": "/wp-content/uploads/colleges/datta-meghe-medical-college-nagpur.png"
-        },
-        {
-          "name": "Pravara Institute of Medical Sciences",
-          "city": "Loni",
-          "slug": "pravara-institute-of-medical-sciences-loni",
-          "href": "/pravara-institute-of-medical-sciences-loni",
-          "image": "/wp-content/uploads/colleges/pravara-institute-of-medical-sciences-loni.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-07-at-11.31.27-AM.jpeg"
         }
       ]
     },
@@ -506,9 +491,9 @@
         },
         {
           "name": "S Nijalingappa Medical College and H.S.K Hospital",
-          "slug": "s-nijalingappa-medical-college-and-h-s-k-hospital",
-          "href": "/s-nijalingappa-medical-college-and-h-s-k-hospital",
-          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/S.Nijalingappa-Medical-College-and-H.S.K-Hospital-qlx1kw9zgvc44hqrskcsjw6tcyz6z24shxjoo36o8s.jpg"
+          "slug": null,
+          "href": "/mbbs-india/karnataka",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/karnataka-qgqsgrt7i8o1urngjg6xku4trwlmccw4xfzukvtykc.png"
         },
         {
           "name": "Adichunchanagiri Institute of Medical Sciences",
@@ -591,9 +576,9 @@
         {
           "name": "Amaltas Institute of Medical Science",
           "city": "Dewas",
-          "slug": "amaltas-institute-of-medical-science",
-          "href": "/amaltas-institute-of-medical-science",
-          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Amaltas-Institute-of-Medical-Science-Dewas-qi3r3g0jhnbwpy76tkwznrrw7mlicmjk4wu4vwygcc.webp"
+          "slug": null,
+          "href": "/mbbs-india/mp",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/mp-qgqsfq7nwv8kyd62mzxut3me0hqxsgqvg9wfdtdph8.png"
         },
         {
           "name": "Index Medical College",
@@ -656,48 +641,48 @@
           "name": "Mata Gujri Memorial Medical College",
           "slug": "mata-gujri-memorial-medical-college-lions-seva-kendra-hospital-kishanganj-bihar",
           "href": "/mata-gujri-memorial-medical-college-lions-seva-kendra-hospital-kishanganj-bihar",
-          "image": "/wp-content/uploads/colleges/mata-gujri-memorial-medical-college-lions-seva-kendra-hospital-kishanganj-bihar.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-04-at-1.27.44-PM.jpeg"
         },
         {
           "name": "Radha Devi Jageshwari Memorial Medical College",
           "city": "Muzaffarpur",
           "slug": "radha-devi-jageshwari-memorial-medical-college-and-hospital-muzaffarpur",
           "href": "/radha-devi-jageshwari-memorial-medical-college-and-hospital-muzaffarpur",
-          "image": "/wp-content/uploads/colleges/radha-devi-jageshwari-memorial-medical-college-and-hospital-muzaffarpur.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-07-at-4.01.36-PM.jpeg"
         },
         {
           "name": "Shree Narayan Medical Institute & Hospital",
           "city": "Saharsa",
           "slug": "shree-narayan-medical-institute-hospital-saharsa",
           "href": "/shree-narayan-medical-institute-hospital-saharsa",
-          "image": "/wp-content/uploads/colleges/shree-narayan-medical-institute-hospital-saharsa.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-08-at-1.33.51-PM-r8g89fawfh11pevog9uqvvkpf87amyh7ompzmccj5s.jpeg"
         },
         {
           "name": "Narayan Medical College & Hospital",
           "city": "Bihar",
           "slug": "narayan-medical-college-hospital-bihar",
           "href": "/narayan-medical-college-hospital-bihar",
-          "image": "/wp-content/uploads/colleges/narayan-medical-college-hospital-bihar.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-09-at-12.15.43-PM-1.jpeg"
         },
         {
           "name": "Madhubani Medical College & Hospital",
           "city": "Bihar",
           "slug": "madhubani-medical-college-hospital-bihar",
           "href": "/madhubani-medical-college-hospital-bihar",
-          "image": "/wp-content/uploads/colleges/madhubani-medical-college-hospital-bihar.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-08-at-4.35.31-PM-r8gg80bg51c9heln05fv3k41kfo1gs71r37f3ffe2o.jpeg"
         },
         {
           "name": "Katihar Medical College",
           "city": "Bihar",
           "slug": "katihar-medical-college-bihar",
           "href": "/katihar-medical-college-bihar",
-          "image": "/wp-content/uploads/colleges/katihar-medical-college-bihar.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-07-at-5.39.10-PM-r8fzzn1l9zdtkpfgb1yogismfpy32zaj2qd99jvke8.jpeg"
         },
         {
           "name": "Netaji Subhas Medical College & Hospital",
           "slug": "netaji-subhas-medical-college-hospital",
           "href": "/netaji-subhas-medical-college-hospital",
-          "image": "/wp-content/uploads/colleges/netaji-subhas-medical-college-hospital.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-07-07-at-3.04.05-PM-r8ejqut8cyqctfdfrkpgumqc7e3cdnpjhpqf0uj8jk.jpeg"
         }
       ]
     },
@@ -779,7 +764,7 @@
           "name": "Raipur Institute of Medical Sciences",
           "slug": "raipur-institute-of-medical-sciences",
           "href": "/raipur-institute-of-medical-sciences",
-          "image": "/wp-content/uploads/colleges/raipur-institute-of-medical-sciences.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-11-at-1.52.34-PM.jpeg"
         },
         {
           "name": "Shri Rawatpura Sarkar Institute of Medical Sciences and Research",
@@ -792,13 +777,13 @@
           "city": "Raipur",
           "slug": "shri-balaji-institute-of-medical-sciences-raipur",
           "href": "/shri-balaji-institute-of-medical-sciences-raipur",
-          "image": "/wp-content/uploads/colleges/shri-balaji-institute-of-medical-sciences-raipur.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-14-at-3.20.40-PM.jpeg"
         },
         {
           "name": "Shree Shankaracharya Institute of Medical Sciences",
           "slug": "shree-shankaracharya-institute-of-medical-sciences",
           "href": "/shree-shankaracharya-institute-of-medical-sciences",
-          "image": "/wp-content/uploads/colleges/shree-shankaracharya-institute-of-medical-sciences.png"
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-14-at-6.00.32-PM.jpeg"
         }
       ]
     },
@@ -870,9 +855,9 @@
         {
           "name": "Amrita School of Medicine",
           "city": "Kochi",
-          "slug": "international-school-of-medicine-kyrgyzstan",
-          "href": "/international-school-of-medicine-kyrgyzstan",
-          "image": "/wp-content/uploads/colleges/international-school-of-medicine-kyrgyzstan.png"
+          "slug": null,
+          "href": "/mbbs-india/kerala",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/mbbs-r1s3wknnyo007do3hq0kzbgtklve0ojsr84v120lks.webp"
         },
         {
           "name": "Jubilee Mission Medical College",
@@ -964,9 +949,9 @@
         {
           "name": "Christian Medical College",
           "city": "Vellore",
-          "slug": "bicol-christian-college-of-medicine-philippines",
-          "href": "/bicol-christian-college-of-medicine-philippines",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2022/10/imgpsh_fullsize_anim-10.jpg"
+          "slug": null,
+          "href": "/mbbs-india/tamil-nadu",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/pleased-young-female-doctor-wearing-medical-robe-stethoscope-around-neck-standing-with-closed-posture_409827-254-r1j4iw42xneyezv0qji0e212im8mixvou91c9cyr0c.avif"
         },
         {
           "name": "Stanley Medical College",
