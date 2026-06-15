@@ -10,6 +10,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findCollegePageSlug, extractFirstContentImage } from './lib/college-slug-match.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -39,22 +40,6 @@ const COUNTRY_WP_SLUG = {
   romania: ['mbbs-in-romania'],
   asia: ['mbbs-in-asia'],
 };
-
-const STOP_WORDS = new Set([
-  'medical', 'college', 'institute', 'hospital', 'sciences', 'science',
-  'and', 'the', 'of', 'for', 'in', 'a', 'an', 'university', 'research',
-  'state', 'national', 'international', 'russia', 'nepal', 'china',
-]);
-
-function norm(s) {
-  return String(s || '')
-    .replace(/<[^>]+>/g, '')
-    .replace(/\[.*?\]/g, '')
-    .replace(/&[^;]+;/g, ' ')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-}
 
 function decodeXmlEntities(s) {
   return String(s || '')
@@ -88,7 +73,7 @@ function mapJsonPage(p) {
   return {
     slug: p.slug,
     title: typeof p.title === 'string' ? p.title : p.title?.rendered || p.slug,
-    featuredImage: p.featuredImage || null,
+    featuredImage: p.featuredImage || extractFirstContentImage(p.content) || null,
   };
 }
 
@@ -113,38 +98,13 @@ function imageForSlug(slug, pageBySlug) {
   return pageBySlug.get(slug)?.featuredImage || null;
 }
 
-function findPageSlug(name, pages) {
-  const key = norm(name);
-  if (!key) return null;
-
-  for (const p of pages) {
-    if (norm(p.title) === key) return p.slug;
-  }
-  for (const p of pages) {
-    const t = norm(p.title);
-    if (t.includes(key) || key.includes(t)) return p.slug;
-  }
-
-  const words = key.split(' ').filter((w) => w.length > 3 && !STOP_WORDS.has(w));
-  let best = null;
-  let bestScore = 0;
-  for (const p of pages) {
-    const score = words.filter((w) => p.slug.includes(w)).length;
-    if (score > bestScore && score >= Math.min(2, words.length)) {
-      bestScore = score;
-      best = p.slug;
-    }
-  }
-  return best;
-}
-
 function resolveCountryWpSlug(countryId, slugSet) {
   const candidates = COUNTRY_WP_SLUG[countryId] ?? [`study-mbbs-in-${countryId}`, `mbbs-in-${countryId}`];
   return candidates.find((s) => slugSet.has(s)) ?? null;
 }
 
 function mapCollege(college, pages, pageBySlug, fallbackHref) {
-  const slug = findPageSlug(college.name, pages);
+  const slug = findCollegePageSlug(college.name, pages, college.city);
   return {
     name: college.name,
     slug: slug || null,
@@ -180,7 +140,7 @@ async function main() {
       });
 
       const universities = (country.universities ?? []).map((u) => {
-        const uSlug = findPageSlug(u.name, pages);
+        const uSlug = findCollegePageSlug(u.name, pages, u.city);
         const uHref = uSlug ? `/${uSlug}` : u.href;
         const uColleges = (u.colleges ?? []).map((c) => {
           total++;

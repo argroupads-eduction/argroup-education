@@ -6,6 +6,7 @@
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { extractFirstContentImage } from '../../../scripts/lib/college-slug-match.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -143,7 +144,9 @@ for (const file of ['pages.json', 'posts.json']) {
   if (!existsSync(fp)) continue;
   const rows = JSON.parse(readFileSync(fp, 'utf8'));
   for (const row of rows) {
-    if (row.slug && row.featuredImage) add(row.slug, row.featuredImage, 'featured');
+    if (!row.slug) continue;
+    const image = row.featuredImage || extractFirstContentImage(row.content);
+    if (image) add(row.slug, image, 'featured');
   }
 }
 

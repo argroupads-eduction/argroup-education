@@ -11,6 +11,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findCollegePageSlug, extractFirstContentImage } from './lib/college-slug-match.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -41,21 +42,6 @@ const STATE_WP_SLUG = {
   'west-bengal': 'mbbs-in-west-bengal',
   'tamil-nadu': 'mbbs-in-tamil-nadu',
 };
-
-const STOP_WORDS = new Set([
-  'medical', 'college', 'institute', 'hospital', 'sciences', 'science',
-  'and', 'the', 'of', 'for', 'in', 'a', 'an', 'university', 'research',
-]);
-
-function norm(s) {
-  return String(s || '')
-    .replace(/<[^>]+>/g, '')
-    .replace(/\[.*?\]/g, '')
-    .replace(/&[^;]+;/g, ' ')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-}
 
 function decodeXmlEntities(s) {
   return String(s || '')
@@ -93,7 +79,7 @@ function mapJsonPage(p) {
   return {
     slug: p.slug,
     title: typeof p.title === 'string' ? p.title : p.title?.rendered || p.slug,
-    featuredImage: p.featuredImage || null,
+    featuredImage: p.featuredImage || extractFirstContentImage(p.content) || null,
   };
 }
 
@@ -120,33 +106,6 @@ function imageForSlug(slug, pageBySlug) {
   return pageBySlug.get(slug)?.featuredImage || null;
 }
 
-function findPageSlug(collegeName, pages) {
-  const key = norm(collegeName);
-  if (!key) return null;
-
-  for (const p of pages) {
-    const t = norm(p.title);
-    if (t === key) return p.slug;
-  }
-
-  for (const p of pages) {
-    const t = norm(p.title);
-    if (t.includes(key) || key.includes(t)) return p.slug;
-  }
-
-  const words = key.split(' ').filter((w) => w.length > 3 && !STOP_WORDS.has(w));
-  let best = null;
-  let bestScore = 0;
-  for (const p of pages) {
-    const score = words.filter((w) => p.slug.includes(w)).length;
-    if (score > bestScore && score >= Math.min(2, words.length)) {
-      bestScore = score;
-      best = p.slug;
-    }
-  }
-  return best;
-}
-
 async function main() {
   const sourceArg = process.argv[2];
   const states = JSON.parse(await readFile(STATES_PATH, 'utf8'));
@@ -171,7 +130,7 @@ async function main() {
         wpSlug: wpSlug && slugSet.has(wpSlug) ? wpSlug : null,
         colleges: state.colleges.map((college) => {
           total++;
-          const slug = findPageSlug(college.name, pages);
+          const slug = findCollegePageSlug(college.name, pages, college.city);
           if (slug) matched++;
           else unmatched.push({ state: state.name, college: college.name });
           const stateImage = imageForSlug(wpSlug && slugSet.has(wpSlug) ? wpSlug : null, pageBySlug);

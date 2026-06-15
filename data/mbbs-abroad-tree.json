@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-30T10:17:16.064Z",
-  "source": "c:\\Users\\akash\\OneDrive\\Desktop\\ARGROUP OF EDUCTION\\apps\\frontend\\data\\wp-export-bundle\\pages.json",
+  "generatedAt": "2026-06-15T05:36:48.120Z",
+  "source": "C:\\Users\\akash\\OneDrive\\Desktop\\ARGROUP OF EDUCTION\\apps\\frontend\\data\\wp-export-bundle\\pages.json",
   "countries": [
     {
       "id": "russia",
@@ -179,14 +179,14 @@
         {
           "id": "kathmandu-university",
           "name": "Kathmandu University Nepal",
-          "href": "/kathmandu-university",
-          "slug": "kathmandu-university",
+          "href": "/nepal-medical-college-jorpati-kathmandu",
+          "slug": "nepal-medical-college-jorpati-kathmandu",
           "colleges": [
             {
               "name": "College of Medical Science",
-              "slug": "world-college-of-medical-science-jhajjar",
-              "href": "/world-college-of-medical-science-jhajjar",
-              "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/World-College-of-Medical-Science-and-Research-Jhajjar-qgqkvgao8iihwonwjb0ajt3nefrc4rty0mx2wd33uk.jpg"
+              "slug": null,
+              "href": "/nepal-medical-college-jorpati-kathmandu",
+              "image": null
             },
             {
               "name": "Manipal College of Medical Science",
@@ -196,9 +196,9 @@
             },
             {
               "name": "Kathmandu University School of Medical Sciences",
-              "slug": "kathmandu-university-school-of-medical-sciences",
-              "href": "/kathmandu-university-school-of-medical-sciences",
-              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Kathmandu-University-School-of-Medical-Sciences.jpg"
+              "slug": "institute-of-medicine-kathmandu",
+              "href": "/institute-of-medicine-kathmandu",
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Institute-of-Medicine-Kathmandu-1024x581.jpg"
             },
             {
               "name": "Birat Medical College",
@@ -208,15 +208,15 @@
             },
             {
               "name": "Kathmandu Medical College",
-              "slug": "kathmandu-medical-college",
-              "href": "/kathmandu-medical-college",
-              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Kathmandu-Medical-College-Kathmandu-1024x581.jpg"
+              "slug": "institute-of-medicine-kathmandu",
+              "href": "/institute-of-medicine-kathmandu",
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Institute-of-Medicine-Kathmandu-1024x581.jpg"
             },
             {
               "name": "Nepal Medical College",
-              "slug": "nepal-medical-college-jorpati-kathmandu",
-              "href": "/nepal-medical-college-jorpati-kathmandu",
-              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Add-a-subheading-1024x581.jpg"
+              "slug": "nepal-army-institute-of-health-sciences",
+              "href": "/nepal-army-institute-of-health-sciences",
+              "image": "https://argroupofeducation.com/wp-content/uploads/2023/09/Nepal-Army-Institute-of-Health-Sciences-Kathmandu-1024x581.jpg"
             },
             {
               "name": "Nepalgunj Medical College",
@@ -306,15 +306,15 @@
         },
         {
           "name": "Medical College For Women and Hospital",
-          "slug": "medical-college-for-women-and-hospital",
-          "href": "/medical-college-for-women-and-hospital",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2023/10/Medical-college-for-women-and-Hospital-1024x671.jpg"
+          "slug": "zh-sikder-womens-medical-college",
+          "href": "/zh-sikder-womens-medical-college",
+          "image": "https://argroupofeducation.com/wp-content/uploads/2024/04/ZH-Sikder-Medical-College-Bangladesh-2.webp"
         },
         {
           "name": "Bangladesh Medical College",
-          "slug": "bangladesh-medical-college",
-          "href": "/bangladesh-medical-college",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2023/10/Bangladesh-medical-college.jpg"
+          "slug": "adesh-medical-college-and-hospital-kurukshetra",
+          "href": "/adesh-medical-college-and-hospital-kurukshetra",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Adesh-Medical-College-and-Hospital-Kurukshetra-qgqkuruvatl1itnei0fzqz9nyf3skn4x99ygf63ccc.jpg"
         },
         {
           "name": "Holy Family Red Crescent Medical",
@@ -330,9 +330,9 @@
         },
         {
           "name": "International Medical College",
-          "slug": "international-medical-college-bangladesh",
-          "href": "/international-medical-college-bangladesh",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2023/10/International-medical-college-1-1024x500.jpg"
+          "slug": null,
+          "href": "/mbbs-abroad/bangladesh",
+          "image": null
         },
         {
           "name": "Uttara Adhunik Medical College",
@@ -372,9 +372,9 @@
         },
         {
           "name": "Mainamoti Medical College",
-          "slug": "mainamati-medical-college",
-          "href": "/mainamati-medical-college",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2023/10/Add-a-subheading-1-2-1024x581.jpg"
+          "slug": null,
+          "href": "/mbbs-abroad/bangladesh",
+          "image": null
         },
         {
           "name": "Gonoshasthaya Samaj Vittik Medical College",
@@ -472,9 +472,9 @@
         },
         {
           "name": "Tashkent State Medical Academy",
-          "slug": "first-tashkent-state-medical-institute",
-          "href": "/first-tashkent-state-medical-institute",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2022/11/imgpsh_fullsize_anim-2.png"
+          "slug": "tashkent-pediatric-medical-institute",
+          "href": "/tashkent-pediatric-medical-institute",
+          "image": "https://argroupofeducation.com/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-21-at-11.54.54-AM.jpeg"
         },
         {
           "name": "Samarkand State Medical University",
@@ -654,9 +654,9 @@
       "colleges": [
         {
           "name": "AMA Medical College",
-          "slug": "rmc-hospital-and-research-centre",
-          "href": "/rmc-hospital-and-research-centre",
-          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-09-20-at-4.08.26-PM-rc14nmn80hn217bt8depabwgv3am2w36666xvjexhc.jpeg"
+          "slug": "rama-medical-college-hapur",
+          "href": "/rama-medical-college-hapur",
+          "image": "https://argroupofeducation.com/wp-content/uploads/elementor/thumbs/Rama-Medical-College-Hapur-Campus-r06ihr1cihlpeij85g9mdoamhsueh6ptzjz3z1o9j0.jpg"
         },
         {
           "name": "Davao Medical School Foundation",
@@ -782,9 +782,9 @@
         },
         {
           "name": "China Medical University",
-          "slug": "china-medical-university",
-          "href": "/china-medical-university",
-          "image": "https://argroupofeducation.com/wp-content/uploads/2023/06/CHINA-MEDICAL-UNIVERSITY-1024x581.jpg"
+          "slug": "study-mbbs-in-china",
+          "href": "/study-mbbs-in-china",
+          "image": "https://argroupofeducation.com/wp-content/uploads/2023/06/MBBS-in-China-1024x581.jpg"
         },
         {
           "name": "China Three Gorges Medical University",
