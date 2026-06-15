@@ -36,6 +36,13 @@ const COLLEGE_SLUG_OVERRIDES = new Map([
   ['ajay sangal institute of medical sciences', 'ajay-sangaal-institute-of-medical-sciences'],
   ['peoples college of medical science', 'peoples-college-of-medical-sciences'],
   ['peoples college of medical sciences', 'peoples-college-of-medical-sciences'],
+  ['rps college of veterinary animal sciences', 'rps-college-of-veterinary-sciences'],
+  ['national institute of medical sciences research', 'national-institute-of-medical-sciences-and-research-jaipur'],
+  ['s nijalingappa medical college and hsk hospital', 's-nijalingappa-medical-college-and-h-s-k-hospital'],
+  ['amaltas institute of medical science', 'amaltas-institute-of-medical-science'],
+  ['chirayu medical college and hospital', 'chirayu-medical-college-bhopal'],
+  ['college of medical science', 'college-of-medical-science-bharatpur'],
+  ['belgorod state university russia', 'belgorod-state-university-russia'],
 ]);
 
 export function extractFirstContentImage(html) {

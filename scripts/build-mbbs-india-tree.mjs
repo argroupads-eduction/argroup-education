@@ -9,15 +9,18 @@
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { findCollegePageSlug, extractFirstContentImage } from './lib/college-slug-match.mjs';
+import { pickCollegePageImage } from './lib/college-image-quality.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
 const STATES_PATH = path.join(REPO_ROOT, 'data', 'mbbs-india-states.json');
 const OUT_PATH = path.join(REPO_ROOT, 'data', 'mbbs-india-tree.json');
 const FRONTEND_OUT = path.join(REPO_ROOT, 'apps', 'frontend', 'data', 'mbbs-india-tree.json');
+const COLLEGE_INDEX_PATH = path.join(REPO_ROOT, 'apps', 'frontend', 'data', 'college-image-index.json');
 const WP_JSON_CANDIDATES = [
   path.join(REPO_ROOT, 'apps', 'frontend', 'data', 'wp-export-bundle', 'pages.json'),
   path.join(REPO_ROOT, 'data', 'wp-export', 'pages.json'),
@@ -80,6 +83,7 @@ function mapJsonPage(p) {
     slug: p.slug,
     title: typeof p.title === 'string' ? p.title : p.title?.rendered || p.slug,
     featuredImage: p.featuredImage || extractFirstContentImage(p.content) || null,
+    content: p.content || '',
   };
 }
 
@@ -101,9 +105,29 @@ async function loadWpPages(sourceArg) {
   throw new Error('No pages source found. Run npm run wp:export or pass path to .xml export.');
 }
 
-function imageForSlug(slug, pageBySlug) {
+function loadCollegeImagesFromIndex() {
+  try {
+    if (!existsSync(COLLEGE_INDEX_PATH)) return new Map();
+    const data = JSON.parse(readFileSync(COLLEGE_INDEX_PATH, 'utf8'));
+    const out = new Map();
+    for (const [slug, imagePath] of Object.entries(data.bySlug || {})) {
+      if (typeof imagePath === 'string' && imagePath.trim()) {
+        out.set(slug, imagePath);
+      }
+    }
+    return out;
+  } catch {
+    return new Map();
+  }
+}
+
+function imageForSlug(slug, pageBySlug, indexBySlug) {
   if (!slug) return null;
-  return pageBySlug.get(slug)?.featuredImage || null;
+  const indexed = indexBySlug.get(slug);
+  if (indexed) return indexed;
+  const page = pageBySlug.get(slug);
+  if (!page) return null;
+  return pickCollegePageImage(slug, page.featuredImage, page.content);
 }
 
 async function main() {
@@ -113,6 +137,7 @@ async function main() {
 
   const slugSet = new Set(pages.map((p) => p.slug));
   const pageBySlug = new Map(pages.map((p) => [p.slug, p]));
+  const bundledBySlug = loadCollegeImagesFromIndex();
   let matched = 0;
   let total = 0;
   const unmatched = [];
@@ -133,13 +158,12 @@ async function main() {
           const slug = findCollegePageSlug(college.name, pages, college.city);
           if (slug) matched++;
           else unmatched.push({ state: state.name, college: college.name });
-          const stateImage = imageForSlug(wpSlug && slugSet.has(wpSlug) ? wpSlug : null, pageBySlug);
           return {
             name: college.name,
             city: college.city,
             slug: slug || null,
             href: slug ? `/${slug}` : state.href,
-            image: imageForSlug(slug, pageBySlug) || stateImage,
+            image: imageForSlug(slug, pageBySlug, bundledBySlug),
           };
         }),
       };

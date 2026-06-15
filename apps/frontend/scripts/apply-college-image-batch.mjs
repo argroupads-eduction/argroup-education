@@ -125,6 +125,16 @@ const BATCH = [
   ['Smolensk_State_Medical_University__Russia', 'smolensk-state-medical-university'],
   ['Voronezh_State_Medical_University__Russia', 'voronezh-state-medical-university'],
   ['Yaroslav-the-wise_Novgorod_State_Medical_University__Russia', 'yaroslav-the-wise-novgorod-state-medical-university'],
+  // Batch 5 — Haryana colleges (updated campus photos)
+  ['Manav_Rachna_Dental_College', 'manav-rachna-dental-college'],
+  ['Adesh_Medical_College', 'adesh-medical-college-and-hospital-kurukshetra'],
+  ['Al-falah_School_of_Medical_Sciences', 'al-falah-school-of-medical-sciences-research-centre'],
+  ['SGT_Medical_College', 'sgt-medical-college-gurugram'],
+  ['World_College_of_Medical_Science_and_Research', 'world-college-of-medical-science-jhajjar'],
+  ['RPS_College_of_Veterinary', 'rps-college-of-veterinary-sciences'],
+  ['NC_Medical_College_and_Hospital', 'nc-medical-college-and-hospital-panipat'],
+  ['Maharishi_Markandeshwar_Medical_College', 'maharishi-markandeshwar-medical-college-ambala'],
+  ['Amrita_Medical_College', 'amrita-medical-college-faridabad'],
 ];
 
 function findAsset(fragment) {
@@ -195,3 +205,20 @@ for (const file of ['data/mbbs-india-tree.json', 'data/mbbs-abroad-tree.json']) 
 }
 
 console.log(`\nDone: ${copied} copied, ${missing} missing assets.`);
+
+const indexPath = path.join(ROOT, 'data', 'college-image-index.json');
+try {
+  const indexData = JSON.parse(readFileSync(indexPath, 'utf8'));
+  let indexUpdates = 0;
+  for (const [slug, imagePath] of imagePathBySlug) {
+    if (indexData.bySlug[slug] !== imagePath) {
+      indexData.bySlug[slug] = imagePath;
+      indexUpdates++;
+    }
+  }
+  indexData.generatedAt = new Date().toISOString();
+  writeFileSync(indexPath, `${JSON.stringify(indexData, null, 2)}\n`);
+  console.log(`Updated ${indexUpdates} entries in college-image-index.json`);
+} catch (e) {
+  console.warn('college-image-index skip:', e?.message);
+}

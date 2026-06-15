@@ -76,9 +76,9 @@ export function AboutPageView() {
           </span>
 
           <h1 id="about-hero-heading" className="about-hero__title">
-            Your medical education
+            From NEET Aspirant to
             <br />
-            <em>journey starts with clarity</em>
+            <em>Future Doctor</em>
           </h1>
 
           <p className="about-hero__lead">{ABOUT_HERO_LEAD}</p>

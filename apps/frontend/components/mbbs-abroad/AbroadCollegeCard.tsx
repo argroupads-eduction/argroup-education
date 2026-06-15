@@ -8,6 +8,11 @@ type AbroadCollegeCardProps = {
 };
 
 export function AbroadCollegeCard({ college, variant, index }: AbroadCollegeCardProps) {
-  const item: PremiumCollegeItem = { name: college.name, href: college.href, image: college.image };
+  const item: PremiumCollegeItem = {
+    name: college.name,
+    href: college.href,
+    image: college.image,
+    slug: college.slug,
+  };
   return <PremiumCollegeCard college={item} theme="abroad" variant={variant} index={index} />;
 }

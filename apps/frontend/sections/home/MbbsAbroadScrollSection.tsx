@@ -14,9 +14,9 @@ import { ArrowRight, Globe2 } from 'lucide-react'
 import { FitImage } from '@/components/ui/FitImage'
 import {
   MBBS_ABROAD_SCROLL_COUNTRIES,
+  resolveMbbsAbroadScrollImage,
   type MbbsAbroadScrollCountry,
 } from '@/lib/mbbsAbroadScrollCountries'
-import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree'
 
 function countryWatermarkTextClass(name: string, compact = false): string {
   if (compact) {
@@ -154,36 +154,32 @@ function CountryVisualCard({
   direction,
   compact = false,
 }: CountryVisualCardProps) {
-  const hasImage = Boolean(country.imageSrc)
-  const imageMaxHeight = compact ? 'min(52vw, 14rem)' : 'min(42vh, 22rem)'
+  const [imgFailed, setImgFailed] = useState(false)
+  const hasImage = Boolean(country.imageSrc) && !imgFailed
+  const imageMaxHeight = compact
+    ? 'min(42vw, 15rem)'
+    : 'min(46vh, 24rem)'
 
-  return (
-    <AnimatePresence mode="wait" custom={direction}>
-      <motion.div
-        key={country.slug}
-        custom={direction}
-        variants={hasImage ? imageCardVariants : cardVariants}
-        initial="enter"
-        animate="center"
-        exit="exit"
-        transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-        className={`relative w-full max-w-full overflow-hidden rounded-2xl border border-white/20 shadow-2xl shadow-black/30 ${
-          hasImage
-            ? 'mbbs-abroad-country-visual bg-navy-950/50'
-            : `flex items-center justify-center bg-gradient-to-br ${country.gradient} ${
-                compact
-                  ? 'min-h-[min(52vw,14rem)] max-h-[min(52vw,14rem)]'
-                  : 'min-h-[min(42vh,22rem)] lg:rounded-[2rem]'
-              }`
-        } ${!hasImage && !compact ? 'lg:rounded-[2rem]' : ''}`}
-      >
+  const cardClassName = `relative w-full max-w-full overflow-hidden rounded-2xl border border-white/20 shadow-2xl shadow-black/30 ${
+    hasImage
+      ? 'mbbs-abroad-country-visual bg-navy-950/50'
+      : `flex items-center justify-center bg-gradient-to-br ${country.gradient} ${
+          compact
+            ? 'min-h-[min(42vw,15rem)] max-h-[min(42vw,15rem)]'
+            : 'min-h-[min(46vh,24rem)] lg:min-h-[min(42vh,22rem)] lg:rounded-[2rem]'
+        }`
+  } ${!hasImage && !compact ? 'lg:rounded-[2rem]' : ''}`
+
+  const cardBody = (
+    <>
         {hasImage ? (
           <FitImage
             src={country.imageSrc!}
             alt={`MBBS in ${country.name}`}
             maxHeight={imageMaxHeight}
             frameClassName="w-full rounded-2xl bg-navy-950/40"
-            sizes={compact ? '100vw' : '(min-width: 1024px) 50vw, 100vw'}
+            sizes={compact ? '(max-width: 1024px) 50vw, 100vw' : '(min-width: 1024px) 50vw, 100vw'}
+            onError={() => setImgFailed(true)}
           />
         ) : (
           <>
@@ -227,6 +223,26 @@ function CountryVisualCard({
         <div className="absolute right-3 top-3 rounded-full border border-white/25 bg-navy-900/50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-sm md:right-6 md:top-6">
           {String(activeIndex + 1).padStart(2, '0')}
         </div>
+    </>
+  )
+
+  if (compact) {
+    return <div className={cardClassName}>{cardBody}</div>
+  }
+
+  return (
+    <AnimatePresence mode="wait" custom={direction}>
+      <motion.div
+        key={country.slug}
+        custom={direction}
+        variants={hasImage ? imageCardVariants : cardVariants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+        className={cardClassName}
+      >
+        {cardBody}
       </motion.div>
     </AnimatePresence>
   )
@@ -234,7 +250,7 @@ function CountryVisualCard({
 
 function MbbsAbroadIntro({ count }: { count: number }) {
   return (
-    <div className="flex shrink-0 flex-col gap-2 md:gap-3">
+    <div className="mbbs-abroad-intro flex shrink-0 flex-col gap-2 md:gap-3">
       <p className="text-xs font-bold uppercase tracking-[0.28em] text-gold-400">
         MBBS Abroad · AR Group of Education
       </p>
@@ -248,7 +264,7 @@ function MbbsAbroadIntro({ count }: { count: number }) {
   )
 }
 
-/** Mobile: natural document scroll, swipeable cards, tappable progress, no pin/jack */
+/** Mobile + tablet: swipeable carousel (no scroll-pin). Desktop (lg+): scroll-driven steps. */
 function MbbsAbroadScrollSectionMobile({
   countries,
 }: {
@@ -299,7 +315,7 @@ function MbbsAbroadScrollSectionMobile({
 
   return (
     <section
-      className={`mbbs-abroad-mobile-panel relative scroll-mt-[4.5rem] md:hidden ${MBBS_ABROAD_PIN_BG}`}
+      className={`mbbs-abroad-mobile-panel relative scroll-mt-[4.5rem] lg:hidden ${MBBS_ABROAD_PIN_BG}`}
       aria-label="MBBS Abroad destinations"
     >
       <div
@@ -315,65 +331,59 @@ function MbbsAbroadScrollSectionMobile({
       />
 
       <div
-        className={`relative z-[1] mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 ${MOBILE_FAB_PADDING}`}
+        className={`relative z-[1] mx-auto flex w-full max-w-7xl flex-col px-4 py-6 sm:px-6 md:px-8 md:py-8 ${MOBILE_FAB_PADDING}`}
       >
         <MbbsAbroadIntro count={count} />
 
-        <div aria-live="polite" aria-atomic="true">
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={country.slug}
-              custom={direction}
-              variants={contentVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+        <div
+          aria-live="polite"
+          aria-atomic="true"
+          className="mbbs-abroad-mobile-step relative z-20 mt-10 min-w-0"
+        >
+          <span className="mbbs-abroad-step-badge inline-flex items-center gap-2 rounded-full border border-gold-400/35 bg-gold-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gold-100 md:text-[11px]">
+            <Globe2 className="h-3 w-3 text-gold-400" aria-hidden />
+            Step {activeIndex + 1} · {country.name}
+          </span>
+
+          <h2 className="mt-4 font-serif text-2xl font-bold leading-tight text-white md:text-3xl">
+            Study MBBS in{' '}
+            <span className="bg-gradient-to-r from-gold-400 to-gold-500 bg-clip-text text-transparent">
+              {country.name}
+            </span>
+          </h2>
+
+          <p className="mt-2 text-sm font-medium text-gold-400/90 md:text-base">{country.tagline}</p>
+
+          <p className="mt-3 text-sm leading-relaxed text-slate-200/85 md:text-base">
+            {country.description}
+          </p>
+
+          <div className="mbbs-abroad-mobile-cta-wrap relative z-20 mt-5 md:mt-6">
+            <Link
+              href={`/mbbs-abroad/${country.slug}`}
+              className="mbbs-abroad-cta group"
             >
-              <span className="inline-flex items-center gap-2 rounded-full border border-gold-400/35 bg-gold-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gold-100">
-                <Globe2 className="h-3 w-3 text-gold-400" aria-hidden />
-                Step {activeIndex + 1} · {country.name}
-              </span>
-
-              <h2 className="mt-4 font-serif text-2xl font-bold leading-tight text-white">
-                Study MBBS in{' '}
-                <span className="bg-gradient-to-r from-gold-400 to-gold-500 bg-clip-text text-transparent">
-                  {country.name}
-                </span>
-              </h2>
-
-              <p className="mt-2 text-sm font-medium text-gold-400/90">{country.tagline}</p>
-
-              <p className="mt-3 text-sm leading-relaxed text-slate-200/85">
-                {country.description}
-              </p>
-
-              <Link
-                href={`/mbbs-abroad/${country.slug}`}
-                className="mbbs-abroad-cta group mt-5 sm:w-fit"
-              >
-                <span className="text-white">Explore {country.name}</span>
-                <ArrowRight
-                  className="h-4 w-4 shrink-0 text-white transition-transform duration-200 group-hover:translate-x-1"
-                  aria-hidden
-                />
-              </Link>
-            </motion.div>
-          </AnimatePresence>
+              <span className="text-white">Explore {country.name}</span>
+              <ArrowRight
+                className="h-4 w-4 shrink-0 text-white transition-transform duration-200 group-hover:translate-x-1"
+                aria-hidden
+              />
+            </Link>
+          </div>
         </div>
 
         <div
-          className="overflow-hidden touch-pan-y"
+          className="mbbs-abroad-mobile-carousel relative z-0 mt-8 min-w-0 overflow-hidden touch-pan-y md:mt-10"
           ref={emblaRef}
           role="region"
           aria-roledescription="carousel"
           aria-label="MBBS abroad country destinations"
         >
-          <div className="flex">
+          <div className="flex flex-nowrap">
             {countries.map((c, i) => (
               <div
                 key={c.slug}
-                className="min-w-0 shrink-0 grow-0 basis-full pl-0"
+                className="min-w-0 shrink-0 grow-0 basis-full"
                 role="group"
                 aria-roledescription="slide"
                 aria-hidden={i !== activeIndex}
@@ -390,17 +400,19 @@ function MbbsAbroadScrollSectionMobile({
           </div>
         </div>
 
-        <CountryProgress
-          countries={countries}
-          activeIndex={activeIndex}
-          onSelect={goToIndex}
-        />
+        <div className="mt-8 md:mt-10">
+          <CountryProgress
+            countries={countries}
+            activeIndex={activeIndex}
+            onSelect={goToIndex}
+          />
+        </div>
       </div>
     </section>
   )
 }
 
-/** Desktop: scroll-driven pinned steps (unchanged behaviour) */
+/** Desktop (lg+): scroll-driven pinned steps */
 function MbbsAbroadScrollSectionDesktop({
   countries,
 }: {
@@ -447,7 +459,7 @@ function MbbsAbroadScrollSectionDesktop({
   return (
     <section
       ref={containerRef}
-      className={`mbbs-abroad-scroll-section relative hidden scroll-mt-32 md:block ${MBBS_ABROAD_PIN_BG}`}
+      className={`mbbs-abroad-scroll-section relative hidden scroll-mt-32 lg:block ${MBBS_ABROAD_PIN_BG}`}
       style={{ height: sectionHeight }}
       aria-label="MBBS Abroad destinations"
     >
@@ -564,18 +576,15 @@ function MbbsAbroadScrollSectionDesktop({
 export function MbbsAbroadScrollSection() {
   const countries = useMemo(
     () =>
-      MBBS_ABROAD_SCROLL_COUNTRIES.map((c) => {
-        const fromTree = MBBS_ABROAD_COUNTRIES.find((x) => x.id === c.slug)
-        return {
-          ...c,
-          imageSrc: fromTree?.featuredImage ?? c.imageSrc,
-        }
-      }),
+      MBBS_ABROAD_SCROLL_COUNTRIES.map((c) => ({
+        ...c,
+        imageSrc: resolveMbbsAbroadScrollImage(c),
+      })),
     []
   )
 
   return (
-    <div id="mbbs-abroad" className="scroll-mt-[4.5rem] md:scroll-mt-32">
+    <div id="mbbs-abroad" className="scroll-mt-[4.5rem] lg:scroll-mt-32">
       <MbbsAbroadScrollSectionMobile countries={countries} />
       <MbbsAbroadScrollSectionDesktop countries={countries} />
     </div>

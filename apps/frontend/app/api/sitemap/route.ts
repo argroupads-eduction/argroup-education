@@ -1,4 +1,5 @@
 import { buildDynamicSitemap } from '@backend/handlers/siteSearch';
+import { getSupplementalSitemapEntries } from '@/lib/seoCrawlConfig';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,11 +13,30 @@ function escapeXml(value: string): string {
     .replace(/'/g, '&apos;');
 }
 
+function mergeSitemapEntries(
+  ...groups: { loc: string; lastmod: string; changefreq: string; priority: number }[][]
+) {
+  const seen = new Set<string>();
+  const merged: typeof groups[number] = [];
+  for (const group of groups) {
+    for (const entry of group) {
+      if (seen.has(entry.loc)) continue;
+      seen.add(entry.loc);
+      merged.push(entry);
+    }
+  }
+  return merged;
+}
+
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
 
   try {
-    const entries = await buildDynamicSitemap(baseUrl);
+    const [dynamicEntries, supplementalEntries] = await Promise.all([
+      buildDynamicSitemap(baseUrl),
+      Promise.resolve(getSupplementalSitemapEntries(baseUrl)),
+    ]);
+    const entries = mergeSitemapEntries(supplementalEntries, dynamicEntries);
 
     const urlBlocks = entries
       .map(

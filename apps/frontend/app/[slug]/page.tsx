@@ -16,6 +16,7 @@ import {
 import { findProgramContextBySlug } from '@/lib/programBreadcrumbs';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
+import { resolveSlugAlias } from '@/lib/wpSlugAliases';
 
 const HOME_WP_SLUG = 'mbbs-admission-in-top-colleges';
 
@@ -50,6 +51,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function WpSlugPage({ params }: PageProps) {
   const { slug } = await params;
   const decoded = decodeURIComponent(slug);
+
+  const alias = resolveSlugAlias(decoded);
+  if (alias) redirect(alias);
 
   if (decoded === HOME_WP_SLUG) {
     redirect('/');

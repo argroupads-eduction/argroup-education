@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { submitWebsiteLead } from '../handlers/websiteLead';
+import { submitWebsiteLead, isDuplicateWebsiteLead, DUPLICATE_LEAD_MESSAGE } from '../handlers/websiteLead';
 import { prisma, withPrismaRetry } from '../lib/prisma';
 
 const router = Router();
@@ -40,7 +40,7 @@ router.post(
         countryPreference,
       } = req.body;
 
-      await submitWebsiteLead({
+      const result = await submitWebsiteLead({
         source: 'counselling-form',
         formName: 'Counselling enquiry',
         fields: {
@@ -54,6 +54,10 @@ router.post(
         pageUrl: typeof req.body.pageUrl === 'string' ? req.body.pageUrl : undefined,
         userAgent: req.get('user-agent') ?? undefined,
       });
+
+      if (!result.ok) {
+        return res.status(result.status).json({ success: false, message: result.message });
+      }
 
       res.json({
         success: true,
@@ -83,13 +87,17 @@ router.post(
 
       const { name, email, subject, message, phone } = req.body;
 
-      await submitWebsiteLead({
+      const result = await submitWebsiteLead({
         source: 'contact-form',
         formName: 'Contact form',
         fields: { name, email, phone: phone ?? '', subject, message },
         pageUrl: typeof req.body.pageUrl === 'string' ? req.body.pageUrl : undefined,
         userAgent: req.get('user-agent') ?? undefined,
       });
+
+      if (!result.ok) {
+        return res.status(result.status).json({ success: false, message: result.message });
+      }
 
       res.json({
         success: true,
@@ -125,6 +133,10 @@ router.post(
       const cat = String(category) as import('../lib/neetRankPredictor/types').NeetCategory;
       const prediction = predictNeetRank(cat, Number(score));
 
+      if (await isDuplicateWebsiteLead(email, phone)) {
+        return res.status(409).json({ success: false, message: DUPLICATE_LEAD_MESSAGE });
+      }
+
       await withPrismaRetry(() =>
         prisma.neetRankPredictorSubmission.create({
           data: {
@@ -143,7 +155,7 @@ router.post(
         })
       );
 
-      await submitWebsiteLead({
+      const leadResult = await submitWebsiteLead({
         source: 'neet-rank-predictor',
         formName: 'NEET Rank Predictor',
         fields: {
@@ -161,6 +173,10 @@ router.post(
         },
         userAgent: req.get('user-agent') ?? undefined,
       });
+
+      if (!leadResult.ok) {
+        return res.status(leadResult.status).json({ success: false, message: leadResult.message });
+      }
 
       res.json({
         success: true,

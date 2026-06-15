@@ -5,7 +5,7 @@ import { predictNeetRank } from '@backend/lib/neetRankPredictor';
 import type { NeetCategory } from '@/lib/neetRankPredictor/types';
 import { validatePersonName } from '@/lib/validatePersonName';
 import { prisma, withPrismaRetry } from '@backend/lib/prisma';
-import { submitWebsiteLead } from '@backend/handlers/websiteLead';
+import { submitWebsiteLead, isDuplicateWebsiteLead, DUPLICATE_LEAD_MESSAGE } from '@backend/handlers/websiteLead';
 import { scheduleLeadEmailDelivery } from '@/lib/scheduleLeadEmail';
 
 export const runtime = 'nodejs';
@@ -99,6 +99,10 @@ export async function POST(req: NextRequest) {
   };
 
   try {
+    if (await isDuplicateWebsiteLead(email, phone)) {
+      return NextResponse.json({ message: DUPLICATE_LEAD_MESSAGE }, { status: 409 });
+    }
+
     try {
       await withPrismaRetry(() =>
         prisma.neetRankPredictorSubmission.create({

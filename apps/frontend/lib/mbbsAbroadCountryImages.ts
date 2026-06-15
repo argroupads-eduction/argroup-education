@@ -1,7 +1,18 @@
+import { MBBS_ABROAD_SCROLL_COUNTRIES } from '@/lib/mbbsAbroadScrollCountries';
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
+
+/** Home scroll section heroes — reused on country hub/detail pages. */
+const MBBS_ABROAD_SCROLL_FEATURED_IMAGES: Record<string, string> = Object.fromEntries(
+  MBBS_ABROAD_COUNTRIES.flatMap((country) => {
+    const scroll = MBBS_ABROAD_SCROLL_COUNTRIES.find((c) => c.slug === country.id);
+    if (!scroll?.imageSrc || !country.wpSlug) return [];
+    return [[country.wpSlug, scroll.imageSrc]];
+  })
+);
 
 /** Local country landmark heroes — full image visible (see public/mbbs-*-hero.png). */
 export const MBBS_ABROAD_COUNTRY_FEATURED_IMAGES: Record<string, string> = {
+  ...MBBS_ABROAD_SCROLL_FEATURED_IMAGES,
   'study-mbbs-in-bangladesh': '/mbbs-bangladesh-hero.png',
   'mbbs-in-serbia': '/mbbs-serbia-hero.png',
   'mbbs-in-iran': '/mbbs-iran-hero.png',

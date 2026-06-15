@@ -2,6 +2,20 @@ import { getCollegeImageBySlug } from '@/lib/collegeImageIndex';
 import { rewriteSingleWpMediaUrl, resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 const SKIP_IMG = /wpforms|submit-spin|\.svg(?:\?|$)|emoji|gravatar|pixel|tracking/i;
+const BUNDLED_COLLEGE_IMG = /\/uploads\/colleges\//i;
+const BUNDLED_SCROLL_IMG = /\/mbbs-abroad-scroll\//i;
+
+function isBundledHeroImage(url: string | null | undefined): boolean {
+  if (!url) return false;
+  return BUNDLED_COLLEGE_IMG.test(url) || BUNDLED_SCROLL_IMG.test(url);
+}
+
+/** Old CMS uploads in page body — replace with bundled college/country heroes when available. */
+function isStaleWpUpload(url: string | null | undefined): boolean {
+  if (!url) return false;
+  if (isBundledHeroImage(url)) return false;
+  return /wp-content\/uploads|\/api\/wp-media\/uploads/i.test(url);
+}
 
 function pickImageSrc(
   currentSrc: string | undefined,
@@ -11,6 +25,11 @@ function pickImageSrc(
   const fromSlug = getCollegeImageBySlug(pageSlug);
   const fromFeatured = resolveWpMediaUrl(featuredImage);
   const fromCurrent = currentSrc ? rewriteSingleWpMediaUrl(currentSrc) : null;
+
+  if (isStaleWpUpload(fromCurrent)) {
+    if (isBundledHeroImage(fromSlug)) return fromSlug;
+    if (isBundledHeroImage(fromFeatured)) return fromFeatured;
+  }
 
   if (fromCurrent?.startsWith('/api/wp-media/') || fromCurrent?.startsWith('/wp-content/')) {
     return fromCurrent;

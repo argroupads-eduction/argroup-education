@@ -68,5 +68,15 @@ export function injectCollegeCardImagesInHtml(html: string, pageSlug?: string | 
     }
   }
 
+  if (pageSlug) {
+    const image = getCollegeImageBySlug(pageSlug);
+    if (image) {
+      out = out.replace(
+        /(<div[^>]*\belementor-widget-image\b[\s\S]*?<img[^>]*?\ssrc=)["'][^"']*["']/i,
+        `$1"${image}"`
+      );
+    }
+  }
+
   return out;
 }

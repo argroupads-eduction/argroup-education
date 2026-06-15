@@ -1,5 +1,5 @@
--- CreateTable
-CREATE TABLE "NeetRankPredictorSubmission" (
+-- CreateTable (idempotent — safe if a prior deploy partially applied this migration)
+CREATE TABLE IF NOT EXISTS "NeetRankPredictorSubmission" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE "NeetRankPredictorSubmission" (
 );
 
 -- CreateIndex
-CREATE INDEX "NeetRankPredictorSubmission_phone_idx" ON "NeetRankPredictorSubmission"("phone");
+CREATE INDEX IF NOT EXISTS "NeetRankPredictorSubmission_phone_idx" ON "NeetRankPredictorSubmission"("phone");
 
 -- CreateIndex
-CREATE INDEX "NeetRankPredictorSubmission_createdAt_idx" ON "NeetRankPredictorSubmission"("createdAt");
+CREATE INDEX IF NOT EXISTS "NeetRankPredictorSubmission_createdAt_idx" ON "NeetRankPredictorSubmission"("createdAt");

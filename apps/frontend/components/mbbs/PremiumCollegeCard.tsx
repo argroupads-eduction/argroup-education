@@ -1,13 +1,14 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowUpRight, GraduationCap, MapPin } from 'lucide-react';
-import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
+import { ArrowUpRight, MapPin } from 'lucide-react';
+import { CollegeCardImage } from '@/components/mbbs/CollegeCardImage';
+import { resolveCollegeImageUrl } from '@/lib/collegeImageIndex';
 
 export type PremiumCollegeItem = {
   name: string;
   href: string;
   city?: string;
   image?: string | null;
+  slug?: string | null;
 };
 
 type PremiumCollegeCardProps = {
@@ -24,7 +25,8 @@ export function PremiumCollegeCard({
 }: PremiumCollegeCardProps) {
   const badgeBg = theme === 'india' ? 'bg-navy-900' : 'bg-blue-900';
   const badgeLabel = theme === 'india' ? 'MBBS India' : 'MBBS Abroad';
-  const imageSrc = resolveWpMediaUrl(college.image);
+  const slugFromHref = college.href?.replace(/^\/+/, '').split('/')[0] ?? null;
+  const imageSrc = resolveCollegeImageUrl(college.slug ?? slugFromHref, college.image, college.name);
 
   if (variant === 'compact') {
     return (
@@ -33,9 +35,7 @@ export function PremiumCollegeCard({
         className="group flex items-start justify-between gap-2 rounded-xl px-2.5 py-2 transition hover:bg-slate-50/90"
       >
         {imageSrc ? (
-          <span className="relative mr-1 h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-            <Image src={imageSrc} alt="" fill className="object-contain object-center" unoptimized sizes="40px" />
-          </span>
+          <CollegeCardImage src={imageSrc} alt="" variant="compact" />
         ) : null}
         <span className="min-w-0 flex-1">
           <span className="block text-[13px] font-medium leading-snug text-navy-900 group-hover:text-gold-700">
@@ -60,21 +60,7 @@ export function PremiumCollegeCard({
       ].join(' ')}
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100/80">
-        {imageSrc ? (
-          <Image
-            src={imageSrc}
-            alt={college.name}
-            fill
-            className="object-contain object-center p-2 transition duration-300 group-hover:scale-[1.02]"
-            unoptimized
-            sizes="(max-width: 768px) 72vw, 280px"
-          />
-        ) : (
-          <div className="flex flex-col items-center gap-2 text-slate-400">
-            <GraduationCap className="h-10 w-10" aria-hidden />
-            <span className="text-[10px] font-semibold uppercase tracking-wider">Medical college</span>
-          </div>
-        )}
+        <CollegeCardImage src={imageSrc} alt={college.name} />
       </div>
 
       <div className="relative z-10 flex flex-1 flex-col bg-white p-4 pt-3">

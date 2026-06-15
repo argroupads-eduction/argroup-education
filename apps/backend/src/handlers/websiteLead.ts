@@ -1,6 +1,9 @@
 import { prisma, withPrismaRetry } from '../lib/prisma';
 import { sendLeadNotificationEmail } from '../lib/leadEmail';
 
+export const DUPLICATE_LEAD_MESSAGE =
+  'Your query has already been submitted. We will connect with you shortly.';
+
 export type WebsiteLeadInput = {
   source: string;
   formName?: string;
@@ -36,6 +39,73 @@ export function extractLeadContact(fields: Record<string, unknown>) {
     email: pickString(fields, ['email']),
     phone: pickString(fields, ['phone', 'mobile', 'phoneNumber', 'contact']),
   };
+}
+
+/** Lowercase trimmed email for deduplication. */
+export function normalizeLeadEmail(email: string | null | undefined): string | null {
+  if (!email?.trim()) return null;
+  return email.trim().toLowerCase();
+}
+
+/** Last 10 digits (India mobiles) for deduplication. */
+export function normalizeLeadPhoneKey(phone: string | null | undefined): string | null {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 10) return null;
+  return digits.slice(-10);
+}
+
+function isPrismaUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code: string }).code === 'P2002'
+  );
+}
+
+/** Schema ahead of DB (emailKey / phoneKey not migrated yet). */
+function isMissingLeadKeyColumns(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) return false;
+  const code = 'code' in error ? String((error as { code: string }).code) : '';
+  const msg = 'message' in error ? String((error as { message: string }).message) : '';
+  return (
+    code === 'P2022' ||
+    /emailKey|phoneKey|Unknown column/i.test(msg)
+  );
+}
+
+/** True when the same email + phone already submitted any website form. */
+export async function isDuplicateWebsiteLead(
+  email: string | null | undefined,
+  phone: string | null | undefined
+): Promise<boolean> {
+  const emailKey = normalizeLeadEmail(email);
+  const phoneKey = normalizeLeadPhoneKey(phone);
+  if (!emailKey || !phoneKey) return false;
+
+  try {
+    const byKeys = await withPrismaRetry(() =>
+      prisma.websiteFormLead.findFirst({
+        where: { emailKey, phoneKey },
+        select: { id: true },
+      })
+    );
+    if (byKeys) return true;
+  } catch (error) {
+    if (!isMissingLeadKeyColumns(error)) throw error;
+  }
+
+  const legacy = await withPrismaRetry(() =>
+    prisma.websiteFormLead.findMany({
+      where: { email: { equals: emailKey, mode: 'insensitive' } },
+      select: { id: true, phone: true },
+      orderBy: { createdAt: 'asc' },
+      take: 30,
+    })
+  );
+
+  return legacy.some((row) => normalizeLeadPhoneKey(row.phone) === phoneKey);
 }
 
 const EMAIL_RETRY_DELAYS_MS = [400, 900, 1800, 3600, 7200];
@@ -123,21 +193,58 @@ export async function submitWebsiteLead(
   }
 
   const { name, email, phone } = extractLeadContact(fields);
+  const emailKey = normalizeLeadEmail(email);
+  const phoneKey = normalizeLeadPhoneKey(phone);
 
-  const lead = await withPrismaRetry(() =>
-    prisma.websiteFormLead.create({
-      data: {
-        source: input.source,
-        formName: input.formName ?? null,
-        name,
-        email,
-        phone,
-        pageUrl: input.pageUrl ?? null,
-        userAgent: input.userAgent ?? null,
-        fields: fields as object,
-      },
-    })
-  );
+  if (emailKey && phoneKey && (await isDuplicateWebsiteLead(email, phone))) {
+    return {
+      ok: false as const,
+      status: 409,
+      duplicate: true as const,
+      message: DUPLICATE_LEAD_MESSAGE,
+    };
+  }
+
+  let lead;
+  const baseData = {
+    source: input.source,
+    formName: input.formName ?? null,
+    name,
+    email,
+    phone,
+    pageUrl: input.pageUrl ?? null,
+    userAgent: input.userAgent ?? null,
+    fields: fields as object,
+  };
+
+  try {
+    lead = await withPrismaRetry(() =>
+      prisma.websiteFormLead.create({
+        data: {
+          ...baseData,
+          emailKey,
+          phoneKey,
+        },
+      })
+    );
+  } catch (error) {
+    if (isMissingLeadKeyColumns(error)) {
+      lead = await withPrismaRetry(() =>
+        prisma.websiteFormLead.create({
+          data: baseData,
+        })
+      );
+    } else if (emailKey && phoneKey && isPrismaUniqueViolation(error)) {
+      return {
+        ok: false as const,
+        status: 409,
+        duplicate: true as const,
+        message: DUPLICATE_LEAD_MESSAGE,
+      };
+    } else {
+      throw error;
+    }
+  }
 
   if (options?.deferEmail) {
     return {
