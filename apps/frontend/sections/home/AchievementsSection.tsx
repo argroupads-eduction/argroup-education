@@ -493,14 +493,14 @@ export const AchievementsSection = () => {
             id="achievements-heading"
             className="mt-5 text-balance font-serif text-3xl font-bold leading-tight text-navy-900 md:text-4xl lg:text-[2.65rem]"
           >
-            Our{' '}
+            21+ Years of{' '}
             <span className="bg-gradient-to-r from-gold-500 to-gold-700 bg-clip-text text-transparent">
-              Proven Track Record
+              Trust & Success
             </span>
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
-            Trusted by thousands of aspiring doctors, admissions, visas, and successful
-            study-abroad journeys since 2005.
+            Helping aspiring doctors secure admissions, visas, and successful MBBS journeys across
+            India and abroad since 2005.
           </p>
         </div>
 

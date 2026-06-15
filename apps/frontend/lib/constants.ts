@@ -210,34 +210,29 @@ export const STATISTICS = [
 // FAQ Data
 export const FAQ_DATA = [
   {
-    question: 'What is the eligibility for MBBS abroad?',
+    question: 'How does AR Group of Education help students?',
     answer:
-      'You need to have passed 12th with Physics, Chemistry, and Biology. NEET scores are typically required for most countries. Specific requirements vary by country and university.',
+      'AR Group of Education provides guidance at every step of the MBBS admission process, including NEET counselling, college selection, documentation, admission support, visa assistance and pre-departure guidance.',
   },
   {
-    question: 'What is the total cost of MBBS abroad?',
+    question: 'Does AR Group of Education provide MBBS admission assistance for both India and Abroad?',
     answer:
-      'Total cost varies by country. Russia: 25-35 lakhs, Georgia: 20-30 lakhs, Kazakhstan: 15-25 lakhs. This includes tuition, accommodation, and living expenses.',
+      'Yes, we provide MBBS admission guidance for top medical colleges in India as well as Russia, Kazakhstan, Kyrgyzstan, Uzbekistan, Georgia and other popular destinations.',
   },
   {
-    question: 'How long is the MBBS course?',
+    question: 'Is qualifying NEET mandatory for MBBS admission?',
     answer:
-      'Most international MBBS programs are 6 years, including 1 year internship. Some universities offer 5.5 years programs.',
+      'Yes, NEET qualification is mandatory for MBBS admission both in India and abroad, as per the latest guidelines for Indian students.',
   },
   {
-    question: 'Is NEET required for MBBS abroad?',
+    question: 'Is there support for visa and documentation for MBBS Abroad?',
     answer:
-      'NEET is required for most countries. Some universities may accept alternative qualifications. We guide you through country-specific requirements.',
+      'Absolutely. Our team provides complete assistance with visa application, document verification, admission letter processing, and travel preparation.',
   },
   {
-    question: 'What about placement after completing MBBS?',
+    question: 'What do you need to do to begin the admission process?',
     answer:
-      'Graduates can practice in India after obtaining NMC certification. Many also practice in their university country or other nations depending on licensing requirements.',
-  },
-  {
-    question: 'How do I get a student visa?',
-    answer:
-      'We handle complete visa processing including document preparation, application submission, and visa interview coaching. Our success rate is 98%.',
+      'You can contact our counseling team and book a free consultation. We will suggest the best MBBS options based on your NEET score, budget, and career goals.',
   },
 ] as const;
 

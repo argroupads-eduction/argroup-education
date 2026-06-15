@@ -207,6 +207,10 @@ const nextConfig = {
           source: '/robots.txt',
           destination: '/api/robots',
         },
+        {
+          source: '/llms.txt',
+          destination: '/api/llms',
+        },
       ],
       // After public/ — wp-content paths missing from public/ fall back to /api/wp-media (_uploads or remote).
       afterFiles: [

@@ -13,6 +13,7 @@ export function CollegeCard({ college, variant, index }: CollegeCardProps) {
     href: college.href,
     city: college.city,
     image: college.image,
+    slug: college.slug,
   };
   return <PremiumCollegeCard college={item} theme="india" variant={variant} index={index} />;
 }

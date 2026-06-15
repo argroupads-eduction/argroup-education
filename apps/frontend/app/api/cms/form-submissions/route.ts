@@ -14,6 +14,8 @@ type FormSubmissionBody = {
   source?: string;
   formName?: string;
   submissionData?: { field: string; value: string }[];
+  /** When true, only proxy to Payload — lead already saved via /api/leads/submit */
+  skipWebsiteLead?: boolean;
 };
 
 /** Saves lead to Neon + email, then proxies to Payload CMS when available. */
@@ -34,24 +36,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: nameErr }, { status: 400 });
   }
 
-  try {
-    const leadResult = await submitWebsiteLead(
-      {
-        source: body.source?.trim() || 'cms-form',
-        formName: body.formName || (body.form ? `CMS form #${body.form}` : 'Website form'),
-        fields: submissionDataToFields(body.submissionData),
-        pageUrl: req.headers.get('referer') ?? undefined,
-        userAgent: req.headers.get('user-agent') ?? undefined,
-      },
-      { deferEmail: true }
-    );
-    if (!leadResult.ok) {
-      return NextResponse.json({ message: leadResult.message }, { status: leadResult.status });
+  if (!body.skipWebsiteLead) {
+    try {
+      const leadResult = await submitWebsiteLead(
+        {
+          source: body.source?.trim() || 'cms-form',
+          formName: body.formName || (body.form ? `CMS form #${body.form}` : 'Website form'),
+          fields: submissionDataToFields(body.submissionData),
+          pageUrl: req.headers.get('referer') ?? undefined,
+          userAgent: req.headers.get('user-agent') ?? undefined,
+        },
+        { deferEmail: true }
+      );
+      if (!leadResult.ok) {
+        return NextResponse.json({ message: leadResult.message }, { status: leadResult.status });
+      }
+      scheduleLeadEmailDelivery(leadResult.id);
+    } catch (error) {
+      console.error('[form-submissions] lead save failed:', error);
+      return NextResponse.json({ message: 'Could not save your enquiry' }, { status: 500 });
     }
-    scheduleLeadEmailDelivery(leadResult.id);
-  } catch (error) {
-    console.error('[form-submissions] lead save failed:', error);
-    return NextResponse.json({ message: 'Could not save your enquiry' }, { status: 500 });
   }
 
   const base = getPayloadCmsServerFetchUrl();

@@ -11,25 +11,26 @@ export const ABOUT_STATS = [
 ] as const;
 
 export const ABOUT_HERO_LEAD =
-  'India\'s trusted medical admission partner, transparent counselling for MBBS in India, MBBS abroad, and MD/MS pathways with end-to-end support.';
+  'Navigate medical admissions with clarity, confidence, and expert support. Explore the best opportunities in India and abroad with guidance tailored to your goals.';
 
 export const ABOUT_STORY = {
   kicker: 'Who we are',
   title: 'Welcome to AR Group of Education',
   paragraphs: [
-    'Since 2005, AR Group of Education has guided students and families through one of life’s biggest decisions, where to study medicine. What began as focused admission counselling has grown into a full-service partner for MBBS in India, MBBS abroad, and postgraduate medical pathways.',
-    'Our consultants understand NEET cut-offs, state counselling, university shortlists, documentation, visas, and pre-departure logistics. We do not push colleges. We help you compare options with honest, student-first advice so you choose with confidence.',
+    'Every year lakhs of students dream to become a doctor, but choosing the right college and guidance is the biggest challenge. To make this challenge easy AR Group of Education has been helping students and parents since 2005.',
+    'Whether it\'s NEET counselling, MBBS in India, MBBS Abroad, or MD/MS career planning we offer clear, transparent, and student-centric guidance at every step.',
+    'We don\'t sell colleges, we help students select the best option based on their goals, budget, and future.',
   ],
 } as const;
 
 export const ABOUT_VISION = {
-  title: 'Our vision',
-  text: 'To nurture competent global healthcare professionals with the knowledge, skills, and compassion to deliver quality care, in India and abroad. We prepare students for diverse healthcare systems and help them serve patients from every background with confidence.',
+  title: 'Our Vision',
+  text: 'To become India\'s most trusted medical education guidance platform that helps students access quality medical education and global career opportunities. We envision a future where every student gets unbiased guidance, transparent information and equal opportunities to become a successful healthcare professional.',
 } as const;
 
 export const ABOUT_MISSION = {
-  title: 'Our mission',
-  text: 'To simplify access to quality medical education through structured counselling, from university selection and admissions to visa processing, accommodation, and onboarding. Every student deserves a clear roadmap, not confusion.',
+  title: 'Our Mission',
+  text: 'Providing right guidance, transparent counselling and reliable admission support to every aspiring doctor, so that they can choose the best medical college according to their career goals. Our mission is not just limited to admission. We empower students and parents to make informed decisions through NEET counselling, college selection, documentation, visa assistance and career planning.',
 } as const;
 
 export const ABOUT_HIGHLIGHTS = [

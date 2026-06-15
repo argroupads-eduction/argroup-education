@@ -717,6 +717,7 @@ export function LeadCapturePopup() {
             source: 'lead-popup',
             formName: 'Lead capture popup',
             submissionData: payload.submissionData,
+            skipWebsiteLead: true,
           }),
         }).catch(() => undefined);
       }

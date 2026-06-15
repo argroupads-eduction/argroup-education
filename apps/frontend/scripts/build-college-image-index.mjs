@@ -7,6 +7,12 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from '
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractFirstContentImage } from '../../../scripts/lib/college-slug-match.mjs';
+import {
+  isJunkCollegeImage,
+  pickCollegePageImage,
+  scoreCollegeImage,
+  slugFilenameTokens,
+} from '../../../scripts/lib/college-image-quality.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -46,6 +52,20 @@ function wpRelFromUrl(url) {
   return m ? m[1].replace(/^uploads\//, '') : null;
 }
 
+function elementorThumbToUploadsRel(filename) {
+  const match = filename.match(/^(.+)-[a-z0-9]{16,}\.(jpe?g|png|webp|gif|avif)$/i);
+  if (!match) return null;
+  const baseFile = `${match[1]}.${match[2].toLowerCase()}`;
+  const years = ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
+  for (const year of years) {
+    for (const month of ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']) {
+      const rel = `${year}/${month}/${baseFile}`;
+      if (existsSync(path.join(UPLOADS, rel))) return rel;
+    }
+  }
+  return `2024/01/${baseFile}`;
+}
+
 function resolveExactWpUrl(url) {
   const rel = wpRelFromUrl(url);
   if (!rel) return null;
@@ -56,13 +76,22 @@ function resolveExactWpUrl(url) {
   const hit = allFiles.find((f) => path.basename(f).toLowerCase() === basename.toLowerCase());
   if (hit) return toPublicCollegesPath(relFromUploads(hit));
 
-  return resolveElementorThumb(basename);
+  const fromThumb = resolveElementorThumb(basename);
+  if (fromThumb) return fromThumb;
+
+  if (rel.includes('elementor/thumbs/')) {
+    const guessed = elementorThumbToUploadsRel(basename);
+    if (guessed) return toApiPath(guessed);
+  }
+
+  return null;
 }
 
 function resolveElementorThumb(filename) {
   const match = filename.match(/^(.+)-[a-z0-9]{16,}\.(jpe?g|png|webp|gif|avif)$/i);
   if (!match) return null;
   const prefix = match[1].toLowerCase();
+  if (/^untitled(?:-\d+)?$/i.test(prefix)) return null;
   const ext = match[2].toLowerCase();
 
   const candidates = allFiles.filter((f) => {
@@ -102,15 +131,15 @@ function slugTokens(slug) {
 }
 
 function resolveBySlug(slug) {
-  const tokens = slugTokens(slug);
-  if (!tokens.length) return null;
+  const tokens = slugFilenameTokens(slug);
+  if (tokens.length < 2) return null;
 
   let best = null;
   let bestScore = 0;
   for (const f of allFiles) {
     const name = path.basename(f).toLowerCase();
     const score = tokens.reduce((n, t) => (name.includes(t) ? n + 1 : n), 0);
-    if (score > bestScore && score >= Math.min(2, tokens.length)) {
+    if (score > bestScore && score >= Math.min(3, tokens.length)) {
       best = f;
       bestScore = score;
     }
@@ -118,20 +147,30 @@ function resolveBySlug(slug) {
   return best ? toApiPath(relFromUploads(best)) : null;
 }
 
-function pickBest(slug, ...urls) {
+function pickBest(slug, contentHtml, ...urls) {
+  const pagePick = pickCollegePageImage(slug, urls.find(Boolean) ?? null, contentHtml);
+  if (pagePick) {
+    const exact = resolveExactWpUrl(pagePick);
+    if (exact && !isJunkCollegeImage(exact, slug)) return exact;
+  }
+
   for (const url of urls) {
     if (!url) continue;
     const exact = resolveExactWpUrl(url);
-    if (exact) return exact;
+    if (exact && !isJunkCollegeImage(exact, slug) && scoreCollegeImage(exact, slug) >= 3) return exact;
   }
-  return resolveBySlug(slug);
+
+  const bySlug = resolveBySlug(slug);
+  if (bySlug && !isJunkCollegeImage(bySlug, slug) && scoreCollegeImage(bySlug, slug) >= 4) return bySlug;
+  return null;
 }
 
 const index = {};
 
-function add(slug, url, source) {
-  if (!slug || !url) return;
-  const resolved = pickBest(slug, url) ?? resolveBySlug(slug);
+function add(slug, url, source, contentHtml) {
+  if (!slug) return;
+  const image = url || extractFirstContentImage(contentHtml);
+  const resolved = pickBest(slug, contentHtml, image);
   if (!resolved) return;
   if (!index[slug] || source === 'featured') {
     index[slug] = resolved;
@@ -146,25 +185,25 @@ for (const file of ['pages.json', 'posts.json']) {
   for (const row of rows) {
     if (!row.slug) continue;
     const image = row.featuredImage || extractFirstContentImage(row.content);
-    if (image) add(row.slug, image, 'featured');
+    add(row.slug, image, 'featured', row.content);
   }
 }
 
 const india = JSON.parse(readFileSync(path.join(ROOT, 'data/mbbs-india-tree.json'), 'utf8'));
 for (const state of india.states) {
   for (const c of state.colleges) {
-    if (c.slug) add(c.slug, c.image, 'tree');
+    if (c.slug) add(c.slug, c.image, 'tree', null);
   }
 }
 
 const abroad = JSON.parse(readFileSync(path.join(ROOT, 'data/mbbs-abroad-tree.json'), 'utf8'));
 for (const country of abroad.countries) {
   for (const c of country.colleges ?? []) {
-    if (c.slug) add(c.slug, c.image, 'tree');
+    if (c.slug) add(c.slug, c.image, 'tree', null);
   }
   for (const uni of country.universities ?? []) {
     for (const c of uni.colleges ?? []) {
-      if (c.slug) add(c.slug, c.image, 'tree');
+      if (c.slug) add(c.slug, c.image, 'tree', null);
     }
   }
 }
@@ -183,3 +222,9 @@ writeFileSync(
 );
 
 console.log(`Wrote ${Object.keys(index).length} college images → ${OUT}`);
+
+// Prefer bundled colleges/ photos over remote API paths
+import { spawnSync } from 'node:child_process';
+spawnSync(process.execPath, [path.join(__dirname, 'sync-colleges-index.mjs')], {
+  stdio: 'inherit',
+});

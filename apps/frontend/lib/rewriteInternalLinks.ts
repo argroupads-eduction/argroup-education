@@ -1,5 +1,6 @@
 import linkIndex from '@/data/wp-link-index.json';
 import { blogPostPath } from '@/lib/blogUtils';
+import { resolveSlugAlias } from '@/lib/wpSlugAliases';
 
 const LEGACY_HOST = /^(www\.)?argroupofeducation\.com$/i;
 
@@ -33,6 +34,9 @@ export function resolveInternalPath(slugPath: string): string {
   if (!normalized) return '/';
 
   if (isLegacyContactSlug(normalized)) return '/contact';
+
+  const alias = resolveSlugAlias(normalized);
+  if (alias) return alias;
 
   if (WP_SLUG_TO_PATH[normalized]) return WP_SLUG_TO_PATH[normalized];
 

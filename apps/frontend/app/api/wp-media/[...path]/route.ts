@@ -18,6 +18,22 @@ function contentTypeFor(filePath: string): string {
   return MIME[ext] ?? 'application/octet-stream';
 }
 
+function dashVariants(filename: string): string[] {
+  const out = new Set([filename]);
+  out.add(filename.replace(/[\u2013\u2014]/g, '-'));
+  out.add(filename.replace(/-/g, '\u2013'));
+  return [...out];
+}
+
+function encodeWpContentUrl(origin: string, relativePath: string): string {
+  const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
+  const encoded = safe
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+  return `${origin}/wp-content/${encoded}`;
+}
+
 /** Elementor thumb → try full upload path without hash suffix. */
 function elementorThumbAlternates(relativePath: string): string[] {
   if (!relativePath.includes('elementor/thumbs/')) return [];
@@ -85,21 +101,36 @@ async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null
   if (!origin) return null;
 
   const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
-  const candidates = [`${origin}/wp-content/${safe}`, ...elementorThumbAlternates(safe).map((p) => `${origin}/wp-content/${p}`)];
+  const candidates = new Set<string>();
+  candidates.add(safe);
+  for (const alt of elementorThumbAlternates(safe)) candidates.add(alt.replace(/^uploads\//, ''));
 
-  for (const url of candidates) {
-    try {
-      const res = await fetch(url, {
-        headers: {
-          'User-Agent': 'ARGroupMediaProxy/1.0',
-          Accept: 'image/*,*/*',
-        },
-        signal: AbortSignal.timeout(20_000),
-        redirect: 'follow',
-      });
-      if (res.ok && res.body) return res;
-    } catch {
-      /* try next candidate */
+  const file = safe.split('/').pop() ?? '';
+  const dir = safe.includes('/') ? safe.slice(0, safe.lastIndexOf('/') + 1) : '';
+  for (const variant of dashVariants(file)) {
+    candidates.add(`${dir}${variant}`);
+  }
+
+  for (const candidate of candidates) {
+    const urls = [encodeWpContentUrl(origin, candidate)];
+    if (candidate.startsWith('uploads/')) {
+      urls.push(encodeWpContentUrl(origin, candidate.replace(/^uploads\//, '')));
+    }
+
+    for (const url of urls) {
+      try {
+        const res = await fetch(url, {
+          headers: {
+            'User-Agent': 'ARGroupMediaProxy/1.0',
+            Accept: 'image/*,*/*',
+          },
+          signal: AbortSignal.timeout(20_000),
+          redirect: 'follow',
+        });
+        if (res.ok && res.body) return res;
+      } catch {
+        /* try next candidate */
+      }
     }
   }
 

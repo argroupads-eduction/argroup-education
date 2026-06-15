@@ -29,7 +29,7 @@ export const MBBS_INDIA_TREE = treeData as MbbsIndiaTree;
 function withResolvedCollegeImage(college: MbbsIndiaCollege): MbbsIndiaCollege {
   return {
     ...college,
-    image: resolveCollegeImageUrl(college.slug, college.image) ?? college.image,
+    image: resolveCollegeImageUrl(college.slug, college.image, college.name),
   };
 }
 

@@ -138,18 +138,18 @@ export const AboutSection = () => {
             </span>
 
             <h2 className="mt-5 font-serif text-3xl font-bold leading-tight text-navy-900 md:text-4xl lg:text-[2.65rem]">
-              AR Group of Education, guiding{' '}
+              Guiding{' '}
               <span className="bg-gradient-to-r from-gold-500 to-gold-600 bg-clip-text text-transparent">
                 future doctors
               </span>{' '}
-              since {ESTABLISHED_YEAR}
+              since {ESTABLISHED_YEAR}: AR Group of Education
             </h2>
 
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
-              For over {YEARS_EXPERIENCE} years, we have helped students and families navigate MBBS admissions
-              across India and abroad, from NEET counselling and college selection to documentation, visas,
-              and pre-departure support. Our team combines medical education expertise with honest, student-first
-              advice at every step.
+              The MBBS admission journey can be confusing, but with the right mentor, everything becomes
+              easier. With over {YEARS_EXPERIENCE} years of experience, AR Group of Education has helped
+              thousands of aspiring doctors access top medical colleges in India and abroad. Our priority is
+              honest guidance, a transparent process, and personalized support for every student.
             </p>
 
             {/* Highlight cards */}

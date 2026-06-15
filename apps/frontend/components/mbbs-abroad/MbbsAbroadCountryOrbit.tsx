@@ -8,6 +8,7 @@ import {
   MBBS_ABROAD_COUNTRIES,
   mbbsAbroadCountryCollegeCount,
 } from '@/lib/mbbsAbroadTree';
+import { resolveMbbsAbroadFeaturedImage } from '@/lib/mbbsAbroadCountryImages';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 const featuredIds = new Set(['russia', 'georgia', 'philippines', 'bangladesh']);
@@ -39,7 +40,9 @@ export function MbbsAbroadCountryOrbit() {
         <div className="abroad-orbit__bento">
           {featured.map((country, i) => {
             const count = mbbsAbroadCountryCollegeCount(country);
-            const imageSrc = resolveWpMediaUrl(country.featuredImage);
+            const imageSrc = resolveWpMediaUrl(
+              resolveMbbsAbroadFeaturedImage(country.wpSlug, country.featuredImage)
+            );
             return (
               <motion.div
                 key={country.id}
@@ -82,7 +85,9 @@ export function MbbsAbroadCountryOrbit() {
 
           {rest.map((country, i) => {
             const count = mbbsAbroadCountryCollegeCount(country);
-            const imageSrc = resolveWpMediaUrl(country.featuredImage);
+            const imageSrc = resolveWpMediaUrl(
+              resolveMbbsAbroadFeaturedImage(country.wpSlug, country.featuredImage)
+            );
             return (
               <motion.div
                 key={country.id}

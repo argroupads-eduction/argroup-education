@@ -16,19 +16,23 @@ import { CONTACT_INFO } from '@/lib/constants'
 const COUNSELLING_POINTS = [
   {
     icon: GraduationCap,
-    text: 'MBBS in India, NEET counselling, state-wise college shortlisting & admission support',
+    title: 'MBBS in India',
+    text: 'NEET counselling, state-wise college selection, seat allotment guidance and admission support.',
   },
   {
     icon: Globe2,
-    text: 'MBBS Abroad, WHO-listed, NMC-aligned universities across 15+ countries',
+    title: 'MBBS Abroad',
+    text: 'Admission assistance across 15+ countries in WHO-listed and NMC-compliant universities.',
   },
   {
     icon: Stethoscope,
-    text: 'MD/MS guidance, postgraduate pathways with transparent fee counselling',
+    title: 'MD/MS & Career Guidance',
+    text: 'Medical career planning, postgraduate pathways and transparent fee counselling.',
   },
   {
     icon: Building2,
-    text: 'End-to-end help, documentation, visa, scholarships & pre-departure briefing',
+    title: 'Complete Admission Support',
+    text: 'Documentation, application process, visa assistance, scholarship guidance and pre-departure briefing.',
   },
 ] as const
 
@@ -68,27 +72,41 @@ export const CounsellingFormSection = () => {
               </span>
 
               <h2 className="mt-4 font-serif text-2xl font-bold leading-tight text-navy-900 md:text-3xl lg:text-[2rem]">
-                Get guided by the best{' '}
-                <span className="text-gold-600">MBBS India and Abroad</span> experts
+                Where{' '}
+                <span className="text-gold-600">Future Doctors</span> Find Their Direction
               </h2>
 
               <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
-                <span className="font-semibold text-navy-900">AR Group of Education</span> has
-                helped thousands of Indian students choose the right medical college, with honest
-                counselling, clear fees, and support from application to campus.
+                For over two decades, we&apos;ve helped aspiring doctors to get admission in top
+                medical colleges and universities India and Abroad. We not only provide counselling
+                but are also with you at every step of your MBBS journey—from NEET counselling to
+                campus reporting.
               </p>
 
-              <ul className="mt-5 space-y-2.5">
-                {COUNSELLING_POINTS.map(({ text }) => (
-                  <li key={text} className="flex gap-2.5 text-sm text-slate-700">
+              <p className="mt-5 text-sm font-semibold uppercase tracking-wide text-navy-800 md:text-base">
+                What We Help You With
+              </p>
+
+              <ul className="mt-3 space-y-3">
+                {COUNSELLING_POINTS.map(({ title, text }) => (
+                  <li key={title} className="flex gap-2.5 text-sm text-slate-700">
                     <CheckCircle2
                       className="mt-0.5 h-4 w-4 shrink-0 text-gold-600"
                       aria-hidden
                     />
-                    <span>{text}</span>
+                    <span>
+                      <span className="font-semibold text-navy-900">{title}</span>
+                      <br />
+                      {text}
+                    </span>
                   </li>
                 ))}
               </ul>
+
+              <p className="mt-5 text-sm font-medium leading-relaxed text-navy-800 md:text-base">
+                Your dream is to become a doctor, and it&apos;s our responsibility to make your dream
+                into reality.
+              </p>
 
               <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {STATS.map((stat) => (

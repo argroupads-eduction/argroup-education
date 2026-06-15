@@ -64,7 +64,7 @@ function sortMbbsAbroadCountries(
 function withResolvedCollegeImage(college: MbbsAbroadCollege): MbbsAbroadCollege {
   return {
     ...college,
-    image: resolveCollegeImageUrl(college.slug, college.image) ?? college.image,
+    image: resolveCollegeImageUrl(college.slug, college.image, college.name),
   };
 }
 

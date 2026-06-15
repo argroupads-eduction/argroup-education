@@ -11,6 +11,7 @@
     "type-check": "tsc --noEmit",
     "migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
+    "db:fix-migrations": "node scripts/resolve-stuck-migrations.mjs && prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:sync": "prisma generate && prisma migrate deploy",
     "postinstall": "prisma generate",

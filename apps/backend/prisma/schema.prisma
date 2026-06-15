@@ -154,6 +154,8 @@ model WebsiteFormLead {
   name       String?
   email      String?
   phone      String?
+  emailKey   String?
+  phoneKey   String?
   pageUrl    String?
   userAgent  String?  @db.Text
   fields     Json
@@ -164,6 +166,7 @@ model WebsiteFormLead {
   @@index([source])
   @@index([email])
   @@index([phone])
+  @@index([emailKey, phoneKey])
   @@index([createdAt])
 }
 

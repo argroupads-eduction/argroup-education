@@ -10,6 +10,7 @@ type FitImageProps = {
   sizes?: string;
   className?: string;
   frameClassName?: string;
+  onError?: () => void;
 };
 
 /** Image always fully visible, container adapts, no cropping. */
@@ -21,6 +22,7 @@ export function FitImage({
   sizes = '100vw',
   className = '',
   frameClassName = '',
+  onError,
 }: FitImageProps) {
   const resolvedSrc = resolveWpMediaUrl(src) ?? src;
 
@@ -38,6 +40,7 @@ export function FitImage({
         sizes={sizes}
         unoptimized
         priority={priority}
+        onError={onError}
       />
     </div>
   );

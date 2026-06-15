@@ -43,7 +43,14 @@ export async function POST(req: NextRequest) {
     );
 
     if (!result.ok) {
-      return NextResponse.json({ success: false, message: result.message }, { status: result.status });
+      return NextResponse.json(
+        {
+          success: false,
+          message: result.message,
+          duplicate: 'duplicate' in result ? result.duplicate : undefined,
+        },
+        { status: result.status }
+      );
     }
 
     scheduleLeadEmailDelivery(result.id);
