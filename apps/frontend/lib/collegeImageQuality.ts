@@ -44,6 +44,7 @@ export function isJunkCollegeImage(url: string | null | undefined, slug?: string
   const path = normImagePath(url);
   if (!path || /\.svg(?:$|\?)/i.test(path)) return true;
   if (JUNK_FILENAME_RE.test(path)) return true;
+  if (isLogoCollegeImage(url)) return true;
   if (/\/elementor\/thumbs\/Untitled/i.test(path)) return true;
   if (isMismatchedCollegeImage(url, slug)) return true;
   if (
