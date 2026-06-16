@@ -102,21 +102,3 @@ export function navPagesForParent(
   );
 }
 
-export async function fetchDynamicNavPages(): Promise<DynamicNavPage[]> {
-  try {
-    const base =
-      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ||
-      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-
-    const res = await fetch(`${base}/api/cms/nav-pages`, {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) return [];
-    const json = (await res.json()) as { data?: unknown[] };
-    if (!Array.isArray(json.data)) return [];
-    return normalizeNavPages(json.data as Parameters<typeof normalizeNavPages>[0]);
-  } catch {
-    return [];
-  }
-}
