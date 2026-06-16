@@ -30,7 +30,7 @@ const nextConfig = {
   // Monorepo tracing only when repo root is in the deployment bundle.
   ...(outputFileTracingRoot ? { outputFileTracingRoot } : {}),
 
-  // @vercel/nft traces all of public/ when route uses path.join(cwd, 'public') — exclude then re-include only fallbacks.
+  // @vercel/nft traces all of public/ when route uses path.join(cwd, 'public', dynamic) — exclude then re-include only fallbacks.
   outputFileTracingExcludes: {
     '/api/public-asset/[...path]': ['./public/**'],
   },
