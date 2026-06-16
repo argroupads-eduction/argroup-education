@@ -1,6 +1,6 @@
 import { unstable_cache } from 'next/cache';
-import { loadMonorepoEnv } from '@backend/lib/loadMonorepoEnv';
 import { getAllSiteGlobals } from '@backend/handlers/globalsSync';
+import { hasUsableDatabase } from '@/lib/databaseEnv';
 import { withServerTimeout } from '@/lib/serverTimeout';
 import type {
   FooterGlobalData,
@@ -34,8 +34,7 @@ const loadSiteGlobalsBundle = unstable_cache(
 
 /** Footer + site-settings from CMS globals (direct DB — no layout self-fetch). */
 export async function fetchSiteGlobalsBundle(): Promise<SiteGlobalsBundle> {
-  loadMonorepoEnv();
-  if (!process.env.DATABASE_URL?.trim()) {
+  if (!hasUsableDatabase()) {
     return EMPTY_GLOBALS;
   }
 
