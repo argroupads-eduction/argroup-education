@@ -499,7 +499,7 @@ export const AchievementsSection = () => {
             </span>
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
-            Helping aspiring doctors secure admissions, visas, and successful MBBS journeys across
+            Helping aspiring doctors secure admissions, visa, and successful MBBS journeys across
             India and abroad since 2005.
           </p>
         </div>

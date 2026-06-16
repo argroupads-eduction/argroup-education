@@ -1,0 +1,29 @@
+{
+  "sidebar-1": {
+    "search-2": {
+      "title": ""
+    },
+    "wpsp_widget-2": {
+      "title": "Recent Posts",
+      "wpsp_id": 13628
+    },
+    "media_gallery-2": {
+      "title": "Gallery",
+      "columns": 3,
+      "size": "thumbnail",
+      "link_type": "post",
+      "orderby_random": false,
+      "ids": [
+        13834,
+        13833,
+        13832,
+        13831,
+        13828,
+        13830,
+        13827,
+        13829,
+        13826
+      ]
+    }
+  }
+}

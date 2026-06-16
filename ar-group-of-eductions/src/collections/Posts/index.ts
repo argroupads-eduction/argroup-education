@@ -1,7 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
 import { marketingContentEditor } from '@/fields/contentLexicalEditor'
-import { htmlBodyField } from '@/fields/htmlBodyField'
 import { seoKeywordFields } from '@/fields/seoContentFields'
 
 import { authenticated } from '../../access/authenticated'
@@ -81,16 +80,29 @@ export const Posts: CollectionConfig<'posts'> = {
                   'Blog hero image on the live site. Upload or pick from Media library to change it.',
               },
             },
-            htmlBodyField('Full article body (HTML)'),
             {
               name: 'content',
               type: 'richText',
               editor: marketingContentEditor,
-              label: 'Visual editor (optional)',
-              required: false,
+              label: 'Article content',
               admin: {
                 description:
-                  'Optional WYSIWYG editor. For imported blog posts, edit the HTML field above — it controls the live article.',
+                  'Write your blog here with normal formatting (headings, lists, bold, images). It publishes to the live blog template automatically — no HTML needed.',
+              },
+            },
+            {
+              name: 'htmlContent',
+              type: 'code',
+              label: 'Imported HTML (legacy)',
+              admin: {
+                language: 'html',
+                hidden: ({ data }) => {
+                  const html = typeof data?.htmlContent === 'string' ? data.htmlContent : ''
+                  if (!html.trim()) return true
+                  return !/<(div|p|h[1-6]|table|section|article|ul|ol)\b/i.test(html)
+                },
+                description:
+                  'Shown only for WordPress-imported posts. New posts use the visual editor above.',
               },
             },
             {

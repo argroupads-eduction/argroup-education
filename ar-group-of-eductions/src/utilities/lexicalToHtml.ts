@@ -342,21 +342,24 @@ export function htmlFromPayloadDoc(doc: {
   const htmlContent =
     typeof doc.htmlContent === 'string' ? doc.htmlContent.trim() : ''
   const fromContent = lexicalToHtml(doc.content)
+  const looksLikeImportedHtml = /<(div|p|h[1-6]|table|section|article|ul|ol)\b/i.test(
+    htmlContent
+  )
 
-  // Imported WP pages: full HTML body is the source of truth when present.
-  if (htmlContent.length > 400) {
-    return htmlContent
-  }
-
+  // Visual editor is the source of truth for new CMS posts.
   if (hasSubstantialLexicalContent(doc.content) && fromContent.trim()) {
     return fromContent
   }
 
-  if (htmlContent) {
+  if (htmlContent && looksLikeImportedHtml) {
     return htmlContent
   }
 
   if (fromContent.trim()) return fromContent
+
+  if (htmlContent) {
+    return plainTextToHtml(htmlContent)
+  }
 
   const heroHtml = lexicalToHtml(doc.hero?.richText)
   const layoutHtml = layoutToHtml(doc.layout)
@@ -366,4 +369,17 @@ export function htmlFromPayloadDoc(doc: {
   }
 
   return heroHtml.trim() || layoutHtml
+}
+
+function plainTextToHtml(text: string): string {
+  const blocks = text
+    .split(/\n{2,}/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  if (!blocks.length) return ''
+
+  return blocks
+    .map((part) => `<p class="wp-block-paragraph">${escapeHtml(part)}</p>`)
+    .join('\n')
 }

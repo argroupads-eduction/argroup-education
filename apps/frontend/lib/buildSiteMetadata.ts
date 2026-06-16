@@ -42,9 +42,9 @@ export function buildSiteMetadata(
     content.content
   );
 
-  const canonical =
-    content.canonicalUrl ||
-    `${SITE_URL}${options?.canonicalPath ?? `/${content.slug}`}`;
+  const canonical = options?.canonicalPath
+    ? `${SITE_URL}${options.canonicalPath}`
+    : content.canonicalUrl || `${SITE_URL}/${content.slug}`;
 
   const ogTitle = plainTitle(content.ogTitle || title);
   const ogDescription =

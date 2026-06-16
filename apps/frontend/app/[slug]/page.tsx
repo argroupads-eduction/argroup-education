@@ -8,7 +8,7 @@ import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { getContentBySlug } from '@/lib/contentApi';
 import { blogPostPath } from '@/lib/blogUtils';
-import { PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
+import { PROGRAM_HUB_WP_SLUG, PROGRAM_HUB_SEO } from '@/lib/programHubContent';
 import {
   isLocalCollegeBanner,
   resolveCollegeFeaturedImage,
@@ -19,6 +19,18 @@ import { plainTitle } from '@/lib/wpHtmlPrepare';
 import { resolveSlugAlias } from '@/lib/wpSlugAliases';
 
 const HOME_WP_SLUG = 'mbbs-admission-in-top-colleges';
+
+/** Modern program hubs — served by (marketing)/mbbs-*/ routes, not this catch-all. */
+const MODERN_HUB_SLUGS = new Set(['mbbs-abroad', 'mbbs-india', 'md-ms']);
+
+/** Legacy WordPress hub slugs → canonical Next routes (single hop). */
+const LEGACY_HUB_SLUG_REDIRECTS: Record<string, string> = {
+  [PROGRAM_HUB_WP_SLUG.abroad]: PROGRAM_HUB_SEO.abroad.path,
+  [PROGRAM_HUB_WP_SLUG.india]: PROGRAM_HUB_SEO.india.path,
+  [PROGRAM_HUB_WP_SLUG.mdms]: PROGRAM_HUB_SEO.mdms.path,
+  'mbbs-in-abroad': PROGRAM_HUB_SEO.abroad.path,
+  'mbbs-in-india': PROGRAM_HUB_SEO.india.path,
+};
 
 /** Cache published pages; bust on Payload sync via /api/revalidate */
 export const revalidate = 300;
@@ -52,15 +64,20 @@ export default async function WpSlugPage({ params }: PageProps) {
   const { slug } = await params;
   const decoded = decodeURIComponent(slug);
 
+  if (MODERN_HUB_SLUGS.has(decoded)) {
+    notFound();
+  }
+
+  const legacyHub = LEGACY_HUB_SLUG_REDIRECTS[decoded];
+  if (legacyHub) {
+    redirect(legacyHub);
+  }
+
   const alias = resolveSlugAlias(decoded);
   if (alias) redirect(alias);
 
   if (decoded === HOME_WP_SLUG) {
     redirect('/');
-  }
-
-  if (decoded === PROGRAM_HUB_WP_SLUG.abroad) {
-    redirect('/mbbs-abroad');
   }
 
   const content = await getContentBySlug(decoded);
@@ -117,6 +134,7 @@ export default async function WpSlugPage({ params }: PageProps) {
         pageSlug={decoded}
         published={published}
         publishedLabel="Last updated"
+        articleClassName={program?.program === 'india' ? 'wp-content-mbbs-india' : undefined}
       />
 
       <div className="border-t border-slate-200 bg-white py-6 sm:py-8">

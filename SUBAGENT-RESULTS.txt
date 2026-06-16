@@ -1,0 +1,44 @@
+﻿C: drive free: 0 GB / 136.83 GB
+mbbsIndiaTree.ts size 1536 bytes
+  import { resolveCollegeImageUrl } from '@/lib/collegeImageIndex';     image: resolveCollegeImageUrl(college.slug, college.image),
+mbbsAbroadTree.ts size 3647 bytes
+  import { resolveCollegeImageUrl } from '@/lib/collegeImageIndex';     image: resolveCollegeImageUrl(college.slug, college.image),
+Running npm run build:mbbs-india
+
+> ar-education@1.0.0 build:mbbs-india
+> node scripts/build-mbbs-india-tree.mjs
+
+Wrote C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\data\mbbs-india-tree.json
+Wrote C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\mbbs-india-tree.json
+Matched 111/125 colleges to WordPress pages
+Unmatched: RPS College of Veterinary & Animal Sciences, National Institute of Medical Sciences & Research, S Nijalingappa Medical College and H.S.K Hospital, Amaltas Institute of Medical Science, LN Medical College ...+9
+
+Running npm run build:mbbs-abroad
+
+> ar-education@1.0.0 build:mbbs-abroad
+> node scripts/build-mbbs-abroad-tree.mjs
+
+Wrote C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\data\mbbs-abroad-tree.json
+Matched 106/110 colleges/universities to WordPress pages
+Unmatched sample: Belgorod State University, Russia, College of Medical Science, International Medical College, Mainamoti Medical College 
+
+Running npm run wp:build:college-images
+
+> ar-education@1.0.0 wp:build:college-images
+> node apps/frontend/scripts/build-college-image-index.mjs
+
+Wrote 338 college images ΓåÆ C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\college-image-index.json
+
+mbbs-india-tree.json at C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\mbbs-india-tree.json
+  snippet: noida-international-institute-of-medical-sciences",
+          "href": "/noida-international-institute-of-medical-sciences",
+          "image": null
+        },
+        {
+          "name": "TS Misra Medical College & Hospital",
+          "city": "Lucknow",
+          "slug": "ts-misra-medical-college-hospital-lucknow",
+          "href": "/ts-misra-med
+  Untitled/mbbs-in-russia near slug: False
+college-image-index.json at C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\college-image-index.json
+  slug not in file

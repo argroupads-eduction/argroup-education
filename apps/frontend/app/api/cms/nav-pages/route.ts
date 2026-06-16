@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { loadMonorepoEnv } from '@backend/lib/loadMonorepoEnv';
 import { getNavPages } from '@backend/handlers/navPages';
 import { isBackendPrimaryContent } from '@/lib/payloadCmsUrl';
 
@@ -6,6 +7,11 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  loadMonorepoEnv();
+  if (!process.env.DATABASE_URL?.trim()) {
+    return NextResponse.json({ data: [] }, { status: 200 });
+  }
+
   try {
     const pages = await getNavPages();
     return NextResponse.json(
@@ -18,8 +24,7 @@ export async function GET() {
         },
       }
     );
-  } catch (error) {
-    console.error('[nav-pages]', error);
+  } catch {
     return NextResponse.json({ data: [] }, { status: 200 });
   }
 }

@@ -3,6 +3,7 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
@@ -23,7 +24,20 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
   return doc?.slug ? `${url}/${doc.slug}` : url
 }
 
+const vercelBlobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim()
+
 export const plugins: Plugin[] = [
+  ...(vercelBlobToken
+    ? [
+        vercelBlobStorage({
+          enabled: true,
+          collections: {
+            media: true,
+          },
+          token: vercelBlobToken,
+        }),
+      ]
+    : []),
   redirectsPlugin({
     collections: ['pages', 'posts'],
     overrides: {

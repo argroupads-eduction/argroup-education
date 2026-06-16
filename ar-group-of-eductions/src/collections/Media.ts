@@ -14,6 +14,8 @@ import { authenticated } from '../access/authenticated'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const useVercelBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim())
+
 export const Media: CollectionConfig = {
   slug: 'media',
   labels: {
@@ -59,7 +61,9 @@ export const Media: CollectionConfig = {
     ],
   },
   upload: {
-    staticDir: path.resolve(dirname, '../../public/media'),
+    ...(useVercelBlob
+      ? {}
+      : { staticDir: path.resolve(dirname, '../../public/media') }),
     adminThumbnail: 'thumbnail',
     focalPoint: true,
     mimeTypes: ['image/*'],

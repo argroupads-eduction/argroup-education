@@ -237,7 +237,7 @@ export function NeetRankPredictorWizard() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               onSubmit={(e) => void handleSubmit(e)}
-              className="neet-form-shell"
+              className="neet-form-shell w-full min-w-0 max-w-full box-border overflow-x-hidden"
             >
               <div
                 className={`neet-preview-strip${preview ? ' neet-preview-strip--live' : ' neet-preview-strip--idle'}`}
@@ -334,7 +334,7 @@ export function NeetRankPredictorWizard() {
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="neet-field-input"
+                      className="neet-field-input box-border w-full max-w-full min-w-0"
                       placeholder="Your full name"
                       autoComplete="name"
                     />
@@ -369,7 +369,7 @@ export function NeetRankPredictorWizard() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="neet-field-input"
+                      className="neet-field-input box-border w-full max-w-full min-w-0"
                       placeholder="you@email.com"
                       autoComplete="email"
                     />
@@ -385,7 +385,7 @@ export function NeetRankPredictorWizard() {
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       list="neet-city-list"
-                      className="neet-field-input"
+                      className="neet-field-input box-border w-full max-w-full min-w-0"
                       placeholder="Your city"
                       autoComplete="address-level2"
                     />

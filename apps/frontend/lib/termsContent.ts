@@ -26,7 +26,7 @@ export const TERMS_SECTIONS = [
     id: 'service-limitations',
     number: 4,
     title: 'Service Limitations',
-    body: 'We provide guidance and support throughout the admission and visa assistance process. However, final decisions regarding university admissions, scholarships, visas, and immigration approvals are made solely by the respective institutions and authorities.',
+    body: 'We provide guidance and support throughout the admission and visa assistance process. However, final decisions regarding university admissions, scholarships, visa, and immigration approvals are made solely by the respective institutions and authorities.',
   },
   {
     id: 'website-content-updates',

@@ -31,6 +31,11 @@ function resolveDatabaseUrl(): string {
 
   if (isCompileOnly) return BUILD_TIME_DATABASE_URL;
 
+  // Local dev / ts-node-dev without Neon: avoid crashing imports; CMS routes return empty data.
+  if (process.env.NODE_ENV !== 'production') {
+    return BUILD_TIME_DATABASE_URL;
+  }
+
   throw new Error(
     'DATABASE_URL is missing. Copy apps/backend/.env.example to .env and set Neon credentials.'
   );

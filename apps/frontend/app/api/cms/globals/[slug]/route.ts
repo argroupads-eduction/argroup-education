@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { loadMonorepoEnv } from '@backend/lib/loadMonorepoEnv';
 import { getAllSiteGlobals, getSiteGlobal } from '@backend/handlers/globalsSync';
 
 export const runtime = 'nodejs';
@@ -8,6 +9,14 @@ type RouteContext = { params: Promise<{ slug: string }> };
 
 export async function GET(_req: Request, context: RouteContext) {
   const { slug } = await context.params;
+
+  loadMonorepoEnv();
+  if (!process.env.DATABASE_URL?.trim()) {
+    if (slug === 'all') {
+      return NextResponse.json({ data: {} }, { status: 200 });
+    }
+    return NextResponse.json({ data: null }, { status: 200 });
+  }
 
   try {
     if (slug === 'all') {
@@ -28,8 +37,10 @@ export async function GET(_req: Request, context: RouteContext) {
       { data: row.data, updatedAt: row.updatedAt },
       { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } }
     );
-  } catch (error) {
-    console.error('[globals]', slug, error);
+  } catch {
+    if (slug === 'all') {
+      return NextResponse.json({ data: {} }, { status: 200 });
+    }
     return NextResponse.json({ data: null }, { status: 200 });
   }
 }

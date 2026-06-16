@@ -119,7 +119,12 @@ async function main() {
     }
 
     if (best && bestScore >= 0.82) {
-      aliases[raw] = known.get(best);
+      const target = known.get(best);
+      const targetSlug = target.replace(/^\/+|\/+$/g, '').split('/')[0] ?? '';
+      // Never alias a slug to itself — causes ERR_TOO_MANY_REDIRECTS in middleware.
+      if (normalizeSlug(raw) !== normalizeSlug(targetSlug)) {
+        aliases[raw] = target;
+      }
     }
   }
 
