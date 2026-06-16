@@ -75,6 +75,7 @@ export function MbbsIndiaHub({ wpContent }: MbbsIndiaHubProps) {
               title={title}
               showFeaturedImage={Boolean(hubFeaturedImage)}
               pageSlug={PROGRAM_HUB_WP_SLUG.india}
+              articleClassName="wp-content-mbbs-india"
             />
           </div>
         </section>

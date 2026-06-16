@@ -103,6 +103,7 @@ export default async function MbbsIndiaPage({ params }: PageProps) {
           title={title}
           showFeaturedImage={false}
           pageSlug={state.wpSlug}
+          articleClassName="wp-content-mbbs-india"
         />
       ) : null}
 

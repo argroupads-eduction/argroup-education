@@ -20,6 +20,8 @@ const WP_SLUG_TO_PATH: Record<string, string> = linkIndex.wpSlugToPath;
 const PAGE_SLUGS = new Set(linkIndex.pageSlugs);
 const POST_SLUGS = new Set(linkIndex.postSlugs);
 
+const PROGRAM_HUB_PATHS = new Set(['mbbs-india', 'mbbs-abroad', 'md-ms']);
+
 function encodePathSegments(slugPath: string): string {
   return slugPath
     .split('/')
@@ -32,6 +34,10 @@ function encodePathSegments(slugPath: string): string {
 export function resolveInternalPath(slugPath: string): string {
   const normalized = slugPath.replace(/^\/+|\/+$/g, '');
   if (!normalized) return '/';
+
+  if (PROGRAM_HUB_PATHS.has(normalized)) {
+    return `/${encodePathSegments(normalized)}`;
+  }
 
   if (isLegacyContactSlug(normalized)) return '/contact';
 

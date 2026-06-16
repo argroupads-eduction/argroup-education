@@ -59,7 +59,6 @@ export function MbbsAbroadHubGuide({ variant }: MbbsAbroadHubGuideProps) {
       <div className="mx-auto max-w-7xl px-4">
         <section
           className="abroad-guide__block"
-          id="mbbs-abroad-countries"
           aria-labelledby="countries-title"
         >
           <h3 id="countries-title" className="abroad-guide__h3">

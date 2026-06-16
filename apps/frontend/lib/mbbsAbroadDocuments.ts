@@ -85,19 +85,19 @@ export const MBBS_ABROAD_DOCUMENTS: AbroadDocumentItem[] = [
 
 export const MBBS_ABROAD_INTAKE_STEPS = [
   {
-    step: '01',
+    id: 'neet-qualified',
     title: 'NEET qualified',
     body: 'Confirm eligibility and score requirements for your target country and university.',
     icon: FileText,
   },
   {
-    step: '02',
+    id: 'student-visa',
     title: 'Student visa',
     body: 'Apply with admission letter, financial proof, and medical documents.',
     icon: Plane,
   },
   {
-    step: '03',
+    id: 'fly-enrol',
     title: 'Fly & enrol',
     body: 'Book travel, complete university formalities, and hostel registration.',
     icon: GraduationCap,

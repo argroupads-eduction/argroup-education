@@ -37,7 +37,6 @@ export function MbbsAbroadDocumentsVault() {
                 transition={{ duration: 0.4, delay: (i % 5) * 0.05 }}
               >
                 <div className="abroad-vault__card">
-                  <span className="abroad-vault__num">{String(i + 1).padStart(2, '0')}</span>
                   <div className="abroad-vault__icon">
                     <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden />
                   </div>

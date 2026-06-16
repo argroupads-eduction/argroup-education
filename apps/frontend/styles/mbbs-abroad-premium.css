@@ -1,270 +1,948 @@
-/* MBBS Abroad hub — premium country orbit, documents vault, WP overrides */
+/* MBBS Abroad hub — premium destinations gallery, documents vault, WP overrides */
 
-/* ── Country orbit ── */
-.abroad-orbit {
+/* ── Country picker — atlas grid ── */
+.abroad-atlas {
   position: relative;
   overflow: hidden;
-  padding: 4rem 0 4.5rem;
-  background: linear-gradient(165deg, #050d1a 0%, #0c1f3f 38%, #0f2848 100%);
+  padding: 4.5rem 0 5rem;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -5%, rgb(37 99 235 / 0.28), transparent 58%),
+    linear-gradient(165deg, #020617 0%, #0b1f3d 42%, #0c2342 100%);
   color: #fff;
 }
 
-.abroad-orbit__aurora {
-  position: absolute;
-  inset: -20% -10%;
-  background:
-    radial-gradient(ellipse 50% 40% at 15% 30%, rgb(232 163 23 / 0.18), transparent 55%),
-    radial-gradient(ellipse 45% 35% at 85% 60%, rgb(56 189 248 / 0.12), transparent 50%);
-  animation: abroad-aurora 14s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-
-@keyframes abroad-aurora {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(2%, -3%, 0) scale(1.05);
-  }
-}
-
-.abroad-orbit__grid-lines {
+.abroad-atlas__glow {
   position: absolute;
   inset: 0;
-  opacity: 0.07;
-  background-image:
-    linear-gradient(rgb(255 255 255 / 0.5) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.5) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black, transparent);
+  background-image: radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.1) 1px, transparent 0);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(180deg, #000 0%, transparent 95%);
   pointer-events: none;
 }
 
-.abroad-orbit__head {
+.abroad-atlas__head {
   position: relative;
-  max-width: 40rem;
-  margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  margin-bottom: 2.75rem;
 }
 
-.abroad-orbit__kicker {
+@media (min-width: 1024px) {
+  .abroad-atlas__head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2.5rem;
+  }
+}
+
+.abroad-atlas__head-copy {
+  max-width: 42rem;
+}
+
+.abroad-atlas__kicker {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgb(253 224 171);
 }
 
-.abroad-orbit__title {
-  margin-top: 0.75rem;
+.abroad-atlas__title {
+  margin-top: 0.65rem;
   font-family: var(--font-site);
-  font-size: clamp(1.85rem, 4.5vw, 2.75rem);
+  font-size: clamp(1.9rem, 4.5vw, 2.85rem);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
 }
 
-.abroad-orbit__title span {
-  display: inline-block;
-  padding-bottom: 0.12em;
-  line-height: 1.22;
-  background: linear-gradient(90deg, #fde68a, #f59e0b);
+.abroad-atlas__title span {
+  background: linear-gradient(92deg, #fde68a 0%, #f59e0b 55%, #fbbf24 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
 }
 
-.abroad-orbit__lead {
+.abroad-atlas__lead {
   margin-top: 0.85rem;
-  font-size: 1rem;
+  font-size: 1.02rem;
   line-height: 1.65;
   color: rgb(191 219 254 / 0.88);
 }
 
-.abroad-orbit__bento {
+.abroad-atlas__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.abroad-atlas__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 5.25rem;
+  padding: 0.7rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.04);
+  backdrop-filter: blur(8px);
+}
+
+.abroad-atlas__stat--gold {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: auto;
+  border-color: rgb(251 191 36 / 0.35);
+  background: rgb(251 191 36 / 0.1);
+  color: rgb(253 224 171);
+}
+
+.abroad-atlas__stat-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.abroad-atlas__stat-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(148 163 184);
+}
+
+.abroad-atlas__stat--gold .abroad-atlas__stat-label {
+  color: rgb(253 224 171);
+}
+
+.abroad-atlas__section {
   position: relative;
+  margin-bottom: 2.5rem;
+}
+
+.abroad-atlas__section--more {
+  margin-bottom: 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.abroad-atlas__section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.abroad-atlas__section-label {
+  font-family: var(--font-site);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.abroad-atlas__section-hint {
+  font-size: 0.78rem;
+  color: rgb(148 163 184);
+}
+
+/* Featured — 2×2 cinematic cards */
+.abroad-atlas__hero-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: 1fr;
 }
 
-@media (min-width: 768px) {
-  .abroad-orbit__bento {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-auto-rows: minmax(7.5rem, auto);
-    gap: 1.15rem;
-  }
-
-  .abroad-orbit__tile--hero {
-    grid-column: span 2;
-    grid-row: span 2;
-  }
-
-  .abroad-orbit__tile--a {
-    grid-column: 1 / span 2;
-  }
-
-  .abroad-orbit__tile--b {
-    grid-column: 3 / span 2;
+@media (min-width: 640px) {
+  .abroad-atlas__hero-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem;
   }
 }
 
-@media (min-width: 1024px) {
-  .abroad-orbit__bento {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
-  .abroad-orbit__tile--hero {
-    grid-column: span 3;
-    grid-row: span 2;
-  }
+.abroad-atlas__hero-item {
+  min-width: 0;
 }
 
-.abroad-orbit__card {
+.abroad-atlas__hero-card {
+  --country-accent: #fbbf24;
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 18.5rem;
   overflow: hidden;
   border-radius: 1.25rem;
   border: 1px solid rgb(255 255 255 / 0.12);
-  background: rgb(255 255 255 / 0.04);
-  backdrop-filter: blur(12px);
+  background: rgb(8 18 36 / 0.95);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.35);
   transition:
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.35s ease,
     box-shadow 0.35s ease;
 }
 
-.abroad-orbit__card:hover {
-  transform: translateY(-4px);
-  border-color: rgb(251 191 36 / 0.45);
-  box-shadow:
-    0 24px 48px rgb(0 0 0 / 0.35),
-    0 0 0 1px rgb(251 191 36 / 0.2);
-}
-
-.abroad-orbit__card--hero {
-  min-height: 14rem;
-  padding: 1.25rem;
-}
-
-@media (min-width: 768px) {
-  .abroad-orbit__card--hero {
-    min-height: 18rem;
-    padding: 1.5rem;
-  }
-}
-
-.abroad-orbit__stamp {
+.abroad-atlas__hero-card::after {
+  content: '';
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  inset: auto 0 0 0;
+  height: 4px;
+  background: var(--country-accent);
   z-index: 2;
-  padding: 0.25rem 0.55rem;
-  border-radius: 0.35rem;
-  border: 1px dashed rgb(251 191 36 / 0.5);
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  color: rgb(253 224 171);
-  transform: rotate(6deg);
 }
 
-.abroad-orbit__flag {
-  flex: 1;
-  display: flex;
+.abroad-atlas__hero-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--country-accent) 50%, transparent);
+  box-shadow:
+    0 24px 48px rgb(0 0 0 / 0.45),
+    0 0 0 1px color-mix(in srgb, var(--country-accent) 22%, transparent);
+}
+
+.abroad-atlas__hero-media {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 10.5rem;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.abroad-atlas__hero-img {
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.55s ease;
+}
+
+.abroad-atlas__hero-card:hover .abroad-atlas__hero-img {
+  transform: scale(1.05);
+}
+
+.abroad-atlas__hero-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(2 6 23 / 0.35) 45%,
+    rgb(2 6 23 / 0.92) 100%
+  );
+}
+
+.abroad-atlas__hero-body {
+  position: relative;
+  z-index: 1;
+  margin-top: -4.5rem;
+  padding: 0 1.2rem 1.25rem;
+}
+
+.abroad-atlas__chip {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 6rem;
-  margin-bottom: 0.75rem;
-}
-
-.abroad-orbit__flag-img {
-  max-height: 5.5rem;
-  width: auto;
-  max-width: 100%;
-  object-fit: contain;
-  border-radius: 0.65rem;
-  box-shadow: 0 12px 32px rgb(0 0 0 / 0.25);
-  transition: transform 0.4s ease;
-}
-
-.abroad-orbit__card--hero:hover .abroad-orbit__flag-img {
-  transform: scale(1.04);
-}
-
-.abroad-orbit__flag-fallback {
-  width: 3rem;
-  height: 3rem;
-  color: rgb(148 163 184);
-}
-
-.abroad-orbit__card-foot {
-  margin-top: auto;
-}
-
-.abroad-orbit__country {
-  font-family: var(--font-site);
-  font-size: 1.35rem;
+  gap: 0.3rem;
+  margin-bottom: 0.45rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(255 255 255 / 0.15);
+  background: rgb(15 23 42 / 0.65);
+  font-size: 0.62rem;
   font-weight: 700;
-  color: #fff;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(253 224 171);
 }
 
-.abroad-orbit__meta {
-  margin-top: 0.25rem;
-  font-size: 0.8rem;
-  color: rgb(191 219 254 / 0.75);
+.abroad-atlas__hero-title {
+  font-family: var(--font-site);
+  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-.abroad-orbit__cta {
+.abroad-atlas__hero-meta {
+  margin-top: 0.3rem;
+  font-size: 0.84rem;
+  color: rgb(191 219 254 / 0.82);
+}
+
+.abroad-atlas__hero-cta {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  margin-top: 0.65rem;
-  font-size: 0.8rem;
+  margin-top: 0.75rem;
+  font-size: 0.86rem;
   font-weight: 700;
   color: rgb(253 224 171);
 }
 
-.abroad-orbit__card--compact {
+/* More countries — compact tiles */
+.abroad-atlas__tile-grid {
+  display: grid;
+  gap: 0.85rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .abroad-atlas__tile-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .abroad-atlas__tile-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.abroad-atlas__tile {
+  --country-accent: #fbbf24;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(8 18 36 / 0.88);
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.abroad-atlas__tile::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--country-accent);
+  z-index: 1;
+}
+
+.abroad-atlas__tile:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--country-accent) 45%, transparent);
+  box-shadow: 0 14px 32px rgb(0 0 0 / 0.35);
+}
+
+.abroad-atlas__tile-media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.abroad-atlas__tile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s ease;
+}
+
+.abroad-atlas__tile:hover .abroad-atlas__tile-img {
+  transform: scale(1.06);
+}
+
+.abroad-atlas__tile-body {
+  flex: 1;
+  padding: 0.75rem 2rem 0.85rem 0.9rem;
+}
+
+.abroad-atlas__tile-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.abroad-atlas__tile-meta {
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  color: rgb(148 163 184);
+}
+
+.abroad-atlas__tile-arrow {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.8rem;
+  width: 1rem;
+  height: 1rem;
+  color: rgb(253 224 171);
+  transition: transform 0.25s ease;
+}
+
+.abroad-atlas__tile:hover .abroad-atlas__tile-arrow {
+  transform: translate(2px, -2px);
+}
+
+.abroad-atlas__media-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 6rem;
+  background: linear-gradient(145deg, #1e3a5f, #0c1f3f);
+  color: rgb(148 163 184);
+}
+
+/* Legacy class aliases — old atlas grid retired */
+.abroad-globe,
+.abroad-orbit,
+.abroad-atlas {
+  display: none;
+}
+
+/* ── Country picker — destinations showcase (current) ── */
+.abroad-destinations {
+  position: relative;
+  overflow: hidden;
+  padding: 4.75rem 0 5.25rem;
+  background:
+    radial-gradient(ellipse 80% 50% at 15% -10%, rgb(245 158 11 / 0.14), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 90% 0%, rgb(59 130 246 / 0.18), transparent 50%),
+    linear-gradient(168deg, #020617 0%, #0a1f3d 38%, #0c2342 100%);
+  color: #fff;
+}
+
+.abroad-destinations__aurora {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.09) 1px, transparent 0);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, #000 0%, transparent 92%);
+  pointer-events: none;
+}
+
+.abroad-destinations__head {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .abroad-destinations__head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2.5rem;
+  }
+}
+
+.abroad-destinations__head-copy {
+  max-width: 44rem;
+}
+
+.abroad-destinations__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(253 224 171);
+}
+
+.abroad-destinations__title {
+  margin-top: 0.65rem;
+  font-family: var(--font-site);
+  font-size: clamp(2rem, 4.8vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.abroad-destinations__title span {
+  background: linear-gradient(92deg, #fde68a 0%, #f59e0b 52%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.abroad-destinations__lead {
+  margin-top: 0.9rem;
+  max-width: 38rem;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: rgb(191 219 254 / 0.88);
+}
+
+.abroad-destinations__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.abroad-destinations__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 5.25rem;
+  padding: 0.7rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.04);
+  backdrop-filter: blur(8px);
+}
+
+.abroad-destinations__stat--gold {
   flex-direction: row;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.85rem 1rem;
-  min-height: 4.5rem;
+  gap: 0.45rem;
+  min-width: auto;
+  border-color: rgb(251 191 36 / 0.35);
+  background: rgb(251 191 36 / 0.1);
+  color: rgb(253 224 171);
 }
 
-.abroad-orbit__compact-img {
-  width: 3.25rem;
-  height: 2.25rem;
-  flex-shrink: 0;
-  object-fit: cover;
-  border-radius: 0.45rem;
-  border: 1px solid rgb(255 255 255 / 0.15);
+.abroad-destinations__stat-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
-.abroad-orbit__country-sm {
-  font-size: 0.95rem;
+.abroad-destinations__stat-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(148 163 184);
+}
+
+.abroad-destinations__stat--gold .abroad-destinations__stat-label {
+  color: rgb(253 224 171);
+}
+
+.abroad-destinations__featured-grid {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .abroad-destinations__featured-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .abroad-destinations__featured-grid {
+    gap: 1.25rem;
+  }
+}
+
+.abroad-destinations__featured-item {
+  min-width: 0;
+  list-style: none;
+}
+
+.abroad-destinations__featured-card {
+  --country-accent: #fbbf24;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  background: #020617;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.2),
+    0 14px 36px rgb(0 0 0 / 0.28);
+  transition:
+    border-color 0.28s ease,
+    box-shadow 0.28s ease,
+    transform 0.28s ease;
+}
+
+.abroad-destinations__featured-card:hover,
+.abroad-destinations__featured-card:focus-visible {
+  border-color: color-mix(in srgb, var(--country-accent) 50%, rgb(251 191 36 / 0.35));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--country-accent) 25%, transparent),
+    0 0 28px color-mix(in srgb, var(--country-accent) 16%, transparent),
+    0 18px 40px rgb(0 0 0 / 0.34);
+  transform: translateY(-3px);
+  outline: none;
+}
+
+/* Image band — full-width cover (top half of card), text panel below */
+.abroad-destinations__featured-visual {
+  position: relative;
+  width: 100%;
+  flex: 0 0 auto;
+  aspect-ratio: 16 / 9;
+  min-height: 12.5rem;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.abroad-destinations__featured-visual > span {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.abroad-destinations__featured-img {
+  object-fit: cover !important;
+  object-position: center center;
+}
+
+.abroad-destinations__featured-visual-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, transparent 55%, rgb(2 6 23 / 0.85) 100%);
+  pointer-events: none;
+}
+
+.abroad-destinations__featured-index {
+  position: absolute;
+  top: 0.85rem;
+  right: 1rem;
+  z-index: 2;
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: rgb(255 255 255 / 0.16);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  user-select: none;
+}
+
+.abroad-destinations__featured-accent-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--country-accent) 35%,
+    rgb(251 191 36) 65%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: scaleX(0.5);
+  transform-origin: left center;
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s ease;
+}
+
+.abroad-destinations__featured-card:hover .abroad-destinations__featured-accent-line,
+.abroad-destinations__featured-card:focus-visible .abroad-destinations__featured-accent-line {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* Text panel — solid block below image (no overlap glitch) */
+.abroad-destinations__featured-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.15rem 1.15rem;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+  background: linear-gradient(180deg, #060f1f 0%, #020617 100%);
+}
+
+.abroad-destinations__featured-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+}
+
+.abroad-destinations__code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--country-accent) 55%, rgb(255 255 255 / 0.2));
+  background: color-mix(in srgb, var(--country-accent) 22%, rgb(15 23 42 / 0.75));
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #fff;
+  backdrop-filter: blur(8px);
+}
+
+.abroad-destinations__count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgb(148 163 184);
+}
+
+.abroad-destinations__featured-title {
+  font-family: var(--font-site);
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+}
+
+.abroad-destinations__featured-tagline {
+  margin-top: 0.35rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: rgb(226 232 240 / 0.88);
+}
+
+.abroad-destinations__featured-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(251 191 36 / 0.35);
+  background: rgb(251 191 36 / 0.12);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgb(253 224 171);
+  transition:
+    color 0.22s ease,
+    gap 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.abroad-destinations__featured-card:hover .abroad-destinations__featured-cta,
+.abroad-destinations__featured-card:focus-visible .abroad-destinations__featured-cta {
+  color: #0f172a;
+  background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+  border-color: rgb(253 224 171);
+  gap: 0.55rem;
+}
+
+.abroad-destinations__featured-card:hover .abroad-destinations__featured-cta svg,
+.abroad-destinations__featured-card:focus-visible .abroad-destinations__featured-cta svg {
+  transform: translate(2px, -2px);
+}
+
+/* Legacy showcase classes — retired bento grid */
+.abroad-destinations__showcase,
+.abroad-destinations__showcase-item,
+.abroad-destinations__showcase-card {
+  display: none;
+}
+
+.abroad-destinations__rail-wrap {
+  margin-top: 2.75rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.abroad-destinations__rail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.abroad-destinations__rail-label {
+  font-family: var(--font-site);
+  font-size: 1.1rem;
   font-weight: 700;
   color: #fff;
 }
 
-.abroad-orbit__meta-sm {
-  font-size: 0.72rem;
-  color: rgb(191 219 254 / 0.7);
+.abroad-destinations__rail-hint {
+  font-size: 0.78rem;
+  color: rgb(148 163 184);
 }
 
-.abroad-orbit__arrow-sm {
-  margin-left: auto;
-  width: 1rem;
-  height: 1rem;
-  color: rgb(253 224 171);
+.abroad-destinations__rail {
+  display: flex;
+  gap: 0.9rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem max(0px, calc((100vw - 80rem) / 2 + 1rem)) 0.75rem 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(251 191 36 / 0.45) transparent;
+}
+
+@media (max-width: 639px) {
+  .abroad-destinations {
+    padding: 3.5rem 0 4rem;
+  }
+
+  .abroad-destinations__featured-visual {
+    aspect-ratio: 16 / 11;
+    min-height: 10.5rem;
+  }
+
+  .abroad-destinations__featured-body {
+    padding: 0.9rem 1rem 1.05rem;
+  }
+
+  .abroad-destinations__featured-index {
+    font-size: 2.25rem;
+  }
+
+  .abroad-destinations__rail {
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+    scroll-padding-inline: 1rem;
+  }
+
+  .abroad-destinations__rail-item {
+    width: min(16rem, 84vw);
+  }
+}
+
+.abroad-destinations__rail-item {
+  flex: 0 0 auto;
+  width: min(17.5rem, 78vw);
+  scroll-snap-align: start;
+}
+
+.abroad-destinations__rail-card {
+  --country-accent: #fbbf24;
+  position: relative;
+  display: grid;
+  grid-template-columns: 5.5rem 1fr auto;
+  align-items: center;
+  gap: 0.85rem;
+  height: 100%;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(8 18 36 / 0.88);
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
+}
+
+.abroad-destinations__rail-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: 1rem 0 0 1rem;
+  background: var(--country-accent);
+}
+
+.abroad-destinations__rail-card:hover,
+.abroad-destinations__rail-card:focus-visible {
+  border-color: color-mix(in srgb, var(--country-accent) 40%, transparent);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.24);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.abroad-destinations__rail-thumb {
+  position: relative;
   flex-shrink: 0;
+  width: 5.5rem;
+  height: 4.5rem;
+  overflow: hidden;
+  border-radius: 0.7rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: #0f172a;
+}
+
+.abroad-destinations__rail-thumb > span {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.abroad-destinations__rail-img {
+  object-fit: cover !important;
+  object-position: center center;
+  transition: transform 0.4s ease;
+}
+
+.abroad-destinations__rail-card:hover .abroad-destinations__rail-img,
+.abroad-destinations__rail-card:focus-visible .abroad-destinations__rail-img {
+  transform: scale(1.08);
+}
+
+.abroad-destinations__rail-body {
+  min-width: 0;
+}
+
+.abroad-destinations__rail-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.abroad-destinations__rail-meta {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: rgb(148 163 184);
+}
+
+.abroad-destinations__rail-arrow {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-right: 0.35rem;
+  color: rgb(253 224 171);
+  opacity: 0.85;
+  transition: transform 0.25s ease;
+}
+
+.abroad-destinations__rail-card:hover .abroad-destinations__rail-arrow {
+  transform: translate(2px, -2px);
+}
+
+.abroad-destinations__media-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 5rem;
+  background: linear-gradient(145deg, #1e3a5f, #0c1f3f);
+  color: rgb(148 163 184);
+}
+
+.abroad-destinations__media-fallback--hero {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
 }
 
 /* ── Intake ribbon ── */
@@ -287,23 +965,11 @@
 }
 
 .abroad-intake__card {
-  position: relative;
   padding: 1.35rem 1.35rem 1.35rem 1.15rem;
   border-radius: 1rem;
   border: 1px solid #e2e8f0;
   background: #fff;
   box-shadow: 0 4px 24px rgb(12 31 63 / 0.06);
-}
-
-.abroad-intake__step {
-  position: absolute;
-  top: 0.85rem;
-  right: 1rem;
-  font-size: 2rem;
-  font-weight: 800;
-  line-height: 1;
-  color: rgb(12 31 63 / 0.06);
-  font-variant-numeric: tabular-nums;
 }
 
 .abroad-intake__icon-wrap {
@@ -422,16 +1088,6 @@
   transform: translateY(-3px);
   border-color: rgb(232 163 23 / 0.45);
   box-shadow: 0 16px 40px rgb(12 31 63 / 0.1);
-}
-
-.abroad-vault__num {
-  position: absolute;
-  top: 0.65rem;
-  right: 0.75rem;
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: rgb(12 31 63 / 0.12);
 }
 
 .abroad-vault__icon {

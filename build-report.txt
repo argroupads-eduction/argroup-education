@@ -1,0 +1,48 @@
+﻿DISK C: Free 0 GB of 136.83 GB
+FILE SIZES:
+mbbsIndiaTree.ts 1536 bytes
+mbbsAbroadTree.ts 3647 bytes
+
+> ar-education@1.0.0 build:mbbs-india
+> node scripts/build-mbbs-india-tree.mjs
+
+Wrote C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\data\mbbs-india-tree.json
+Wrote C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\mbbs-india-tree.json
+Matched 111/125 colleges to WordPress pages
+Unmatched: RPS College of Veterinary & Animal Sciences, National Institute of Medical Sciences & Research, S Nijalingappa Medical College and H.S.K Hospital, Amaltas Institute of Medical Science, LN Medical College ...+9
+
+> ar-education@1.0.0 build:mbbs-abroad
+> node scripts/build-mbbs-abroad-tree.mjs
+
+Wrote C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\data\mbbs-abroad-tree.json
+Matched 106/110 colleges/universities to WordPress pages
+Unmatched sample: Belgorod State University, Russia, College of Medical Science, International Medical College, Mainamoti Medical College 
+
+> ar-education@1.0.0 wp:build:college-images
+> node apps/frontend/scripts/build-college-image-index.mjs
+
+node:fs:2427
+    return binding.writeFileUtf8(
+                   ^
+System.Management.Automation.RemoteException
+Error: ENOSPC: no space left on device, write
+    at writeFileSync (node:fs:2427:20)
+    at file:///C:/Users/akash/OneDrive/Desktop/ARGROUP%20OF%20EDUCTION/apps/frontend/scripts/build-college-image-index.mjs:189:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  errno: -4055,
+  code: 'ENOSPC',
+  syscall: 'write'
+}
+System.Management.Automation.RemoteException
+Node.js v24.13.0
+
+VERIFY noida:
+> C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\mbbs-india-tree.json:189:          "slug": "noida-international-institute-of-medical-sciences",
+> C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\mbbs-india-tree.json:190:          "href": "/noida-international-institute-of-medical-sciences",
+  C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\mbbs-india-tree.json:191:          "image": null
+  C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\mbbs-india-tree.json:192:        },
+  C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\mbbs-india-tree.json:193:        {
+  C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\mbbs-india-tree.json:194:          "name": "TS Misra Medical College & Hospital",
+  C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION\apps\frontend\data\mbbs-india-tree.json:195:          "city": "Lucknow",

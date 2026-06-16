@@ -51,10 +51,18 @@ async function mediaDocToDataUrl(media: MediaDoc): Promise<string | null> {
   const filename = media.filename?.trim()
   if (!filename) return null
   const filePath = path.join(mediaDir, filename)
-  if (!fs.existsSync(filePath)) return null
-  const buf = await fs.promises.readFile(filePath)
-  const mime = media.mimeType?.trim() || 'image/png'
-  return `data:${mime};base64,${buf.toString('base64')}`
+  if (fs.existsSync(filePath)) {
+    const buf = await fs.promises.readFile(filePath)
+    const mime = media.mimeType?.trim() || 'image/png'
+    return `data:${mime};base64,${buf.toString('base64')}`
+  }
+
+  const remoteUrl = mediaUrlFromDoc(media)
+  if (remoteUrl && isPublicHttpsUrl(remoteUrl)) {
+    return remoteUrl
+  }
+
+  return null
 }
 
 async function resolveMediaId(
@@ -101,8 +109,11 @@ export async function resolveFeaturedImageForSync(
     const url = mediaUrlFromDoc(media)
     if (url && isPublicHttpsUrl(url)) return url
 
-    const dataUrl = await mediaDocToDataUrl(media)
-    if (dataUrl) return dataUrl
+    const embedded = await mediaDocToDataUrl(media)
+    if (embedded) {
+      if (embedded.startsWith('data:')) return embedded
+      if (embedded.startsWith('https://')) return embedded
+    }
 
     if (url) return url
   }

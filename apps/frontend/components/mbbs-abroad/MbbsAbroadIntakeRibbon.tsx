@@ -12,14 +12,13 @@ export function MbbsAbroadIntakeRibbon() {
             const Icon = item.icon;
             return (
               <motion.article
-                key={item.step}
+                key={item.id}
                 className="abroad-intake__card"
                 initial={{ opacity: 0, x: -12 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
               >
-                <span className="abroad-intake__step">{item.step}</span>
                 <div className="abroad-intake__icon-wrap">
                   <Icon className="h-5 w-5" aria-hidden />
                 </div>

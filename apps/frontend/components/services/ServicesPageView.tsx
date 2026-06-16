@@ -156,7 +156,7 @@ export function ServicesPageView() {
               Everything beyond the application
             </h2>
             <p className="services-section__desc">
-              Practical help at every stage, counselling, documents, visas, scholarships, and
+              Practical help at every stage, counselling, documents, visa, scholarships, and
               pre-departure coordination.
             </p>
           </div>

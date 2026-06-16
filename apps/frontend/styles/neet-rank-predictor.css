@@ -52,7 +52,7 @@
   max-width: 56rem;
   width: 100%;
   box-sizing: border-box;
-  overflow-x: clip;
+  overflow-x: hidden;
   border-radius: 1.5rem;
   border: 1px solid rgb(226 232 240);
   background: #fff;
@@ -428,6 +428,7 @@
 .neet-select:focus,
 .neet-select:focus-visible {
   outline: none !important;
+  outline-offset: 0 !important;
   border-color: rgb(245 158 11);
   box-shadow: inset 0 0 0 2px rgb(251 191 36 / 0.35);
 }
@@ -466,6 +467,7 @@
 .neet-score-digit-input:focus,
 .neet-score-digit-input:focus-visible {
   outline: none !important;
+  outline-offset: 0 !important;
   border-color: rgb(245 158 11);
   box-shadow: inset 0 0 0 2px rgb(251 191 36 / 0.35);
 }
@@ -502,6 +504,7 @@
 .neet-field-input:focus,
 .neet-field-input:focus-visible {
   outline: none !important;
+  outline-offset: 0 !important;
   border-color: rgb(245 158 11);
   box-shadow: inset 0 0 0 2px rgb(251 191 36 / 0.35);
 }
@@ -845,10 +848,24 @@
   color: rgb(100 116 139);
 }
 
-@media (max-width: 639px) {
+@media (max-width: 767px) {
   .neet-predictor-tool-wrap {
     padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
     padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+  }
+
+  .neet-tool-card,
+  .neet-tool-card__body,
+  .neet-form-panel,
+  .neet-form-shell,
+  .neet-form-grid,
+  .neet-field-block,
+  .neet-select-wrap,
+  .neet-phone-wrap {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .neet-tool-card__head {
@@ -861,31 +878,27 @@
 
   .neet-form-panel {
     padding: 1rem 0.75rem;
-    overflow-x: clip;
+    overflow-x: hidden;
   }
 
   .neet-form-shell,
   .neet-form-grid {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    overflow-x: clip;
+    overflow-x: hidden;
   }
 
   .neet-field-block {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
     overflow: hidden;
   }
 
   .neet-field-input,
   .neet-select,
   .neet-phone-wrap,
-  .neet-select-wrap {
+  .neet-select-wrap,
+  .neet-phone-input {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .neet-preview-strip {

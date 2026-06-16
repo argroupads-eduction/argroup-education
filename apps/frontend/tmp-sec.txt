@@ -1,0 +1,20 @@
+﻿ding your career.</span></p>								</div>
+					</div>
+		</div>
+					</div>
+		</section>
+				<section class="has_eae_slider elementor-section elementor-top-section elementor-element elementor-element-5303248 elementor-section-full_width elementor-section-stretched elementor-section-height-default elementor-section-height-default" data-eae-slider="99550" data-id="5303248" data-element_type="section" data-e-type="section" data-settings="{&quot;stretch_section&quot;:&quot;section-stretched&quot;,&quot;background_background&quot;:&quot;classic&quot;}">
+						<div class="elementor-container elementor-column-gap-default">
+					<div class="has_eae_slider elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-9baf794" data-eae-slider="42454" data-id="9baf794" data-element_type="column" data-e-type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<section class="has_eae_slider elementor-section elementor-inner-section elementor-element elementor-element-ecc8844 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-eae-slider="18616" data-id="ecc8844" data-element_type="section" data-e-type="section">
+						<div class="elementor-container elementor-column-gap-wide">
+					<div class="has_eae_slider elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-11e6f2c" data-eae-slider="57168" data-id="11e6f2c" data-element_type="column" data-e-type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-d3db5a5 elementor-widget elementor-widget-heading" data-id="d3db5a5" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">Propel your medical career by joining the colleges offered by the state of MBBS in Uttar Pradesh.</h2>				</div>
+				<div class="elementor-element elementor-element-e0632a4 elementor-widget elementor-widget-text-editor" data-id="e0632a4" data-element_type="widget" data-e-type="widget" data-widget_type="text-editor.default">
+									<p>Are you ready to pursue a successful medical career in the state of <b>Uttar Pradesh</b>, then look no further as as this state provides with the best way to achieve your dreams</p>								</div>
+				<div class="elementor-element elementor-element-1ca9425 elementor-widget elementor-widget-heading" data-id="1ca9425" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
+					<h3 class="elementor-heading-title elementor-size-default">Contact Us Now!</h3>				</div>
+				<div class=
