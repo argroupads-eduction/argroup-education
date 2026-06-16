@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Menu,
   X,
@@ -28,15 +29,23 @@ import { BrandLogoLink } from '@/components/common/BrandLogoLink';
 import { Button } from '@/components/ui/Button';
 import { useBodyScrollLock, useMegaMenu, useScrollPosition, type MegaMenuId } from '@/hooks';
 
+type NavBarLink = {
+  label: string;
+  href: string;
+  megaMenu?: MegaMenuId;
+  navMenu?: string;
+  submenu?: ReadonlyArray<{ href: string; label: string } & Record<string, unknown>>;
+};
+
 export const Navbar = () => {
   const dynamicPages = useDynamicNavPages();
-  const navLinks = useMemo(() => {
+  const navLinks = useMemo((): NavBarLink[] => {
     const extras = navPagesForSection(dynamicPages, 'main').map((p) => ({
       label: p.label,
       href: p.href,
     }));
     if (!extras.length) return [...NAV_LINKS];
-    const links = [...NAV_LINKS] as Array<(typeof NAV_LINKS)[number] | { label: string; href: string }>;
+    const links: NavBarLink[] = [...NAV_LINKS];
     const contactIndex = links.findIndex((l) => l.href === '/contact');
     const insertAt = contactIndex >= 0 ? contactIndex : links.length;
     links.splice(insertAt, 0, ...extras);
@@ -166,13 +175,12 @@ export const Navbar = () => {
             {/* Logo, contained inside navbar height */}
             <div className="site-navbar-logo" onMouseEnter={forceClose}>
               <BrandLogoLink frameClassName="brand-logo-link__frame--nav-wide">
-                <img
+                <Image
                   src="/ar-group-logo.png"
                   alt="AR Group of Education"
                   width={140}
                   height={56}
-                  decoding="async"
-                  fetchPriority="high"
+                  priority
                   className="brand-logo-link__img"
                 />
               </BrandLogoLink>
@@ -181,7 +189,7 @@ export const Navbar = () => {
             {/* Desktop Menu, xl+ only; tablet uses hamburger menu */}
             <div className="site-navbar-nav relative z-[80] hidden xl:flex">
               <div className="site-navbar-nav-list">
-              {navLinks.map((link: any) => (
+              {navLinks.map((link: NavBarLink) => (
                 <div key={link.href} className={megaGroupClass(link.megaMenu)}>
                   {link.navMenu === 'latest-updates' ? (
                     <LatestUpdatesNavDropdown onCloseMega={forceClose} onNavigate={forceClose} />
@@ -313,7 +321,7 @@ export const Navbar = () => {
           aria-hidden={!isOpen}
         >
             <div className="max-h-[min(85vh,900px)] overflow-y-auto overscroll-contain px-4 py-4 space-y-2">
-              {navLinks.map((link: any) => (
+              {navLinks.map((link: NavBarLink) => (
                 <div key={link.href}>
                   {link.submenu ? (
                     <>
