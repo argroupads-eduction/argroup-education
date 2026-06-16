@@ -7,8 +7,8 @@ import { NeetRankPredictorPromoStrip } from '@/components/neet-rank-predictor/Ne
 import '@/styles/neet-rank-predictor.css';
 import { NavPagesProvider } from '@/components/common/NavPagesProvider';
 import { SiteGlobalsProvider } from '@/components/common/SiteGlobalsProvider';
-import { fetchDynamicNavPages } from '@/lib/dynamicNav';
-import { fetchSiteGlobalsBundle } from '@/lib/siteGlobals';
+import { fetchDynamicNavPages } from '@/lib/dynamicNav.server';
+import { fetchSiteGlobalsBundle } from '@/lib/siteGlobals.server';
 import '@/styles/globals.css';
 import '@/styles/wp-content.css';
 import '@/styles/blog.css';
@@ -110,8 +110,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const navPages = await fetchDynamicNavPages();
-  const siteGlobals = await fetchSiteGlobalsBundle();
+  const [navPages, siteGlobals] = await Promise.all([
+    fetchDynamicNavPages(),
+    fetchSiteGlobalsBundle(),
+  ]);
 
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} ${poppins.variable}`}>

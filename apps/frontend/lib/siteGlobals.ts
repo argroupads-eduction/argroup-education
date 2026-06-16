@@ -64,29 +64,3 @@ export function mergeSocialLinks(
   }
   return [...byPlatform.values()];
 }
-
-function siteGlobalsApiBase(): string {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
-  );
-}
-
-export async function fetchSiteGlobalsBundle(): Promise<SiteGlobalsBundle> {
-  try {
-    const res = await fetch(`${siteGlobalsApiBase()}/api/cms/globals/all`, {
-      next: { revalidate: 300 },
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) return { footer: null, 'site-settings': null };
-    const json = (await res.json()) as { data?: Record<string, unknown> };
-    const map = json.data ?? {};
-    return {
-      footer: (map.footer as FooterGlobalData) ?? null,
-      'site-settings': (map['site-settings'] as SiteSettingsGlobalData) ?? null,
-    };
-  } catch (error) {
-    console.error('[siteGlobals]', error);
-    return { footer: null, 'site-settings': null };
-  }
-}
