@@ -2,6 +2,15 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { NextResponse } from 'next/server'
 
+/** Small marketing images only — must match PUBLIC_MARKETING_ASSETS in next.config.js */
+const ALLOWED_FILES = new Set([
+  'ar-group-logo.png',
+  'india-homepage.jpg',
+  'abroad-homepage.jpg',
+  'about-counsellor.png',
+  'lead-mbbs-doctor.png',
+])
+
 const MIME: Record<string, string> = {
   '.webp': 'image/webp',
   '.jpg': 'image/jpeg',
@@ -23,7 +32,12 @@ export async function GET(
   }
 
   const fileName = segments.map((s) => path.basename(s)).join('/')
-  const publicRoot = path.join(process.cwd(), 'public')
+  if (!ALLOWED_FILES.has(fileName)) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  // Avoid static `public` literal so NFT does not bundle all of public/ (vercel/next.js#45320).
+  const publicRoot = path.join(process.cwd(), Buffer.from('cHVibGlj', 'base64').toString())
   const filePath = path.join(publicRoot, fileName)
 
   if (!filePath.startsWith(publicRoot + path.sep) && filePath !== publicRoot) {
