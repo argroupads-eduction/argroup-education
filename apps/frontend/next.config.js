@@ -30,8 +30,14 @@ const nextConfig = {
   // Monorepo tracing only when repo root is in the deployment bundle.
   ...(outputFileTracingRoot ? { outputFileTracingRoot } : {}),
 
+  // @vercel/nft traces all of public/ when route uses path.join(cwd, 'public') — exclude then re-include only fallbacks.
+  outputFileTracingExcludes: {
+    '/api/public-asset/[...path]': ['./public/**'],
+  },
+
   outputFileTracingIncludes: {
-    '/api/public-asset/[...path]': ['./public/**/*'],
+    // Only the marketing fallbacks — not all of public/ (~787MB wp-content).
+    '/api/public-asset/[...path]': PUBLIC_MARKETING_ASSETS.map((file) => `./public/${file}`),
     '/[slug]': ['./data/wp-export-bundle/**/*'],
     '/blog/[...slug]': ['./data/wp-export-bundle/**/*'],
     '/mbbs-india/[...slug]': ['./data/wp-export-bundle/**/*'],
