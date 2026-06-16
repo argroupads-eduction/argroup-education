@@ -8,7 +8,10 @@ import '@/styles/neet-rank-predictor.css';
 import { NavPagesProvider } from '@/components/common/NavPagesProvider';
 import { SiteGlobalsProvider } from '@/components/common/SiteGlobalsProvider';
 import { fetchDynamicNavPages } from '@/lib/dynamicNav.server';
-import { fetchSiteGlobalsBundle } from '@/lib/siteGlobals.server';
+import {
+  EMPTY_SITE_GLOBALS,
+  fetchSiteGlobalsBundle,
+} from '@/lib/siteGlobals.server';
 import '@/styles/globals.css';
 import '@/styles/wp-content.css';
 import '@/styles/blog.css';
@@ -111,8 +114,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const [navPages, siteGlobals] = await Promise.all([
-    fetchDynamicNavPages(),
-    fetchSiteGlobalsBundle(),
+    fetchDynamicNavPages().catch(() => []),
+    fetchSiteGlobalsBundle().catch(() => EMPTY_SITE_GLOBALS),
   ]);
 
   return (
