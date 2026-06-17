@@ -4,6 +4,8 @@ import { applyMarketingPageSeo } from '@/lib/marketingPageSeo';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
 import { getApiBaseUrl } from '@/lib/apiBase';
+import { hasUsableDatabase } from '@/lib/databaseEnv';
+import { withServerTimeout } from '@/lib/serverTimeout';
 import {
   getPayloadCmsBaseUrl,
   getPayloadCmsServerFetchUrl,
@@ -538,21 +540,44 @@ async function fetchPayloadBlogPosts(limit = 30): Promise<BlogListItem[]> {
 }
 
 async function fetchBackendContentBySlug(slug: string): Promise<SiteContent | null> {
-  try {
-    const res = await fetch(`${apiBase()}/api/content/${encodeURIComponent(slug)}`, {
-      ...(isBackendPrimaryContent()
-        ? { cache: 'no-store' as const }
-        : { next: { revalidate: 3600 } }),
-      signal: AbortSignal.timeout(8000),
-    });
-    if (res.ok) {
-      const json = await res.json();
-      if (json.data) return normalizeContent(json.data as SiteContent);
+  const load = async (): Promise<SiteContent | null> => {
+    if (typeof window === 'undefined' && hasUsableDatabase()) {
+      try {
+        const { getContentBySlug: getBackendContentBySlug } = await import(
+          '@backend/handlers/content'
+        );
+        const result = await getBackendContentBySlug(slug);
+        if ('data' in result && result.data) {
+          const doc = result.data;
+          return normalizeContent({
+            ...doc,
+            publishedAt: doc.publishedAt ? String(doc.publishedAt) : null,
+            updatedAt: String(doc.updatedAt),
+          });
+        }
+      } catch {
+        /* DB offline — fall through to HTTP / bundle */
+      }
     }
-  } catch {
-    /* API offline */
-  }
-  return null;
+
+    try {
+      const res = await fetch(`${apiBase()}/api/content/${encodeURIComponent(slug)}`, {
+        ...(isBackendPrimaryContent()
+          ? { cache: 'no-store' as const }
+          : { next: { revalidate: 3600 } }),
+        signal: AbortSignal.timeout(8000),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) return normalizeContent(json.data as SiteContent);
+      }
+    } catch {
+      /* API offline */
+    }
+    return null;
+  };
+
+  return withServerTimeout(load(), 6000, null);
 }
 
 export async function getContentBySlug(slug: string): Promise<SiteContent | null> {
