@@ -4,46 +4,18 @@ import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
-import { MdMsHub } from '@/components/program-hub/MdMsHub';
 import { getContentBySlug } from '@/lib/contentApi';
 import { getMdMsNavItemById, MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
-import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
-import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type PageProps = {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ slug: string[] }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-
-  if (!slug?.length) {
-    const seo = PROGRAM_HUB_SEO.mdms;
-    const wp = await getContentBySlug(PROGRAM_HUB_WP_SLUG.mdms);
-    if (wp) {
-      return buildSiteMetadata(wp, {
-        canonicalPath: seo.path,
-        fallbackTitle: seo.title,
-      });
-    }
-    return {
-      title: seo.title,
-      description: seo.description,
-      alternates: { canonical: seo.path },
-    };
-  }
-
   const item = getMdMsNavItemById(slug[0]);
   if (!item) return { title: 'MD/MS' };
-
-  const wp = await getContentBySlug(item.wpSlug);
-  if (wp) {
-    return buildSiteMetadata(wp, {
-      canonicalPath: item.href,
-      fallbackTitle: item.label,
-    });
-  }
 
   return {
     title: item.label,
@@ -52,14 +24,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function MdMsPage({ params }: PageProps) {
+export default async function MdMsStatePage({ params }: PageProps) {
   const { slug } = await params;
-
-  if (!slug?.length) {
-    const wpContent = await getContentBySlug(PROGRAM_HUB_WP_SLUG.mdms);
-    return <MdMsHub wpContent={wpContent} />;
-  }
-
   const item = getMdMsNavItemById(slug[0]);
   if (!item) notFound();
 

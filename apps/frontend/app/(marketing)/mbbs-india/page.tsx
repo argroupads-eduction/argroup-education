@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
-import { MbbsAbroadHub } from '@/components/program-hub/MbbsAbroadHub';
+import { MbbsIndiaHub } from '@/components/program-hub/MbbsIndiaHub';
 import { PROGRAM_HUB_SEO } from '@/lib/programHubContent';
 
 export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const seo = PROGRAM_HUB_SEO.abroad;
+  const seo = PROGRAM_HUB_SEO.india;
   return {
     title: seo.title,
     description: seo.description,
@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** Hub index — explicit route avoids optional catch-all / [slug] redirect conflicts. */
-export default function MbbsAbroadHubPage() {
-  return <MbbsAbroadHub seoContent={null} />;
+/** Hub index — explicit route avoids optional catch-all conflicts on Vercel. */
+export default function MbbsIndiaHubPage() {
+  return <MbbsIndiaHub wpContent={null} />;
 }

@@ -14,7 +14,6 @@ import {
 } from '@/lib/mbbsAbroadTree';
 import { resolveCollegeFeaturedImage } from '@/lib/collegeFeaturedImage';
 import { resolveMbbsAbroadFeaturedImage } from '@/lib/mbbsAbroadCountryImages';
-import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type PageProps = {
@@ -25,21 +24,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const country = getMbbsAbroadCountryById(slug[0]);
   if (!country) return { title: 'MBBS Abroad' };
-
-  const wp = country.wpSlug ? await getContentBySlug(country.wpSlug) : null;
-  if (wp) {
-    const featuredImage = resolveMbbsAbroadFeaturedImage(
-      country.wpSlug,
-      country.featuredImage ?? wp.featuredImage
-    );
-    return buildSiteMetadata(
-      { ...wp, featuredImage, ogImage: featuredImage ?? wp.ogImage },
-      {
-        canonicalPath: country.href,
-        fallbackTitle: `MBBS in ${country.name}`,
-      }
-    );
-  }
 
   return {
     title: `MBBS in ${country.name}`,
