@@ -21,6 +21,25 @@ const MIME: Record<string, string> = {
   '.ico': 'image/x-icon',
 }
 
+/** Explicit paths so @vercel/nft traces only these files, not all of public/. */
+function assetPath(fileName: string): string | null {
+  const root = process.cwd()
+  switch (fileName) {
+    case 'ar-group-logo.png':
+      return path.join(root, 'public', 'ar-group-logo.png')
+    case 'india-homepage.jpg':
+      return path.join(root, 'public', 'india-homepage.jpg')
+    case 'abroad-homepage.jpg':
+      return path.join(root, 'public', 'abroad-homepage.jpg')
+    case 'about-counsellor.png':
+      return path.join(root, 'public', 'about-counsellor.png')
+    case 'lead-mbbs-doctor.png':
+      return path.join(root, 'public', 'lead-mbbs-doctor.png')
+    default:
+      return null
+  }
+}
+
 /** Serve /public files when Vercel static layer omits public/ (wrong Output Directory). */
 export async function GET(
   _request: Request,
@@ -36,12 +55,9 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  // Avoid static `public` literal so NFT does not bundle all of public/ (vercel/next.js#45320).
-  const publicRoot = path.join(process.cwd(), Buffer.from('cHVibGlj', 'base64').toString())
-  const filePath = path.join(publicRoot, fileName)
-
-  if (!filePath.startsWith(publicRoot + path.sep) && filePath !== publicRoot) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const filePath = assetPath(fileName)
+  if (!filePath) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
   try {
