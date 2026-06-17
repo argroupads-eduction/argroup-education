@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { sortBlogPostsByNewest } from '@/lib/blogUtils';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { applyMarketingPageSeo } from '@/lib/marketingPageSeo';
@@ -593,7 +594,9 @@ async function loadBundledContent(slug: string): Promise<SiteContent | null> {
   return null;
 }
 
-export async function getContentBySlug(slug: string): Promise<SiteContent | null> {
+export const getContentBySlug = cache(async function getContentBySlug(
+  slug: string
+): Promise<SiteContent | null> {
   const backendFirst = isBackendPrimaryContent();
 
   if (backendFirst) {
@@ -614,7 +617,7 @@ export async function getContentBySlug(slug: string): Promise<SiteContent | null
   }
 
   return loadBundledContent(slug);
-}
+});
 
 export async function getBlogPosts(page = 1, limit = 12): Promise<{
   data: BlogListItem[];
