@@ -9,9 +9,10 @@ type BrandLogoLinkProps = {
   frameClassName?: string;
 };
 
-/** Logo click → home with full page load (header & footer). */
+/** Logo click → home with full page load (header & footer). Modifier/middle-click opens a new tab. */
 export function BrandLogoLink({ children, className = '', frameClassName = '' }: BrandLogoLinkProps) {
   const goHomeReload = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     e.preventDefault();
     window.location.href = '/';
   };
