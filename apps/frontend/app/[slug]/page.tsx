@@ -29,7 +29,6 @@ const LEGACY_HUB_SLUG_REDIRECTS: Record<string, string> = {
   [PROGRAM_HUB_WP_SLUG.india]: PROGRAM_HUB_SEO.india.path,
   [PROGRAM_HUB_WP_SLUG.mdms]: PROGRAM_HUB_SEO.mdms.path,
   'mbbs-in-abroad': PROGRAM_HUB_SEO.abroad.path,
-  'mbbs-in-india': PROGRAM_HUB_SEO.india.path,
 };
 
 /** Cache published pages; bust on Payload sync via /api/revalidate */
