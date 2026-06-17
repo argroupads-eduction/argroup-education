@@ -2,6 +2,7 @@ import { cache } from 'react';
 import { sortBlogPostsByNewest } from '@/lib/blogUtils';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { applyMarketingPageSeo } from '@/lib/marketingPageSeo';
+import { resolveBlogFeaturedImage } from '@/lib/blogFeaturedImages';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
 import { getApiBaseUrl } from '@/lib/apiBase';
@@ -50,16 +51,21 @@ export interface BlogListItem {
 }
 
 function normalizeContent(doc: SiteContent): SiteContent {
+  const featuredImage = resolveBlogFeaturedImage(
+    doc.slug,
+    resolveWpMediaUrl(doc.featuredImage)
+  );
+
   return applyMarketingPageSeo({
     ...doc,
     title: plainTextFromHtml(doc.title),
     excerpt: plainTextFromHtml(doc.excerpt),
-    featuredImage: resolveWpMediaUrl(doc.featuredImage),
+    featuredImage,
     metaTitle: doc.metaTitle ? plainTextFromHtml(doc.metaTitle) : null,
     metaDescription: doc.metaDescription ? plainTextFromHtml(doc.metaDescription) : null,
     ogTitle: doc.ogTitle ? plainTextFromHtml(doc.ogTitle) : null,
     ogDescription: doc.ogDescription ? plainTextFromHtml(doc.ogDescription) : null,
-    ogImage: resolveWpMediaUrl(doc.ogImage),
+    ogImage: resolveWpMediaUrl(doc.ogImage) ?? featuredImage,
     twitterTitle: doc.twitterTitle ? plainTextFromHtml(doc.twitterTitle) : null,
     twitterDescription: doc.twitterDescription
       ? plainTextFromHtml(doc.twitterDescription)
@@ -72,7 +78,7 @@ function normalizeBlogItem(doc: BlogListItem): BlogListItem {
     ...doc,
     title: plainTextFromHtml(doc.title),
     excerpt: plainTextFromHtml(doc.excerpt),
-    featuredImage: resolveWpMediaUrl(doc.featuredImage),
+    featuredImage: resolveBlogFeaturedImage(doc.slug, resolveWpMediaUrl(doc.featuredImage)),
   };
 }
 
