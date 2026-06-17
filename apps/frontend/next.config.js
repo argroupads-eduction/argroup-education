@@ -33,6 +33,8 @@ const nextConfig = {
   // @vercel/nft traces all of public/ when route uses dynamic path.join(cwd, 'public', …) — exclude then re-include only fallbacks.
   outputFileTracingExcludes: {
     '/api/public-asset/[...path]': ['./public/**'],
+    // wp-media must NOT bundle public/wp-content (~763MB). Static files deploy via public/; API proxies on miss.
+    '/api/wp-media/[...path]': ['./public/**', '../../_uploads/**'],
   },
 
   outputFileTracingIncludes: {
@@ -50,7 +52,6 @@ const nextConfig = {
     '/api/cms/payload-sync': ['../../node_modules/.prisma/client/**/*'],
     '/api/leads/submit': ['../../node_modules/.prisma/client/**/*'],
     '/api/newsletter/subscribe': ['../../node_modules/.prisma/client/**/*'],
-    '/api/wp-media/[...path]': ['./public/wp-content/**/*', '../../_uploads/**/*'],
   },
 
   images: {
