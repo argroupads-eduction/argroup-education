@@ -5,7 +5,7 @@ import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { MbbsIndiaHub } from '@/components/program-hub/MbbsIndiaHub';
-import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
+import { PROGRAM_HUB_SEO } from '@/lib/programHubContent';
 import { MbbsIndiaStateGrid } from '@/components/mbbs-india/MbbsIndiaStateGrid';
 import { getContentBySlug } from '@/lib/contentApi';
 import { MBBS_INDIA_STATES, getMbbsIndiaStateBySlugPart } from '@/lib/mbbsIndiaTree';
@@ -21,13 +21,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   if (!slug?.length) {
     const seo = PROGRAM_HUB_SEO.india;
-    const wp = await getContentBySlug(PROGRAM_HUB_WP_SLUG.india);
-    if (wp) {
-      return buildSiteMetadata(wp, {
-        canonicalPath: seo.path,
-        fallbackTitle: seo.title,
-      });
-    }
     return {
       title: seo.title,
       description: seo.description,
@@ -61,8 +54,7 @@ export default async function MbbsIndiaPage({ params }: PageProps) {
   const { slug } = await params;
 
   if (!slug?.length) {
-    const wpContent = await getContentBySlug(PROGRAM_HUB_WP_SLUG.india);
-    return <MbbsIndiaHub wpContent={wpContent} />;
+    return <MbbsIndiaHub wpContent={null} />;
   }
 
   const state = getMbbsIndiaStateBySlugPart(slug[0]);
