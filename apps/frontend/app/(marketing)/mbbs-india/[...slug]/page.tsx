@@ -4,44 +4,20 @@ import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
-import { MbbsIndiaHub } from '@/components/program-hub/MbbsIndiaHub';
-import { PROGRAM_HUB_SEO } from '@/lib/programHubContent';
 import { MbbsIndiaStateGrid } from '@/components/mbbs-india/MbbsIndiaStateGrid';
 import { getContentBySlug } from '@/lib/contentApi';
 import { MBBS_INDIA_STATES, getMbbsIndiaStateBySlugPart } from '@/lib/mbbsIndiaTree';
 import { resolveMbbsIndiaFeaturedImage } from '@/lib/mbbsIndiaStateImages';
-import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type PageProps = {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ slug: string[] }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  if (!slug?.length) {
-    const seo = PROGRAM_HUB_SEO.india;
-    return {
-      title: seo.title,
-      description: seo.description,
-      alternates: { canonical: seo.path },
-    };
-  }
-
   const state = getMbbsIndiaStateBySlugPart(slug[0]);
   if (!state) return { title: 'MBBS India' };
-
-  const wp = state.wpSlug ? await getContentBySlug(state.wpSlug) : null;
-  if (wp) {
-    const featuredImage = resolveMbbsIndiaFeaturedImage(state.wpSlug, wp.featuredImage);
-    return buildSiteMetadata(
-      { ...wp, featuredImage, ogImage: featuredImage ?? wp.ogImage },
-      {
-        canonicalPath: state.href,
-        fallbackTitle: `MBBS in ${state.name}`,
-      }
-    );
-  }
 
   return {
     title: `MBBS in ${state.name}`,
@@ -50,13 +26,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function MbbsIndiaPage({ params }: PageProps) {
+export default async function MbbsIndiaStatePage({ params }: PageProps) {
   const { slug } = await params;
-
-  if (!slug?.length) {
-    return <MbbsIndiaHub wpContent={null} />;
-  }
-
   const state = getMbbsIndiaStateBySlugPart(slug[0]);
   if (!state) notFound();
 

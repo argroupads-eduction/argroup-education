@@ -597,6 +597,17 @@ async function loadBundledContent(slug: string): Promise<SiteContent | null> {
 export const getContentBySlug = cache(async function getContentBySlug(
   slug: string
 ): Promise<SiteContent | null> {
+  // Vercel: serve committed wp-export-bundle first so pages open instantly (DB can be slow).
+  if (process.env.VERCEL === '1') {
+    const bundled = await loadBundledContent(slug);
+    if (bundled) return bundled;
+
+    const fromApi = await fetchBackendContentBySlug(slug);
+    if (fromApi) return fromApi;
+
+    return withServerTimeout(fetchPayloadContentBySlug(slug), 3000, null);
+  }
+
   const backendFirst = isBackendPrimaryContent();
 
   if (backendFirst) {
