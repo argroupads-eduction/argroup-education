@@ -83,7 +83,37 @@ async function readFileUnderRoot(root: string, relativePath: string): Promise<Bu
   }
 }
 
+/** On Vercel, bundled media lives in public/ as static files — fetch via /wp-content/ (not bundled into this function). */
+async function readStaticFromDeployment(relativePath: string): Promise<Buffer | null> {
+  const origin = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || null;
+  if (!origin) return null;
+
+  const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
+  const url = encodeWpContentUrl(origin, safe);
+
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: 'image/*,*/*' },
+      signal: AbortSignal.timeout(15_000),
+      redirect: 'follow',
+      cache: 'force-cache',
+    });
+    if (!res.ok || !res.body) return null;
+    const contentType = res.headers.get('content-type') ?? '';
+    if (contentType.includes('application/json')) return null;
+    return Buffer.from(await res.arrayBuffer());
+  } catch {
+    return null;
+  }
+}
+
 async function readLocalWpMedia(relativePath: string): Promise<Buffer | null> {
+  if (process.env.VERCEL) {
+    return readStaticFromDeployment(relativePath);
+  }
+
   const publicRoot = path.join(process.cwd(), 'public', 'wp-content');
   const fromPublic = await readFileUnderRoot(publicRoot, relativePath);
   if (fromPublic) return fromPublic;
