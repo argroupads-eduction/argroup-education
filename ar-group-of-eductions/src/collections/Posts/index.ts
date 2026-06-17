@@ -96,10 +96,10 @@ export const Posts: CollectionConfig<'posts'> = {
               label: 'Imported HTML (legacy)',
               admin: {
                 language: 'html',
-                hidden: ({ data }) => {
+                condition: (data) => {
                   const html = typeof data?.htmlContent === 'string' ? data.htmlContent : ''
-                  if (!html.trim()) return true
-                  return !/<(div|p|h[1-6]|table|section|article|ul|ol)\b/i.test(html)
+                  if (!html.trim()) return false
+                  return /<(div|p|h[1-6]|table|section|article|ul|ol)\b/i.test(html)
                 },
                 description:
                   'Shown only for WordPress-imported posts. New posts use the visual editor above.',
