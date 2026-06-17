@@ -2,6 +2,7 @@
 export const BLOG_FEATURED_IMAGES: Record<string, string> = {
   'neet-re-exam-2026-vs-original-exam-which-is-tougher':
     '/images/blog/neet-re-exam-2026-vs-original-exam-which-is-tougher.png',
+  'study-low-cost-mbbs-in-india': '/images/blog/study-low-cost-mbbs-in-india.png',
 };
 
 export function resolveBlogFeaturedImage(
