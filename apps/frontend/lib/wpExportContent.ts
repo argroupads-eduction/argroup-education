@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { BlogListItem, SiteContent } from '@/lib/contentApi';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
+import { extractFirstContentImage } from '@/lib/wpHtmlPrepare';
 
 type WpExportDoc = {
   wpId?: number;
@@ -136,7 +137,7 @@ function wpExportPostsToBlogList(posts: WpExportDoc[]): BlogListItem[] {
       title: normalizeText(doc.title),
       slug: doc.slug,
       excerpt: normalizeText(doc.excerpt),
-      featuredImage: doc.featuredImage ?? null,
+      featuredImage: doc.featuredImage ?? extractFirstContentImage(doc.content) ?? null,
       category: 'Blog',
       publishedAt: doc.date ?? doc.modified ?? new Date().toISOString(),
     }));

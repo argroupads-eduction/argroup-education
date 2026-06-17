@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { BlogPostLayout } from '@/components/blog/BlogPostLayout';
 import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
-import { slugFromBlogRouteSegments } from '@/lib/blogUtils';
+import { blogPostPath, BLOG_SLUG_CANONICAL, slugFromBlogRouteSegments } from '@/lib/blogUtils';
 import { getBlogPosts, getContentBySlug } from '@/lib/contentApi';
 
 export const revalidate = 300;
@@ -26,6 +26,11 @@ export default async function BlogSlugPage({ params }: PageProps) {
   const { slug: segments } = await params;
   const decoded = slugFromBlogRouteSegments(segments ?? []);
   if (!decoded) notFound();
+
+  const canonical = BLOG_SLUG_CANONICAL[decoded];
+  if (canonical) {
+    redirect(blogPostPath(canonical));
+  }
 
   const content = await getContentBySlug(decoded);
   if (!content || content.type !== 'post') {

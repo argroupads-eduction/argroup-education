@@ -1,4 +1,46 @@
+import type { BlogListItem } from '@/lib/contentApi';
 import { metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
+
+/** Legacy duplicate slugs hidden from blog index (canonical slug kept). */
+export const BLOG_EXCLUDED_LIST_SLUGS = new Set([
+  'neet-re-exam-2026-vs-original-exam',
+]);
+
+/** Short / legacy blog slugs → canonical published slug. */
+export const BLOG_SLUG_CANONICAL: Record<string, string> = {
+  'neet-re-exam-2026-vs-original-exam':
+    'neet-re-exam-2026-vs-original-exam-which-is-tougher',
+};
+
+function normalizeBlogTitleKey(title: string): string {
+  return title
+    .replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, '')
+    .replace(/^[^\p{L}\p{N}]+/u, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function pickBetterBlogPost(a: BlogListItem, b: BlogListItem): BlogListItem {
+  if (a.featuredImage && !b.featuredImage) return a;
+  if (b.featuredImage && !a.featuredImage) return b;
+  if (a.slug.length !== b.slug.length) return a.slug.length > b.slug.length ? a : b;
+  return new Date(b.publishedAt).getTime() >= new Date(a.publishedAt).getTime() ? b : a;
+}
+
+/** Drop known duplicate slugs and collapse same-title CMS re-imports. */
+export function dedupeBlogPosts(posts: BlogListItem[]): BlogListItem[] {
+  const withoutExcluded = posts.filter((p) => !BLOG_EXCLUDED_LIST_SLUGS.has(p.slug));
+  const byTitle = new Map<string, BlogListItem>();
+
+  for (const post of withoutExcluded) {
+    const key = normalizeBlogTitleKey(post.title);
+    const prev = byTitle.get(key);
+    byTitle.set(key, prev ? pickBetterBlogPost(prev, post) : post);
+  }
+
+  return [...byTitle.values()];
+}
 
 /** Newest first — featured slot uses index 0. */
 export function sortBlogPostsByNewest<T extends { publishedAt: string }>(posts: T[]): T[] {

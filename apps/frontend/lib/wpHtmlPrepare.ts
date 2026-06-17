@@ -1589,3 +1589,14 @@ export function metaDescriptionFromContent(
   if (base.length <= max) return base;
   return `${base.slice(0, max - 1).trim()}…`;
 }
+
+/** First hero/body image from migrated WordPress HTML. */
+export function extractFirstContentImage(html: string | null | undefined): string | null {
+  if (!html) return null;
+  const elementor = html.match(
+    /elementor-widget-image[\s\S]{0,1200}?<img[^>]+src=["']([^"']+)["']/i
+  );
+  if (elementor?.[1]) return elementor[1];
+  const any = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return any?.[1] ?? null;
+}

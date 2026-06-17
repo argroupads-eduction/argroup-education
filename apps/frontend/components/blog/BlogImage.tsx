@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 type BlogImageProps = {
@@ -16,20 +15,20 @@ const variantClass: Record<BlogImageProps['variant'], string> = {
   hero: 'blog-image-frame--hero',
 };
 
-/** Full image visible, never cropped (object-contain). */
+/** Full image visible, never cropped (object-contain). Native img avoids Next/Image remote restrictions. */
 export function BlogImage({ src, alt, variant, priority, sizes }: BlogImageProps) {
   const resolvedSrc = resolveWpMediaUrl(src) ?? src;
 
   return (
     <div className={`blog-image-frame ${variantClass[variant]}`}>
-      <Image
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src={resolvedSrc}
         alt={alt}
-        fill
-        className="object-contain object-center"
+        className="absolute inset-0 h-full w-full object-contain object-center"
+        loading={priority ? 'eager' : 'lazy'}
+        decoding="async"
         sizes={sizes}
-        unoptimized
-        priority={priority}
       />
     </div>
   );

@@ -1,9 +1,10 @@
 import { cache } from 'react';
-import { sortBlogPostsByNewest } from '@/lib/blogUtils';
+import { sortBlogPostsByNewest, dedupeBlogPosts } from '@/lib/blogUtils';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { applyMarketingPageSeo } from '@/lib/marketingPageSeo';
 import { resolveBlogFeaturedImage } from '@/lib/blogFeaturedImages';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
+import { extractFirstContentImage } from '@/lib/wpHtmlPrepare';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
 import { getApiBaseUrl } from '@/lib/apiBase';
 import { hasUsableDatabase } from '@/lib/databaseEnv';
@@ -51,9 +52,12 @@ export interface BlogListItem {
 }
 
 function normalizeContent(doc: SiteContent): SiteContent {
+  const wpResolved = resolveWpMediaUrl(doc.featuredImage);
+  const fromContent =
+    doc.type === 'post' && !wpResolved ? extractFirstContentImage(doc.content) : null;
   const featuredImage = resolveBlogFeaturedImage(
     doc.slug,
-    resolveWpMediaUrl(doc.featuredImage)
+    wpResolved ?? (fromContent ? resolveWpMediaUrl(fromContent) : null)
   );
 
   return applyMarketingPageSeo({
@@ -636,6 +640,47 @@ export const getContentBySlug = cache(async function getContentBySlug(
   return loadBundledContent(slug);
 });
 
+function mergeBlogListItem(
+  existing: BlogListItem | undefined,
+  incoming: BlogListItem
+): BlogListItem {
+  const next = normalizeBlogItem(incoming);
+  if (!existing) return next;
+  const prev = normalizeBlogItem(existing);
+  return {
+    ...next,
+    featuredImage: next.featuredImage ?? prev.featuredImage,
+  };
+}
+
+async function fetchAllBlogPostsFromApi(): Promise<BlogListItem[]> {
+  const items: BlogListItem[] = [];
+  let page = 1;
+  let totalPages = 1;
+
+  while (page <= totalPages && page <= 20) {
+    try {
+      const res = await fetch(`${apiBase()}/api/blogs?page=${page}&limit=50`, {
+        ...(isBackendPrimaryContent()
+          ? { cache: 'no-store' as const }
+          : { next: { revalidate: 600 } }),
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!res.ok) break;
+      const json = await res.json();
+      totalPages = Math.max(1, Number(json.pages) || 1);
+      for (const item of json.data ?? []) {
+        items.push(item as BlogListItem);
+      }
+      page += 1;
+    } catch {
+      break;
+    }
+  }
+
+  return items;
+}
+
 export async function getBlogPosts(page = 1, limit = 12): Promise<{
   data: BlogListItem[];
   total: number;
@@ -648,24 +693,18 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   try {
     const { getAllWpExportBlogPosts } = await import('@/lib/wpExportContent');
     for (const item of await getAllWpExportBlogPosts()) {
-      mergedBySlug.set(item.slug, item);
+      mergedBySlug.set(item.slug, mergeBlogListItem(undefined, item));
     }
   } catch {
     /* bundle optional */
   }
 
   try {
-    const res = await fetch(`${apiBase()}/api/blogs?page=1&limit=50`, {
-      ...(isBackendPrimaryContent()
-        ? { cache: 'no-store' as const }
-        : { next: { revalidate: 600 } }),
-      signal: AbortSignal.timeout(8000),
-    });
-    if (res.ok) {
-      const json = await res.json();
-      for (const item of json.data ?? []) {
-        mergedBySlug.set(item.slug, normalizeBlogItem(item as BlogListItem));
-      }
+    for (const item of await fetchAllBlogPostsFromApi()) {
+      mergedBySlug.set(
+        item.slug,
+        mergeBlogListItem(mergedBySlug.get(item.slug), item)
+      );
     }
   } catch {
     /* API optional */
@@ -673,10 +712,15 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
 
   if (!isBackendPrimaryContent()) {
     const payloadPosts = await fetchPayloadBlogPosts(200);
-    for (const item of payloadPosts) mergedBySlug.set(item.slug, item);
+    for (const item of payloadPosts) {
+      mergedBySlug.set(
+        item.slug,
+        mergeBlogListItem(mergedBySlug.get(item.slug), item)
+      );
+    }
   }
 
-  const merged = sortBlogPostsByNewest(Array.from(mergedBySlug.values()));
+  const merged = sortBlogPostsByNewest(dedupeBlogPosts(Array.from(mergedBySlug.values())));
   const total = merged.length;
   const pages = Math.max(1, Math.ceil(total / safeLimit));
   const offset = (safePage - 1) * safeLimit;
