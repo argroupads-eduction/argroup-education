@@ -556,8 +556,9 @@ async function fetchBackendContentBySlug(slug: string): Promise<SiteContent | nu
           });
         }
       } catch {
-        /* DB offline — fall through to HTTP / bundle */
+        /* DB offline */
       }
+      return null;
     }
 
     try {
@@ -580,23 +581,7 @@ async function fetchBackendContentBySlug(slug: string): Promise<SiteContent | nu
   return withServerTimeout(load(), 6000, null);
 }
 
-export async function getContentBySlug(slug: string): Promise<SiteContent | null> {
-  const backendFirst = isBackendPrimaryContent();
-
-  if (backendFirst) {
-    const fromApi = await fetchBackendContentBySlug(slug);
-    if (fromApi) return fromApi;
-
-    const fromPayload = await fetchPayloadContentBySlug(slug);
-    if (fromPayload) return fromPayload;
-  } else {
-    const fromPayload = await fetchPayloadContentBySlug(slug);
-    if (fromPayload) return fromPayload;
-
-    const fromApi = await fetchBackendContentBySlug(slug);
-    if (fromApi) return fromApi;
-  }
-
+async function loadBundledContent(slug: string): Promise<SiteContent | null> {
   const { getWpExportContentBySlug } = await import('@/lib/wpExportContent');
   const local = await getWpExportContentBySlug(slug);
   if (local) return normalizeContent(local);
@@ -606,6 +591,29 @@ export async function getContentBySlug(slug: string): Promise<SiteContent | null
   if (fallback) return normalizeContent(fallback);
 
   return null;
+}
+
+export async function getContentBySlug(slug: string): Promise<SiteContent | null> {
+  const backendFirst = isBackendPrimaryContent();
+
+  if (backendFirst) {
+    const fromApi = await fetchBackendContentBySlug(slug);
+    if (fromApi) return fromApi;
+
+    const bundled = await loadBundledContent(slug);
+    if (bundled) return bundled;
+
+    const fromPayload = await withServerTimeout(fetchPayloadContentBySlug(slug), 5000, null);
+    if (fromPayload) return fromPayload;
+  } else {
+    const fromPayload = await withServerTimeout(fetchPayloadContentBySlug(slug), 5000, null);
+    if (fromPayload) return fromPayload;
+
+    const fromApi = await fetchBackendContentBySlug(slug);
+    if (fromApi) return fromApi;
+  }
+
+  return loadBundledContent(slug);
 }
 
 export async function getBlogPosts(page = 1, limit = 12): Promise<{
