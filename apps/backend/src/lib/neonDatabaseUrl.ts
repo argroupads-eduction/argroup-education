@@ -50,6 +50,27 @@ export function isPrismaConnectionError(err: unknown): boolean {
   );
 }
 
+/** Neon quota / plan expired / pool unavailable — skip DB and email lead directly. */
+export function isDatabaseUnavailableError(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const e = err as { code?: string; message?: string; name?: string };
+  const msg = String(e.message ?? err);
+  if (isPrismaConnectionError(err)) return true;
+  return (
+    e.code === 'P1000' ||
+    e.code === 'P1002' ||
+    e.code === 'P1008' ||
+    e.code === 'P1011' ||
+    e.name === 'PrismaClientInitializationError' ||
+    /can't reach database/i.test(msg) ||
+    /database server.*not.*running/i.test(msg) ||
+    /compute time quota/i.test(msg) ||
+    /project.*(suspended|inactive|disabled)/i.test(msg) ||
+    /quota.*exceeded/i.test(msg) ||
+    /ECONNREFUSED|ETIMEDOUT|ENOTFOUND/i.test(msg)
+  );
+}
+
 /** Background pool noise when Neon closes idle TCP connections — not a user-facing failure. */
 export function isBenignPrismaConnectionLog(message: string): boolean {
   return (

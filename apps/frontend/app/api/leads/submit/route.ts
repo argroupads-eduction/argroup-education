@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { submitWebsiteLead, type WebsiteLeadInput } from '@backend/handlers/websiteLead';
-import { scheduleLeadEmailDelivery } from '@/lib/scheduleLeadEmail';
+import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    scheduleLeadEmailDelivery(result.id);
+    deliverLeadEmailAfterSubmit(result);
 
     return NextResponse.json(
       {

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { submitWebsiteLead } from '@backend/handlers/websiteLead';
 import { prisma, withPrismaRetry } from '@backend/lib/prisma';
-import { scheduleLeadEmailDelivery } from '@/lib/scheduleLeadEmail';
+import { isDatabaseUnavailableError } from '@backend/lib/neonDatabaseUrl';
+import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -21,13 +22,18 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await withPrismaRetry(() =>
-      prisma.subscriber.upsert({
-        where: { email },
-        create: { email },
-        update: { active: true, unsubscribedAt: null },
-      })
-    );
+    try {
+      await withPrismaRetry(() =>
+        prisma.subscriber.upsert({
+          where: { email },
+          create: { email },
+          update: { active: true, unsubscribedAt: null },
+        })
+      );
+    } catch (err) {
+      if (!isDatabaseUnavailableError(err)) throw err;
+      console.warn('[newsletter] subscriber save skipped (DB unavailable)');
+    }
 
     const result = await submitWebsiteLead(
       {
@@ -44,7 +50,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: result.message }, { status: result.status });
     }
 
-    scheduleLeadEmailDelivery(result.id);
+    deliverLeadEmailAfterSubmit(result);
 
     return NextResponse.json({ success: true, message: 'Successfully subscribed to newsletter!' });
   } catch (error) {

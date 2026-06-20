@@ -6,7 +6,8 @@ import type { NeetCategory } from '@/lib/neetRankPredictor/types';
 import { validatePersonName } from '@/lib/validatePersonName';
 import { prisma, withPrismaRetry } from '@backend/lib/prisma';
 import { submitWebsiteLead, isDuplicateWebsiteLead, DUPLICATE_LEAD_MESSAGE } from '@backend/handlers/websiteLead';
-import { scheduleLeadEmailDelivery } from '@/lib/scheduleLeadEmail';
+import { isDatabaseUnavailableError } from '@backend/lib/neonDatabaseUrl';
+import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -99,7 +100,14 @@ export async function POST(req: NextRequest) {
   };
 
   try {
-    if (await isDuplicateWebsiteLead(email, phone)) {
+    let duplicate = false;
+    try {
+      duplicate = await isDuplicateWebsiteLead(email, phone);
+    } catch (err) {
+      if (!isDatabaseUnavailableError(err)) throw err;
+      console.warn('[neet-rank-predictor] duplicate check skipped (DB unavailable)');
+    }
+    if (duplicate) {
       return NextResponse.json({ message: DUPLICATE_LEAD_MESSAGE }, { status: 409 });
     }
 
@@ -140,7 +148,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: leadResult.message }, { status: leadResult.status });
     }
 
-    scheduleLeadEmailDelivery(leadResult.id);
+    deliverLeadEmailAfterSubmit(leadResult);
 
     return NextResponse.json({
       ok: true,

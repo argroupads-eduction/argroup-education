@@ -11,3 +11,16 @@ export function scheduleLeadEmailDelivery(leadId: string): void {
     }
   });
 }
+
+type LeadSubmitResult = {
+  id: string;
+  emailSent?: boolean;
+  emailDeferred?: boolean;
+  emailOnly?: boolean;
+};
+
+/** Schedule deferred email only when lead was saved to DB (not email-only fallback). */
+export function deliverLeadEmailAfterSubmit(result: LeadSubmitResult): void {
+  if (result.emailOnly || result.emailSent) return;
+  if (result.emailDeferred) scheduleLeadEmailDelivery(result.id);
+}
