@@ -1,4 +1,5 @@
 import { prisma, withPrismaRetry } from '../lib/prisma';
+import { isDatabaseUnavailableError } from '../lib/neonDatabaseUrl';
 import { sendLeadNotificationEmail } from '../lib/leadEmail';
 
 export const DUPLICATE_LEAD_MESSAGE =
@@ -196,13 +197,18 @@ export async function submitWebsiteLead(
   const emailKey = normalizeLeadEmail(email);
   const phoneKey = normalizeLeadPhoneKey(phone);
 
-  if (emailKey && phoneKey && (await isDuplicateWebsiteLead(email, phone))) {
-    return {
-      ok: false as const,
-      status: 409,
-      duplicate: true as const,
-      message: DUPLICATE_LEAD_MESSAGE,
-    };
+  try {
+    if (emailKey && phoneKey && (await isDuplicateWebsiteLead(email, phone))) {
+      return {
+        ok: false as const,
+        status: 409,
+        duplicate: true as const,
+        message: DUPLICATE_LEAD_MESSAGE,
+      };
+    }
+  } catch (error) {
+    if (!isDatabaseUnavailableError(error)) throw error;
+    console.warn('[website-lead] duplicate check skipped (DB unavailable)');
   }
 
   let lead;
@@ -218,32 +224,63 @@ export async function submitWebsiteLead(
   };
 
   try {
-    lead = await withPrismaRetry(() =>
-      prisma.websiteFormLead.create({
-        data: {
-          ...baseData,
-          emailKey,
-          phoneKey,
-        },
-      })
-    );
-  } catch (error) {
-    if (isMissingLeadKeyColumns(error)) {
+    try {
       lead = await withPrismaRetry(() =>
         prisma.websiteFormLead.create({
-          data: baseData,
+          data: {
+            ...baseData,
+            emailKey,
+            phoneKey,
+          },
         })
       );
-    } else if (emailKey && phoneKey && isPrismaUniqueViolation(error)) {
+    } catch (error) {
+      if (isMissingLeadKeyColumns(error)) {
+        lead = await withPrismaRetry(() =>
+          prisma.websiteFormLead.create({
+            data: baseData,
+          })
+        );
+      } else if (emailKey && phoneKey && isPrismaUniqueViolation(error)) {
+        return {
+          ok: false as const,
+          status: 409,
+          duplicate: true as const,
+          message: DUPLICATE_LEAD_MESSAGE,
+        };
+      } else {
+        throw error;
+      }
+    }
+  } catch (error) {
+    if (!isDatabaseUnavailableError(error)) throw error;
+    console.warn('[website-lead] DB save failed — sending email only:', error);
+
+    const emailResult = await sendLeadEmailWithRetry({
+      source: input.source,
+      formName: input.formName,
+      fields,
+      pageUrl: input.pageUrl,
+    });
+
+    if (!emailResult.sent) {
       return {
         ok: false as const,
-        status: 409,
-        duplicate: true as const,
-        message: DUPLICATE_LEAD_MESSAGE,
+        status: 503,
+        message:
+          'Could not deliver your enquiry right now. Please call +91-7076909090 or email argroupads@gmail.com.',
       };
-    } else {
-      throw error;
     }
+
+    return {
+      ok: true as const,
+      status: 201,
+      id: `email-${Date.now()}`,
+      emailSent: true,
+      emailDeferred: false,
+      emailOnly: true as const,
+      message: 'Thank you! We received your details and will contact you soon.',
+    };
   }
 
   if (options?.deferEmail) {

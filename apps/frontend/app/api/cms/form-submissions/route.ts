@@ -3,7 +3,7 @@ import { getPayloadCmsServerFetchUrl } from '@/lib/payloadCmsUrl';
 import { validateSubmissionDataNames } from '@/lib/validatePersonName';
 import { submissionDataToFields } from '@/lib/submitWebsiteLead';
 import { submitWebsiteLead } from '@backend/handlers/websiteLead';
-import { scheduleLeadEmailDelivery } from '@/lib/scheduleLeadEmail';
+import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       if (!leadResult.ok) {
         return NextResponse.json({ message: leadResult.message }, { status: leadResult.status });
       }
-      scheduleLeadEmailDelivery(leadResult.id);
+      deliverLeadEmailAfterSubmit(leadResult);
     } catch (error) {
       console.error('[form-submissions] lead save failed:', error);
       return NextResponse.json({ message: 'Could not save your enquiry' }, { status: 500 });
