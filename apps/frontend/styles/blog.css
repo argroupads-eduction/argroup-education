@@ -254,7 +254,9 @@
 }
 
 .blog-image-frame--featured {
-  min-height: 280px;
+  min-height: 0;
+  height: auto;
+  background: transparent;
 }
 
 .blog-image-frame--compact {
@@ -274,10 +276,23 @@
 }
 
 .blog-image-frame--hero {
-  aspect-ratio: 16 / 10;
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
   border-radius: 1rem;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(12, 31, 63, 0.12);
+  background: transparent;
+}
+
+.blog-image-frame__fit {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center;
 }
 
 .blog-card__media {
@@ -292,7 +307,9 @@
 }
 
 .blog-card--featured .blog-card__media {
-  min-height: 300px;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .blog-card__media--sm {
@@ -620,8 +637,22 @@
 .wp-content-blog table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1.5rem 0;
+  margin: 0;
   font-size: 0.9375rem;
+  table-layout: auto !important;
+}
+
+.wp-content-blog figure.wp-block-table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.wp-content-blog table.has-fixed-layout {
+  table-layout: auto !important;
 }
 
 .wp-content-blog th,
@@ -629,6 +660,11 @@
   border: 1px solid #e2e8f0;
   padding: 0.65rem 0.85rem;
   text-align: left;
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+  vertical-align: top;
+  line-height: 1.45;
 }
 
 .wp-content-blog th {
@@ -639,6 +675,80 @@
 
 .wp-content-blog tr:nth-child(even) td {
   background: #f8fafc;
+}
+
+/* Mobile: 3-column comparison tables stack as readable cards */
+@media (max-width: 639px) {
+  .wp-content-blog figure.wp-block-table:has(table tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) {
+    overflow-x: visible;
+  }
+
+  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) {
+    border: 0;
+    min-width: 0;
+  }
+
+  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:first-child {
+    display: none;
+  }
+
+  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) {
+    display: block;
+    margin-bottom: 0.85rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(12, 31, 63, 0.06);
+  }
+
+  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) td {
+    display: block;
+    width: 100% !important;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 0.5rem 0.85rem;
+    background: transparent;
+  }
+
+  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) td:last-child {
+    border-bottom: none;
+  }
+
+  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) td:first-child {
+    background: var(--blog-navy);
+    color: #fff;
+    font-weight: 700;
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+  }
+
+  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) td:nth-child(2)::before {
+    content: 'Top Colleges: ';
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) td:nth-child(3)::before {
+    content: 'Average Colleges: ';
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  /* 4-column data tables — swipe horizontally */
+  .wp-content-blog figure.wp-block-table:has(table td:nth-child(4)) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wp-content-blog figure.wp-block-table table:has(td:nth-child(4)) {
+    min-width: 34rem;
+    font-size: 0.8125rem;
+  }
+
+  .wp-content-blog figure.wp-block-table table:has(td:nth-child(4)) td {
+    padding: 0.5rem 0.65rem;
+  }
 }
 
 .wp-content-blog img {
@@ -721,7 +831,7 @@
   }
 
   .blog-card--featured .blog-card__media {
-    min-height: 12.5rem;
+    min-height: 0;
   }
 
   .blog-card__body {
@@ -790,7 +900,7 @@
 
   .blog-post-hero .blog-image-frame--hero {
     order: 1;
-    aspect-ratio: 16 / 11;
+    max-width: 100%;
   }
 
   .blog-post-hero__title {

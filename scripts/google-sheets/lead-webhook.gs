@@ -31,8 +31,8 @@ var COURSE_HEADERS = [
   'Date',
   'Time',
   'Name',
-  'Phone Number',
   'Email',
+  'Phone Number',
   'City',
   'State',
   'Country',
@@ -45,8 +45,8 @@ var COURSE_HEADERS = [
 
 var RANK_HEADERS = [
   'Name',
-  'Phone Number',
   'Email',
+  'Phone Number',
   'NEET Score',
   'Predicted Rank',
   'State',
@@ -193,8 +193,33 @@ function setupSheets() {
   var ss = getSpreadsheet_();
   for (var i = 0; i < COURSE_SHEETS.length; i++) {
     ensureSheet_(ss, COURSE_SHEETS[i], COURSE_HEADERS);
+    migrateContactColumnOrder_(ss.getSheetByName(COURSE_SHEETS[i]), 5, 6);
   }
   ensureSheet_(ss, SHEET_RANK, RANK_HEADERS);
+  migrateContactColumnOrder_(ss.getSheetByName(SHEET_RANK), 2, 3);
+}
+
+/** Swap Email / Phone columns when sheets still use the legacy Name → Phone → Email order. */
+function migrateContactColumnOrder_(sheet, emailCol, phoneCol) {
+  if (!sheet || sheet.getLastRow() < 1) return;
+
+  var headerEmail = String(sheet.getRange(1, emailCol).getValue() || '').trim();
+  var headerPhone = String(sheet.getRange(1, phoneCol).getValue() || '').trim();
+
+  if (headerEmail === 'Phone Number' && headerPhone === 'Email') {
+    swapSheetColumns_(sheet, emailCol, phoneCol);
+  }
+}
+
+function swapSheetColumns_(sheet, colA, colB) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 1) return;
+
+  // getRange(row, col, numRows, numColumns) — 4th arg is column COUNT, not end column
+  var valuesA = sheet.getRange(1, colA, lastRow, 1).getValues();
+  var valuesB = sheet.getRange(1, colB, lastRow, 1).getValues();
+  sheet.getRange(1, colA, lastRow, 1).setValues(valuesB);
+  sheet.getRange(1, colB, lastRow, 1).setValues(valuesA);
 }
 
 function ensureSheet_(ss, name, headers) {
@@ -277,8 +302,8 @@ function isDuplicateLead_(phone, email) {
     var sheet = ss.getSheetByName(allSheets[s]);
     if (!sheet) continue;
 
-    var phoneCol = allSheets[s] === SHEET_RANK ? 2 : 5;
-    var emailCol = allSheets[s] === SHEET_RANK ? 3 : 6;
+    var phoneCol = allSheets[s] === SHEET_RANK ? 3 : 6;
+    var emailCol = allSheets[s] === SHEET_RANK ? 2 : 5;
 
     if (phone && phoneExistsInSheet_(sheet, phoneCol, phone)) return true;
     if (email && emailExistsInSheet_(sheet, emailCol, email)) return true;
@@ -337,8 +362,8 @@ function appendCourseLeadRow_(ss, sheetName, payload, phone, email, parts) {
     parts.date,
     parts.time,
     sanitize_(payload.name, 120),
-    phone,
     email,
+    phone,
     sanitize_(payload.city, 80),
     sanitize_(payload.state, 80),
     country,
@@ -359,8 +384,8 @@ function appendRankPredictorRow_(ss, payload, phone, email, parts) {
 
   sheet.appendRow([
     sanitize_(payload.name, 120),
-    phone,
     email,
+    phone,
     Number(payload.neetScore) || 0,
     Number(payload.predictedRank) || 0,
     sanitize_(payload.state, 80),
