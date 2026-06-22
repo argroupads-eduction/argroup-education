@@ -2,7 +2,7 @@ import { cache } from 'react';
 import { sortBlogPostsByNewest, dedupeBlogPosts } from '@/lib/blogUtils';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { applyMarketingPageSeo } from '@/lib/marketingPageSeo';
-import { resolveBlogFeaturedImage } from '@/lib/blogFeaturedImages';
+import { resolveBlogFeaturedImage, resolveBlogPublishedAt } from '@/lib/blogFeaturedImages';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 import { extractFirstContentImage } from '@/lib/wpHtmlPrepare';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
@@ -65,6 +65,7 @@ function normalizeContent(doc: SiteContent): SiteContent {
     title: plainTextFromHtml(doc.title),
     excerpt: plainTextFromHtml(doc.excerpt),
     featuredImage,
+    publishedAt: resolveBlogPublishedAt(doc.slug, doc.publishedAt),
     metaTitle: doc.metaTitle ? plainTextFromHtml(doc.metaTitle) : null,
     metaDescription: doc.metaDescription ? plainTextFromHtml(doc.metaDescription) : null,
     ogTitle: doc.ogTitle ? plainTextFromHtml(doc.ogTitle) : null,
@@ -83,6 +84,7 @@ function normalizeBlogItem(doc: BlogListItem): BlogListItem {
     title: plainTextFromHtml(doc.title),
     excerpt: plainTextFromHtml(doc.excerpt),
     featuredImage: resolveBlogFeaturedImage(doc.slug, resolveWpMediaUrl(doc.featuredImage)),
+    publishedAt: resolveBlogPublishedAt(doc.slug, doc.publishedAt) ?? doc.publishedAt,
   };
 }
 
@@ -663,6 +665,19 @@ function mergeBlogListItem(
   };
 }
 
+/** Committed wp-export bundle is editorial source of truth for migrated slugs. */
+function mergeBundleBlogListItem(
+  bundled: BlogListItem,
+  incoming: BlogListItem
+): BlogListItem {
+  const bundle = normalizeBlogItem(bundled);
+  const external = normalizeBlogItem(incoming);
+  return {
+    ...bundle,
+    featuredImage: bundle.featuredImage ?? external.featuredImage,
+  };
+}
+
 async function fetchAllBlogPostsFromApi(): Promise<BlogListItem[]> {
   const items: BlogListItem[] = [];
   let page = 1;
@@ -699,11 +714,13 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   const safePage = Math.max(1, page);
   const safeLimit = Math.min(50, Math.max(1, limit));
   const mergedBySlug = new Map<string, BlogListItem>();
+  const bundleSlugs = new Set<string>();
 
   try {
     const { getAllWpExportBlogPosts } = await import('@/lib/wpExportContent');
     for (const item of await getAllWpExportBlogPosts()) {
-      mergedBySlug.set(item.slug, mergeBlogListItem(undefined, item));
+      bundleSlugs.add(item.slug);
+      mergedBySlug.set(item.slug, normalizeBlogItem(item));
     }
   } catch {
     /* bundle optional */
@@ -711,9 +728,12 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
 
   try {
     for (const item of await fetchAllBlogPostsFromApi()) {
+      const bundled = mergedBySlug.get(item.slug);
       mergedBySlug.set(
         item.slug,
-        mergeBlogListItem(mergedBySlug.get(item.slug), item)
+        bundled
+          ? mergeBundleBlogListItem(bundled, item)
+          : mergeBlogListItem(mergedBySlug.get(item.slug), item)
       );
     }
   } catch {
@@ -723,9 +743,12 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   if (!isBackendPrimaryContent()) {
     const payloadPosts = await fetchPayloadBlogPosts(200);
     for (const item of payloadPosts) {
+      const bundled = mergedBySlug.get(item.slug);
       mergedBySlug.set(
         item.slug,
-        mergeBlogListItem(mergedBySlug.get(item.slug), item)
+        bundled
+          ? mergeBundleBlogListItem(bundled, item)
+          : mergeBlogListItem(mergedBySlug.get(item.slug), item)
       );
     }
   }
