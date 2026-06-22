@@ -19,11 +19,14 @@ import {
 import { submitWebsiteLead } from '@/lib/submitWebsiteLead';
 import { COUNSELLING_PROGRAM_SELECT_OPTIONS } from '@/lib/counsellingProgramOptions';
 import { personNameZodString } from '@/lib/validatePersonName';
+import { INVALID_INDIAN_PHONE_MESSAGE } from '@/lib/leadSubmissionMessages';
 
 const CounsellingFormSchema = z.object({
   fullName: personNameZodString(),
-  email: z.string().email('Valid email is required'),
-  phone: z.string().regex(/^[0-9]{10}$/, 'Valid 10-digit phone number is required'),
+  email: z.string().email('Please enter a valid email address.'),
+  phone: z
+    .string()
+    .regex(/^[6-9]\d{9}$/, INVALID_INDIAN_PHONE_MESSAGE),
   counsellingInterest: z.enum(['mbbs-india', 'mbbs-abroad', 'md-ms', 'bams'], {
     errorMap: () => ({ message: 'Please select a programme' }),
   }),
@@ -102,7 +105,9 @@ export const CounsellingForm = ({
 
       if (!lead.ok) {
         if (thankYouTab) cancelPreparedThankYouTab(thankYouTab);
-        setSubmitError(lead.message || 'Something went wrong. Please try again.');
+        if (!lead.duplicate) {
+          setSubmitError(lead.message || 'Something went wrong. Please try again.');
+        }
         return;
       }
 

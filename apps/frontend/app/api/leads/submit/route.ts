@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('[api/leads/submit]', error);
     return NextResponse.json(
-      { success: false, message: 'Could not save your enquiry. Please try again.' },
+      { success: false, message: 'We are unable to process your enquiry right now. Please try again later.' },
       { status: 500 }
     );
   }

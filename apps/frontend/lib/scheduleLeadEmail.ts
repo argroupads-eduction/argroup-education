@@ -17,10 +17,21 @@ type LeadSubmitResult = {
   emailSent?: boolean;
   emailDeferred?: boolean;
   emailOnly?: boolean;
+  emailFallback?: boolean;
+  sheetsSaved?: boolean;
+  skipEmail?: boolean;
 };
 
-/** Schedule deferred email only when lead was saved to DB (not email-only fallback). */
+/** Schedule deferred email only when lead was saved to DB and Sheets did not capture it. */
 export function deliverLeadEmailAfterSubmit(result: LeadSubmitResult): void {
-  if (result.emailOnly || result.emailSent) return;
+  if (
+    result.emailOnly ||
+    result.emailSent ||
+    result.emailFallback ||
+    result.sheetsSaved ||
+    result.skipEmail
+  ) {
+    return;
+  }
   if (result.emailDeferred) scheduleLeadEmailDelivery(result.id);
 }

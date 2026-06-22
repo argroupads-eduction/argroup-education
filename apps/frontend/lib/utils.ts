@@ -94,8 +94,16 @@ export const validateEmail = (email: string): boolean => {
 };
 
 export const validatePhone = (phone: string): boolean => {
-  const phoneRegex = /^[0-9\s\-\+\(\)]{10,}$/;
-  return phoneRegex.test(phone.replace(/\s/g, ''));
+  const digits = phone.replace(/\D/g, '');
+  const normalized =
+    digits.length === 10
+      ? digits
+      : digits.length === 12 && digits.startsWith('91')
+        ? digits.slice(2)
+        : digits.length === 11 && digits.startsWith('0')
+          ? digits.slice(1)
+          : '';
+  return /^[6-9]\d{9}$/.test(normalized);
 };
 
 export const validateUrl = (url: string): boolean => {

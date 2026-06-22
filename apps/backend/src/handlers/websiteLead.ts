@@ -1,9 +1,24 @@
 import { prisma, withPrismaRetry } from '../lib/prisma';
 import { isDatabaseUnavailableError } from '../lib/neonDatabaseUrl';
 import { sendLeadNotificationEmail } from '../lib/leadEmail';
+import {
+  isGoogleSheetsLeadEnabled,
+  submitWebsiteLeadToGoogleSheets,
+  SHEETS_UNAVAILABLE_MESSAGE,
+} from '../lib/googleSheetsLead';
+import { resolveLeadCourseSheet } from '../lib/leadCourseRouting';
+import {
+  normalizeIndianMobile,
+  normalizeLeadEmail as normalizeEmailKey,
+  validateIndianMobile,
+  validateLeadEmail,
+} from '../lib/leadValidation';
 
 export const DUPLICATE_LEAD_MESSAGE =
-  'Your query has already been submitted. We will connect with you shortly.';
+  'We have already received your enquiry. Our counselling team will contact you shortly. For urgent assistance please call our support team.';
+
+export const SUCCESS_LEAD_MESSAGE =
+  'Thank you for contacting AR Group of Education. Our counselling team will contact you shortly.';
 
 export type WebsiteLeadInput = {
   source: string;
@@ -44,16 +59,12 @@ export function extractLeadContact(fields: Record<string, unknown>) {
 
 /** Lowercase trimmed email for deduplication. */
 export function normalizeLeadEmail(email: string | null | undefined): string | null {
-  if (!email?.trim()) return null;
-  return email.trim().toLowerCase();
+  return normalizeEmailKey(email);
 }
 
 /** Last 10 digits (India mobiles) for deduplication. */
 export function normalizeLeadPhoneKey(phone: string | null | undefined): string | null {
-  if (!phone) return null;
-  const digits = phone.replace(/\D/g, '');
-  if (digits.length < 10) return null;
-  return digits.slice(-10);
+  return normalizeIndianMobile(phone);
 }
 
 function isPrismaUniqueViolation(error: unknown): boolean {
@@ -76,37 +87,104 @@ function isMissingLeadKeyColumns(error: unknown): boolean {
   );
 }
 
-/** True when the same email + phone already submitted any website form. */
+/** True when the same email or phone already submitted any website form. */
 export async function isDuplicateWebsiteLead(
   email: string | null | undefined,
   phone: string | null | undefined
 ): Promise<boolean> {
   const emailKey = normalizeLeadEmail(email);
   const phoneKey = normalizeLeadPhoneKey(phone);
-  if (!emailKey || !phoneKey) return false;
+  if (!emailKey && !phoneKey) return false;
 
   try {
-    const byKeys = await withPrismaRetry(() =>
-      prisma.websiteFormLead.findFirst({
-        where: { emailKey, phoneKey },
-        select: { id: true },
-      })
-    );
-    if (byKeys) return true;
+    if (emailKey) {
+      const byEmail = await withPrismaRetry(() =>
+        prisma.websiteFormLead.findFirst({
+          where: { emailKey },
+          select: { id: true },
+        })
+      );
+      if (byEmail) return true;
+    }
+
+    if (phoneKey) {
+      const byPhone = await withPrismaRetry(() =>
+        prisma.websiteFormLead.findFirst({
+          where: { phoneKey },
+          select: { id: true },
+        })
+      );
+      if (byPhone) return true;
+    }
   } catch (error) {
     if (!isMissingLeadKeyColumns(error)) throw error;
+
+    if (emailKey) {
+      const legacyEmail = await withPrismaRetry(() =>
+        prisma.websiteFormLead.findFirst({
+          where: { email: { equals: emailKey, mode: 'insensitive' } },
+          select: { id: true },
+        })
+      );
+      if (legacyEmail) return true;
+    }
+
+    if (phoneKey) {
+      const legacy = await withPrismaRetry(() =>
+        prisma.websiteFormLead.findMany({
+          select: { id: true, phone: true },
+          orderBy: { createdAt: 'desc' },
+          take: 200,
+        })
+      );
+      if (legacy.some((row) => normalizeLeadPhoneKey(row.phone) === phoneKey)) return true;
+    }
   }
 
-  const legacy = await withPrismaRetry(() =>
-    prisma.websiteFormLead.findMany({
-      where: { email: { equals: emailKey, mode: 'insensitive' } },
-      select: { id: true, phone: true },
-      orderBy: { createdAt: 'asc' },
-      take: 30,
-    })
-  );
+  return false;
+}
 
-  return legacy.some((row) => normalizeLeadPhoneKey(row.phone) === phoneKey);
+function pickLeadField(fields: Record<string, unknown>, keys: string[]): string {
+  for (const key of keys) {
+    const value = fields[key];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return '';
+}
+
+function buildSheetPayloadFromLead(
+  input: WebsiteLeadInput,
+  fields: Record<string, unknown>,
+  contact: { name: string | null; email: string | null; phone: string | null }
+) {
+  const messageParts = [
+    pickLeadField(fields, ['message']),
+    pickLeadField(fields, ['subject']),
+    pickLeadField(fields, ['neetScore', 'examScore', 'score']),
+    pickLeadField(fields, ['preferredDate']),
+  ].filter(Boolean);
+
+  const routing = resolveLeadCourseSheet({
+    source: input.source,
+    formName: input.formName,
+    pageUrl: input.pageUrl,
+    fields,
+  });
+
+  return {
+    name: contact.name || pickLeadField(fields, ['fullName', 'full_name', 'name']) || 'Unknown',
+    phone: contact.phone || pickLeadField(fields, ['phone', 'mobile', 'phoneNumber', 'contact']),
+    email: contact.email || pickLeadField(fields, ['email']),
+    city: pickLeadField(fields, ['city']),
+    state: pickLeadField(fields, ['state']),
+    country: routing.country,
+    course: routing.courseLabel,
+    sheetKey: routing.sheetName,
+    source: input.source,
+    sourcePage: input.pageUrl ?? '',
+    formType: input.formName || input.source,
+    message: messageParts.join(' | '),
+  };
 }
 
 const EMAIL_RETRY_DELAYS_MS = [400, 900, 1800, 3600, 7200];
@@ -186,7 +264,7 @@ export async function resendPendingLeadEmails(limit = 50): Promise<{ sent: numbe
 
 export async function submitWebsiteLead(
   input: WebsiteLeadInput,
-  options?: { deferEmail?: boolean }
+  options?: { deferEmail?: boolean; requestId?: string; skipGoogleSheets?: boolean }
 ) {
   const fields = normalizeLeadFields(input.fields);
   if (Object.keys(fields).length === 0) {
@@ -197,8 +275,35 @@ export async function submitWebsiteLead(
   const emailKey = normalizeLeadEmail(email);
   const phoneKey = normalizeLeadPhoneKey(phone);
 
-  try {
-    if (emailKey && phoneKey && (await isDuplicateWebsiteLead(email, phone))) {
+  if (email) {
+    const emailErr = validateLeadEmail(email);
+    if (emailErr) {
+      return { ok: false as const, status: 400, message: emailErr };
+    }
+  }
+
+  if (phone) {
+    const phoneErr = validateIndianMobile(phone);
+    if (phoneErr) {
+      return { ok: false as const, status: 400, message: phoneErr };
+    }
+  }
+
+  const sheetsEnabled = isGoogleSheetsLeadEnabled() && !options?.skipGoogleSheets;
+  let sheetsLeadId: string | undefined;
+  let sheetsSaved = false;
+
+  if (sheetsEnabled) {
+    const sheetPayload = buildSheetPayloadFromLead(input, fields, { name, email, phone });
+    if (!sheetPayload.email) {
+      return { ok: false as const, status: 400, message: 'Email is required.' };
+    }
+
+    const sheetsResult = await submitWebsiteLeadToGoogleSheets(sheetPayload, {
+      requestId: options?.requestId,
+    });
+
+    if (sheetsResult.duplicate) {
       return {
         ok: false as const,
         status: 409,
@@ -206,9 +311,56 @@ export async function submitWebsiteLead(
         message: DUPLICATE_LEAD_MESSAGE,
       };
     }
-  } catch (error) {
-    if (!isDatabaseUnavailableError(error)) throw error;
-    console.warn('[website-lead] duplicate check skipped (DB unavailable)');
+
+    if (sheetsResult.ok) {
+      sheetsSaved = true;
+      sheetsLeadId = sheetsResult.leadId;
+    } else {
+      console.error('[website-lead] Google Sheets failed — email fallback:', sheetsResult.message);
+
+      const emailResult = await sendLeadEmailWithRetry({
+        source: input.source,
+        formName: input.formName,
+        fields: {
+          ...fields,
+          _sheetsError: sheetsResult.message || SHEETS_UNAVAILABLE_MESSAGE,
+          _targetSheet: sheetPayload.sheetKey,
+        },
+        pageUrl: input.pageUrl,
+      });
+
+      if (!emailResult.sent) {
+        return {
+          ok: false as const,
+          status: 503,
+          message: SHEETS_UNAVAILABLE_MESSAGE,
+        };
+      }
+
+      return {
+        ok: true as const,
+        status: 201,
+        id: `email-fallback-${Date.now()}`,
+        emailSent: true,
+        emailFallback: true as const,
+        skipEmail: true as const,
+        message: SUCCESS_LEAD_MESSAGE,
+      };
+    }
+  } else {
+    try {
+      if (await isDuplicateWebsiteLead(email, phone)) {
+        return {
+          ok: false as const,
+          status: 409,
+          duplicate: true as const,
+          message: DUPLICATE_LEAD_MESSAGE,
+        };
+      }
+    } catch (error) {
+      if (!isDatabaseUnavailableError(error)) throw error;
+      console.warn('[website-lead] duplicate check skipped (DB unavailable)');
+    }
   }
 
   let lead;
@@ -241,7 +393,7 @@ export async function submitWebsiteLead(
             data: baseData,
           })
         );
-      } else if (emailKey && phoneKey && isPrismaUniqueViolation(error)) {
+      } else if ((emailKey || phoneKey) && isPrismaUniqueViolation(error)) {
         return {
           ok: false as const,
           status: 409,
@@ -254,7 +406,20 @@ export async function submitWebsiteLead(
     }
   } catch (error) {
     if (!isDatabaseUnavailableError(error)) throw error;
-    console.warn('[website-lead] DB save failed — sending email only:', error);
+    console.warn('[website-lead] DB save failed:', error);
+
+    if (sheetsSaved) {
+      return {
+        ok: true as const,
+        status: 201,
+        id: sheetsLeadId ?? `sheets-${Date.now()}`,
+        emailSent: false,
+        emailDeferred: false,
+        sheetsSaved: true as const,
+        skipEmail: true as const,
+        message: SUCCESS_LEAD_MESSAGE,
+      };
+    }
 
     const emailResult = await sendLeadEmailWithRetry({
       source: input.source,
@@ -267,8 +432,7 @@ export async function submitWebsiteLead(
       return {
         ok: false as const,
         status: 503,
-        message:
-          'Could not deliver your enquiry right now. Please call +91-7076909090 or email argroupads@gmail.com.',
+        message: SHEETS_UNAVAILABLE_MESSAGE,
       };
     }
 
@@ -279,7 +443,21 @@ export async function submitWebsiteLead(
       emailSent: true,
       emailDeferred: false,
       emailOnly: true as const,
-      message: 'Thank you! We received your details and will contact you soon.',
+      skipEmail: true as const,
+      message: SUCCESS_LEAD_MESSAGE,
+    };
+  }
+
+  if (sheetsSaved) {
+    return {
+      ok: true as const,
+      status: 201,
+      id: lead?.id ?? sheetsLeadId ?? `sheets-${Date.now()}`,
+      emailSent: false,
+      emailDeferred: false,
+      sheetsSaved: true as const,
+      skipEmail: true as const,
+      message: SUCCESS_LEAD_MESSAGE,
     };
   }
 
@@ -287,21 +465,21 @@ export async function submitWebsiteLead(
     return {
       ok: true as const,
       status: 201,
-      id: lead.id,
+      id: lead?.id ?? sheetsLeadId ?? `sheets-${Date.now()}`,
       emailSent: false,
       emailDeferred: true,
-      message: 'Thank you! We received your details and will contact you soon.',
+      message: SUCCESS_LEAD_MESSAGE,
     };
   }
 
-  const emailSent = await completeLeadEmailDelivery(lead.id);
+  const emailSent = lead ? await completeLeadEmailDelivery(lead.id) : false;
 
   return {
     ok: true as const,
     status: 201,
-    id: lead.id,
+    id: lead?.id ?? sheetsLeadId ?? `sheets-${Date.now()}`,
     emailSent,
     emailDeferred: false,
-    message: 'Thank you! We received your details and will contact you soon.',
+    message: SUCCESS_LEAD_MESSAGE,
   };
 }

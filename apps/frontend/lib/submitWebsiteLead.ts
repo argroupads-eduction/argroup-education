@@ -1,3 +1,10 @@
+import {
+  DUPLICATE_LEAD_MESSAGE,
+  SHEETS_UNAVAILABLE_MESSAGE,
+  SUCCESS_LEAD_MESSAGE,
+} from '@/lib/leadSubmissionMessages';
+import { showLeadSubmissionFeedback } from '@/lib/leadSubmissionFeedback';
+
 export type SubmitWebsiteLeadPayload = {
   source: string;
   formName?: string;
@@ -9,9 +16,10 @@ export type SubmitWebsiteLeadResult = {
   ok: boolean;
   message?: string;
   emailSent?: boolean;
+  duplicate?: boolean;
 };
 
-/** POST lead to Neon + email notification (same-origin API route). */
+/** POST lead to Google Sheets (via API) + optional Neon/email backup. */
 export async function submitWebsiteLead(
   payload: SubmitWebsiteLeadPayload
 ): Promise<SubmitWebsiteLeadResult> {
@@ -26,18 +34,31 @@ export async function submitWebsiteLead(
     cache: 'no-store',
   });
 
-  let json: { success?: boolean; message?: string; emailSent?: boolean } = {};
+  let json: { success?: boolean; message?: string; emailSent?: boolean; duplicate?: boolean } =
+    {};
   try {
     json = (await res.json()) as typeof json;
   } catch {
-    return { ok: false, message: 'Could not read server response.' };
+    showLeadSubmissionFeedback('error');
+    return { ok: false, message: SHEETS_UNAVAILABLE_MESSAGE };
+  }
+
+  if (res.status === 409 || json.duplicate) {
+    showLeadSubmissionFeedback('duplicate');
+    return { ok: false, duplicate: true, message: json.message || DUPLICATE_LEAD_MESSAGE };
   }
 
   if (!res.ok || json.success === false) {
-    return { ok: false, message: json.message || 'Could not submit your enquiry.' };
+    showLeadSubmissionFeedback('error');
+    return { ok: false, message: json.message || SHEETS_UNAVAILABLE_MESSAGE };
   }
 
-  return { ok: true, message: json.message, emailSent: json.emailSent };
+  showLeadSubmissionFeedback('success');
+  return {
+    ok: true,
+    message: json.message || SUCCESS_LEAD_MESSAGE,
+    emailSent: json.emailSent,
+  };
 }
 
 /** Convert hero/CMS submission rows to a flat field map. */
