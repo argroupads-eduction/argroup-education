@@ -2,7 +2,7 @@
 
 All website forms save to **programme-specific tabs** in one spreadsheet:
 
-https://docs.google.com/spreadsheets/d/1S0ORdP8VXbcAov1naf-ak7J5HsqSQp-qJLGLSDn-Bfg
+https://docs.google.com/spreadsheets/d/1G_qR3KEutbjxw22V2qnCAC1Ymr48BV3sQgf8lgnzUNA
 
 ## Sheet tabs
 
@@ -45,6 +45,22 @@ Optional (email fallback only when Sheets fails):
 | `SMTP_*` or `RESEND_API_KEY` | For fallback email |
 
 Redeploy after changing env vars.
+
+## Verify Vercel + Apps Script
+
+After deploy, open (in browser):
+
+```
+https://www.argroupofeducation.com/api/leads/sheets-health
+```
+
+Expected JSON:
+
+```json
+{ "configured": true, "ok": true, "spreadsheetId": "...", "spreadsheetName": "MBBS LEADS" }
+```
+
+If `ok: false`, fix `GOOGLE_SHEETS_WEBHOOK_URL` (new `/exec` deployment) or Apps Script `WEBHOOK_SECRET`.
 
 ## After updating the script
 
