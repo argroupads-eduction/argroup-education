@@ -2346,6 +2346,13 @@
   color: #0f172a;
 }
 
+.wp-content-root .wp-content-body strong a,
+.wp-content-root .wp-content-body a strong {
+  color: #c2410c;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .wp-content-root .wp-content-body .elementor-button,
 .wp-content-root .wp-content-body .wp-block-button__link {
   display: inline-flex;
