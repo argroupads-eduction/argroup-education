@@ -71,7 +71,6 @@ async function postToSheetsWebhook(body: Record<string, unknown>): Promise<Sheet
       },
       body: JSON.stringify({ ...body, secret: config.secret }),
       signal: controller.signal,
-      cache: 'no-store',
     });
 
     let json: SheetsWebhookResponse = {};
