@@ -28,7 +28,20 @@ ALTER TABLE IF EXISTS _posts_v ALTER COLUMN version_html_content TYPE text;
 `
 
 const client = new pg.Client({ connectionString })
-await client.connect()
-await client.query(sql)
-await client.end()
-console.log('[sync-cms-runtime-schema] Done')
+
+try {
+  await client.connect()
+  await client.query(sql)
+  console.log('[sync-cms-runtime-schema] Done')
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error)
+  console.error('[sync-cms-runtime-schema] Failed:', message)
+  if (/data transfer quota|exceeded.*quota/i.test(message)) {
+    console.error(
+      '[sync-cms-runtime-schema] Neon data-transfer quota exceeded — upgrade Neon or wait for reset.',
+    )
+  }
+  process.exit(1)
+} finally {
+  await client.end().catch(() => {})
+}

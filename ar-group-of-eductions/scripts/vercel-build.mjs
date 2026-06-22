@@ -19,16 +19,27 @@ function run(cmd) {
   })
 }
 
-if (process.env.DATABASE_URL) {
+const skipSchemaSync =
+  process.env.SKIP_CMS_SCHEMA_SYNC === '1' || process.env.SKIP_CMS_SCHEMA_SYNC === 'true'
+
+if (process.env.DATABASE_URL && !skipSchemaSync) {
   console.log('[vercel-build] Syncing CMS database schema...')
   try {
     run('node scripts/sync-cms-runtime-schema.mjs')
   } catch (error) {
-    console.error('[vercel-build] Schema sync failed:', error?.message ?? error)
-    process.exit(1)
+    // Idempotent DDL — safe to skip when Neon is unreachable or over quota; CMS still builds.
+    console.warn(
+      '[vercel-build] Schema sync failed — continuing build:',
+      error?.message ?? error,
+    )
+    console.warn(
+      '[vercel-build] Re-run `node scripts/sync-cms-runtime-schema.mjs` when the database is available.',
+    )
   }
-} else {
+} else if (!process.env.DATABASE_URL) {
   console.warn('[vercel-build] DATABASE_URL not set — skipping schema sync')
+} else {
+  console.warn('[vercel-build] SKIP_CMS_SCHEMA_SYNC set — skipping schema sync')
 }
 
 console.log('[vercel-build] Building Payload CMS (webpack, no turbo orchestration)...')
