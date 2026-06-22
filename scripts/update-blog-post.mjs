@@ -25,8 +25,8 @@ if (index < 0) {
 }
 
 const html = await readFile(contentPath, 'utf8');
-const featured = '/images/blog/top-medical-colleges-in-india-2026.png';
-const published = '2026-06-17T09:00:00';
+const featured = '/images/blog/top-medical-colleges-india-2026-banner.png';
+const published = '2026-06-22T09:00:00';
 
 const updated = {
   ...posts[index],
