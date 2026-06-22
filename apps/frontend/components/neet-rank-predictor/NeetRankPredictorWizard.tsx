@@ -27,6 +27,12 @@ import { formatRank, predictNeetRank } from '@/lib/neetRankPredictor/predict';
 import type { NeetCategory, NeetRankPrediction } from '@/lib/neetRankPredictor/types';
 import { NeetRankCollegeResults } from './NeetRankCollegeResults';
 import { validatePersonName } from '@/lib/validatePersonName';
+import {
+  validateIndianMobile,
+  validateLeadEmail,
+  DUPLICATE_LEAD_MESSAGE,
+} from '@/lib/leadSubmissionMessages';
+import { notifyLeadSubmissionFromResponse } from '@/lib/notifyLeadSubmission';
 
 type Step = 'form' | 'result';
 type Track = 'india' | 'abroad' | 'both' | 'md-ms' | 'bams';
@@ -172,12 +178,14 @@ export function NeetRankPredictorWizard() {
       setError(nameErr);
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Enter a valid email');
+    const emailErr = validateLeadEmail(email);
+    if (emailErr) {
+      setError(emailErr);
       return;
     }
-    if (phone.replace(/\D/g, '').length < 10) {
-      setError('Enter a valid 10-digit mobile number');
+    const phoneErr = validateIndianMobile(phone);
+    if (phoneErr) {
+      setError(phoneErr);
       return;
     }
     if (!city.trim()) {
@@ -194,16 +202,30 @@ export function NeetRankPredictorWizard() {
       });
       const json = (await res.json()) as {
         message?: string;
+        duplicate?: boolean;
         prediction?: NeetRankPrediction;
         colleges?: { india: CollegeMatch[]; abroad: CollegeMatch[] };
       };
-      if (!res.ok) throw new Error(json.message || 'Could not generate prediction');
+      if (!res.ok) {
+        notifyLeadSubmissionFromResponse(res, json);
+        throw new Error(
+          res.status === 409 || json.duplicate
+            ? DUPLICATE_LEAD_MESSAGE
+            : json.message || 'Could not generate prediction'
+        );
+      }
+      notifyLeadSubmissionFromResponse(res, json);
       setResult(json.prediction ?? predictNeetRank(category, score));
       setColleges(json.colleges ?? { india: [], abroad: [] });
       setStep('result');
       document.getElementById('neet-rank-tool')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      const msg = err instanceof Error ? err.message : 'Something went wrong';
+      if (msg !== DUPLICATE_LEAD_MESSAGE) {
+        setError(msg);
+      } else {
+        setError(null);
+      }
     } finally {
       setLoading(false);
     }

@@ -8,6 +8,7 @@ import {
 } from '@/lib/openThankYouPage'
 import { submitWebsiteLead } from '@/lib/submitWebsiteLead'
 import { validatePersonName } from '@/lib/validatePersonName'
+import { validateIndianMobile, validateLeadEmail } from '@/lib/leadSubmissionMessages'
 
 interface FormSectionProps {
   program: 'mbbs-india' | 'mbbs-abroad' | 'md-ms'
@@ -44,6 +45,18 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
       return
     }
 
+    const emailErr = validateLeadEmail(formData.email)
+    if (emailErr) {
+      setError(emailErr)
+      return
+    }
+
+    const phoneErr = validateIndianMobile(formData.phone)
+    if (phoneErr) {
+      setError(phoneErr)
+      return
+    }
+
     const thankYouTab = prepareThankYouTab()
     setLoading(true)
 
@@ -62,7 +75,10 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
 
       if (!lead.ok) {
         cancelPreparedThankYouTab(thankYouTab);
-        throw new Error(lead.message || 'Failed to submit form');
+        if (!lead.duplicate) {
+          setError(lead.message || 'An error occurred');
+        }
+        return;
       }
 
       openThankYouInNewTab(

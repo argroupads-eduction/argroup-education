@@ -13,6 +13,8 @@ import {
   prepareThankYouTab,
 } from '@/lib/openThankYouPage';
 import { validateDynamicFormNames } from '@/lib/validatePersonName';
+import { validateLeadSubmissionData, leadApiErrorMessage } from '@/lib/validateLeadForm';
+import { notifyLeadSubmissionFromResponse } from '@/lib/notifyLeadSubmission';
 
 type FormFieldBlock = {
   id?: string | null;
@@ -96,13 +98,20 @@ export function MbbsAbroadHeroPayloadForm({
         return;
       }
 
+      const submissionData = fields.map((f) => ({
+        field: f.name,
+        value: values[f.name] ?? '',
+      }));
+
+      const leadErr = validateLeadSubmissionData(submissionData);
+      if (leadErr) {
+        setSubmitError(leadErr);
+        return;
+      }
+
       const thankYouTab = prepareThankYouTab();
       setSubmitting(true);
       try {
-        const submissionData = fields.map((f) => ({
-          field: f.name,
-          value: values[f.name] ?? '',
-        }));
         const useOffline = isHeroMbbsFallbackForm(form);
         const res = await fetch(
           useOffline ? '/api/cms/hero-enquiry' : '/api/cms/form-submissions',
@@ -122,7 +131,7 @@ export function MbbsAbroadHeroPayloadForm({
           }
         );
         const raw = await res.text();
-        let data: { errors?: { message?: string }[]; message?: string } = {};
+        let data: { errors?: { message?: string }[]; message?: string; duplicate?: boolean } = {};
         try {
           if (raw.trim()) data = JSON.parse(raw) as typeof data;
         } catch {
@@ -132,11 +141,16 @@ export function MbbsAbroadHeroPayloadForm({
         }
         if (!res.ok) {
           cancelPreparedThankYouTab(thankYouTab);
-          const msg =
-            data.errors?.[0]?.message || data.message || `Submit failed (${res.status})`;
-          setSubmitError(msg);
+          notifyLeadSubmissionFromResponse(res, data);
+          const msg = leadApiErrorMessage(res, data);
+          if (res.status !== 409) {
+            setSubmitError(
+              data.errors?.[0]?.message || msg || `Submit failed (${res.status})`
+            );
+          }
           return;
         }
+        notifyLeadSubmissionFromResponse(res, data);
         openThankYouInNewTab(
           {
             name: nameFromFormValues(values, fields),

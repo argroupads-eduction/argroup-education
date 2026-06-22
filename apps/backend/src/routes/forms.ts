@@ -6,6 +6,7 @@ import { prisma, withPrismaRetry } from '../lib/prisma';
 const router = Router();
 
 const PERSON_NAME_REGEX = /^[A-Za-z]+(?:\s+[A-Za-z]+)*$/;
+const INDIAN_PHONE_REGEX = /^[6-9]\d{9}$/;
 
 const personNameValidator = body('name')
   .trim()
@@ -19,8 +20,8 @@ router.post(
   '/counselling',
   [
     personNameValidator,
-    body('email').isEmail().withMessage('Invalid email'),
-    body('phone').matches(/^[0-9\s\-+()]{10,}$/).withMessage('Invalid phone'),
+    body('email').isEmail().withMessage('Please enter a valid email address.'),
+    body('phone').matches(INDIAN_PHONE_REGEX).withMessage('Please enter a valid Indian mobile number.'),
     body('course').notEmpty().withMessage('Course is required'),
     body('countryPreference').notEmpty().withMessage('Country preference is required'),
   ],
@@ -74,7 +75,7 @@ router.post(
   '/contact',
   [
     personNameValidator,
-    body('email').isEmail().withMessage('Invalid email'),
+    body('email').isEmail().withMessage('Please enter a valid email address.'),
     body('subject').trim().notEmpty().withMessage('Subject is required'),
     body('message').trim().notEmpty().withMessage('Message is required'),
   ],
@@ -114,8 +115,8 @@ router.post(
   '/neet-rank-predictor',
   [
     personNameValidator,
-    body('email').isEmail(),
-    body('phone').matches(/^[0-9]{10}$/),
+    body('email').isEmail().withMessage('Please enter a valid email address.'),
+    body('phone').matches(INDIAN_PHONE_REGEX).withMessage('Please enter a valid Indian mobile number.'),
     body('city').trim().notEmpty(),
     body('category').trim().notEmpty(),
     body('score').isInt({ min: 0, max: 720 }),

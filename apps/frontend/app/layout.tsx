@@ -3,6 +3,7 @@ import { Inter, Lora, Poppins } from 'next/font/google';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
+import { LeadSubmissionFeedbackHost } from '@/components/common/LeadSubmissionFeedbackHost';
 import { NeetRankPredictorPromoStrip } from '@/components/neet-rank-predictor/NeetRankPredictorPromoStrip';
 import '@/styles/neet-rank-predictor.css';
 import { NavPagesProvider } from '@/components/common/NavPagesProvider';
@@ -138,6 +139,7 @@ export default async function RootLayout({
             <main className="min-w-0">{children}</main>
             <Footer />
             <LeadCapturePopup />
+            <LeadSubmissionFeedbackHost />
           </NavPagesProvider>
         </SiteGlobalsProvider>
       </body>

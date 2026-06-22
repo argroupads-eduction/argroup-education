@@ -184,16 +184,15 @@ function buildSubmissionPayload(
 }
 
 import { validatePersonName } from '@/lib/validatePersonName';
+import { validateIndianMobile, validateLeadEmail } from '@/lib/leadSubmissionMessages';
 
 function validate(values: LeadFormValues): string | null {
   const nameErr = validatePersonName(values.fullName);
   if (nameErr) return nameErr;
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
-    return 'A valid email address is required.';
-  }
-  if (!/^[0-9]{10}$/.test(values.phone.replace(/\D/g, '').slice(-10))) {
-    return 'Enter a valid 10-digit mobile number.';
-  }
+  const emailErr = validateLeadEmail(values.email);
+  if (emailErr) return emailErr;
+  const phoneErr = validateIndianMobile(values.phone);
+  if (phoneErr) return phoneErr;
   if (!values.city.trim()) return 'City is required.';
   if (!values.targetCountry.trim()) return 'Please select a target destination.';
   return null;
@@ -704,7 +703,9 @@ export function LeadCapturePopup() {
 
       if (!lead.ok) {
         cancelPreparedThankYouTab(thankYouTab);
-        setSubmitError(lead.message || 'Could not submit your enquiry.');
+        if (!lead.duplicate) {
+          setSubmitError(lead.message || 'Could not submit your enquiry.');
+        }
         return;
       }
 

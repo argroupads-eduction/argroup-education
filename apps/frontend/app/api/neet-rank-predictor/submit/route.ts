@@ -5,8 +5,19 @@ import { predictNeetRank } from '@backend/lib/neetRankPredictor';
 import type { NeetCategory } from '@/lib/neetRankPredictor/types';
 import { validatePersonName } from '@/lib/validatePersonName';
 import { prisma, withPrismaRetry } from '@backend/lib/prisma';
-import { submitWebsiteLead, isDuplicateWebsiteLead, DUPLICATE_LEAD_MESSAGE } from '@backend/handlers/websiteLead';
+import {
+  submitWebsiteLead,
+  DUPLICATE_LEAD_MESSAGE,
+  SUCCESS_LEAD_MESSAGE,
+  sendLeadEmailWithRetry,
+} from '@backend/handlers/websiteLead';
 import { isDatabaseUnavailableError } from '@backend/lib/neonDatabaseUrl';
+import {
+  isGoogleSheetsLeadEnabled,
+  submitRankPredictorToGoogleSheets,
+  SHEETS_UNAVAILABLE_MESSAGE,
+} from '@backend/lib/googleSheetsLead';
+import { validateIndianMobile, validateLeadEmail } from '@backend/lib/leadValidation';
 import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
 
 export const runtime = 'nodejs';
@@ -25,6 +36,7 @@ function normalizePhone(raw: string): string | null {
   const digits = raw.replace(/\D/g, '');
   if (digits.length === 10) return digits;
   if (digits.length === 12 && digits.startsWith('91')) return digits.slice(2);
+  if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1);
   return null;
 }
 
@@ -63,8 +75,16 @@ export async function POST(req: NextRequest) {
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ message: 'Enter a valid email' }, { status: 400 });
   }
+  const emailErr = validateLeadEmail(email);
+  if (emailErr) {
+    return NextResponse.json({ message: emailErr }, { status: 400 });
+  }
   if (!phone) {
-    return NextResponse.json({ message: 'Enter a valid 10-digit mobile number' }, { status: 400 });
+    return NextResponse.json({ message: 'Please enter a valid Indian mobile number.' }, { status: 400 });
+  }
+  const phoneErr = validateIndianMobile(phone);
+  if (phoneErr) {
+    return NextResponse.json({ message: phoneErr }, { status: 400 });
   }
   if (!city || city.length < 2) {
     return NextResponse.json({ message: 'Enter your city' }, { status: 400 });
@@ -100,15 +120,43 @@ export async function POST(req: NextRequest) {
   };
 
   try {
-    let duplicate = false;
-    try {
-      duplicate = await isDuplicateWebsiteLead(email, phone);
-    } catch (err) {
-      if (!isDatabaseUnavailableError(err)) throw err;
-      console.warn('[neet-rank-predictor] duplicate check skipped (DB unavailable)');
-    }
-    if (duplicate) {
-      return NextResponse.json({ message: DUPLICATE_LEAD_MESSAGE }, { status: 409 });
+    let sheetsSaved = false;
+
+    if (isGoogleSheetsLeadEnabled()) {
+      const sheetsResult = await submitRankPredictorToGoogleSheets({
+        name,
+        phone,
+        email,
+        neetScore: roundedScore,
+        predictedRank: prediction.expectedRank,
+        state: city,
+        course: trackLabel,
+      });
+
+      if (sheetsResult.duplicate) {
+        return NextResponse.json(
+          { message: DUPLICATE_LEAD_MESSAGE, duplicate: true },
+          { status: 409 }
+        );
+      }
+
+      if (sheetsResult.ok) {
+        sheetsSaved = true;
+      } else {
+        console.error('[neet-rank-predictor] Sheets failed — email fallback');
+        const emailResult = await sendLeadEmailWithRetry({
+          source: 'neet-rank-predictor',
+          formName: 'NEET Rank Predictor',
+          fields: { ...leadFields, _sheetsError: sheetsResult.message },
+          pageUrl: req.headers.get('referer') ?? '/neet-rank-predictor',
+        });
+        if (!emailResult.sent) {
+          return NextResponse.json(
+            { message: sheetsResult.message || SHEETS_UNAVAILABLE_MESSAGE },
+            { status: 503 }
+          );
+        }
+      }
     }
 
     try {
@@ -130,25 +178,29 @@ export async function POST(req: NextRequest) {
         })
       );
     } catch (err) {
-      console.error('[neet-rank-predictor] analytics save failed:', err);
+      if (!isDatabaseUnavailableError(err)) {
+        console.error('[neet-rank-predictor] analytics save failed:', err);
+      }
     }
 
-    const leadResult = await submitWebsiteLead(
-      {
-        source: 'neet-rank-predictor',
-        formName: 'NEET Rank Predictor',
-        fields: leadFields,
-        pageUrl: req.headers.get('referer') ?? '/neet-rank-predictor',
-        userAgent: req.headers.get('user-agent') ?? undefined,
-      },
-      { deferEmail: true }
-    );
+    if (!sheetsSaved && !isGoogleSheetsLeadEnabled()) {
+      const leadResult = await submitWebsiteLead(
+        {
+          source: 'neet-rank-predictor',
+          formName: 'NEET Rank Predictor',
+          fields: leadFields,
+          pageUrl: req.headers.get('referer') ?? '/neet-rank-predictor',
+          userAgent: req.headers.get('user-agent') ?? undefined,
+        },
+        { deferEmail: true, skipGoogleSheets: true }
+      );
 
-    if (!leadResult.ok) {
-      return NextResponse.json({ message: leadResult.message }, { status: leadResult.status });
+      if (!leadResult.ok) {
+        return NextResponse.json({ message: leadResult.message }, { status: leadResult.status });
+      }
+
+      deliverLeadEmailAfterSubmit(leadResult);
     }
-
-    deliverLeadEmailAfterSubmit(leadResult);
 
     return NextResponse.json({
       ok: true,
@@ -163,8 +215,8 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('[neet-rank-predictor/submit]', error);
     return NextResponse.json(
-      { message: 'Could not save your details. Please try again.' },
-      { status: 500 }
+      { message: SHEETS_UNAVAILABLE_MESSAGE },
+      { status: 503 }
     );
   }
 }
