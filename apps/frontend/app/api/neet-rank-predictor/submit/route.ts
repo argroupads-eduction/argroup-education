@@ -8,7 +8,6 @@ import { prisma, withPrismaRetry } from '@backend/lib/prisma';
 import {
   submitWebsiteLead,
   DUPLICATE_LEAD_MESSAGE,
-  SUCCESS_LEAD_MESSAGE,
   sendLeadEmailWithRetry,
 } from '@backend/handlers/websiteLead';
 import { isDatabaseUnavailableError } from '@backend/lib/neonDatabaseUrl';
