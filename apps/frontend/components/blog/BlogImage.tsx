@@ -19,6 +19,22 @@ const variantClass: Record<BlogImageProps['variant'], string> = {
 export function BlogImage({ src, alt, variant, priority, sizes }: BlogImageProps) {
   const resolvedSrc = resolveWpMediaUrl(src) ?? src;
 
+  if (variant === 'hero' || variant === 'featured') {
+    return (
+      <div className={`blog-image-frame ${variantClass[variant]}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={resolvedSrc}
+          alt={alt}
+          className="blog-image-frame__fit"
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          sizes={sizes}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={`blog-image-frame ${variantClass[variant]}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
