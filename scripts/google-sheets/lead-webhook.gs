@@ -1,19 +1,22 @@
 /**
  * AR Group of Education — Google Sheets lead webhook
  *
- * Spreadsheet: https://docs.google.com/spreadsheets/d/1S0ORdP8VXbcAov1naf-ak7J5HsqSQp-qJLGLSDn-Bfg
+ * IMPORTANT: Create this script from YOUR spreadsheet:
+ *   Extensions → Apps Script (on the same Google Sheet where leads should appear)
  *
- * Tabs: MBBS INDIA | MBBS ABROAD | MD/MS | BAMS | Rank Predictor Leads
+ * Tabs created by setupSheets(): MBBS INDIA | MBBS ABROAD | MD/MS | BAMS | Rank Predictor Leads
  *
  * Setup:
- * 1. Extensions → Apps Script → paste this file
- * 2. Script properties → WEBHOOK_SECRET
- * 3. Run setupSheets() once
- * 4. Deploy → Web app (Execute as: Me, Access: Anyone)
- * 5. Vercel: GOOGLE_SHEETS_WEBHOOK_URL + GOOGLE_SHEETS_WEBHOOK_SECRET
+ * 1. New Google Sheet → Extensions → Apps Script → paste this file
+ * 2. Script properties → WEBHOOK_SECRET = long random string
+ * 3. Run setupSheets() once (authorize when prompted)
+ * 4. Deploy → New deployment → Web app (Execute as: Me, Who has access: Anyone)
+ * 5. Copy /exec URL → Vercel GOOGLE_SHEETS_WEBHOOK_URL
+ * 6. Same WEBHOOK_SECRET → Vercel GOOGLE_SHEETS_WEBHOOK_SECRET → Redeploy
  */
 
-var SPREADSHEET_ID = '1S0ORdP8VXbcAov1naf-ak7J5HsqSQp-qJLGLSDn-Bfg';
+/** Legacy fallback only — bound scripts use the open spreadsheet automatically. */
+var SPREADSHEET_ID = '';
 var SHEET_MBBS_INDIA = 'MBBS INDIA';
 var SHEET_MBBS_ABROAD = 'MBBS ABROAD';
 var SHEET_MD_MS = 'MD/MS';
@@ -75,6 +78,21 @@ function getSecret_() {
   return PropertiesService.getScriptProperties().getProperty('WEBHOOK_SECRET') || '';
 }
 
+/** Uses the spreadsheet this script is attached to (Extensions → Apps Script). */
+function getSpreadsheet_() {
+  var active = SpreadsheetApp.getActiveSpreadsheet();
+  if (active) return active;
+
+  var propId = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
+  if (propId) return SpreadsheetApp.openById(propId);
+
+  if (SPREADSHEET_ID) return SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  throw new Error(
+    'No spreadsheet linked. Open this script from Extensions → Apps Script on your MBBS LEADS sheet.'
+  );
+}
+
 function jsonResponse_(obj) {
   var output = ContentService.createTextOutput(JSON.stringify(obj));
   output.setMimeType(ContentService.MimeType.JSON);
@@ -82,7 +100,17 @@ function jsonResponse_(obj) {
 }
 
 function doGet() {
-  return jsonResponse_({ ok: true, service: 'ar-group-lead-webhook' });
+  try {
+    var ss = getSpreadsheet_();
+    return jsonResponse_({
+      ok: true,
+      service: 'ar-group-lead-webhook',
+      spreadsheetId: ss.getId(),
+      spreadsheetName: ss.getName(),
+    });
+  } catch (err) {
+    return jsonResponse_({ ok: false, message: String(err.message || err) });
+  }
 }
 
 function doPost(e) {
@@ -135,7 +163,7 @@ function doPost(e) {
       });
     }
 
-    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var ss = getSpreadsheet_();
     var parts = getISTParts_();
 
     if (type === 'rank_predictor') {
@@ -162,7 +190,7 @@ function doPost(e) {
 }
 
 function setupSheets() {
-  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var ss = getSpreadsheet_();
   for (var i = 0; i < COURSE_SHEETS.length; i++) {
     ensureSheet_(ss, COURSE_SHEETS[i], COURSE_HEADERS);
   }
@@ -242,7 +270,7 @@ function sanitize_(value, maxLen) {
 }
 
 function isDuplicateLead_(phone, email) {
-  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var ss = getSpreadsheet_();
   var allSheets = COURSE_SHEETS.concat([SHEET_RANK]);
 
   for (var s = 0; s < allSheets.length; s++) {
