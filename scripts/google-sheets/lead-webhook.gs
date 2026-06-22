@@ -149,7 +149,15 @@ function doPost(e) {
 
     return jsonResponse_({ ok: true, leadId: parts.leadId, sheet: type === 'rank_predictor' ? SHEET_RANK : resolveCourseSheet_(payload) });
   } catch (err) {
-    return jsonResponse_({ ok: false, message: 'We are unable to process your enquiry right now. Please try again later.' });
+    Logger.log('lead-webhook error: ' + err);
+    var detail = err && err.message ? String(err.message) : String(err);
+    return jsonResponse_({
+      ok: false,
+      message:
+        detail.indexOf('storage') !== -1 || detail.indexOf('quota') !== -1
+          ? 'Google Drive storage is full. Free up space in Google Drive, then try again.'
+          : 'Sheet error: ' + detail.slice(0, 200),
+    });
   }
 }
 
@@ -252,7 +260,8 @@ function isDuplicateLead_(phone, email) {
 
 function phoneExistsInSheet_(sheet, col, phone) {
   if (!sheet || sheet.getLastRow() < 2) return false;
-  var values = sheet.getRange(2, col, sheet.getLastRow() - 1, 1).getValues();
+  var lastRow = sheet.getLastRow();
+  var values = sheet.getRange(2, col, lastRow, col).getValues();
   for (var i = 0; i < values.length; i++) {
     if (normalizePhone_(values[i][0]) === phone) return true;
   }
@@ -261,7 +270,8 @@ function phoneExistsInSheet_(sheet, col, phone) {
 
 function emailExistsInSheet_(sheet, col, email) {
   if (!sheet || sheet.getLastRow() < 2) return false;
-  var values = sheet.getRange(2, col, sheet.getLastRow() - 1, 1).getValues();
+  var lastRow = sheet.getLastRow();
+  var values = sheet.getRange(2, col, lastRow, col).getValues();
   for (var i = 0; i < values.length; i++) {
     if (normalizeEmail_(values[i][0]) === email) return true;
   }

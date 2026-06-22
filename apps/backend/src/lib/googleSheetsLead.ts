@@ -52,6 +52,71 @@ export function isGoogleSheetsLeadEnabled(): boolean {
   return getWebhookConfig() !== null;
 }
 
+function normalizeWebhookUrl(url: string): string {
+  const trimmed = url.trim();
+  if (trimmed.endsWith('/dev')) return trimmed;
+  if (trimmed.endsWith('/exec')) return trimmed;
+  return trimmed.replace(/\/$/, '') + '/exec';
+}
+
+/** Google Apps Script web apps redirect POST; follow manually with same body. */
+async function fetchGoogleAppsScript(
+  url: string,
+  body: string,
+  signal: AbortSignal
+): Promise<Response> {
+  let currentUrl = normalizeWebhookUrl(url);
+  let response = await fetch(currentUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body,
+    signal,
+    redirect: 'manual',
+  });
+
+  for (let hop = 0; hop < 5; hop++) {
+    if (response.status < 300 || response.status >= 400) break;
+    const location = response.headers.get('location');
+    if (!location) break;
+    currentUrl = location;
+    response = await fetch(currentUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body,
+      signal,
+      redirect: 'manual',
+    });
+  }
+
+  return response;
+}
+
+function parseSheetsResponse(text: string, status: number): SheetsWebhookResponse {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return { ok: false, message: SHEETS_UNAVAILABLE_MESSAGE };
+  }
+
+  try {
+    return JSON.parse(trimmed) as SheetsWebhookResponse;
+  } catch {
+    if (trimmed.includes('Unauthorized') || trimmed.includes('401')) {
+      return { ok: false, message: 'Google Sheets webhook unauthorized. Check WEBHOOK_SECRET on Vercel.' };
+    }
+    if (status >= 300 && status < 400) {
+      return { ok: false, message: 'Google Sheets webhook redirect failed. Redeploy Apps Script web app.' };
+    }
+    console.error('[google-sheets-lead] non-JSON response:', trimmed.slice(0, 300));
+    return { ok: false, message: SHEETS_UNAVAILABLE_MESSAGE };
+  }
+}
+
 async function postToSheetsWebhook(body: Record<string, unknown>): Promise<SheetsWebhookResponse> {
   const config = getWebhookConfig();
   if (!config) {
@@ -59,33 +124,23 @@ async function postToSheetsWebhook(body: Record<string, unknown>): Promise<Sheet
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
+  const timeout = setTimeout(() => controller.abort(), 20000);
+  const payload = JSON.stringify({ ...body, secret: config.secret });
 
   try {
-    const res = await fetch(config.url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'X-Lead-Webhook-Secret': config.secret,
-      },
-      body: JSON.stringify({ ...body, secret: config.secret }),
-      signal: controller.signal,
-    });
-
-    let json: SheetsWebhookResponse = {};
+    const res = await fetchGoogleAppsScript(config.url, payload, controller.signal);
     const text = await res.text();
-    try {
-      json = text.trim() ? (JSON.parse(text) as SheetsWebhookResponse) : {};
-    } catch {
-      return { ok: false, message: SHEETS_UNAVAILABLE_MESSAGE };
-    }
+    const json = parseSheetsResponse(text, res.status);
 
     if (res.status === 409 || json.duplicate) {
       return { ok: false, duplicate: true, message: json.message };
     }
 
-    if (!res.ok || json.ok === false) {
+    if (json.ok === false) {
+      return { ok: false, message: json.message || SHEETS_UNAVAILABLE_MESSAGE };
+    }
+
+    if (!res.ok && json.ok !== true) {
       return { ok: false, message: json.message || SHEETS_UNAVAILABLE_MESSAGE };
     }
 
