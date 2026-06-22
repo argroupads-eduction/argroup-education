@@ -2261,6 +2261,11 @@
   border-bottom: 2px solid #d97706;
 }
 
+.wp-content-root .wp-table-scroll table:not(:has(thead)):not(.wp-facts-kv-table) tbody tr:first-child td strong,
+.wp-content-root .wp-table-scroll table:not(:has(thead)):not(.wp-facts-kv-table) tbody tr:first-child th strong {
+  color: #fff !important;
+}
+
 .wp-content-root .wp-table-scroll table:not(:has(thead)) tbody tr:first-child td:first-child {
   border-left: none;
 }

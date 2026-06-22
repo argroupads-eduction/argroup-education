@@ -23,6 +23,7 @@ var SHEET_MD_MS = 'MD/MS';
 var SHEET_BAMS = 'BAMS';
 var SHEET_RANK = 'Rank Predictor Leads';
 var TZ = 'Asia/Kolkata';
+var SCRIPT_VERSION = '2026-06-17-v2';
 
 var COURSE_SHEETS = [SHEET_MBBS_INDIA, SHEET_MBBS_ABROAD, SHEET_MD_MS, SHEET_BAMS];
 
@@ -105,6 +106,7 @@ function doGet() {
     return jsonResponse_({
       ok: true,
       service: 'ar-group-lead-webhook',
+      version: SCRIPT_VERSION,
       spreadsheetId: ss.getId(),
       spreadsheetName: ss.getName(),
     });
@@ -231,7 +233,54 @@ function ensureSheet_(ss, name, headers) {
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
     sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
     sheet.setFrozenRows(1);
+  } else {
+    ensureSheetHeaders_(sheet, headers);
   }
+  return sheet;
+}
+
+function ensureSheetHeaders_(sheet, headers) {
+  if (!sheet) return;
+  var existing = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  var needsUpdate = false;
+  for (var i = 0; i < headers.length; i++) {
+    if (String(existing[i] || '').trim() !== headers[i]) {
+      needsUpdate = true;
+      break;
+    }
+  }
+  if (needsUpdate) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+}
+
+function getHeaderColumnIndex_(sheet, headerName, fallbackCol) {
+  if (!sheet) return fallbackCol;
+  var lastCol = Math.max(sheet.getLastColumn(), fallbackCol);
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  for (var i = 0; i < headers.length; i++) {
+    if (String(headers[i] || '').trim() === headerName) return i + 1;
+  }
+  return fallbackCol;
+}
+
+function getColumnValues_(sheet, col) {
+  if (!sheet || col < 1) return [];
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  var numRows = lastRow - 1;
+  return sheet.getRange(2, col, numRows, 1).getValues();
+}
+
+function appendRowFromHeaders_(sheet, headers, rowMap) {
+  var row = [];
+  for (var i = 0; i < headers.length; i++) {
+    var key = headers[i];
+    row.push(Object.prototype.hasOwnProperty.call(rowMap, key) ? rowMap[key] : '');
+  }
+  sheet.appendRow(row);
 }
 
 function resolveCourseSheet_(payload) {
@@ -302,8 +351,8 @@ function isDuplicateLead_(phone, email) {
     var sheet = ss.getSheetByName(allSheets[s]);
     if (!sheet) continue;
 
-    var phoneCol = allSheets[s] === SHEET_RANK ? 3 : 6;
-    var emailCol = allSheets[s] === SHEET_RANK ? 2 : 5;
+    var phoneCol = getHeaderColumnIndex_(sheet, 'Phone Number', allSheets[s] === SHEET_RANK ? 3 : 6);
+    var emailCol = getHeaderColumnIndex_(sheet, 'Email', allSheets[s] === SHEET_RANK ? 2 : 5);
 
     if (phone && phoneExistsInSheet_(sheet, phoneCol, phone)) return true;
     if (email && emailExistsInSheet_(sheet, emailCol, email)) return true;
@@ -312,9 +361,8 @@ function isDuplicateLead_(phone, email) {
 }
 
 function phoneExistsInSheet_(sheet, col, phone) {
-  if (!sheet || sheet.getLastRow() < 2) return false;
-  var lastRow = sheet.getLastRow();
-  var values = sheet.getRange(2, col, lastRow, col).getValues();
+  if (!sheet || !phone) return false;
+  var values = getColumnValues_(sheet, col);
   for (var i = 0; i < values.length; i++) {
     if (normalizePhone_(values[i][0]) === phone) return true;
   }
@@ -322,9 +370,8 @@ function phoneExistsInSheet_(sheet, col, phone) {
 }
 
 function emailExistsInSheet_(sheet, col, email) {
-  if (!sheet || sheet.getLastRow() < 2) return false;
-  var lastRow = sheet.getLastRow();
-  var values = sheet.getRange(2, col, lastRow, col).getValues();
+  if (!sheet || !email) return false;
+  var values = getColumnValues_(sheet, col);
   for (var i = 0; i < values.length; i++) {
     if (normalizeEmail_(values[i][0]) === email) return true;
   }
@@ -345,11 +392,7 @@ function getISTParts_() {
 }
 
 function appendCourseLeadRow_(ss, sheetName, payload, phone, email, parts) {
-  var sheet = ss.getSheetByName(sheetName);
-  if (!sheet) {
-    ensureSheet_(ss, sheetName, COURSE_HEADERS);
-    sheet = ss.getSheetByName(sheetName);
-  }
+  var sheet = ensureSheet_(ss, sheetName, COURSE_HEADERS);
 
   var country = sanitize_(payload.country, 80);
   if (!country && sheetName === SHEET_MBBS_ABROAD) {
@@ -357,43 +400,39 @@ function appendCourseLeadRow_(ss, sheetName, payload, phone, email, parts) {
     if (isAbroadCountry_(course)) country = course;
   }
 
-  sheet.appendRow([
-    parts.leadId,
-    parts.date,
-    parts.time,
-    sanitize_(payload.name, 120),
-    email,
-    phone,
-    sanitize_(payload.city, 80),
-    sanitize_(payload.state, 80),
-    country,
-    sanitize_(payload.course, 120),
-    sanitize_(payload.sourcePage, 300),
-    sanitize_(payload.formType, 120),
-    sanitize_(payload.message, 2000),
-    parts.createdAt,
-  ]);
+  appendRowFromHeaders_(sheet, COURSE_HEADERS, {
+    'Lead ID': parts.leadId,
+    'Date': parts.date,
+    'Time': parts.time,
+    'Name': sanitize_(payload.name, 120),
+    'Email': email,
+    'Phone Number': phone,
+    'City': sanitize_(payload.city, 80),
+    'State': sanitize_(payload.state, 80),
+    'Country': country,
+    'Course': sanitize_(payload.course, 120),
+    'Source Page': sanitize_(payload.sourcePage, 300),
+    'Form Type': sanitize_(payload.formType, 120),
+    'Message': sanitize_(payload.message, 2000),
+    'Created At': parts.createdAt,
+  });
 }
 
 function appendRankPredictorRow_(ss, payload, phone, email, parts) {
-  var sheet = ss.getSheetByName(SHEET_RANK);
-  if (!sheet) {
-    ensureSheet_(ss, SHEET_RANK, RANK_HEADERS);
-    sheet = ss.getSheetByName(SHEET_RANK);
-  }
+  var sheet = ensureSheet_(ss, SHEET_RANK, RANK_HEADERS);
 
-  sheet.appendRow([
-    sanitize_(payload.name, 120),
-    email,
-    phone,
-    Number(payload.neetScore) || 0,
-    Number(payload.predictedRank) || 0,
-    sanitize_(payload.state, 80),
-    sanitize_(payload.course, 120),
-    parts.timestamp,
-    parts.date,
-    parts.time,
-  ]);
+  appendRowFromHeaders_(sheet, RANK_HEADERS, {
+    'Name': sanitize_(payload.name, 120),
+    'Email': email,
+    'Phone Number': phone,
+    'NEET Score': Number(payload.neetScore) || 0,
+    'Predicted Rank': Number(payload.predictedRank) || 0,
+    'State': sanitize_(payload.state, 80),
+    'Course': sanitize_(payload.course, 120),
+    'Timestamp': parts.timestamp,
+    'Date': parts.date,
+    'Time': parts.time,
+  });
 }
 
 function isRecentDuplicateRequest_(requestId) {
