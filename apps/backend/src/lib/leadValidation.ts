@@ -47,7 +47,12 @@ export function validateLeadEmail(email: string | null | undefined): string | nu
 export function sanitizeLeadText(value: unknown, maxLen = 500): string {
   if (value === null || value === undefined) return '';
   const s = String(value)
-    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+    .split('')
+    .filter((ch) => {
+      const code = ch.charCodeAt(0);
+      return code >= 32 && code !== 127;
+    })
+    .join('')
     .replace(/<[^>]*>/g, '')
     .trim();
   return s.length > maxLen ? s.slice(0, maxLen) : s;
