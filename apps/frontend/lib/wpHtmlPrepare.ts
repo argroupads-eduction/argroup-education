@@ -1048,7 +1048,18 @@ function escapeHtml(text: string): string {
 
 type FaqItem = { num: string; question: string; answer: string };
 
-const FAQ_ANSWER_PREFIX = /(?:A\s*\d+\s*[.:]|A\s*:|Ans\.?\s*|Answer\s*:)/i;
+const FAQ_ANSWER_PREFIX = /(?:Answer\s*:|Ans(?:wer)?\s*[.:]|A\s*\d+\s*[.:]|A\s*:)/i;
+
+function wrapFaqAnswerHtml(answer: string): string {
+  const trimmed = answer.trim();
+  if (!trimmed) return '';
+  const label =
+    '<strong class="wp-premium-faq-answer-label">Answer:</strong> ';
+  if (/^<p[\s>]/i.test(trimmed)) {
+    return trimmed.replace(/^<p([^>]*)>/i, `<p class="wp-premium-faq-answer"$1>${label}`);
+  }
+  return `<p class="wp-premium-faq-answer">${label}${trimmed}</p>`;
+}
 
 function buildFaqDetailsHtml(items: FaqItem[]): string {
   return items
@@ -1059,7 +1070,7 @@ function buildFaqDetailsHtml(items: FaqItem[]): string {
         `<span class="wp-premium-faq-qnum">${item.num.padStart(2, '0')}</span>` +
         `<span class="wp-premium-faq-qtext">${escapeHtml(item.question)}</span>` +
         `</summary>` +
-        `<div class="wp-premium-faq-body"><div class="wp-premium-faq-body-inner">${item.answer}</div></div>` +
+        `<div class="wp-premium-faq-body"><div class="wp-premium-faq-body-inner">${wrapFaqAnswerHtml(item.answer)}</div></div>` +
         `</details>`
     )
     .join('');
@@ -1100,12 +1111,17 @@ const FAQ_SECTION_BODY_END =
 
 function cleanAnswerHtml(inner: string): string {
   let out = inner.trim();
-  out = out.replace(/^(?:<b>\s*)?(?:A\s*\d+\s*[.:]|A\s*:|Ans\.?\s*|Answer\s*:)\s*<\/b>\s*/i, '');
-  out = out.replace(/^(?:<span[^>]*>\s*)?(?:A\s*\d+\s*[.:]|A\s*:|Ans\.?\s*|Answer\s*:)\s*/i, (match) => {
+  const answerPrefix =
+    '(?:Answer\\s*:|Ans(?:wer)?\\s*[.:]|A\\s*\\d+\\s*[.:]|A\\s*:)';
+  out = out.replace(
+    new RegExp(`^(?:<b>\\s*)?${answerPrefix}\\s*<\\/b>\\s*`, 'i'),
+    ''
+  );
+  out = out.replace(new RegExp(`^(?:<span[^>]*>\\s*)?${answerPrefix}\\s*`, 'i'), (match) => {
     const spanOpen = inner.match(/^<span[^>]*>/i)?.[0];
-    return spanOpen && match.length < 20 ? spanOpen : '';
+    return spanOpen && match.length < 24 ? spanOpen : '';
   });
-  out = out.replace(/^(?:A\s*\d+\s*[.:]|A\s*:|Ans\.?\s*|Answer\s*:)\s*/i, '');
+  out = out.replace(new RegExp(`^${answerPrefix}\\s*`, 'i'), '');
   out = out.replace(/^<\/b>\s*/i, '');
   return out.trim();
 }
@@ -1128,7 +1144,7 @@ function parseQuestionParagraph(inner: string): { num: string; question: string;
   const qOnly = text.match(/^Q\s*(\d+)\s*[.:]\s*(.+)$/i);
   if (qOnly && !FAQ_ANSWER_PREFIX.test(text.slice(0, 80))) {
     const inline = inner.match(
-      /Q\s*\d+\s*[.:][\s\S]*?(?:<br\s*\/?>\s*)+(?:<b>\s*)?(?:A\s*\d+\s*[.:]|A\s*:|Ans\.?\s*)([\s\S]*)$/i
+      /Q\s*\d+\s*[.:][\s\S]*?(?:<br\s*\/?>\s*)+(?:<b>\s*)?(?:Answer\s*:|Ans(?:wer)?\s*[.:]|A\s*\d+\s*[.:]|A\s*:)([\s\S]*)$/i
     );
     if (inline) {
       return { num: qOnly[1], question: qOnly[2].trim(), inlineAnswer: cleanAnswerHtml(inline[1]) };
@@ -1137,7 +1153,7 @@ function parseQuestionParagraph(inner: string): { num: string; question: string;
   }
 
   const combined = inner.match(
-    /Q\s*(\d+)\s*[.:]\s*([\s\S]*?)(?:<br\s*\/?>\s*)+(?:<b>\s*)?(?:A\s*\d+\s*[.:]|A\s*:|Ans\.?\s*)([\s\S]*)$/i
+    /Q\s*(\d+)\s*[.:]\s*([\s\S]*?)(?:<br\s*\/?>\s*)+(?:<b>\s*)?(?:Answer\s*:|Ans(?:wer)?\s*[.:]|A\s*\d+\s*[.:]|A\s*:)([\s\S]*)$/i
   );
   if (combined) {
     return {

@@ -1825,6 +1825,19 @@
   margin-bottom: 0;
 }
 
+.wp-content-root .wp-premium-faq-answer {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #e8f4fc;
+  color: #1e293b !important;
+}
+
+.wp-content-root .wp-premium-faq-answer-label {
+  font-weight: 700;
+  color: #111827;
+}
+
 .wp-content-root .eael-adv-accordion:not(:has(.wp-premium-faq)) .eael-accordion-header {
   display: flex !important;
   align-items: center !important;
