@@ -71,6 +71,59 @@ function normalizeWebhookUrl(url: string): string {
   return trimmed.replace(/\/$/, '') + '/exec';
 }
 
+/** Must be a deployed web-app /exec URL, not editor or spreadsheet link. */
+function validateWebhookUrlFormat(url: string): string | null {
+  const normalized = normalizeWebhookUrl(url);
+  if (/docs\.google\.com\/spreadsheets/i.test(url)) {
+    return 'GOOGLE_SHEETS_WEBHOOK_URL is a spreadsheet link. Use Deploy → Web app → copy the .../macros/s/.../exec URL from Apps Script.';
+  }
+  if (/\/edit\b|script\.google\.com\/home/i.test(url)) {
+    return 'GOOGLE_SHEETS_WEBHOOK_URL looks like the script editor. Use Deploy → Web app → copy the /exec deployment URL.';
+  }
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/i.test(normalized)) {
+    return 'GOOGLE_SHEETS_WEBHOOK_URL must be https://script.google.com/macros/s/DEPLOYMENT_ID/exec';
+  }
+  return null;
+}
+
+function describeHtmlWebhookResponse(text: string, status: number): string {
+  const sample = text.slice(0, 500).toLowerCase();
+  if (sample.includes('does not exist') || sample.includes('page not found')) {
+    return 'Apps Script deployment not found. Deploy → New deployment → Web app, then paste the new /exec URL in Vercel.';
+  }
+  if (sample.includes('sign in') || sample.includes('accounts.google.com')) {
+    return 'Web app access is not "Anyone". Redeploy Apps Script with Who has access: Anyone.';
+  }
+  if (sample.includes('authorization is required') || sample.includes('need permission')) {
+    return 'Apps Script needs authorization. Run setupSheets() once, then redeploy the web app.';
+  }
+  return `Webhook returned HTML instead of JSON (HTTP ${status}). Use the /exec URL from Deploy → Web app, not the sheet or editor link.`;
+}
+
+/** GAS always 302-redirects to script.googleusercontent.com; both hops use GET. */
+async function fetchGoogleAppsScriptGet(url: string, signal?: AbortSignal): Promise<Response> {
+  let response = await fetch(normalizeWebhookUrl(url), {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+    signal,
+    redirect: 'manual',
+  });
+
+  for (let hop = 0; hop < 5; hop++) {
+    if (response.status < 300 || response.status >= 400) break;
+    const location = response.headers.get('location');
+    if (!location) break;
+    response = await fetch(location, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal,
+      redirect: 'manual',
+    });
+  }
+
+  return response;
+}
+
 /**
  * GAS POST hits /exec, runs doPost, then 302 → googleusercontent.com echo URL (GET only).
  * @see https://developers.google.com/apps-script/guides/content#redirects
@@ -221,6 +274,7 @@ export async function checkGoogleSheetsWebhookHealth(): Promise<{
   message?: string;
   spreadsheetId?: string;
   spreadsheetName?: string;
+  webhookUrlValid?: boolean;
 }> {
   const config = getWebhookConfig();
   if (!config) {
@@ -231,22 +285,52 @@ export async function checkGoogleSheetsWebhookHealth(): Promise<{
     };
   }
 
+  const formatError = validateWebhookUrlFormat(config.url);
+  if (formatError) {
+    return {
+      configured: true,
+      ok: false,
+      webhookUrlValid: false,
+      message: formatError,
+    };
+  }
+
   try {
-    const res = await fetch(normalizeWebhookUrl(config.url), {
-      method: 'GET',
-      redirect: 'follow',
-    });
+    const res = await fetchGoogleAppsScriptGet(config.url);
     const text = await res.text();
-    const json = JSON.parse(text) as {
+    const trimmed = text.trim();
+
+    if (trimmed.startsWith('<') || trimmed.toLowerCase().startsWith('<!doctype')) {
+      return {
+        configured: true,
+        ok: false,
+        webhookUrlValid: false,
+        message: describeHtmlWebhookResponse(text, res.status),
+      };
+    }
+
+    let json: {
       ok?: boolean;
       spreadsheetId?: string;
       spreadsheetName?: string;
       message?: string;
     };
+    try {
+      json = JSON.parse(trimmed) as typeof json;
+    } catch {
+      return {
+        configured: true,
+        ok: false,
+        webhookUrlValid: true,
+        message: `Webhook response was not JSON (HTTP ${res.status}). Redeploy Apps Script web app.`,
+      };
+    }
+
     return {
       configured: true,
       ok: json.ok === true,
-      message: json.message,
+      webhookUrlValid: true,
+      message: json.ok === true ? undefined : json.message || 'Apps Script returned ok:false',
       spreadsheetId: json.spreadsheetId,
       spreadsheetName: json.spreadsheetName,
     };
