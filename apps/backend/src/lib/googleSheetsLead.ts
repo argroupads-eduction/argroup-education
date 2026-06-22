@@ -41,9 +41,21 @@ type SheetsWebhookResponse = {
   message?: string;
 };
 
+function cleanEnvValue(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  let trimmed = value.trim();
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    trimmed = trimmed.slice(1, -1).trim();
+  }
+  return trimmed || undefined;
+}
+
 function getWebhookConfig(): { url: string; secret: string } | null {
-  const url = process.env.GOOGLE_SHEETS_WEBHOOK_URL?.trim();
-  const secret = process.env.GOOGLE_SHEETS_WEBHOOK_SECRET?.trim();
+  const url = cleanEnvValue(process.env.GOOGLE_SHEETS_WEBHOOK_URL);
+  const secret = cleanEnvValue(process.env.GOOGLE_SHEETS_WEBHOOK_SECRET);
   if (!url || !secret) return null;
   return { url, secret };
 }
@@ -59,39 +71,38 @@ function normalizeWebhookUrl(url: string): string {
   return trimmed.replace(/\/$/, '') + '/exec';
 }
 
-/** Google Apps Script web apps redirect POST; follow manually with same body. */
+/**
+ * GAS POST hits /exec, runs doPost, then 302 → googleusercontent.com echo URL (GET only).
+ * @see https://developers.google.com/apps-script/guides/content#redirects
+ */
 async function fetchGoogleAppsScript(
   url: string,
   body: string,
   signal: AbortSignal
 ): Promise<Response> {
-  let currentUrl = normalizeWebhookUrl(url);
-  let response = await fetch(currentUrl, {
+  const execUrl = normalizeWebhookUrl(url);
+
+  let response = await fetch(execUrl, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'text/plain;charset=utf-8',
       Accept: 'application/json',
     },
     body,
     signal,
-    redirect: 'manual',
+    redirect: 'follow',
   });
 
-  for (let hop = 0; hop < 5; hop++) {
-    if (response.status < 300 || response.status >= 400) break;
+  if (response.status >= 300 && response.status < 400) {
     const location = response.headers.get('location');
-    if (!location) break;
-    currentUrl = location;
-    response = await fetch(currentUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body,
-      signal,
-      redirect: 'manual',
-    });
+    if (location) {
+      response = await fetch(location, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+        signal,
+        redirect: 'follow',
+      });
+    }
   }
 
   return response;
@@ -109,11 +120,27 @@ function parseSheetsResponse(text: string, status: number): SheetsWebhookRespons
     if (trimmed.includes('Unauthorized') || trimmed.includes('401')) {
       return { ok: false, message: 'Google Sheets webhook unauthorized. Check WEBHOOK_SECRET on Vercel.' };
     }
+    if (status === 405) {
+      return {
+        ok: false,
+        message: 'Google Sheets webhook returned 405. Redeploy Apps Script web app with Anyone access.',
+      };
+    }
     if (status >= 300 && status < 400) {
       return { ok: false, message: 'Google Sheets webhook redirect failed. Redeploy Apps Script web app.' };
     }
-    console.error('[google-sheets-lead] non-JSON response:', trimmed.slice(0, 300));
-    return { ok: false, message: SHEETS_UNAVAILABLE_MESSAGE };
+    if (trimmed.includes('does not exist') || trimmed.includes('Page Not Found')) {
+      return {
+        ok: false,
+        message:
+          'Google Sheets webhook URL is invalid or deleted. Create a new Apps Script deployment and update GOOGLE_SHEETS_WEBHOOK_URL.',
+      };
+    }
+    console.error('[google-sheets-lead] non-JSON response:', status, trimmed.slice(0, 300));
+    return {
+      ok: false,
+      message: `Google Sheets webhook error (HTTP ${status}). Check GOOGLE_SHEETS_WEBHOOK_URL and Apps Script deployment.`,
+    };
   }
 }
 
@@ -185,6 +212,51 @@ export async function submitWebsiteLeadToGoogleSheets(
       message: sanitizeLeadText(payload.message, 2000),
     },
   });
+}
+
+/** GET health check — calls Apps Script doGet (no secret). Useful after Vercel deploy. */
+export async function checkGoogleSheetsWebhookHealth(): Promise<{
+  configured: boolean;
+  ok: boolean;
+  message?: string;
+  spreadsheetId?: string;
+  spreadsheetName?: string;
+}> {
+  const config = getWebhookConfig();
+  if (!config) {
+    return {
+      configured: false,
+      ok: false,
+      message: 'GOOGLE_SHEETS_WEBHOOK_URL or GOOGLE_SHEETS_WEBHOOK_SECRET not set',
+    };
+  }
+
+  try {
+    const res = await fetch(normalizeWebhookUrl(config.url), {
+      method: 'GET',
+      redirect: 'follow',
+    });
+    const text = await res.text();
+    const json = JSON.parse(text) as {
+      ok?: boolean;
+      spreadsheetId?: string;
+      spreadsheetName?: string;
+      message?: string;
+    };
+    return {
+      configured: true,
+      ok: json.ok === true,
+      message: json.message,
+      spreadsheetId: json.spreadsheetId,
+      spreadsheetName: json.spreadsheetName,
+    };
+  } catch (error) {
+    return {
+      configured: true,
+      ok: false,
+      message: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 export async function submitRankPredictorToGoogleSheets(
