@@ -647,9 +647,13 @@ function mergeBlogListItem(
   const next = normalizeBlogItem(incoming);
   if (!existing) return next;
   const prev = normalizeBlogItem(existing);
+  const nextTime = new Date(next.publishedAt).getTime();
+  const prevTime = new Date(prev.publishedAt).getTime();
+  const winner = nextTime >= prevTime ? next : prev;
+  const loser = nextTime >= prevTime ? prev : next;
   return {
-    ...next,
-    featuredImage: next.featuredImage ?? prev.featuredImage,
+    ...winner,
+    featuredImage: winner.featuredImage ?? loser.featuredImage,
   };
 }
 
