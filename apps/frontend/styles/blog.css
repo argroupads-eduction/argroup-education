@@ -673,6 +673,17 @@
   font-weight: 600;
 }
 
+.wp-content-blog table tbody tr:first-child td {
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%);
+  color: #fff !important;
+  font-weight: 700;
+  border-bottom: 2px solid #d97706;
+}
+
+.wp-content-blog table tbody tr:first-child td strong {
+  color: #fff !important;
+}
+
 .wp-content-blog tr:nth-child(even) td {
   background: #f8fafc;
 }
