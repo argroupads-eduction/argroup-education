@@ -28,6 +28,8 @@ export function buildSiteMetadata(
     | 'metaTitle'
     | 'metaDescription'
     | 'canonicalUrl'
+    | 'focusKeyword'
+    | 'keywords'
     | 'ogTitle'
     | 'ogDescription'
     | 'ogImage'
