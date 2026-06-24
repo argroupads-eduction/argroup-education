@@ -11,16 +11,17 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'Latest Education Blog 2026 | MBBS, NEET & Study Abroad',
+  title: 'Education News And Updates | Medical Admission Blogs',
   description:
-    'Explore AR Group of Education blog for MBBS India & Abroad admission guides, fees, eligibility, NEET tips, and expert career advice for students.',
+    'Stay informed with the latest education news and updates. Read our medical admission blogs for expert insights into NEET counseling, cutoffs, and college guides.',
+  keywords: ['Education News And Updates', 'Medical Admission Blogs'],
   alternates: {
     canonical: `${SITE_URL}/blog`,
   },
   openGraph: {
-    title: 'Medical Education Blog | AR Group of Education',
+    title: 'Education News And Updates | Medical Admission Blogs',
     description:
-      'MBBS India & Abroad guides, fees, eligibility, and expert admission tips.',
+      'Stay informed with the latest education news and updates. Read our medical admission blogs for expert insights into NEET counseling, cutoffs, and college guides.',
     url: `${SITE_URL}/blog`,
     type: 'website',
   },

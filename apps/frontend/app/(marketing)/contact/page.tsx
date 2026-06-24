@@ -3,13 +3,14 @@ import { ContactPageView } from '@/components/contact/ContactPageView';
 import { getSiteUrl } from '@/lib/siteUrl';
 
 const SITE = getSiteUrl();
-const CONTACT_SEO_TITLE = 'Contact Us for Expert Medical Admission Counselling & Guidance';
+const CONTACT_SEO_TITLE = 'Contact AR Group of Education | Admission Consultancy Contact';
 const CONTACT_SEO_DESCRIPTION =
-  'Get expert medical admission counselling for MBBS, MD, and MS courses. Speak with our top consultants and secure your seat today. Reach out now!';
+  'Get in touch with the AR Group of Education team. Reach out to our admission consultancy contact experts today for personalized course and college guidance.';
 
 export const metadata: Metadata = {
   title: CONTACT_SEO_TITLE,
   description: CONTACT_SEO_DESCRIPTION,
+  keywords: ['Contact AR Group of Education', 'Admission Consultancy Contact'],
   alternates: {
     canonical: `${SITE}/contact`,
   },

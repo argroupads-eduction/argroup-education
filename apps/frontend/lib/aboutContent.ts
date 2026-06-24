@@ -166,7 +166,8 @@ export const ABOUT_DIFFERENTIATORS = [
 ] as const;
 
 export const ABOUT_SEO = {
-  title: 'Best MBBS Consultants in India 2026 | AR Group Of Education',
+  title: 'Best MBBS And Medical Admission Consultants in India',
   description:
-    'Learn about the Best MBBS Consultants in India. We offer genuine MBBS admission guidance India for top medical colleges. Contact our experts today!',
+    'Find the Best MBBS Consultants in India. As premier Medical Admission Consultants in India, we provide expert guidance for top medical colleges. Apply now!',
+  keywords: ['Medical Admission Consultants in India', 'Best MBBS Consultants in India'] as const,
 } as const;

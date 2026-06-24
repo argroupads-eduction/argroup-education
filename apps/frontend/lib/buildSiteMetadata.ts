@@ -59,6 +59,11 @@ export function buildSiteMetadata(
   return {
     title,
     description,
+    ...(content.keywords?.length
+      ? { keywords: content.keywords }
+      : content.focusKeyword
+        ? { keywords: [content.focusKeyword] }
+        : {}),
     alternates: { canonical },
     openGraph: {
       title: ogTitle,

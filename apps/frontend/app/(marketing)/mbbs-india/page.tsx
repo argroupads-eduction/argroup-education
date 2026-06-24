@@ -11,6 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: wpContent?.metaTitle || seo.title,
     description: wpContent?.metaDescription || seo.description,
+    keywords: [...seo.keywords],
     alternates: { canonical: seo.path },
   };
 }

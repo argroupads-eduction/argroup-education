@@ -101,7 +101,7 @@ export async function buildDynamicSitemap(baseUrl: string): Promise<SitemapEntry
   );
 
   const postEntries: SitemapEntry[] = posts.map((p) => ({
-    loc: `${base}/${p.slug}`,
+    loc: `${base}/blog/${p.slug.split('/').filter(Boolean).map(encodeURIComponent).join('/')}`,
     lastmod: (p.updatedAt ?? p.publishedAt ?? new Date()).toISOString(),
     changefreq: 'weekly',
     priority: 0.7,

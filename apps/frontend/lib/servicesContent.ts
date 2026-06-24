@@ -158,7 +158,8 @@ export const SERVICES_PROMISES = [
 ] as const;
 
 export const SERVICES_SEO = {
-  title: 'Our Services | MBBS India, Abroad & PG Counselling',
+  title: 'Admission Counseling Services | Career Guidance Services',
   description:
-    'Explore AR Group of Education services: MBBS India & abroad counselling, MD/MS guidance, NEET rank tools, visa support, documentation, scholarships, and pre-departure help.',
+    'Explore our expert admission counseling services and career guidance services. Get professional advice on top college selection, admissions, and course mapping.',
+  keywords: ['Admission Counseling Services', 'Career Guidance Services'] as const,
 } as const;
