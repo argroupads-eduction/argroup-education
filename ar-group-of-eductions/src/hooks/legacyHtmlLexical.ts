@@ -6,7 +6,7 @@ import type {
 
 import {
   hasSubstantialLexicalContent,
-  isPlaceholderLexicalContent,
+  needsLegacyHtmlConversion,
 } from '@/utilities/lexicalContent'
 
 type LegacyBodyDoc = {
@@ -48,7 +48,7 @@ export const hydrateLegacyHtmlAfterRead: CollectionAfterReadHook = async ({
   if (findMany || !req.user || req.context?.disableLegacyHydration) return doc
 
   const body = doc as LegacyBodyDoc
-  if (hasSubstantialLexicalContent(body.content)) return doc
+  if (!needsLegacyHtmlConversion(body.content, body.htmlContent)) return doc
 
   const html = importedHtml(body.htmlContent)
   if (!html) return doc
@@ -74,7 +74,7 @@ export const promoteLexicalBodyOnSave: CollectionBeforeChangeHook = async ({
   const next = data as LegacyBodyDoc
   const prev = (originalDoc ?? {}) as LegacyBodyDoc
 
-  if (hasSubstantialLexicalContent(next.content)) {
+  if (hasSubstantialLexicalContent(next.content, next.htmlContent ?? prev.htmlContent)) {
     next.htmlContent = null
     return next
   }
@@ -83,7 +83,7 @@ export const promoteLexicalBodyOnSave: CollectionBeforeChangeHook = async ({
   if (!html) return next
 
   const content = next.content ?? prev.content
-  if (!isPlaceholderLexicalContent(content) && hasSubstantialLexicalContent(content)) {
+  if (!needsLegacyHtmlConversion(content, next.htmlContent ?? prev.htmlContent)) {
     return next
   }
 
