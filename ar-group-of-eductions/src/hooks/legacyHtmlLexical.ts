@@ -8,7 +8,6 @@ import {
   hasSubstantialLexicalContent,
   isPlaceholderLexicalContent,
 } from '@/utilities/lexicalContent'
-import { wpHtmlToLexical } from '@/utilities/wpHtmlToLexical'
 
 type LegacyBodyDoc = {
   title?: string | null
@@ -32,6 +31,7 @@ async function htmlToEditorLexical(
   const html = importedHtml(doc.htmlContent)
   if (!html) return null
 
+  const { wpHtmlToLexical } = await import('@/utilities/wpHtmlToLexical')
   return wpHtmlToLexical(html, config, {
     featuredImageUrl:
       typeof doc.featuredImageUrl === 'string' ? doc.featuredImageUrl : null,
