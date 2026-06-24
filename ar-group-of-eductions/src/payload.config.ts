@@ -15,11 +15,12 @@ import { SiteSettings } from './globals/SiteSettings/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
-import { resolveDatabaseUrl } from './utilities/resolveDatabaseUrl'
+import { resolveDatabasePoolConfig } from './utilities/resolveDatabaseUrl'
 import { ensureMarketingPages } from './utilities/ensureMarketingPages'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const databasePool = resolveDatabasePoolConfig()
 
 export default buildConfig({
   admin: {
@@ -61,9 +62,10 @@ export default buildConfig({
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: postgresAdapter({
-    pool: {
-      connectionString: resolveDatabaseUrl(),
-    },
+    pool: databasePool,
+    // Payload tables in `cms` schema — Prisma marketing tables stay in `public` (no Drizzle rename prompts).
+    schemaName: 'cms',
+    migrationDir: path.resolve(dirname, 'migrations'),
     /**
      * When false, skips Drizzle `push` on boot (no interactive "Accept warnings?" prompt, faster admin).
      * Set PAYLOAD_DATABASE_PUSH=true temporarily when you need schema synced after collection changes.

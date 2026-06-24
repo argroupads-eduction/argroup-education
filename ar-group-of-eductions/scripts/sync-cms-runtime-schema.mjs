@@ -1,5 +1,5 @@
 /**
- * Idempotent Neon schema fixes for Payload CMS runtime (Vercel deploy).
+ * Idempotent schema fixes for Payload CMS runtime (Vercel deploy).
  * Usage: node scripts/sync-cms-runtime-schema.mjs
  */
 import dotenv from 'dotenv'
@@ -16,6 +16,11 @@ if (!connectionString) {
   process.exit(0)
 }
 
+const isSupabase = connectionString.includes('supabase.com')
+const pgUrl = isSupabase
+  ? connectionString.replace(/([?&])sslmode=[^&]*/gi, '$1').replace(/[?&]$/, '').replace(/\?&/, '?')
+  : connectionString
+
 const sql = `
 ALTER TABLE IF EXISTS pages ADD COLUMN IF NOT EXISTS seo_keywords text;
 ALTER TABLE IF EXISTS _pages_v ADD COLUMN IF NOT EXISTS version_seo_keywords text;
@@ -27,7 +32,11 @@ ALTER TABLE IF EXISTS posts ALTER COLUMN html_content TYPE text;
 ALTER TABLE IF EXISTS _posts_v ALTER COLUMN version_html_content TYPE text;
 `
 
-const client = new pg.Client({ connectionString })
+const client = new pg.Client(
+  isSupabase
+    ? { connectionString: pgUrl, ssl: { rejectUnauthorized: false } }
+    : { connectionString: pgUrl },
+)
 
 try {
   await client.connect()
