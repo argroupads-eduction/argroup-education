@@ -21,7 +21,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getPayload } from 'payload';
 import config from '@payload-config';
-import { wpHtmlToLexical } from '../src/utilities/wpHtmlToLexical.js';
 import { minimalLexicalParagraph } from './wp-import/minimalLexical.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -120,6 +119,11 @@ function plainExcerpt(item: WpItem): string {
   return stripHtml(item.content).slice(0, 500);
 }
 
+/** Import uses placeholder Lexical — full layout lives in htmlContent (see WP-PAYLOAD-MIGRATION.md). */
+function importLexicalPlaceholder(item: WpItem) {
+  return minimalLexicalParagraph(plainExcerpt(item) || stripHtml(item.title) || item.slug);
+}
+
 function pageLayoutBlock(excerpt: string) {
   return [
     {
@@ -150,10 +154,7 @@ async function upsertPost(
   if (item.status !== 'publish') return 'skipped';
 
   const excerpt = plainExcerpt(item);
-  const content = await wpHtmlToLexical(item.content, payload.config, {
-    featuredImageUrl: item.featuredImage,
-    title: stripHtml(item.title),
-  });
+  const content = importLexicalPlaceholder(item);
   const data = {
     title: stripHtml(item.title),
     slug: item.slug,
@@ -218,10 +219,7 @@ async function upsertPage(
   if (item.slug === HOME_SLUG) return 'skipped';
 
   const excerpt = plainExcerpt(item);
-  const content = await wpHtmlToLexical(item.content, payload.config, {
-    featuredImageUrl: item.featuredImage,
-    title: stripHtml(item.title),
-  });
+  const content = importLexicalPlaceholder(item);
   const data = {
     title: stripHtml(item.title),
     slug: item.slug,

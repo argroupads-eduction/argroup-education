@@ -32,33 +32,46 @@ export function loadDatabaseEnv(): void {
   }
 }
 
-/** Neon pooled URL for Payload (avoids local 127.0.0.1 / Hyper-V fallback on Windows). */
+/** Cloud Postgres URL for Payload (Neon or Supabase). */
 export function resolveDatabaseUrl(): string {
+  return resolveDatabasePoolConfig().connectionString
+}
+
+/** pg pool config — Supabase on Windows needs explicit ssl (not sslmode in URL). */
+export function resolveDatabasePoolConfig(): {
+  connectionString: string
+  ssl?: { rejectUnauthorized: boolean }
+} {
   loadDatabaseEnv()
 
   let raw = process.env.DATABASE_URL?.trim().replace(/^["']|["']$/g, '')
   if (!raw) {
     throw new Error(
-      'DATABASE_URL is missing. Copy ar-group-of-eductions/.env.example to .env and set your Neon URL (use -pooler host).',
+      'DATABASE_URL is missing. Copy ar-group-of-eductions/.env.example to .env and set your Postgres URL (Neon pooler or Supabase transaction pooler).',
     )
   }
 
   if (raw.includes('127.0.0.1') || raw.includes('localhost') || raw.includes('192.168.')) {
     throw new Error(
-      'DATABASE_URL points to a local Postgres host. Use your Neon pooled URL in ar-group-of-eductions/.env',
+      'DATABASE_URL points to a local Postgres host. Use your cloud Postgres URL in ar-group-of-eductions/.env',
     )
   }
+
+  const isSupabase = raw.includes('supabase.com')
 
   // Prefer Neon pooler for stable connections from dev machines.
   if (raw.includes('.neon.tech') && !raw.includes('-pooler.')) {
     raw = raw.replace(/(@ep-[^.]+\.)(c-\d+\.)/, '$1pooler.$2')
   }
 
-  if (raw.includes('-pooler.') && !/[?&]pgbouncer=true/i.test(raw)) {
+  if (raw.includes('.neon.tech') && raw.includes('-pooler.') && !/[?&]pgbouncer=true/i.test(raw)) {
     raw += raw.includes('?') ? '&pgbouncer=true' : '?pgbouncer=true'
   }
 
-  if (!/[?&]sslmode=/i.test(raw)) {
+  if (isSupabase) {
+    // sslmode in the URL forces strict verify-full on Node pg → SELF_SIGNED_CERT_IN_CHAIN on Windows.
+    raw = raw.replace(/([?&])sslmode=[^&]*/gi, '$1').replace(/[?&]$/, '').replace(/\?&/, '?')
+  } else if (!/[?&]sslmode=/i.test(raw)) {
     raw += raw.includes('?') ? '&sslmode=require' : '?sslmode=require'
   }
 
@@ -66,5 +79,7 @@ export function resolveDatabaseUrl(): string {
     raw += raw.includes('?') ? '&connect_timeout=15' : '?connect_timeout=15'
   }
 
-  return raw
+  return isSupabase
+    ? { connectionString: raw, ssl: { rejectUnauthorized: false } }
+    : { connectionString: raw }
 }
