@@ -13,7 +13,7 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 const nextConfig: NextConfig = {
   // jsdom is loaded lazily for HTML→Lexical conversion — keep it out of the admin bundle.
-  serverExternalPackages: ['jsdom', 'payload', '@payloadcms/db-postgres'],
+  serverExternalPackages: ['jsdom'],
   // Temporarily required on Windows until Next.js fixes Turbopack Sass resolution.
   // See: https://github.com/vercel/next.js/issues/86431
   sassOptions: {
