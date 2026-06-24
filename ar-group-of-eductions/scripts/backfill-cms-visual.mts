@@ -20,7 +20,7 @@ import { pipeline } from 'node:stream/promises'
 import { fileURLToPath } from 'node:url'
 import type { Payload, Where } from 'payload'
 
-import { hasSubstantialLexicalContent } from '../src/utilities/lexicalContent.js'
+import { needsLegacyHtmlConversion } from '../src/utilities/lexicalContent.js'
 import { resolveDatabaseUrl } from '../src/utilities/resolveDatabaseUrl.js'
 import { wpHtmlToLexical } from '../src/utilities/wpHtmlToLexical.js'
 
@@ -188,7 +188,7 @@ async function backfillDoc(
   const imageField = collection === 'posts' ? 'heroImage' : 'featuredImage'
   const currentImageId = collection === 'posts' ? doc.heroImage : doc.featuredImage
 
-  const needsContent = html && (opts.force || !hasSubstantialLexicalContent(doc.content))
+  const needsContent = html && (opts.force || needsLegacyHtmlConversion(doc.content, html))
   const needsImage = imageUrl && !currentImageId
   const needsLayoutCleanup = collection === 'pages' && isPlaceholderLayout(doc.layout)
 
@@ -203,6 +203,7 @@ async function backfillDoc(
       featuredImageUrl: imageUrl,
       title: typeof doc.title === 'string' ? doc.title : null,
     })
+    data.htmlContent = null
   }
 
   if (needsImage && imageUrl) {
@@ -229,7 +230,7 @@ async function backfillDoc(
       id: doc.id,
       data,
       overrideAccess: true,
-      context: { disableBackendSync: true, disableRevalidate: true },
+      context: { disableBackendSync: true, disableRevalidate: true, disableLegacyHydration: true },
     })
   }
 

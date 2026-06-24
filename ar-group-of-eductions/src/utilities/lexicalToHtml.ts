@@ -347,7 +347,10 @@ export function htmlFromPayloadDoc(doc: {
   )
 
   // Visual editor is the source of truth for new CMS posts.
-  if (hasSubstantialLexicalContent(doc.content) && fromContent.trim()) {
+  if (
+    hasSubstantialLexicalContent(doc.content, doc.htmlContent) &&
+    fromContent.trim()
+  ) {
     return fromContent
   }
 
