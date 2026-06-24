@@ -291,7 +291,6 @@ export async function submitWebsiteLead(
 
   const sheetsEnabled = isGoogleSheetsLeadEnabled() && !options?.skipGoogleSheets;
   let sheetsLeadId: string | undefined;
-  let sheetsSaved = false;
 
   if (sheetsEnabled) {
     const sheetPayload = buildSheetPayloadFromLead(input, fields, { name, email, phone });
@@ -313,8 +312,18 @@ export async function submitWebsiteLead(
     }
 
     if (sheetsResult.ok) {
-      sheetsSaved = true;
       sheetsLeadId = sheetsResult.leadId;
+      // Sheets is primary storage — return success without requiring Neon/Supabase write.
+      return {
+        ok: true as const,
+        status: 201,
+        id: sheetsLeadId ?? `sheets-${Date.now()}`,
+        emailSent: false,
+        emailDeferred: false,
+        sheetsSaved: true as const,
+        skipEmail: true as const,
+        message: SUCCESS_LEAD_MESSAGE,
+      };
     } else {
       console.error('[website-lead] Google Sheets failed — email fallback:', sheetsResult.message);
 
@@ -408,19 +417,6 @@ export async function submitWebsiteLead(
     if (!isDatabaseUnavailableError(error)) throw error;
     console.warn('[website-lead] DB save failed:', error);
 
-    if (sheetsSaved) {
-      return {
-        ok: true as const,
-        status: 201,
-        id: sheetsLeadId ?? `sheets-${Date.now()}`,
-        emailSent: false,
-        emailDeferred: false,
-        sheetsSaved: true as const,
-        skipEmail: true as const,
-        message: SUCCESS_LEAD_MESSAGE,
-      };
-    }
-
     const emailResult = await sendLeadEmailWithRetry({
       source: input.source,
       formName: input.formName,
@@ -443,19 +439,6 @@ export async function submitWebsiteLead(
       emailSent: true,
       emailDeferred: false,
       emailOnly: true as const,
-      skipEmail: true as const,
-      message: SUCCESS_LEAD_MESSAGE,
-    };
-  }
-
-  if (sheetsSaved) {
-    return {
-      ok: true as const,
-      status: 201,
-      id: lead?.id ?? sheetsLeadId ?? `sheets-${Date.now()}`,
-      emailSent: false,
-      emailDeferred: false,
-      sheetsSaved: true as const,
       skipEmail: true as const,
       message: SUCCESS_LEAD_MESSAGE,
     };
