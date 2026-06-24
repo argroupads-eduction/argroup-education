@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import config from '@payload-config'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -8,6 +7,7 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     const { getPayload } = await import('payload')
+    const { default: config } = await import('@payload-config')
     const payload = await getPayload({ config })
     return NextResponse.json({
       ok: true,

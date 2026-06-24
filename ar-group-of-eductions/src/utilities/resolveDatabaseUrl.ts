@@ -71,6 +71,9 @@ export function resolveDatabasePoolConfig(): {
   if (isSupabase) {
     // sslmode in the URL forces strict verify-full on Node pg → SELF_SIGNED_CERT_IN_CHAIN on Windows.
     raw = raw.replace(/([?&])sslmode=[^&]*/gi, '$1').replace(/[?&]$/, '').replace(/\?&/, '?')
+    if (/:6543\b/.test(raw) && !/[?&]pgbouncer=true/i.test(raw)) {
+      raw += raw.includes('?') ? '&pgbouncer=true' : '?pgbouncer=true'
+    }
   } else if (!/[?&]sslmode=/i.test(raw)) {
     raw += raw.includes('?') ? '&sslmode=require' : '?sslmode=require'
   }
