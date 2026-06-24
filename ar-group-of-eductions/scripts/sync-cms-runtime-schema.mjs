@@ -22,14 +22,15 @@ const pgUrl = isSupabase
   : connectionString
 
 const sql = `
-ALTER TABLE IF EXISTS pages ADD COLUMN IF NOT EXISTS seo_keywords text;
-ALTER TABLE IF EXISTS _pages_v ADD COLUMN IF NOT EXISTS version_seo_keywords text;
-ALTER TABLE IF EXISTS posts ADD COLUMN IF NOT EXISTS seo_keywords text;
-ALTER TABLE IF EXISTS _posts_v ADD COLUMN IF NOT EXISTS version_seo_keywords text;
-ALTER TABLE IF EXISTS pages ALTER COLUMN html_content TYPE text;
-ALTER TABLE IF EXISTS _pages_v ALTER COLUMN version_html_content TYPE text;
-ALTER TABLE IF EXISTS posts ALTER COLUMN html_content TYPE text;
-ALTER TABLE IF EXISTS _posts_v ALTER COLUMN version_html_content TYPE text;
+CREATE SCHEMA IF NOT EXISTS cms;
+ALTER TABLE IF EXISTS cms.pages ADD COLUMN IF NOT EXISTS seo_keywords text;
+ALTER TABLE IF EXISTS cms._pages_v ADD COLUMN IF NOT EXISTS version_seo_keywords text;
+ALTER TABLE IF EXISTS cms.posts ADD COLUMN IF NOT EXISTS seo_keywords text;
+ALTER TABLE IF EXISTS cms._posts_v ADD COLUMN IF NOT EXISTS version_seo_keywords text;
+ALTER TABLE IF EXISTS cms.pages ALTER COLUMN html_content TYPE text;
+ALTER TABLE IF EXISTS cms._pages_v ALTER COLUMN version_html_content TYPE text;
+ALTER TABLE IF EXISTS cms.posts ALTER COLUMN html_content TYPE text;
+ALTER TABLE IF EXISTS cms._posts_v ALTER COLUMN version_html_content TYPE text;
 `
 
 const client = new pg.Client(
