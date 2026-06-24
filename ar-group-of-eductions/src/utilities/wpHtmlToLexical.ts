@@ -20,6 +20,82 @@ function normUrl(url: string): string {
     .toLowerCase()
 }
 
+function escapeHtmlText(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+const SITE_ORIGIN = 'https://www.argroupofeducation.com'
+
+function normalizeExternalUrl(url: string): string | null {
+  const trimmed = url.trim()
+  if (!trimmed || trimmed === '#') return null
+  if (/^(https?:\/\/|mailto:|tel:)/i.test(trimmed)) return trimmed
+  if (trimmed.startsWith('//')) return `https:${trimmed}`
+  if (trimmed.startsWith('/')) return `${SITE_ORIGIN}${trimmed}`
+  if (/^www\./i.test(trimmed)) return `https://${trimmed}`
+  try {
+    return new URL(trimmed).href
+  } catch {
+    return null
+  }
+}
+
+function sanitizeAnchorTags(html: string): string {
+  return html.replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (_match, attrs: string, inner: string) => {
+    const href = attrs.match(/\bhref=["']([^"']*)["']/i)?.[1] ?? ''
+    const normalized = normalizeExternalUrl(href)
+    if (!normalized) return inner
+    return `<a href="${normalized.replace(/"/g, '&quot;')}">${inner}</a>`
+  })
+}
+
+/** Lexical upload nodes require a media ID; WP inline images become external links. */
+function inlineImagesToLinks(html: string): string {
+  return html.replace(/<img\b[^>]*>/gi, (match) => {
+    const src = match.match(/\bsrc=["']([^"']+)["']/i)?.[1]
+    const alt = match.match(/\balt=["']([^"']*)["']/i)?.[1]?.trim() || 'View image'
+    const normalized = src ? normalizeExternalUrl(src) : null
+    if (!normalized) return ''
+    return `<p><a href="${normalized.replace(/"/g, '&quot;')}">${escapeHtmlText(alt)}</a></p>`
+  })
+}
+
+function isValidUploadId(value: unknown): boolean {
+  if (typeof value === 'number' && Number.isFinite(value)) return true
+  if (typeof value === 'string' && /^\d+$/.test(value)) return true
+  if (value && typeof value === 'object' && 'id' in value) {
+    const id = (value as { id: unknown }).id
+    return typeof id === 'number' || (typeof id === 'string' && /^\d+$/.test(id))
+  }
+  return false
+}
+
+function stripInvalidUploadNodes<T extends { root?: { children?: unknown[] } }>(lexical: T): T {
+  const walk = (nodes: unknown[]): unknown[] => {
+    const out: unknown[] = []
+    for (const raw of nodes) {
+      if (!raw || typeof raw !== 'object') continue
+      const node = raw as Record<string, unknown>
+      if (node.type === 'upload' && !isValidUploadId(node.value)) continue
+      if (Array.isArray(node.children)) {
+        node.children = walk(node.children)
+      }
+      out.push(node)
+    }
+    return out
+  }
+
+  const root = lexical?.root
+  if (root && Array.isArray(root.children)) {
+    root.children = walk(root.children)
+  }
+  return lexical
+}
+
 function urlsMatch(a: string, b: string): boolean {
   const na = normUrl(a)
   const nb = normUrl(b)
@@ -80,7 +156,7 @@ export function simplifyElementorHtml(
   out = out.replace(/\sdata-e-type="[^"]*"/gi, '')
   out = out.replace(/\sdata-widget_type="[^"]*"/gi, '')
 
-  return out
+  return sanitizeAnchorTags(inlineImagesToLinks(out))
 }
 
 let cachedEditorConfig: Awaited<ReturnType<typeof editorConfigFactory.fromFeatures>> | null = null
@@ -105,17 +181,21 @@ export async function wpHtmlToLexical(
   const editorConfig = await getMarketingEditorConfig(config)
 
   try {
-    return convertHTMLToLexical({
-      editorConfig,
-      html: cleaned,
-      JSDOM,
-    })
+    return stripInvalidUploadNodes(
+      await convertHTMLToLexical({
+        editorConfig,
+        html: cleaned,
+        JSDOM,
+      }),
+    )
   } catch {
     const fallback = stripTags(cleaned).slice(0, 8000)
-    return convertHTMLToLexical({
-      editorConfig,
-      html: fallback ? `<p>${fallback}</p>` : '<p>Content imported from WordPress.</p>',
-      JSDOM,
-    })
+    return stripInvalidUploadNodes(
+      await convertHTMLToLexical({
+        editorConfig,
+        html: fallback ? `<p>${fallback}</p>` : '<p>Content imported from WordPress.</p>',
+        JSDOM,
+      }),
+    )
   }
 }
