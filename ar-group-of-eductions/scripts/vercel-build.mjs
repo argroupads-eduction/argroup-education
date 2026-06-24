@@ -23,8 +23,9 @@ const skipSchemaSync =
   process.env.SKIP_CMS_SCHEMA_SYNC === '1' || process.env.SKIP_CMS_SCHEMA_SYNC === 'true'
 
 if (process.env.DATABASE_URL && !skipSchemaSync) {
-  console.log('[vercel-build] Syncing CMS database schema...')
+  console.log('[vercel-build] Ensuring cms schema + syncing Payload tables...')
   try {
+    run('node scripts/ensure-cms-schema.mjs')
     run('node scripts/sync-cms-runtime-schema.mjs')
   } catch (error) {
     // Idempotent DDL — safe to skip when Neon is unreachable or over quota; CMS still builds.
