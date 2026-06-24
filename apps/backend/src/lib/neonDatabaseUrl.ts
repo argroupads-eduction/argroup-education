@@ -10,7 +10,8 @@ export function neonDatabaseUrl(raw?: string): string {
   }
 
   let url = raw.trim().replace(/^["']|["']$/g, '');
-  const isPooler = url.includes('-pooler.');
+  const isNeonPooler = url.includes('-pooler.');
+  const isSupabasePooler = url.includes('supabase.com') && /:6543\b/.test(url);
 
   const ensureParam = (key: string, value: string) => {
     const re = new RegExp(`([?&])${key}=`, 'i');
@@ -23,11 +24,11 @@ export function neonDatabaseUrl(raw?: string): string {
   ensureParam('connect_timeout', '30');
   ensureParam('pool_timeout', '30');
 
-  if (isPooler) {
+  if (isNeonPooler || isSupabasePooler) {
     ensureParam('pgbouncer', 'true');
     // Limit connections per Node process (backend + frontend each get their own pool).
     ensureParam('connection_limit', process.env.PRISMA_CONNECTION_LIMIT ?? '5');
-  } else if (process.env.NODE_ENV === 'development') {
+  } else if (process.env.NODE_ENV === 'development' && !url.includes('supabase.com')) {
     console.warn(
       '[database] DATABASE_URL is not a Neon pooler URL (-pooler.). Use the pooled URL from Neon Console to avoid idle disconnect errors.'
     );
@@ -61,6 +62,7 @@ export function isDatabaseUnavailableError(err: unknown): boolean {
     e.code === 'P1002' ||
     e.code === 'P1008' ||
     e.code === 'P1011' ||
+    e.code === 'P2021' ||
     e.name === 'PrismaClientInitializationError' ||
     /can't reach database/i.test(msg) ||
     /database server.*not.*running/i.test(msg) ||
