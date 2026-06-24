@@ -202,11 +202,7 @@ export interface Page {
    */
   featuredImage?: (number | null) | Media;
   /**
-   * Complete live-site body HTML. Edit headings, tables, FAQs, images, and all sections here. Changes publish to the marketing site when you save.
-   */
-  htmlContent?: string | null;
-  /**
-   * Optional WYSIWYG editor for short sections. For imported WordPress pages, edit the HTML field above — it controls the live site.
+   * Edit with normal headings, lists, bold, and images. Publish to update the live website automatically.
    */
   content?: {
     root: {
@@ -223,6 +219,7 @@ export interface Page {
     };
     [k: string]: unknown;
   } | null;
+  htmlContent?: string | null;
   /**
    * Legacy layout blocks from import (usually a short excerpt). Ignore for full pages — use the HTML field above.
    */
@@ -297,11 +294,7 @@ export interface Post {
    */
   heroImage?: (number | null) | Media;
   /**
-   * Complete live-site body HTML. Edit headings, tables, FAQs, images, and all sections here. Changes publish to the marketing site when you save.
-   */
-  htmlContent?: string | null;
-  /**
-   * Optional WYSIWYG editor. For imported blog posts, edit the HTML field above — it controls the live article.
+   * Write your blog here with normal formatting (headings, lists, bold, images). It publishes to the live blog template automatically — no HTML needed.
    */
   content?: {
     root: {
@@ -318,6 +311,7 @@ export interface Post {
     };
     [k: string]: unknown;
   } | null;
+  htmlContent?: string | null;
   featuredImageUrl?: string | null;
   relatedPosts?: (number | Post)[] | null;
   categories?: (number | Category)[] | null;
@@ -1152,8 +1146,8 @@ export interface PagesSelect<T extends boolean = true> {
         media?: T;
       };
   featuredImage?: T;
-  htmlContent?: T;
   content?: T;
+  htmlContent?: T;
   layout?:
     | T
     | {
@@ -1284,8 +1278,8 @@ export interface FormBlockSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   heroImage?: T;
-  htmlContent?: T;
   content?: T;
+  htmlContent?: T;
   featuredImageUrl?: T;
   relatedPosts?: T;
   categories?: T;

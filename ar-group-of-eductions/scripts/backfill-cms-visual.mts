@@ -196,39 +196,60 @@ async function backfillDoc(
     return { updated: false as const, reason: 'already_complete' as const }
   }
 
-  const data: Record<string, unknown> = {}
+  let contentFilled = false
+  let imageLinked = false
 
-  if (needsContent) {
-    data.content = await wpHtmlToLexical(html, payload.config, {
+  if (needsContent && !opts.dryRun) {
+    const lexical = await wpHtmlToLexical(html, payload.config, {
       featuredImageUrl: imageUrl,
       title: typeof doc.title === 'string' ? doc.title : null,
     })
-    data.htmlContent = null
-  }
-
-  if (needsImage && imageUrl) {
-    const mediaId = await ensureMedia(
-      payload,
-      imageUrl,
-      String(doc.slug ?? doc.id),
-      String(doc.title ?? doc.slug ?? 'Featured image'),
-      opts.dryRun,
-    )
-    if (mediaId && mediaId > 0) {
-      data[imageField] = mediaId
-      if (!doc.featuredImageUrl) data.featuredImageUrl = imageUrl
-    }
-  }
-
-  if (needsLayoutCleanup) {
-    data.layout = []
-  }
-
-  if (!opts.dryRun && Object.keys(data).length > 0) {
     await payload.update({
       collection,
       id: doc.id,
-      data,
+      data: { content: lexical, htmlContent: null },
+      overrideAccess: true,
+      context: { disableBackendSync: true, disableRevalidate: true, disableLegacyHydration: true },
+    })
+    contentFilled = true
+  } else if (needsContent && opts.dryRun) {
+    contentFilled = true
+  }
+
+  if (needsImage && imageUrl && !opts.dryRun) {
+    try {
+      const mediaId = await ensureMedia(
+        payload,
+        imageUrl,
+        String(doc.slug ?? doc.id),
+        String(doc.title ?? doc.slug ?? 'Featured image'),
+        opts.dryRun,
+      )
+      if (mediaId && mediaId > 0) {
+        const imageData: Record<string, unknown> = { [imageField]: mediaId }
+        if (!doc.featuredImageUrl) imageData.featuredImageUrl = imageUrl
+        await payload.update({
+          collection,
+          id: doc.id,
+          data: imageData,
+          overrideAccess: true,
+          context: { disableBackendSync: true, disableRevalidate: true, disableLegacyHydration: true },
+        })
+        imageLinked = true
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      if (!msg.includes('not allowed') && !msg.includes('File type')) throw e
+    }
+  } else if (needsImage && imageUrl && opts.dryRun) {
+    imageLinked = true
+  }
+
+  if (needsLayoutCleanup && !opts.dryRun) {
+    await payload.update({
+      collection,
+      id: doc.id,
+      data: { layout: [] },
       overrideAccess: true,
       context: { disableBackendSync: true, disableRevalidate: true, disableLegacyHydration: true },
     })
@@ -236,8 +257,8 @@ async function backfillDoc(
 
   return {
     updated: true as const,
-    content: Boolean(needsContent),
-    image: Boolean(needsImage && data[imageField]),
+    content: contentFilled,
+    image: imageLinked,
     layoutCleared: Boolean(needsLayoutCleanup),
   }
 }
