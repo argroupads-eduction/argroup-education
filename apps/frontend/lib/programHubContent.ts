@@ -9,23 +9,26 @@ export type ProgramHubTheme = 'india' | 'abroad' | 'mdms';
 
 export const PROGRAM_HUB_SEO = {
   india: {
-    title: 'Study MBBS in India 2026: Admission in Top Medical Colleges',
+    title: 'Study MBBS in India | MBBS Admission in India',
     description:
-      'Plan your career and study MBBS in India. Learn about private medical colleges in India, fees, and eligibility. Call us now for expert advice!',
+      'Secure your seat to study MBBS in India. Get expert counseling and direct guidance for MBBS Admission in India across top medical colleges. Contact us today!',
+    keywords: ['Study MBBS in India', 'MBBS Admission in India'] as const,
     path: '/mbbs-india',
     badge: 'MBBS in India',
   },
   abroad: {
-    title: 'Study MBBS in Abroad for Indian Students | Low Cost Options',
+    title: 'Study MBBS Abroad | Trusted MBBS Abroad Consultants',
     description:
-      'Want to study MBBS in abroad for Indian students? Find MCI recognized universities abroad list and low cost options. Apply online for admissions!',
+      'Want to Study MBBS Abroad? Connect with trusted MBBS Abroad Consultants to explore NMC-approved medical universities with transparent fees. Apply now!',
+    keywords: ['Study MBBS Abroad', 'MBBS Abroad Consultants'] as const,
     path: '/mbbs-abroad',
     badge: 'MBBS Abroad',
   },
   mdms: {
-    title: 'MD/MS Admission in India 2026: Top PG Medical Colleges & Fees',
+    title: 'MD MS Admission in India | PG Medical Admission Counseling',
     description:
-      'Get direct MD/MS Admission in India without donation. Check top MD MS colleges in Uttar Pradesh and other states. Call our experts to book seats!',
+      'Secure your seat via MD MS Admission in India. Get expert PG Medical Admission Counseling for top clinical and non-clinical branches. Contact us today!',
+    keywords: ['MD MS Admission in India', 'PG Medical Admission Counseling'] as const,
     path: '/md-ms',
     badge: 'MD / MS',
   },

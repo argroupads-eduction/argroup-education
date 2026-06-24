@@ -31,22 +31,14 @@ const FAQSection = dynamic(() =>
 
 const SITE = getSiteUrl();
 
-const HOME_SEO_TITLE =
-  'Medical College Admission | NEET & MBBS Consultants India & Abroad';
+const HOME_SEO_TITLE = 'Medical Admission Guidance | MBBS Admission Consultancy';
 const HOME_SEO_DESCRIPTION =
-  'Secure Medical College Admission with AR Group Of Education. Trust on top MBBS Admission Consultants In India & MBBS Admission Consultants Abroad. Contact a NEET Counselling Expert today!';
+  "Secure your seat with India's trusted MBBS admission consultancy. Get expert medical admission guidance for top colleges in India and abroad. Call today!";
 
 export const metadata: Metadata = {
   title: HOME_SEO_TITLE,
   description: HOME_SEO_DESCRIPTION,
-  keywords: [
-    'MBBS admission consultant India',
-    'MBBS abroad consultancy',
-    'NEET counselling Delhi NCR',
-    'medical college admission help',
-    'study MBBS in Russia Nepal Georgia',
-    'AR Group of Education',
-  ],
+  keywords: ['Medical Admission Guidance', 'MBBS Admission Consultancy'],
   alternates: {
     canonical: `${SITE}/`,
   },

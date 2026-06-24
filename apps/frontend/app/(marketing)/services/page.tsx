@@ -6,6 +6,7 @@ import { getSiteUrl } from '@/lib/siteUrl';
 export const metadata: Metadata = {
   title: SERVICES_SEO.title,
   description: SERVICES_SEO.description,
+  keywords: [...SERVICES_SEO.keywords],
   alternates: {
     canonical: '/services',
   },

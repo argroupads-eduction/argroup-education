@@ -14,9 +14,10 @@ export async function generateMetadata() {
   const content = await getContentBySlug('neet-rank-predictor');
   if (!content) {
     return {
-      title: 'NEET Rank Predictor 2026 | Check Expected Rank & College Chances',
+      title: 'NEET Rank Predictor 2026 | NEET Marks vs Rank 2026',
       description:
-        'NEET rank predictor by AR Group, MBBS India & Abroad college matches, rank range, and percentile. Matches our site counselling experience.',
+        'Predict your rank with our accurate NEET Rank Predictor 2026. Check the latest NEET Marks vs Rank trends to evaluate your MBBS college options instantly.',
+      keywords: ['NEET Rank Predictor 2026', 'NEET Marks vs Rank 2026'],
       alternates: { canonical: '/neet-rank-predictor' },
     };
   }

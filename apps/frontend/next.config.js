@@ -56,6 +56,8 @@ const nextConfig = {
     '/api/cms/payload-sync': ['../../node_modules/.prisma/client/**/*'],
     '/api/leads/submit': ['../../node_modules/.prisma/client/**/*'],
     '/api/newsletter/subscribe': ['../../node_modules/.prisma/client/**/*'],
+    '/api/sitemap': ['./data/wp-export-bundle/**/*', './data/mbbs-india-tree.json', './data/mbbs-abroad-tree.json'],
+    '/sitemap.xml': ['./data/wp-export-bundle/**/*', './data/mbbs-india-tree.json', './data/mbbs-abroad-tree.json'],
   },
 
   images: {
@@ -210,14 +212,6 @@ const nextConfig = {
 
     return {
       beforeFiles: [
-        {
-          source: '/sitemap.xml',
-          destination: '/api/sitemap',
-        },
-        {
-          source: '/robots.txt',
-          destination: '/api/robots',
-        },
         {
           source: '/llms.txt',
           destination: '/api/llms',
