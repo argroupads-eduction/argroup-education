@@ -242,8 +242,10 @@ export const SOCIAL_LINKS = [
   { platform: 'instagram', url: 'https://www.instagram.com/argroupofeducation1/' },
   { platform: 'youtube', url: 'https://www.youtube.com/@argroupofeducation' },
   { platform: 'whatsapp', url: 'https://wa.me/919667006402' },
+  { platform: 'gmail', url: 'mailto:info@argroupofeducation.com' },
 ] as const;
 
+/** Top navigation bar — compact icon row */
 export const FOOTER_SOCIAL_PLATFORMS = ['facebook', 'instagram', 'youtube'] as const;
 
 // Contact Info

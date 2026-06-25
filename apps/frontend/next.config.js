@@ -19,6 +19,7 @@ const PUBLIC_MARKETING_ASSETS = [
   'abroad-homepage.jpg',
   'about-counsellor.png',
   'lead-mbbs-doctor.png',
+  'medical-admission-counselling-hero.png',
 ];
 
 /** @type {import('next').NextConfig} */

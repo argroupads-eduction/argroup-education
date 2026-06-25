@@ -79,7 +79,7 @@
       .contact-footer-link
     ):not(.thank-you-page__link):not(.nav-latest-updates-item):not(.nav-latest-updates-flyout-item):not(
       .site-footer-main__social-link
-    ):not(.site-topbar-social-link) {
+    ):not(.site-topbar-social-link):not(.site-footer-follow__icon) {
     @apply text-gold-600;
   }
 
