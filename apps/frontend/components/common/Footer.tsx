@@ -184,7 +184,7 @@ export const Footer = () => {
 
           <div className="site-footer-main__bottom">
             <p className="site-footer-main__copyright">
-              &copy; AR 2008&ndash;{year}. All rights reserved.
+              &copy; AR GROUP OF EDUCATION 2005&ndash;{year}. All rights reserved.
             </p>
             <div className="site-footer-main__legal">
               <Link href="/privacy">Privacy</Link>
