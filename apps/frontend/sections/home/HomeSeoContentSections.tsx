@@ -33,6 +33,9 @@ function SectionEyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
+const editorialBodyText =
+  'space-y-4 text-left [&_p]:text-[14px] [&_p]:font-normal [&_p]:leading-[1.75] md:[&_p]:text-[15px] md:[&_p]:leading-[1.8]';
+
 export function HomeSeoContentSections() {
   return (
     <div className="home-editorial relative overflow-hidden bg-[#f4f6fa]">
@@ -111,7 +114,7 @@ export function HomeSeoContentSections() {
                     Your admission partner
                   </span>
                 </div>
-                <div className="space-y-4 text-left [&_a]:!text-inherit [&_a:hover]:!text-inherit [&_p]:text-[14px] [&_p]:font-normal [&_p]:leading-[1.75] [&_p]:!text-white/95 md:[&_p]:text-[15px] md:[&_p]:leading-[1.8]">
+                <div className={`${editorialBodyText} [&_a]:!text-inherit [&_a:hover]:!text-inherit [&_p]:!text-white/95`}>
                   <p>
                     Becoming a doctor is a dream shared by thousands of students across India. However,
                     with increasing competition, limited medical seats, and complex admission procedures,
@@ -158,7 +161,7 @@ export function HomeSeoContentSections() {
               <h2 className="text-2xl font-bold text-navy-900 md:text-3xl">
                 Why Professional Medical Admission Guidance Matters
               </h2>
-              <div className="mt-5 space-y-4 text-slate-600 leading-relaxed">
+              <div className={`mt-5 ${editorialBodyText} [&_p]:text-slate-600`}>
                 <p>
                   Medical admissions have become increasingly competitive due to rising numbers of applicants
                   and limited seats. Professional Medical Admission Guidance helps students understand
@@ -189,7 +192,7 @@ export function HomeSeoContentSections() {
               <h2 className="text-2xl font-bold text-navy-900 md:text-3xl">
                 Admission Counselling for Medical Students
               </h2>
-              <div className="mt-5 space-y-4 text-slate-600 leading-relaxed">
+              <div className={`mt-5 ${editorialBodyText} [&_p]:text-slate-600`}>
                 <p>
                   Choosing the right medical college is one of the most important decisions in a student&apos;s
                   life. Our comprehensive Admission Counselling for Medical Students is designed to simplify
