@@ -2,6 +2,7 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 
 import type { Post } from '../../../payload-types'
 import { buildPostSyncPayload } from '../../../utilities/payloadSyncFields'
+import { marketingPostSlug } from '../../../utilities/marketingSlug'
 import { htmlFromPayloadDoc, syncToMarketingBackend } from '../../../utilities/syncToMarketingBackend'
 
 export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
@@ -17,10 +18,11 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
 
   const published = isPublished
   const fields = await buildPostSyncPayload(req.payload, doc)
+  const slug = marketingPostSlug(doc.slug)
 
   await syncToMarketingBackend({
     type: 'post',
-    slug: doc.slug ?? '',
+    slug,
     title: doc.title ?? doc.slug ?? 'Untitled',
     content: fields.content,
     excerpt: fields.excerpt,
@@ -48,7 +50,7 @@ export const syncPostDeleteToBackend: CollectionAfterDeleteHook<Post> = ({ doc }
 
   void syncToMarketingBackend({
     type: 'post',
-    slug: doc.slug,
+    slug: marketingPostSlug(doc.slug),
     title: doc.title ?? doc.slug,
     content: htmlFromPayloadDoc(doc),
     published: false,
