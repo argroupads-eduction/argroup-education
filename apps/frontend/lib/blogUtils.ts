@@ -10,6 +10,7 @@ export const BLOG_EXCLUDED_LIST_SLUGS = new Set([
 export const BLOG_SLUG_CANONICAL: Record<string, string> = {
   'neet-re-exam-2026-vs-original-exam':
     'neet-re-exam-2026-vs-original-exam-which-is-tougher',
+  'top-medical-colleges-india': 'top-medical-colleges-in-india',
 };
 
 function normalizeBlogTitleKey(title: string): string {

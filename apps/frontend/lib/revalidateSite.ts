@@ -1,5 +1,15 @@
 import { revalidatePath } from 'next/cache';
-import { blogPostPath } from '@/lib/blogUtils';
+import { BLOG_SLUG_CANONICAL, blogPostPath } from '@/lib/blogUtils';
+
+function revalidateBlogSlugPaths(slug: string) {
+  const paths = new Set<string>([blogPostPath(slug)]);
+  const canonical = BLOG_SLUG_CANONICAL[slug];
+  if (canonical) paths.add(blogPostPath(canonical));
+  for (const [alias, target] of Object.entries(BLOG_SLUG_CANONICAL)) {
+    if (target === slug) paths.add(blogPostPath(alias));
+  }
+  for (const path of paths) revalidatePath(path);
+}
 
 export function revalidateAfterContentSync(opts: {
   slug: string;
@@ -7,7 +17,7 @@ export function revalidateAfterContentSync(opts: {
 }) {
   revalidatePath('/blog');
   if (opts.type === 'post') {
-    revalidatePath(blogPostPath(opts.slug));
+    revalidateBlogSlugPaths(opts.slug);
   } else {
     revalidatePath('/');
     revalidatePath(`/${opts.slug.split('/').map(encodeURIComponent).join('/')}`);
