@@ -6,6 +6,14 @@ import { loadMbbsHeroFormDefinitionsServer } from '@/lib/mbbsHeroFormDefinitionS
 import { HeroSection } from '@/sections/home/HeroSection';
 import { NeetRankPredictorHomeSection } from '@/sections/home/NeetRankPredictorHomeSection';
 import { LazySection } from '@/components/common/LazySection';
+import { HomeFaqJsonLd } from '@/components/home/HomeFaqJsonLd';
+
+const HomeSeoContentSections = dynamic(
+  () =>
+    import('@/sections/home/HomeSeoContentSections').then((m) => ({
+      default: m.HomeSeoContentSections,
+    }))
+);
 
 const MBBSIndiaStateSection = dynamic(
   () => import('@/sections/home/MBBSIndiaStateSection').then((m) => ({ default: m.MBBSIndiaStateSection }))
@@ -31,14 +39,24 @@ const FAQSection = dynamic(() =>
 
 const SITE = getSiteUrl();
 
-const HOME_SEO_TITLE = 'Medical Admission Guidance | MBBS Admission Consultancy';
+const HOME_SEO_TITLE =
+  'Medical Admission Guidance & MBBS Admission Consultancy for Future Medical Professionals';
 const HOME_SEO_DESCRIPTION =
-  "Secure your seat with India's trusted MBBS admission consultancy. Get expert medical admission guidance for top colleges in India and abroad. Call today!";
+  'Professional Medical Admission Guidance and trusted MBBS Admission Consultancy for NEET aspirants. Expert admission counselling, MBBS in India & abroad, and MD/MS planning with AR Group of Education.';
 
 export const metadata: Metadata = {
   title: HOME_SEO_TITLE,
   description: HOME_SEO_DESCRIPTION,
-  keywords: ['Medical Admission Guidance', 'MBBS Admission Consultancy'],
+  keywords: [
+    'Medical Admission Guidance',
+    'MBBS Admission Consultancy',
+    'Admission Counselling for Medical Students',
+    'Medical College Admission Assistance',
+    'MBBS Abroad Consultancy',
+    'Medical Admission Guidance for NEET Aspirants',
+    'MD MS Admission in India',
+    'NEET UG Counselling',
+  ],
   alternates: {
     canonical: `${SITE}/`,
   },
@@ -79,6 +97,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <HomeFaqJsonLd />
       <HeroSection
         initialForms={{
           india: forms.india.ok ? forms.india.doc : getMbbsHeroFallbackForm('india'),
@@ -103,6 +122,9 @@ export default async function HomePage() {
       </LazySection>
       <LazySection minHeight="20rem">
         <TestimonialsSection />
+      </LazySection>
+      <LazySection minHeight="32rem">
+        <HomeSeoContentSections />
       </LazySection>
       <LazySection minHeight="18rem">
         <FAQSection />

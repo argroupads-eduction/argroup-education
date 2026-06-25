@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
@@ -7,7 +8,7 @@ import { ChevronDown } from 'lucide-react';
 interface AccordionItem {
   id: string;
   title: string;
-  content: string;
+  content: ReactNode;
 }
 
 interface AccordionProps {
