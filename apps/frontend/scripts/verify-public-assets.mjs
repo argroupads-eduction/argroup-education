@@ -10,6 +10,7 @@ const REQUIRED = [
   'abroad-homepage.jpg',
   'about-counsellor.png',
   'lead-mbbs-doctor.png',
+  'medical-admission-counselling-hero.png',
 ];
 
 const missing = REQUIRED.filter((file) => !existsSync(join(publicDir, file)));

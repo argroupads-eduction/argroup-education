@@ -2,17 +2,13 @@
 
 import Link from 'next/link';
 import { useMemo } from 'react';
-import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 import { BrandLogoLink } from '@/components/common/BrandLogoLink';
 import { Button } from '@/components/ui/Button';
-import {
-  CONTACT_INFO,
-  FOOTER_SOCIAL_PLATFORMS,
-  SITE_NAME,
-  SOCIAL_LINKS,
-} from '@/lib/constants';
+import { CONTACT_INFO, SOCIAL_LINKS } from '@/lib/constants';
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
 import { FooterAirportDiaries } from './footer/FooterAirportDiaries';
+import { FooterFollowUs } from './footer/FooterFollowUs';
 import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
 import { useSiteGlobals } from '@/components/common/SiteGlobalsProvider';
 import { navPagesForSection } from '@/lib/dynamicNav';
@@ -40,19 +36,6 @@ const FEATURED_ABROAD = MBBS_ABROAD_COUNTRIES.slice(0, 6);
 function telHref(phone: string): string {
   const digits = phone.replace(/\D/g, '');
   return digits ? `tel:+${digits.replace(/^0+/, '')}` : '#';
-}
-
-function socialIcon(platform: string) {
-  switch (platform) {
-    case 'facebook':
-      return Facebook;
-    case 'instagram':
-      return Instagram;
-    case 'youtube':
-      return Youtube;
-    default:
-      return null;
-  }
 }
 
 export const Footer = () => {
@@ -192,49 +175,23 @@ export const Footer = () => {
                   decoding="async"
                 />
               </a>
+              <FooterFollowUs
+                socialLinks={socialLinks}
+                email={contactInfo.email ?? CONTACT_INFO.email}
+              />
             </div>
           </div>
 
           <div className="site-footer-main__bottom">
-            <div className="site-footer-main__social">
-              <span className="site-footer-main__social-label">Follow us</span>
-              {socialLinks
-                .filter((social) =>
-                  FOOTER_SOCIAL_PLATFORMS.includes(
-                    social.platform as (typeof FOOTER_SOCIAL_PLATFORMS)[number]
-                  )
-                )
-                .map((social) => {
-                  const Icon = socialIcon(social.platform);
-                  if (!Icon) return null;
-                  return (
-                    <a
-                      key={social.platform}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`site-footer-main__social-link site-footer-main__social-link--${social.platform}`}
-                      aria-label={social.platform}
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                    </a>
-                  );
-                })}
-            </div>
+            <p className="site-footer-main__copyright">
+              &copy; AR 2008&ndash;{year}. All rights reserved.
+            </p>
             <div className="site-footer-main__legal">
               <Link href="/privacy">Privacy</Link>
               <Link href="/terms">Terms</Link>
               <Link href="/disclaimer">Disclaimer</Link>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="site-footer-bar">
-        <div className="site-footer-bar__inner">
-          <p>
-            &copy; {year} {SITE_NAME}. All rights reserved.
-          </p>
         </div>
       </div>
     </footer>
