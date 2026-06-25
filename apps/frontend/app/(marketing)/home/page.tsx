@@ -120,14 +120,14 @@ export default async function HomePage() {
       <LazySection minHeight="22rem">
         <AchievementsSection />
       </LazySection>
-      <LazySection minHeight="20rem">
-        <TestimonialsSection />
-      </LazySection>
       <LazySection minHeight="32rem">
         <HomeSeoContentSections />
       </LazySection>
       <LazySection minHeight="18rem">
         <FAQSection />
+      </LazySection>
+      <LazySection minHeight="20rem">
+        <TestimonialsSection />
       </LazySection>
     </>
   );
