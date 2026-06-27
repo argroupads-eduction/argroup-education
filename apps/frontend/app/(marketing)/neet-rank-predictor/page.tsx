@@ -5,26 +5,32 @@ import { NeetRankPredictorContent } from '@/components/neet-rank-predictor/NeetR
 import { NEET_EXAM_YEAR_LABEL } from '@/lib/neetRankPredictor/data';
 import { getContentBySlug } from '@/lib/contentApi';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
+import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 import '@/styles/neet-rank-predictor.css';
 
 export const revalidate = 300;
 
 export async function generateMetadata() {
+  const curated = getCuratedPageSeo('/neet-rank-predictor');
   const content = await getContentBySlug('neet-rank-predictor');
   if (!content) {
     return {
-      title: 'NEET Rank Predictor 2026 | NEET Marks vs Rank 2026',
+      title: curated?.metaTitle ?? 'NEET Rank Predictor 2026 | NEET Marks vs Rank 2026',
       description:
+        curated?.metaDescription ??
         'Predict your rank with our accurate NEET Rank Predictor 2026. Check the latest NEET Marks vs Rank trends to evaluate your MBBS college options instantly.',
       keywords: ['NEET Rank Predictor 2026', 'NEET Marks vs Rank 2026'],
       alternates: { canonical: '/neet-rank-predictor' },
     };
   }
-  return buildSiteMetadata({
-    ...content,
-    slug: 'neet-rank-predictor',
-  });
+  return buildSiteMetadata(
+    {
+      ...content,
+      slug: 'neet-rank-predictor',
+    },
+    { canonicalPath: '/neet-rank-predictor' }
+  );
 }
 
 const STATS = [

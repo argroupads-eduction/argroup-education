@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { SiteContent } from '@/lib/contentApi';
+import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 
 import { getSiteUrl } from '@/lib/siteUrl';
@@ -38,19 +39,22 @@ export function buildSiteMetadata(
   >,
   options?: SiteMetadataOptions
 ): Metadata {
-  const title = plainTitle(content.metaTitle || options?.fallbackTitle || content.title);
-  const description = metaDescriptionFromContent(
-    content.metaDescription || content.excerpt,
-    content.content
+  const canonicalPath = options?.canonicalPath ?? `/${content.slug}`;
+  const curated = getCuratedPageSeo(canonicalPath);
+
+  const title = plainTitle(
+    curated?.metaTitle || content.metaTitle || options?.fallbackTitle || content.title
   );
+  const description =
+    curated?.metaDescription ||
+    metaDescriptionFromContent(content.metaDescription || content.excerpt, content.content);
 
   const canonical = options?.canonicalPath
     ? `${SITE_URL}${options.canonicalPath}`
     : content.canonicalUrl || `${SITE_URL}/${content.slug}`;
 
   const ogTitle = plainTitle(content.ogTitle || title);
-  const ogDescription =
-    content.ogDescription?.trim() || description;
+  const ogDescription = curated?.metaDescription || content.ogDescription?.trim() || description;
   const ogImage = content.ogImage || content.featuredImage || undefined;
 
   const twitterTitle = plainTitle(content.twitterTitle || ogTitle);

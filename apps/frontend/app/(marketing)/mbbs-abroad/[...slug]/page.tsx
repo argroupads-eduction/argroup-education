@@ -14,6 +14,7 @@ import {
 } from '@/lib/mbbsAbroadTree';
 import { resolveCollegeFeaturedImage } from '@/lib/collegeFeaturedImage';
 import { resolveMbbsAbroadFeaturedImage } from '@/lib/mbbsAbroadCountryImages';
+import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type PageProps = {
@@ -25,9 +26,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const country = getMbbsAbroadCountryById(slug[0]);
   if (!country) return { title: 'MBBS Abroad' };
 
+  const curated = getCuratedPageSeo(country.href);
   return {
-    title: `MBBS in ${country.name}`,
-    description: `Explore MBBS universities in ${country.name}.`,
+    title: curated?.metaTitle ?? `MBBS in ${country.name}`,
+    description: curated?.metaDescription ?? `Explore MBBS universities in ${country.name}.`,
     alternates: { canonical: country.href },
   };
 }

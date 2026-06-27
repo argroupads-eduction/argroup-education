@@ -7,6 +7,7 @@ import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { MbbsIndiaStateGrid } from '@/components/mbbs-india/MbbsIndiaStateGrid';
 import { getContentBySlug } from '@/lib/contentApi';
 import { MBBS_INDIA_STATES, getMbbsIndiaStateBySlugPart } from '@/lib/mbbsIndiaTree';
+import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { resolveMbbsIndiaFeaturedImage } from '@/lib/mbbsIndiaStateImages';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
@@ -19,9 +20,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const state = getMbbsIndiaStateBySlugPart(slug[0]);
   if (!state) return { title: 'MBBS India' };
 
+  const curated = getCuratedPageSeo(state.href);
   return {
-    title: `MBBS in ${state.name}`,
-    description: `Explore ${state.colleges.length}+ MBBS colleges in ${state.name}.`,
+    title: curated?.metaTitle ?? `MBBS in ${state.name}`,
+    description: curated?.metaDescription ?? `Explore ${state.colleges.length}+ MBBS colleges in ${state.name}.`,
     alternates: { canonical: state.href },
   };
 }

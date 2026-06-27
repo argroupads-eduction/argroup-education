@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/contentApi';
+import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 
 type MarketingSeoEntry = {
   metaTitle: string;
@@ -90,6 +91,35 @@ export const MARKETING_PAGE_SEO: Record<string, MarketingSeoEntry> = {
 
 export function applyMarketingPageSeo(content: SiteContent): SiteContent {
   const seo = MARKETING_PAGE_SEO[content.slug];
+  const slugPath: Record<string, string> = {
+    'ar-group-of-education': '/about',
+    'mbbs-in-india': '/mbbs-india',
+    'study-mbbs-in-abroad': '/mbbs-abroad',
+    'md-ms': '/md-ms',
+    mbbs: '/mbbs',
+    'bams-in-india': '/bams-in-india',
+    'education-consultancy-in-delhi-ncr': '/education-consultancy-in-delhi-ncr',
+    'neet-ug-counselling': '/neet-ug-counselling',
+    'neet-2026-syllabus': '/neet-2026-syllabus',
+    'neet-rank-predictor': '/neet-rank-predictor',
+    'neet-pg-counselling': '/neet-pg-counselling',
+  };
+  const curated = getCuratedPageSeo(slugPath[content.slug] ?? `/${content.slug}`);
+
+  if (curated) {
+    return {
+      ...content,
+      metaTitle: curated.metaTitle,
+      metaDescription: curated.metaDescription,
+      focusKeyword: seo?.focusKeyword ?? content.focusKeyword,
+      keywords: seo?.keywords ? [...seo.keywords] : content.keywords,
+      ogTitle: curated.metaTitle,
+      ogDescription: curated.metaDescription,
+      twitterTitle: curated.metaTitle,
+      twitterDescription: curated.metaDescription,
+    };
+  }
+
   if (!seo) return content;
 
   return {
