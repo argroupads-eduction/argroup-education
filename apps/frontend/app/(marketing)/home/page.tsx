@@ -39,10 +39,9 @@ const FAQSection = dynamic(() =>
 
 const SITE = getSiteUrl();
 
-const HOME_SEO_TITLE =
-  'Medical Admission Guidance & MBBS Admission Consultancy for Future Medical Professionals';
+const HOME_SEO_TITLE = 'Medical Admission Guidance | MBBS Admission Consultancy';
 const HOME_SEO_DESCRIPTION =
-  'Professional Medical Admission Guidance and trusted MBBS Admission Consultancy for NEET aspirants. Expert admission counselling, MBBS in India & abroad, and MD/MS planning with AR Group of Education.';
+  "Secure your seat with India's trusted MBBS admission consultancy. Get expert medical admission guidance for top colleges in India and abroad. Call today!";
 
 export const metadata: Metadata = {
   title: HOME_SEO_TITLE,

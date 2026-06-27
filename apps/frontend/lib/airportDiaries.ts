@@ -1,5 +1,4 @@
 import airportDiariesData from '@/data/airport-diaries.json';
-import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 export type AirportDiaryImage = {
   id: string;
@@ -7,11 +6,27 @@ export type AirportDiaryImage = {
   alt: string;
 };
 
+const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
+
+/** Static /wp-content/uploads paths — Vercel CDN. Avoid /api/wp-media (serverless cannot read public/). */
+function toBundledWpUploadPath(src: string): string {
+  const trimmed = src.trim();
+  if (trimmed.startsWith('/wp-content/uploads/')) return trimmed;
+
+  const withoutHost = trimmed.replace(WP_MEDIA_HOST, '').replace(/^\/+/, '');
+  if (withoutHost.startsWith('wp-content/uploads/')) return `/${withoutHost}`;
+
+  const match = trimmed.match(/wp-content\/(uploads\/.+)$/i);
+  if (match) return `/wp-content/${match[1]}`;
+
+  return trimmed;
+}
+
 const VALID_IMAGES = airportDiariesData.images
   .filter((img) => img.src.includes('wp-content/uploads') && !img.src.endsWith('.svg'))
   .map((img) => ({
     ...img,
-    src: resolveWpMediaUrl(img.src) ?? img.src,
+    src: toBundledWpUploadPath(img.src),
   })) satisfies AirportDiaryImage[];
 
 export const AIRPORT_DIARIES = {

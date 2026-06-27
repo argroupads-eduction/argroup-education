@@ -6,6 +6,7 @@ import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { getContentBySlug } from '@/lib/contentApi';
 import { getMdMsNavItemById, MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
+import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type PageProps = {
@@ -17,9 +18,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const item = getMdMsNavItemById(slug[0]);
   if (!item) return { title: 'MD/MS' };
 
+  const curated = getCuratedPageSeo(item.href);
   return {
-    title: item.label,
-    description: `MD/MS admission guidance for ${item.label.replace('MD/MS in ', '')}.`,
+    title: curated?.metaTitle ?? item.label,
+    description:
+      curated?.metaDescription ?? `MD/MS admission guidance for ${item.label.replace('MD/MS in ', '')}.`,
     alternates: { canonical: item.href },
   };
 }
