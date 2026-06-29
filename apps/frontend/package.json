@@ -7,6 +7,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "predev": "node ../../scripts/ensure-prisma-client.mjs",
     "dev": "next dev -p 3000",
     "wp:bundle:media": "node scripts/bundle-referenced-wp-media.mjs",
     "build": "node scripts/verify-wp-bundle.mjs && node scripts/verify-public-assets.mjs && node scripts/bundle-referenced-wp-media.mjs && npm run db:generate --prefix ../backend && next build",
@@ -26,6 +27,7 @@
     "axios": "^1.6.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "dotenv": "^16.3.1",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.38.0",

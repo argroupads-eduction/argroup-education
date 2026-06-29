@@ -21,6 +21,7 @@ import '@/styles/nav-latest-updates.css';
 import '@/styles/navbar-premium.css';
 import '@/styles/program-hub.css';
 import '@/styles/mbbs-abroad-premium.css';
+import '@/styles/mbbs-abroad-hub-guide.css';
 import '@/styles/brand-logo.css';
 import '@/styles/footer-main.css';
 import { getSiteUrl } from '@/lib/siteUrl';
@@ -124,6 +125,9 @@ export default async function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <meta name="theme-color" content="#1a365d" />
+        <link rel="icon" href="/ar-browser-icon.png" type="image/png" />
+        <link rel="shortcut icon" href="/ar-browser-icon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/ar-browser-icon.png" />
         <link rel="preload" href="/ar-group-logo.png" as="image" type="image/png" />
         <link rel="preload" href="/india-homepage.jpg" as="image" type="image/jpeg" />
         <link rel="preload" href="/abroad-homepage.jpg" as="image" type="image/jpeg" />
