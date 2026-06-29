@@ -54,7 +54,7 @@ export type PayloadSyncResult =
   | { ok: false; status: number; body: { success: false; message: string } };
 
 export function verifyPayloadSyncAuth(authHeader: string | null): PayloadSyncResult | null {
-  const secret = process.env.PAYLOAD_SYNC_SECRET?.trim();
+  const secret = process.env.PAYLOAD_SYNC_SECRET?.trim().replace(/\r$/, '');
   if (!secret) {
     return { ok: false, status: 503, body: { success: false, message: 'PAYLOAD_SYNC_SECRET not configured' } };
   }

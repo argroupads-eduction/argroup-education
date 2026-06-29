@@ -122,6 +122,10 @@ main() {
     die "Frontend directory not found: $FRONTEND_DIR"
   fi
 
+  if [[ -f "$FRONTEND_DIR/.env.production" ]]; then
+    sed -i 's/\r$//' "$FRONTEND_DIR/.env.production"
+  fi
+
   cd "$REPO_DIR"
   log "Pulling latest code..."
   git fetch origin main
