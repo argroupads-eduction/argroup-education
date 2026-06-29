@@ -40,7 +40,7 @@ export async function syncToMarketingBackend(payload: SyncPayload): Promise<void
     process.env.NEXT_PUBLIC_SITE_URL ||
     ''
   ).replace(/\/$/, '')
-  const secret = process.env.PAYLOAD_SYNC_SECRET?.trim()
+  const secret = process.env.PAYLOAD_SYNC_SECRET?.trim().replace(/\r$/, '')
 
   if (!base || !secret) {
     console.error(
