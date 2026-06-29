@@ -1,24 +1,43 @@
 const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
 
-function wpContentToMediaApi(relativePath: string): string {
+/** Bundled uploads in public/wp-content — static path (Oracle + Next.js). */
+function toStaticWpContentPath(relativePath: string): string {
   const safe = relativePath.replace(/^\/+/, '').replace(/^wp-content\//, '');
-  return `/api/wp-media/${safe}`;
+  return `/wp-content/${safe}`;
 }
 
-/** Legacy WP uploads → /api/wp-media (local public/wp-content first, then WP_MEDIA_ORIGIN). */
+function apiMediaToStatic(url: string): string {
+  return toStaticWpContentPath(url.replace(/^\/api\/wp-media\//, ''));
+}
+
+/** Elementor thumb hashes are not bundled on Oracle — map to full upload in uploads/. */
+function elementorThumbToUpload(rel: string): string | null {
+  const m = rel.match(/elementor\/thumbs\/(.+)-[a-z0-9]{20,}(\.[^./]+)$/i);
+  if (!m) return null;
+  return `/wp-content/uploads/2025/09/${m[1]}${m[2]}`;
+}
+
+function normalizeWpContentRel(rel: string): string {
+  if (rel.includes('elementor/thumbs/')) {
+    return elementorThumbToUpload(rel) ?? `/${rel.startsWith('wp-content/') ? rel : `wp-content/${rel}`}`;
+  }
+  return rel.startsWith('wp-content/') ? `/${rel}` : `/wp-content/${rel.replace(/^\/+/, '')}`;
+}
+
+/** Legacy WP uploads → static /wp-content (public/wp-content on disk). */
 export function resolveWpMediaUrl(url: string | null | undefined): string | null {
   if (!url?.trim()) return null;
 
   const trimmed = url.trim();
-  if (trimmed.startsWith('/api/wp-media/')) return trimmed;
-  // Bundled college banners live in public/ — serve as static assets on Vercel/CDN.
-  if (trimmed.startsWith('/wp-content/uploads/colleges/')) return trimmed;
-  if (trimmed.startsWith('/wp-content/')) return wpContentToMediaApi(trimmed);
+  if (trimmed.startsWith('/api/wp-media/')) return apiMediaToStatic(trimmed);
+  if (trimmed.startsWith('/wp-content/')) {
+    return normalizeWpContentRel(trimmed.replace(/^\/+/, ''));
+  }
 
   const withoutHost = trimmed.replace(WP_MEDIA_HOST, '');
   if (withoutHost !== trimmed) {
     const rel = withoutHost.replace(/^\/+/, '');
-    if (rel.startsWith('wp-content/')) return wpContentToMediaApi(rel);
+    if (rel.startsWith('wp-content/')) return normalizeWpContentRel(rel);
   }
 
   return trimmed;
@@ -27,7 +46,7 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
 export function rewriteSingleWpMediaUrl(url: string): string {
   const trimmed = url.trim();
   if (!trimmed || trimmed.startsWith('data:')) return trimmed;
-  if (trimmed.startsWith('/api/wp-media/')) return trimmed;
+  if (trimmed.startsWith('/api/wp-media/')) return apiMediaToStatic(trimmed);
 
   const resolved = resolveWpMediaUrl(trimmed);
   if (resolved && resolved !== trimmed) return resolved;
@@ -36,15 +55,11 @@ export function rewriteSingleWpMediaUrl(url: string): string {
     /^https?:\/\/(?:www\.)?argroupofeducation\.com\/wp-content\/(.+)$/i
   );
   if (hostMatch) {
-    const rel = hostMatch[1];
-    if (rel.startsWith('uploads/colleges/')) return `/wp-content/${rel}`;
-    return `/api/wp-media/${rel}`;
+    return normalizeWpContentRel(`wp-content/${hostMatch[1]}`);
   }
 
   if (trimmed.startsWith('/wp-content/')) {
-    const rel = trimmed.replace(/^\/wp-content\//, '');
-    if (rel.startsWith('uploads/colleges/')) return trimmed;
-    return `/api/wp-media/${rel}`;
+    return normalizeWpContentRel(trimmed.replace(/^\/+/, ''));
   }
 
   return trimmed;
