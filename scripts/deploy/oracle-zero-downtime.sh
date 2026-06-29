@@ -129,9 +129,9 @@ main() {
 
   cd "$FRONTEND_DIR"
   if [[ -f "$REPO_DIR/package-lock.json" ]]; then
-    log "Installing dependencies from repo root..."
+    log "Installing dependencies from repo root (dev deps required for next build)..."
     cd "$REPO_DIR"
-    npm ci --omit=dev 2>/dev/null || npm install --omit=dev
+    npm ci 2>/dev/null || npm install
     cd "$FRONTEND_DIR"
   fi
 
