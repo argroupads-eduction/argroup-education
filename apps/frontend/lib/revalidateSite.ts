@@ -1,5 +1,6 @@
 import { revalidatePath } from 'next/cache';
 import { BLOG_SLUG_CANONICAL, blogPostPath } from '@/lib/blogUtils';
+import { IMAGE_SITEMAP_PATH } from '@/lib/seoCrawlConfig';
 
 function revalidateBlogSlugPaths(slug: string) {
   const paths = new Set<string>([blogPostPath(slug)]);
@@ -16,6 +17,8 @@ export function revalidateAfterContentSync(opts: {
   type: 'post' | 'page';
 }) {
   revalidatePath('/blog');
+  revalidatePath('/sitemap.xml');
+  revalidatePath(IMAGE_SITEMAP_PATH);
   if (opts.type === 'post') {
     revalidateBlogSlugPaths(opts.slug);
   } else {

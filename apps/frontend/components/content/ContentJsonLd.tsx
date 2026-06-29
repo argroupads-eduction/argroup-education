@@ -1,7 +1,10 @@
 import type { SiteContent } from '@/lib/contentApi';
+import { buildImageObjectSchemaFromUrl } from '@/lib/buildImageObjectSchema';
+import { getSiteUrl } from '@/lib/siteUrl';
+import { toAbsoluteMediaUrl } from '@/lib/toAbsoluteMediaUrl';
 import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
+const SITE_URL = getSiteUrl();
 
 type ContentJsonLdProps = {
   content: Pick<
@@ -39,6 +42,12 @@ export function ContentJsonLd({ content, breadcrumbs }: ContentJsonLdProps) {
   const description = metaDescriptionFromContent(content.excerpt, content.content);
   const url = `${SITE_URL}/${content.slug}`;
   const isArticle = content.type === 'post';
+  const imageObject = buildImageObjectSchemaFromUrl(content.featuredImage ?? null, {
+    name: title,
+    caption: description,
+    representativeOfPage: true,
+  });
+  const imageField = imageObject ?? (content.featuredImage ? toAbsoluteMediaUrl(content.featuredImage) : undefined);
 
   const graph: Record<string, unknown>[] = [
     {
@@ -50,7 +59,7 @@ export function ContentJsonLd({ content, breadcrumbs }: ContentJsonLdProps) {
       description,
       datePublished: content.publishedAt ?? undefined,
       dateModified: content.updatedAt ?? undefined,
-      image: content.featuredImage ?? undefined,
+      ...(imageField ? { image: imageField, primaryImageOfPage: imageObject ?? imageField } : {}),
       publisher: {
         '@type': 'Organization',
         name: 'AR Group of Education',

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { SiteContent } from '@/lib/contentApi';
 import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
+import { toAbsoluteMediaUrl } from '@/lib/toAbsoluteMediaUrl';
 
 import { getSiteUrl } from '@/lib/siteUrl';
 
@@ -55,7 +56,8 @@ export function buildSiteMetadata(
 
   const ogTitle = plainTitle(content.ogTitle || title);
   const ogDescription = curated?.metaDescription || content.ogDescription?.trim() || description;
-  const ogImage = content.ogImage || content.featuredImage || undefined;
+  const ogImage =
+    toAbsoluteMediaUrl(content.ogImage || content.featuredImage || undefined) || undefined;
 
   const twitterTitle = plainTitle(content.twitterTitle || ogTitle);
   const twitterDescription =

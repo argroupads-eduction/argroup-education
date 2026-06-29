@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Calculator, GraduationCap, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import { NeetRankPredictorWizard } from '@/components/neet-rank-predictor/NeetRankPredictorWizard';
 import { NeetRankPredictorContent } from '@/components/neet-rank-predictor/NeetRankPredictorContent';
+import { NeetRankPredictorJsonLd } from '@/components/seo/NeetRankPredictorJsonLd';
 import { NEET_EXAM_YEAR_LABEL } from '@/lib/neetRankPredictor/data';
 import { getContentBySlug } from '@/lib/contentApi';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
@@ -46,6 +47,7 @@ export default async function NeetRankPredictorPage() {
 
   return (
     <div className="neet-predictor-page min-w-0">
+      <NeetRankPredictorJsonLd />
       <section className="neet-predictor-hero relative px-4 pb-24 pt-10 md:pb-28 md:pt-14">
         <div className="relative z-[1] mx-auto max-w-6xl">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">

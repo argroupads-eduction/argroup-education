@@ -4,6 +4,9 @@ import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 import { LATEST_UPDATES_NAV_ITEMS } from '@/lib/latestUpdatesNav';
 import { SITE_DESCRIPTION, SITE_NAME } from '@/lib/constants';
 
+/** Google image sitemap (dynamic). */
+export const IMAGE_SITEMAP_PATH = '/sitemap-images.xml';
+
 /** Paths that must never be indexed. */
 export const ROBOTS_DISALLOW_PREFIXES = [
   '/api/',
@@ -135,18 +138,21 @@ export function buildRobotsTxt(baseUrl: string): string {
     '',
     'User-agent: Googlebot',
     'Allow: /',
+    ...ROBOTS_DISALLOW_PREFIXES.map((path) => `Disallow: ${path}`),
     '',
     'User-agent: Bingbot',
     'Allow: /',
+    ...ROBOTS_DISALLOW_PREFIXES.map((path) => `Disallow: ${path}`),
     '',
   ];
 
   for (const agent of LLM_CRAWLER_AGENTS) {
-    lines.push(`User-agent: ${agent}`, 'Allow: /', '');
+    lines.push(`User-agent: ${agent}`, 'Allow: /', ...ROBOTS_DISALLOW_PREFIXES.map((path) => `Disallow: ${path}`), '');
   }
 
   lines.push(
     `Sitemap: ${base}/sitemap.xml`,
+    `Sitemap: ${base}${IMAGE_SITEMAP_PATH}`,
     `# LLM site guide (llms.txt): ${base}/llms.txt`,
   );
 
