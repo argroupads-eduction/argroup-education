@@ -136,6 +136,7 @@ main() {
   fi
 
   log "Building new release (live site keeps running on :${active_port})..."
+  rm -rf "$FRONTEND_DIR/.next"
   NODE_OPTIONS="$BUILD_NODE_OPTIONS" npm run build
 
   log "Starting candidate on port ${new_port}..."
