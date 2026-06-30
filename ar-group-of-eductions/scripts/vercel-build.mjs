@@ -42,6 +42,22 @@ if (process.env.DATABASE_URL && !skipSchemaSync) {
   console.warn('[vercel-build] SKIP_CMS_SCHEMA_SYNC set — skipping schema sync')
 }
 
+if (process.env.BLOB_READ_WRITE_TOKEN?.trim()) {
+  console.log('[vercel-build] Regenerating Payload import map (Vercel Blob client uploads)...')
+  try {
+    run('npm run generate:importmap')
+  } catch (error) {
+    console.warn(
+      '[vercel-build] import map generation failed — continuing build:',
+      error?.message ?? error,
+    )
+  }
+} else {
+  console.warn(
+    '[vercel-build] BLOB_READ_WRITE_TOKEN not set — skipping import map regen (media uploads use local staticDir in dev only)',
+  )
+}
+
 console.log('[vercel-build] Building Payload CMS (webpack, no turbo orchestration)...')
 
 run('npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack')
