@@ -266,12 +266,12 @@ export function wrapContentTables(html: string): string {
   );
 
   return withEaelMerged.replace(/<table\b[\s\S]*?<\/table>/gi, (table, offset, source) => {
-    if (table.includes('wp-table-scroll')) return table;
+    const tagged = tagTableStructure(table);
     const before = source.slice(Math.max(0, offset - 160), offset);
     if (/\bwp-table-scroll\b[^>]*>\s*$/i.test(before) || /\beael-data-table-wrap\b[^>]*>\s*$/i.test(before)) {
-      return table;
+      return tagged;
     }
-    return `<div class="wp-table-scroll">${tagTableStructure(table)}</div>`;
+    return `<div class="wp-table-scroll">${tagged}</div>`;
   });
 }
 
