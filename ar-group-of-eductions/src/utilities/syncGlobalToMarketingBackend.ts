@@ -12,7 +12,10 @@ export async function syncGlobalToMarketingBackend(
     process.env.NEXT_PUBLIC_SITE_URL ||
     ''
   ).replace(/\/$/, '')
-  const secret = process.env.PAYLOAD_SYNC_SECRET?.trim()
+  const secret = (
+    process.env.REVALIDATE_SECRET?.trim() ||
+    process.env.PAYLOAD_SYNC_SECRET?.trim()
+  )
 
   if (!base || !secret) {
     console.error(

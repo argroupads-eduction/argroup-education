@@ -30,9 +30,12 @@ function parseArgs(argv: string[]) {
 
 async function main() {
   const base = process.env.BACKEND_API_URL?.replace(/\/$/, '');
-  const secret = process.env.PAYLOAD_SYNC_SECRET?.trim();
+  const secret =
+    process.env.REVALIDATE_SECRET?.trim() || process.env.PAYLOAD_SYNC_SECRET?.trim();
   if (!base || !secret) {
-    console.error('Set BACKEND_API_URL and PAYLOAD_SYNC_SECRET in ar-group-of-eductions/.env');
+    console.error(
+      'Set BACKEND_API_URL and REVALIDATE_SECRET (or PAYLOAD_SYNC_SECRET) in ar-group-of-eductions/.env'
+    );
     process.exit(1);
   }
 

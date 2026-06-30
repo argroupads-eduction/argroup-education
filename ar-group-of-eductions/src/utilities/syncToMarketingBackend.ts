@@ -52,7 +52,10 @@ function resolveMarketingSyncBaseUrl(): string {
 
 export async function syncToMarketingBackend(payload: SyncPayload): Promise<void> {
   const base = resolveMarketingSyncBaseUrl()
-  const secret = process.env.REVALIDATE_SECRET?.trim().replace(/\r$/, '')
+  const secret = (
+    process.env.REVALIDATE_SECRET?.trim() ||
+    process.env.PAYLOAD_SYNC_SECRET?.trim()
+  )?.replace(/\r$/, '')
 
   if (!base || !secret) {
     const msg =
