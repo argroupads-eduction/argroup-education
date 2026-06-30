@@ -202,7 +202,11 @@ export interface Page {
    */
   featuredImage?: (number | null) | Media;
   /**
-   * Edit with normal headings, lists, bold, and images. Publish to update the live website automatically.
+   * Complete live-site body HTML. Edit headings, tables, FAQs, images, and all sections here. Changes publish to the marketing site when you save.
+   */
+  htmlContent?: string | null;
+  /**
+   * Optional WYSIWYG editor for short sections. For imported WordPress pages, edit the HTML field above — it controls the live site.
    */
   content?: {
     root: {
@@ -219,7 +223,6 @@ export interface Page {
     };
     [k: string]: unknown;
   } | null;
-  htmlContent?: string | null;
   /**
    * Legacy layout blocks from import (usually a short excerpt). Ignore for full pages — use the HTML field above.
    */
@@ -311,6 +314,9 @@ export interface Post {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Shown only for WordPress-imported posts. New posts use the visual editor above.
+   */
   htmlContent?: string | null;
   featuredImageUrl?: string | null;
   relatedPosts?: (number | Post)[] | null;
@@ -1146,8 +1152,8 @@ export interface PagesSelect<T extends boolean = true> {
         media?: T;
       };
   featuredImage?: T;
-  content?: T;
   htmlContent?: T;
+  content?: T;
   layout?:
     | T
     | {

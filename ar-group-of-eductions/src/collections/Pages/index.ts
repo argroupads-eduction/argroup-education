@@ -17,10 +17,6 @@ import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 import { syncPageDeleteToBackend, syncPageToBackend } from './hooks/syncPageToBackend'
-import {
-  hydrateLegacyHtmlAfterRead,
-  promoteLexicalBodyOnSave,
-} from '../../hooks/legacyHtmlLexical'
 
 import {
   MetaDescriptionField,
@@ -90,18 +86,18 @@ export const Pages: CollectionConfig<'pages'> = {
                   'Main page image (hero). Shown on the live site and in search previews. Upload or pick from Media library.',
               },
             },
+            htmlBodyField('Full page body (HTML)'),
             {
               name: 'content',
               type: 'richText',
               editor: marketingContentEditor,
-              label: 'Page content',
+              label: 'Visual editor (optional)',
               required: false,
               admin: {
                 description:
-                  'Edit with normal headings, lists, bold, and images. Publish to update the live website automatically.',
+                  'Optional WYSIWYG editor for short sections. For imported WordPress pages, edit the HTML field above — it controls the live site.',
               },
             },
-            htmlBodyField('Full page body (HTML)'),
             {
               name: 'layout',
               type: 'blocks',
@@ -236,7 +232,6 @@ export const Pages: CollectionConfig<'pages'> = {
   hooks: {
     afterChange: [revalidatePage, syncPageToBackend],
     beforeChange: [
-      promoteLexicalBodyOnSave,
       populatePublishedAt,
       ({ data }) => {
         if (typeof data?.slug === 'string') {
@@ -247,7 +242,6 @@ export const Pages: CollectionConfig<'pages'> = {
         return data
       },
     ],
-    afterRead: [hydrateLegacyHtmlAfterRead],
     afterDelete: [revalidateDelete, syncPageDeleteToBackend],
   },
   versions: {

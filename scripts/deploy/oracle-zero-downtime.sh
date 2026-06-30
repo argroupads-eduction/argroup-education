@@ -122,10 +122,6 @@ main() {
     die "Frontend directory not found: $FRONTEND_DIR"
   fi
 
-  if [[ -f "$FRONTEND_DIR/.env.production" ]]; then
-    sed -i 's/\r$//' "$FRONTEND_DIR/.env.production"
-  fi
-
   cd "$REPO_DIR"
   log "Pulling latest code..."
   git fetch origin main
@@ -140,7 +136,6 @@ main() {
   fi
 
   log "Building new release (live site keeps running on :${active_port})..."
-  rm -rf "$FRONTEND_DIR/.next"
   NODE_OPTIONS="$BUILD_NODE_OPTIONS" npm run build
 
   log "Starting candidate on port ${new_port}..."

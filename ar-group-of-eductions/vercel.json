@@ -2,10 +2,5 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "node scripts/vercel-install.mjs",
   "buildCommand": "node scripts/vercel-build.mjs",
-  "framework": "nextjs",
-  "functions": {
-    "src/app/(payload)/api/**/route.ts": {
-      "maxDuration": 60
-    }
-  }
+  "framework": "nextjs"
 }
