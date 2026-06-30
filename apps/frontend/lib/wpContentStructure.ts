@@ -56,7 +56,7 @@ export function injectHeadingIds(html: string): { html: string; headings: Conten
 }
 
 /** First 2-column table → quick facts strip (like reference site overview table). */
-export function extractQuickFacts(html: string): { facts: QuickFact[]; html: string } {
+export function extractQuickFactsFromHtml(html: string): { facts: QuickFact[]; html: string } {
   const tableMatch = html.match(/<table\b[\s\S]*?<\/table>/i);
   if (!tableMatch) return { facts: [], html };
 
@@ -275,8 +275,19 @@ export function wrapContentTables(html: string): string {
   });
 }
 
-export function parseContentStructure(html: string): ParsedContentStructure {
-  const { facts, html: afterFacts } = extractQuickFacts(html);
+export type ParseContentStructureOptions = {
+  /** When false, keep 2-column tables in the article (Payload / blog data tables). */
+  extractQuickFacts?: boolean;
+};
+
+export function parseContentStructure(
+  html: string,
+  options: ParseContentStructureOptions = {},
+): ParsedContentStructure {
+  const extractQuickFacts = options.extractQuickFacts !== false;
+  const { facts, html: afterFacts } = extractQuickFacts
+    ? extractQuickFactsFromHtml(html)
+    : { facts: [], html };
   const { html: withIds, headings } = injectHeadingIds(afterFacts);
   const withTables = wrapContentTables(withIds);
   const withLazy = addLazyImages(withTables);

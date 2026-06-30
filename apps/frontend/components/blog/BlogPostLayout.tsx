@@ -28,6 +28,7 @@ export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLa
   });
   const { html: structuredHtml, headings, quickFacts } = parseContentStructure(
     sanitizeCmsHtml(prepared),
+    { extractQuickFacts: false },
   );
   const safeHtml = sanitizeCmsHtml(structuredHtml);
   const published = content.publishedAt ? formatBlogDate(content.publishedAt) : null;
