@@ -188,7 +188,6 @@ async function upsertPost(
     disableBackendSync: true,
     disableRevalidate: true,
     disablePublishedAtDefault: true,
-    disableLegacyHydration: true,
   };
 
   if (doc) {
@@ -256,7 +255,6 @@ async function upsertPage(
     disableBackendSync: true,
     disableRevalidate: true,
     disablePublishedAtDefault: true,
-    disableLegacyHydration: true,
   };
 
   if (doc) {

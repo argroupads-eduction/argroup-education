@@ -102,10 +102,6 @@ export default buildConfig({
   onInit: async (payload) => {
     // Skip during Vercel `next build` — DB is only required at runtime (admin + API).
     if (process.env.NEXT_PHASE === 'phase-production-build') return
-    try {
-      await ensureMarketingPages(payload)
-    } catch (err) {
-      payload.logger.error({ err }, '[onInit] ensureMarketingPages failed')
-    }
+    await ensureMarketingPages(payload)
   },
 })
