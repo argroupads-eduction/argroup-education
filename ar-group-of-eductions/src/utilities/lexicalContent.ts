@@ -20,6 +20,13 @@ function plainTextFromLexical(content: unknown): string {
 
 const PLACEHOLDER_PREFIX = 'Content imported from WordPress'
 
+function hasImportableHtml(html: unknown): boolean {
+  if (typeof html !== 'string') return false
+  const trimmed = html.trim()
+  if (!trimmed) return false
+  return /<(div|p|h[1-6]|table|section|article|ul|ol)\b/i.test(trimmed)
+}
+
 export function isPlaceholderLexicalContent(content: unknown): boolean {
   const text = plainTextFromLexical(content)
   if (!text) return true
@@ -27,7 +34,10 @@ export function isPlaceholderLexicalContent(content: unknown): boolean {
   return false
 }
 
-export function hasSubstantialLexicalContent(content: unknown): boolean {
+export function hasSubstantialLexicalContent(
+  content: unknown,
+  _htmlContent?: unknown,
+): boolean {
   if (!content || typeof content !== 'object') return false
   const root = (content as { root?: { children?: unknown[] } }).root
   const children = root?.children
@@ -36,4 +46,10 @@ export function hasSubstantialLexicalContent(content: unknown): boolean {
 
   const text = plainTextFromLexical(content)
   return text.length > 120 || children.length > 1
+}
+
+/** WordPress HTML still needs converting into Lexical for the visual editor. */
+export function needsLegacyHtmlConversion(content: unknown, htmlContent?: unknown): boolean {
+  if (!hasImportableHtml(htmlContent)) return false
+  return !hasSubstantialLexicalContent(content)
 }
