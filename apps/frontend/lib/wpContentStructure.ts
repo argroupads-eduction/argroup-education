@@ -174,14 +174,76 @@ function eaelColumnClass(cols: number): string {
   return `wp-table-cols-${Math.min(Math.max(cols, 2), 4)}`;
 }
 
+/** WP exports often put header cells in the first tbody row instead of thead. */
+function promoteHeaderRowToThead(table: string): string {
+  if (/<thead\b/i.test(table)) return table;
+
+  const tbodyMatch = table.match(/<tbody\b([^>]*)>([\s\S]*?)<\/tbody>/i);
+  if (!tbodyMatch) return table;
+
+  const tbodyInner = tbodyMatch[2];
+  const rowMatch = tbodyInner.match(/^\s*(<tr\b[^>]*>[\s\S]*?<\/tr>)/i);
+  if (!rowMatch) return table;
+
+  const firstRow = rowMatch[1];
+  const cells = [...firstRow.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi)];
+  if (cells.length < 2) return table;
+
+  const isHeader = cells.every((cell) => /<(?:b|strong)\b/i.test(cell[1]));
+  if (!isHeader) return table;
+
+  const headerRow = firstRow.replace(/<td\b/gi, '<th').replace(/<\/td>/gi, '</th>');
+  const restTbody = tbodyInner.slice(rowMatch[0].length);
+
+  return table.replace(
+    /<tbody\b[^>]*>[\s\S]*?<\/tbody>/i,
+    `<thead>${headerRow}</thead><tbody>${restTbody}</tbody>`
+  );
+}
+
+function injectDataLabels(table: string): string {
+  const thead = table.match(/<thead\b[^>]*>([\s\S]*?)<\/thead>/i)?.[1] ?? '';
+  const labels = [...thead.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map((match) =>
+    stripHtml(match[1]).replace(/"/g, '&quot;')
+  );
+  if (labels.length === 0) return table;
+
+  return table.replace(/<tbody\b[^>]*>([\s\S]*?)<\/tbody>/i, (_match, body: string) => {
+    const newBody = body.replace(
+      /<tr\b([^>]*)>([\s\S]*?)<\/tr>/gi,
+      (_row, trAttrs: string, row: string) => {
+        let col = 0;
+        const newRow = row.replace(/<td\b([^>]*)>/gi, (_td, tdAttrs: string) => {
+          const label = labels[col] ?? '';
+          col += 1;
+          if (/data-label=/i.test(tdAttrs)) return `<td${tdAttrs}>`;
+          return `<td${tdAttrs} data-label="${label}">`;
+        });
+        return `<tr${trAttrs}>${newRow}</tr>`;
+      }
+    );
+    return `<tbody>${newBody}</tbody>`;
+  });
+}
+
+function tagTableStructure(table: string): string {
+  let tagged = promoteHeaderRowToThead(table);
+  const cols = countEaelTableColumns(tagged);
+  tagged = addTableClass(tagged, eaelColumnClass(cols));
+
+  if (/eael-data-table/i.test(tagged)) {
+    if (isKeyValueFactsTable(tagged)) tagged = addTableClass(tagged, 'wp-facts-kv-table');
+    else if (isLabeledDataTable(tagged) || cols >= 3) tagged = addTableClass(tagged, 'wp-labeled-data-table');
+  } else if (cols >= 2 && eaelTableHasThead(tagged)) {
+    tagged = addTableClass(tagged, 'wp-labeled-data-table');
+  }
+
+  return injectDataLabels(tagged);
+}
+
 function tagEaelDataTable(table: string): string {
   if (!/eael-data-table/i.test(table)) return table;
-
-  const cols = countEaelTableColumns(table);
-  let tagged = addTableClass(table, eaelColumnClass(cols));
-  if (isKeyValueFactsTable(table)) tagged = addTableClass(tagged, 'wp-facts-kv-table');
-  else if (isLabeledDataTable(table) || cols >= 3) tagged = addTableClass(tagged, 'wp-labeled-data-table');
-  return tagged;
+  return tagTableStructure(table);
 }
 
 /** Wrap tables for aligned layout + horizontal scroll on mobile (content unchanged). */
@@ -209,7 +271,7 @@ export function wrapContentTables(html: string): string {
     if (/\bwp-table-scroll\b[^>]*>\s*$/i.test(before) || /\beael-data-table-wrap\b[^>]*>\s*$/i.test(before)) {
       return table;
     }
-    return `<div class="wp-table-scroll">${table}</div>`;
+    return `<div class="wp-table-scroll">${tagTableStructure(table)}</div>`;
   });
 }
 
