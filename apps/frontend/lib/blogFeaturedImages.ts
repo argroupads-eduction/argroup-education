@@ -1,6 +1,12 @@
 /** Curated blog hero images when CMS/DB has no featuredImage set. */
 export const BLOG_FEATURED_IMAGES: Record<string, string> = {
   'top-medical-colleges-in-india': '/images/blog/top-medical-colleges-india-2026-banner.png',
+  'can-i-get-mbbs-with-250-marks-in-neet-complete-admission-guide-2026':
+    '/images/blog/can-i-get-mbbs-with-250-marks-in-neet-complete-admission-guide-2026.png',
+  'can-i-get-mbbs-with-250-marks-in-neet':
+    '/images/blog/can-i-get-mbbs-with-250-marks-in-neet-complete-admission-guide-2026.png',
+  'how-much-neet-score-is-required-for-mbbs-in-russia-complete-guide-2026':
+    '/images/blog/how-much-neet-score-required-mbbs-russia-complete-guide-2026.png',
   'neet-re-exam-2026-vs-original-exam-which-is-tougher':
     '/images/blog/neet-re-exam-2026-vs-original-exam-which-is-tougher.png',
   'neet-re-exam-2026-vs-original-exam':
