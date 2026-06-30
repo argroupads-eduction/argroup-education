@@ -2129,6 +2129,8 @@
   font-weight: 600;
   border-left: 3px solid #d97706;
   background: rgba(26, 54, 93, 0.03);
+  min-width: 5.5rem;
+  width: 12%;
 }
 
 .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:not(:first-child) {
@@ -3532,5 +3534,94 @@ html:has(.wp-content-affinity) {
     margin-bottom: 0.65rem;
     border-bottom: 1px solid #e2e8f0 !important;
     text-align: left !important;
+  }
+
+  /* Syllabus / multi-column tables — card rows with column labels (NEET Class 11/12, etc.) */
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 :is(thead, tbody, tr, td, th),
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 :is(thead, tbody, tr, td, th),
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 :is(thead, tbody, tr, td, th),
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 :is(thead, tbody, tr, td, th) {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 thead,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 thead,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 thead,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 thead {
+    display: none !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody tr,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody tr,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 tbody tr,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 tbody tr {
+    display: block !important;
+    margin-bottom: 0.85rem;
+    border: 1px solid #dbeafe;
+    border-radius: 0.65rem;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(26, 54, 93, 0.05);
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 tbody td,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 tbody td {
+    padding: 0.55rem 0.85rem !important;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:last-child,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:last-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 tbody td:last-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 tbody td:last-child {
+    border-bottom: none !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:first-child,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:first-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 tbody td:first-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 tbody td:first-child {
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    color: #92400e !important;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+    border-left: 4px solid #d97706 !important;
+    padding: 0.7rem 0.85rem !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:not(:first-child)::before,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:not(:first-child)::before,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 tbody td:not(:first-child)::before,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 tbody td:not(:first-child)::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #1a365d;
+    margin-bottom: 0.3rem;
   }
 }
