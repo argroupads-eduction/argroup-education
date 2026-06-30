@@ -9,10 +9,6 @@ import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 import { syncPostDeleteToBackend, syncPostToBackend } from './hooks/syncPostToBackend'
-import {
-  hydrateLegacyHtmlAfterRead,
-  promoteLexicalBodyOnSave,
-} from '../../hooks/legacyHtmlLexical'
 
 import {
   MetaDescriptionField,
@@ -99,8 +95,14 @@ export const Posts: CollectionConfig<'posts'> = {
               type: 'code',
               label: 'Imported HTML (legacy)',
               admin: {
-                hidden: true,
                 language: 'html',
+                condition: (data) => {
+                  const html = typeof data?.htmlContent === 'string' ? data.htmlContent : ''
+                  if (!html.trim()) return false
+                  return /<(div|p|h[1-6]|table|section|article|ul|ol)\b/i.test(html)
+                },
+                description:
+                  'Shown only for WordPress-imported posts. New posts use the visual editor above.',
               },
             },
             {
@@ -233,9 +235,8 @@ export const Posts: CollectionConfig<'posts'> = {
     slugField(),
   ],
   hooks: {
-    beforeChange: [promoteLexicalBodyOnSave],
     afterChange: [revalidatePost, syncPostToBackend],
-    afterRead: [hydrateLegacyHtmlAfterRead, populateAuthors],
+    afterRead: [populateAuthors],
     afterDelete: [revalidateDelete, syncPostDeleteToBackend],
   },
   versions: {

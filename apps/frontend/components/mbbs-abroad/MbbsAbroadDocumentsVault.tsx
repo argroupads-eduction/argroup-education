@@ -31,7 +31,7 @@ export function MbbsAbroadDocumentsVault() {
               <motion.li
                 key={doc.id}
                 className="abroad-vault__item"
-                initial={{ opacity: 0, y: 16 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-20px' }}
                 transition={{ duration: 0.4, delay: (i % 5) * 0.05 }}

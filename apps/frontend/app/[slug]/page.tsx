@@ -20,7 +20,7 @@ import { resolveSlugAlias } from '@/lib/wpSlugAliases';
 
 const HOME_WP_SLUG = 'mbbs-admission-in-top-colleges';
 
-/** Modern program hubs — served by dedicated (marketing) routes, not this catch-all. */
+/** Modern program hubs — served by (marketing) mbbs-* routes, not this catch-all. */
 const MODERN_HUB_SLUGS = new Set(['mbbs-abroad', 'mbbs-india', 'md-ms']);
 
 /** Legacy WordPress hub slugs → canonical Next routes (single hop). */

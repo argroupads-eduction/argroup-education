@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { NextResponse } from 'next/server';
 
@@ -54,42 +56,44 @@ function elementorThumbAlternates(relativePath: string): string[] {
   return alts;
 }
 
-function deploymentOrigin(request: Request): string | null {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+function monorepoUploadsRoot(): string | null {
+  const candidates = [
+    path.join(process.cwd(), '..', '..', '_uploads'),
+    path.join(process.cwd(), '_uploads'),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
   }
-  try {
-    return new URL(request.url).origin;
-  } catch {
-    return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || null;
-  }
+  return null;
 }
 
-/** Fetch bundled media from static /wp-content/ — no fs reads (keeps Vercel function small). */
-async function fetchBundledStatic(
-  relativePath: string,
-  request: Request
-): Promise<Buffer | null> {
-  const origin = deploymentOrigin(request);
-  if (!origin) return null;
-
+async function readFileUnderRoot(root: string, relativePath: string): Promise<Buffer | null> {
   const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
-  const url = encodeWpContentUrl(origin, safe);
+  const filePath = path.resolve(root, safe);
+  const resolvedRoot = path.resolve(root);
+
+  if (!filePath.startsWith(resolvedRoot + path.sep) && filePath !== resolvedRoot) {
+    return null;
+  }
 
   try {
-    const res = await fetch(url, {
-      headers: { Accept: 'image/*,*/*' },
-      signal: AbortSignal.timeout(15_000),
-      redirect: 'follow',
-      cache: 'force-cache',
-    });
-    if (!res.ok || !res.body) return null;
-    const contentType = res.headers.get('content-type') ?? '';
-    if (contentType.includes('application/json')) return null;
-    return Buffer.from(await res.arrayBuffer());
+    return await readFile(filePath);
   } catch {
     return null;
   }
+}
+
+async function readLocalWpMedia(relativePath: string): Promise<Buffer | null> {
+  const publicRoot = path.join(process.cwd(), 'public', 'wp-content');
+  const fromPublic = await readFileUnderRoot(publicRoot, relativePath);
+  if (fromPublic) return fromPublic;
+
+  const uploadsRoot = monorepoUploadsRoot();
+  if (!uploadsRoot) return null;
+
+  const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
+  const uploadsRelative = safe.replace(/^uploads\//, '');
+  return readFileUnderRoot(uploadsRoot, uploadsRelative);
 }
 
 async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null> {
@@ -134,7 +138,7 @@ async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null
 }
 
 export async function GET(
-  request: Request,
+  _request: Request,
   context: { params: Promise<{ path: string[] }> }
 ) {
   const { path: segments } = await context.params;
@@ -144,7 +148,7 @@ export async function GET(
 
   const relativePath = segments.map((s) => path.basename(s)).join('/');
 
-  const serveBuffer = (buf: Buffer) =>
+  const serveLocal = (buf: Buffer) =>
     new NextResponse(new Uint8Array(buf), {
       status: 200,
       headers: {
@@ -153,12 +157,12 @@ export async function GET(
       },
     });
 
-  const bundled = await fetchBundledStatic(relativePath, request);
-  if (bundled) return serveBuffer(bundled);
+  const local = await readLocalWpMedia(relativePath);
+  if (local) return serveLocal(local);
 
   for (const alt of elementorThumbAlternates(relativePath)) {
-    const altBundled = await fetchBundledStatic(alt, request);
-    if (altBundled) return serveBuffer(altBundled);
+    const altLocal = await readLocalWpMedia(alt);
+    if (altLocal) return serveLocal(altLocal);
   }
 
   const remote = await fetchRemoteWpMedia(relativePath);

@@ -20,7 +20,7 @@ import { pipeline } from 'node:stream/promises'
 import { fileURLToPath } from 'node:url'
 import type { Payload, Where } from 'payload'
 
-import { needsLegacyHtmlConversion } from '../src/utilities/lexicalContent.js'
+import { hasSubstantialLexicalContent } from '../src/utilities/lexicalContent.js'
 import { resolveDatabaseUrl } from '../src/utilities/resolveDatabaseUrl.js'
 import { wpHtmlToLexical } from '../src/utilities/wpHtmlToLexical.js'
 
@@ -188,7 +188,7 @@ async function backfillDoc(
   const imageField = collection === 'posts' ? 'heroImage' : 'featuredImage'
   const currentImageId = collection === 'posts' ? doc.heroImage : doc.featuredImage
 
-  const needsContent = html && (opts.force || needsLegacyHtmlConversion(doc.content, html))
+  const needsContent = html && (opts.force || !hasSubstantialLexicalContent(doc.content))
   const needsImage = imageUrl && !currentImageId
   const needsLayoutCleanup = collection === 'pages' && isPlaceholderLayout(doc.layout)
 
@@ -196,69 +196,47 @@ async function backfillDoc(
     return { updated: false as const, reason: 'already_complete' as const }
   }
 
-  let contentFilled = false
-  let imageLinked = false
+  const data: Record<string, unknown> = {}
 
-  if (needsContent && !opts.dryRun) {
-    const lexical = await wpHtmlToLexical(html, payload.config, {
+  if (needsContent) {
+    data.content = await wpHtmlToLexical(html, payload.config, {
       featuredImageUrl: imageUrl,
       title: typeof doc.title === 'string' ? doc.title : null,
     })
-    await payload.update({
-      collection,
-      id: doc.id,
-      data: { content: lexical, htmlContent: null },
-      overrideAccess: true,
-      context: { disableBackendSync: true, disableRevalidate: true, disableLegacyHydration: true },
-    })
-    contentFilled = true
-  } else if (needsContent && opts.dryRun) {
-    contentFilled = true
   }
 
-  if (needsImage && imageUrl && !opts.dryRun) {
-    try {
-      const mediaId = await ensureMedia(
-        payload,
-        imageUrl,
-        String(doc.slug ?? doc.id),
-        String(doc.title ?? doc.slug ?? 'Featured image'),
-        opts.dryRun,
-      )
-      if (mediaId && mediaId > 0) {
-        const imageData: Record<string, unknown> = { [imageField]: mediaId }
-        if (!doc.featuredImageUrl) imageData.featuredImageUrl = imageUrl
-        await payload.update({
-          collection,
-          id: doc.id,
-          data: imageData,
-          overrideAccess: true,
-          context: { disableBackendSync: true, disableRevalidate: true, disableLegacyHydration: true },
-        })
-        imageLinked = true
-      }
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e)
-      if (!msg.includes('not allowed') && !msg.includes('File type')) throw e
+  if (needsImage && imageUrl) {
+    const mediaId = await ensureMedia(
+      payload,
+      imageUrl,
+      String(doc.slug ?? doc.id),
+      String(doc.title ?? doc.slug ?? 'Featured image'),
+      opts.dryRun,
+    )
+    if (mediaId && mediaId > 0) {
+      data[imageField] = mediaId
+      if (!doc.featuredImageUrl) data.featuredImageUrl = imageUrl
     }
-  } else if (needsImage && imageUrl && opts.dryRun) {
-    imageLinked = true
   }
 
-  if (needsLayoutCleanup && !opts.dryRun) {
+  if (needsLayoutCleanup) {
+    data.layout = []
+  }
+
+  if (!opts.dryRun && Object.keys(data).length > 0) {
     await payload.update({
       collection,
       id: doc.id,
-      data: { layout: [] },
+      data,
       overrideAccess: true,
-      context: { disableBackendSync: true, disableRevalidate: true, disableLegacyHydration: true },
+      context: { disableBackendSync: true, disableRevalidate: true },
     })
   }
 
   return {
     updated: true as const,
-    content: contentFilled,
-    image: imageLinked,
+    content: Boolean(needsContent),
+    image: Boolean(needsImage && data[imageField]),
     layoutCleared: Boolean(needsLayoutCleanup),
   }
 }

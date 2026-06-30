@@ -14,7 +14,7 @@ export function MbbsAbroadIntakeRibbon() {
               <motion.article
                 key={item.id}
                 className="abroad-intake__card"
-                initial={{ opacity: 0, x: -12 }}
+                initial={false}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}

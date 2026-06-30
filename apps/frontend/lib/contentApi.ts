@@ -1,9 +1,5 @@
 import { cache } from 'react';
-import {
-  BLOG_SLUG_CANONICAL,
-  dedupeBlogPosts,
-  sortBlogPostsByNewest,
-} from '@/lib/blogUtils';
+import { sortBlogPostsByNewest, dedupeBlogPosts } from '@/lib/blogUtils';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { applyMarketingPageSeo } from '@/lib/marketingPageSeo';
 import { resolveBlogFeaturedImage, resolveBlogPublishedAt } from '@/lib/blogFeaturedImages';
@@ -610,71 +606,46 @@ async function loadBundledContent(slug: string): Promise<SiteContent | null> {
   return null;
 }
 
-function contentUpdatedAtMs(doc: SiteContent): number {
-  const raw = doc.updatedAt || doc.publishedAt;
-  if (!raw) return 0;
-  const t = new Date(raw).getTime();
-  return Number.isFinite(t) ? t : 0;
-}
-
-/** Prefer CMS/DB copy when newer; keep bundle images when synced doc has none. */
-function mergeSiteContent(
-  bundled: SiteContent | null,
-  synced: SiteContent | null
-): SiteContent | null {
-  if (!bundled) return synced;
-  if (!synced) return bundled;
-
-  const winner =
-    contentUpdatedAtMs(synced) >= contentUpdatedAtMs(bundled) ? synced : bundled;
-  const loser = winner === synced ? bundled : synced;
-
-  return normalizeContent({
-    ...winner,
-    featuredImage: winner.featuredImage ?? loser.featuredImage,
-    ogImage: winner.ogImage ?? loser.ogImage,
-  });
-}
-
-function slugLookupVariants(slug: string): string[] {
-  const variants = new Set<string>([slug]);
-  const canonical = BLOG_SLUG_CANONICAL[slug];
-  if (canonical) variants.add(canonical);
-  for (const [alias, target] of Object.entries(BLOG_SLUG_CANONICAL)) {
-    if (target === slug) variants.add(alias);
-  }
-  return [...variants];
-}
-
-async function fetchSyncedContentBySlug(slug: string): Promise<SiteContent | null> {
-  for (const candidate of slugLookupVariants(slug)) {
-    const fromApi = await fetchBackendContentBySlug(candidate);
-    if (fromApi) return fromApi;
-  }
-
-  for (const candidate of slugLookupVariants(slug)) {
-    const fromPayload = await withServerTimeout(
-      fetchPayloadContentBySlug(candidate),
-      5000,
-      null
-    );
-    if (fromPayload) return fromPayload;
-  }
-
-  return null;
-}
-
 export const getContentBySlug = cache(async function getContentBySlug(
   slug: string
 ): Promise<SiteContent | null> {
   const bundled = await loadBundledContent(slug);
-  const synced = await fetchSyncedContentBySlug(slug);
 
-  if (synced || bundled) {
-    return mergeSiteContent(bundled, synced);
+  // Vercel: serve committed wp-export-bundle first so pages open instantly (DB can be slow).
+  if (process.env.VERCEL === '1') {
+    if (bundled) return bundled;
+
+    const fromApi = await fetchBackendContentBySlug(slug);
+    if (fromApi) return fromApi;
+
+    return withServerTimeout(fetchPayloadContentBySlug(slug), 3000, null);
   }
 
-  return null;
+  // Local/preview: bundle wins for blog posts so committed HTML/images are not masked by stale CMS.
+  if (bundled?.type === 'post') {
+    return bundled;
+  }
+
+  const backendFirst = isBackendPrimaryContent();
+
+  if (backendFirst) {
+    const fromApi = await fetchBackendContentBySlug(slug);
+    if (fromApi) return fromApi;
+
+    const bundled = await loadBundledContent(slug);
+    if (bundled) return bundled;
+
+    const fromPayload = await withServerTimeout(fetchPayloadContentBySlug(slug), 5000, null);
+    if (fromPayload) return fromPayload;
+  } else {
+    const fromPayload = await withServerTimeout(fetchPayloadContentBySlug(slug), 5000, null);
+    if (fromPayload) return fromPayload;
+
+    const fromApi = await fetchBackendContentBySlug(slug);
+    if (fromApi) return fromApi;
+  }
+
+  return loadBundledContent(slug);
 });
 
 function mergeBlogListItem(
@@ -694,6 +665,18 @@ function mergeBlogListItem(
   };
 }
 
+/** Committed wp-export bundle is editorial source of truth for migrated slugs. */
+function mergeBundleBlogListItem(
+  bundled: BlogListItem,
+  incoming: BlogListItem
+): BlogListItem {
+  const bundle = normalizeBlogItem(bundled);
+  const external = normalizeBlogItem(incoming);
+  return {
+    ...bundle,
+    featuredImage: bundle.featuredImage ?? external.featuredImage,
+  };
+}
 
 async function fetchAllBlogPostsFromApi(): Promise<BlogListItem[]> {
   const items: BlogListItem[] = [];
@@ -745,9 +728,12 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
 
   try {
     for (const item of await fetchAllBlogPostsFromApi()) {
+      const bundled = mergedBySlug.get(item.slug);
       mergedBySlug.set(
         item.slug,
-        mergeBlogListItem(mergedBySlug.get(item.slug), item)
+        bundled
+          ? mergeBundleBlogListItem(bundled, item)
+          : mergeBlogListItem(mergedBySlug.get(item.slug), item)
       );
     }
   } catch {
@@ -757,9 +743,12 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   if (!isBackendPrimaryContent()) {
     const payloadPosts = await fetchPayloadBlogPosts(200);
     for (const item of payloadPosts) {
+      const bundled = mergedBySlug.get(item.slug);
       mergedBySlug.set(
         item.slug,
-        mergeBlogListItem(mergedBySlug.get(item.slug), item)
+        bundled
+          ? mergeBundleBlogListItem(bundled, item)
+          : mergeBlogListItem(mergedBySlug.get(item.slug), item)
       );
     }
   }

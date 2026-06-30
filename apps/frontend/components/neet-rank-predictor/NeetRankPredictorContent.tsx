@@ -4,10 +4,10 @@ import {
   CATEGORY_CUTOFF_TABLE,
   HOW_TO_STEPS,
   MARKS_VS_RANK_TABLE,
-  NEET_PREDICTOR_FAQ,
   PERCENTILE_VS_RANK_TABLE,
   RANK_VS_COLLEGE,
 } from '@/lib/neetRankPredictor/data';
+import { NeetRankPredictorFaq } from '@/components/neet-rank-predictor/NeetRankPredictorFaq';
 
 const HOW_ICONS = [ClipboardList, GraduationCap, LineChart] as const;
 
@@ -131,14 +131,9 @@ export function NeetRankPredictorContent() {
 
       <section>
         <h2 className="neet-section-title">Frequently asked questions</h2>
-        <dl className="mt-8 space-y-3">
-          {NEET_PREDICTOR_FAQ.map((item) => (
-            <div key={item.q} className="neet-faq-item">
-              <dt className="font-semibold text-navy-900">{item.q}</dt>
-              <dd className="mt-2 text-sm leading-relaxed text-slate-600">{item.a}</dd>
-            </div>
-          ))}
-        </dl>
+        <div className="mt-8">
+          <NeetRankPredictorFaq />
+        </div>
       </section>
           </div>
 

@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { BlogListItem, SiteContent } from '@/lib/contentApi';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
@@ -29,6 +29,7 @@ type WpExportDoc = {
 
 let cache: Map<string, SiteContent> | null = null;
 let loadPromise: Promise<Map<string, SiteContent>> | null = null;
+let resolvedExportDir: string | null | undefined;
 
 /** Production bundle (committed) then local full export (gitignored). */
 function wpExportDirs(): string[] {
@@ -39,14 +40,21 @@ function wpExportDirs(): string[] {
 }
 
 async function resolveWpExportDir(): Promise<string | null> {
+  if (resolvedExportDir !== undefined) return resolvedExportDir;
+
   for (const dir of wpExportDirs()) {
-    try {
-      await readFile(path.join(dir, 'pages.json'));
-      return dir;
-    } catch {
-      /* try next */
+    for (const marker of ['manifest.json', 'posts.json', 'pages.json']) {
+      try {
+        await access(path.join(dir, marker));
+        resolvedExportDir = dir;
+        return dir;
+      } catch {
+        /* try next marker/dir */
+      }
     }
   }
+
+  resolvedExportDir = null;
   return null;
 }
 
@@ -150,7 +158,10 @@ export async function getAllWpExportBlogPosts(): Promise<BlogListItem[]> {
     const raw = await readFile(path.join(dir, 'posts.json'), 'utf8');
     const posts = JSON.parse(raw) as WpExportDoc[];
     return wpExportPostsToBlogList(posts);
-  } catch {
+  } catch (err) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('[wpExportContent] blog bundle unavailable:', err);
+    }
     return [];
   }
 }

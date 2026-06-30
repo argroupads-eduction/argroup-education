@@ -825,14 +825,6 @@
   color: rgb(71 85 105);
 }
 
-.neet-faq-item {
-  border-radius: 1rem;
-  border: 1px solid rgb(241 245 249);
-  background: #fff;
-  padding: 1.15rem 1.25rem;
-  box-shadow: 0 2px 8px rgb(15 23 42 / 0.04);
-}
-
 .neet-section-title {
   font-family: var(--font-site);
   font-size: clamp(1.5rem, 3vw, 2rem);

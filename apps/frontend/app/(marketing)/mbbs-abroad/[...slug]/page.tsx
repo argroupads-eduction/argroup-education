@@ -14,8 +14,8 @@ import {
 } from '@/lib/mbbsAbroadTree';
 import { resolveCollegeFeaturedImage } from '@/lib/collegeFeaturedImage';
 import { resolveMbbsAbroadFeaturedImage } from '@/lib/mbbsAbroadCountryImages';
-import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
+import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 
 type PageProps = {
   params: Promise<{ slug: string[] }>;

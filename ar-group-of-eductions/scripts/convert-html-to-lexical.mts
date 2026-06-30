@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 
-import { needsLegacyHtmlConversion } from '../src/utilities/lexicalContent.js'
+import { hasSubstantialLexicalContent } from '../src/utilities/lexicalContent.js'
 import { wpHtmlToLexical } from '../src/utilities/wpHtmlToLexical.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -77,7 +77,7 @@ async function convertCollection(
       continue
     }
 
-    if (!opts.force && !needsLegacyHtmlConversion(doc.content, html)) {
+    if (!opts.force && hasSubstantialLexicalContent(doc.content)) {
       report.skipped++
       continue
     }
@@ -93,9 +93,9 @@ async function convertCollection(
         await payload.update({
           collection,
           id: doc.id,
-          data: { content: lexical, htmlContent: null },
+          data: { content: lexical },
           overrideAccess: true,
-          context: { disableBackendSync: true, disableRevalidate: true, disableLegacyHydration: true },
+          context: { disableBackendSync: true, disableRevalidate: true },
         })
       }
 

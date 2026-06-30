@@ -216,6 +216,11 @@
   color: #fff;
 }
 
+.abroad-guide__table thead th,
+.abroad-guide__table thead th strong {
+  color: #fff !important;
+}
+
 .abroad-guide__table th,
 .abroad-guide__table td {
   padding: 0.85rem 1rem;
@@ -229,6 +234,70 @@
   color: #0c1f3f;
   background: #f8fafc;
   white-space: nowrap;
+}
+
+@media (max-width: 639px) {
+  .abroad-guide__table-wrap {
+    overflow-x: visible;
+    border: none;
+    box-shadow: none;
+  }
+
+  .abroad-guide__table {
+    min-width: 0;
+    border: 0;
+  }
+
+  .abroad-guide__table thead {
+    display: none;
+  }
+
+  .abroad-guide__table tbody tr {
+    display: block;
+    margin-bottom: 0.85rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(12, 31, 63, 0.06);
+  }
+
+  .abroad-guide__table tbody th,
+  .abroad-guide__table tbody td {
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    white-space: normal;
+  }
+
+  .abroad-guide__table tbody td:last-child {
+    border-bottom: none;
+  }
+
+  .abroad-guide__table tbody th {
+    background: linear-gradient(90deg, #0c1f3f, #1e3a5f);
+    color: #fff !important;
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+  }
+
+  .abroad-guide__table tbody td:nth-child(2)::before {
+    content: 'MBBS abroad: ';
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  .abroad-guide__table tbody td:nth-child(3)::before {
+    content: 'MBBS in India: ';
+    font-weight: 600;
+    color: #64748b;
+  }
+}
+
+.abroad-intake__card,
+.abroad-vault__item {
+  opacity: 1;
 }
 
 .abroad-guide__checklist {

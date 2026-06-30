@@ -48,23 +48,19 @@ Redeploy after changing env vars.
 
 ## Verify Vercel + Apps Script
 
-**Step A — test webhook URL in browser first** (before Vercel):
-
-Open your `GOOGLE_SHEETS_WEBHOOK_URL` in Chrome. You must see JSON like:
-
-```json
-{"ok":true,"service":"ar-group-lead-webhook","spreadsheetId":"1G_qR...","spreadsheetName":"MBBS LEADS"}
-```
-
-If you see HTML, "does not exist", or a sign-in page → wrong URL or wrong deploy settings. Fix Apps Script first.
-
-**Step B — after Vercel deploy:**
+After deploy, open (in browser):
 
 ```
 https://www.argroupofeducation.com/api/leads/sheets-health
 ```
 
-Expected: `{ "configured": true, "ok": true, "spreadsheetName": "MBBS LEADS" }`
+Expected JSON:
+
+```json
+{ "configured": true, "ok": true, "spreadsheetId": "...", "spreadsheetName": "MBBS LEADS" }
+```
+
+If `ok: false`, fix `GOOGLE_SHEETS_WEBHOOK_URL` (new `/exec` deployment) or Apps Script `WEBHOOK_SECRET`.
 
 ## After updating the script
 

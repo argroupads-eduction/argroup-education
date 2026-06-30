@@ -24,6 +24,5 @@ export function resolveBlogPublishedAt(
   slug: string,
   fallback: string | null | undefined
 ): string | null {
-  if (fallback) return fallback;
-  return BLOG_PUBLISHED_AT[slug] ?? null;
+  return BLOG_PUBLISHED_AT[slug] ?? fallback ?? null;
 }
