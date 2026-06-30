@@ -19,7 +19,7 @@ export function isBackendPrimaryContent(): boolean {
 
   if (process.env.VERCEL === '1') return enabled !== 'true';
 
-  // Oracle / self-hosted production: read Payload-synced Neon rows when DATABASE_URL is set.
+  // Self-hosted production: read Payload-synced Neon rows when DATABASE_URL is set.
   if (
     process.env.NODE_ENV === 'production' &&
     process.env.DATABASE_URL?.trim() &&

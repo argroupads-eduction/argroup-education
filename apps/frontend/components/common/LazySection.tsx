@@ -40,7 +40,14 @@ export function LazySection({
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+
+    // Safety net: some mobile browsers skip IO callbacks after soft reload / bfcache.
+    const fallback = window.setTimeout(() => setVisible(true), 3500);
+
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(fallback);
+    };
   }, [rootMargin]);
 
   return (
