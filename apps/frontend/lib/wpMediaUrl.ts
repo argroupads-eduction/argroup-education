@@ -1,6 +1,6 @@
 const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
 
-/** Bundled uploads in public/wp-content — static path (Oracle + Next.js). */
+/** Bundled uploads in public/wp-content — static path for Next.js. */
 function toStaticWpContentPath(relativePath: string): string {
   const safe = relativePath.replace(/^\/+/, '').replace(/^wp-content\//, '');
   return `/wp-content/${safe}`;
@@ -10,7 +10,7 @@ function apiMediaToStatic(url: string): string {
   return toStaticWpContentPath(url.replace(/^\/api\/wp-media\//, ''));
 }
 
-/** Elementor thumb hashes are not bundled on Oracle — map to full upload in uploads/. */
+/** Elementor thumb hashes may not be bundled — map to full upload in uploads/. */
 function elementorThumbToUpload(rel: string): string | null {
   const m = rel.match(/elementor\/thumbs\/(.+)-[a-z0-9]{20,}(\.[^./]+)$/i);
   if (!m) return null;

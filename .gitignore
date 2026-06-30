@@ -28,3 +28,7 @@ _uploads/
 
 # Payload import run reports (dev artifacts)
 apps/frontend/data/wp-export-bundle/reports/payload-import-*.json
+
+# Local agent / debug output
+SUBAGENT-RESULTS.txt
+frontend-dev.err.log
