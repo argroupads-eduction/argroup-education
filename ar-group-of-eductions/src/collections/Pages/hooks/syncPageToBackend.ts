@@ -2,6 +2,10 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 
 import type { Page } from '../../../payload-types'
 import { buildPostSyncPayload } from '../../../utilities/payloadSyncFields'
+import {
+  enqueueMarketingContentSync,
+  isAutosaveRequest,
+} from '../../../utilities/enqueueMarketingContentSync'
 import { htmlFromPayloadDoc, syncToMarketingBackend } from '../../../utilities/syncToMarketingBackend'
 
 export const syncPageToBackend: CollectionAfterChangeHook<Page> = async ({
@@ -10,15 +14,15 @@ export const syncPageToBackend: CollectionAfterChangeHook<Page> = async ({
   req,
 }) => {
   if (req.context?.disableBackendSync) return doc
+  if (isAutosaveRequest(req)) return doc
 
   const isPublished = doc._status === 'published'
   const wasPublished = previousDoc?._status === 'published'
   if (!isPublished && !wasPublished) return doc
 
-  const published = isPublished
   const fields = await buildPostSyncPayload(req.payload, doc)
 
-  await syncToMarketingBackend({
+  enqueueMarketingContentSync(req, {
     type: 'page',
     slug: doc.slug ?? '',
     title: doc.title ?? doc.slug ?? 'Untitled',
@@ -40,7 +44,7 @@ export const syncPageToBackend: CollectionAfterChangeHook<Page> = async ({
     navParent: fields.navParent,
     navLabel: fields.navLabel,
     navSortOrder: fields.navSortOrder,
-    published,
+    published: isPublished,
     publishedAt: doc.publishedAt ?? null,
   })
 

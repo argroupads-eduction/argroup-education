@@ -2,6 +2,10 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 
 import type { Post } from '../../../payload-types'
 import { buildPostSyncPayload } from '../../../utilities/payloadSyncFields'
+import {
+  enqueueMarketingContentSync,
+  isAutosaveRequest,
+} from '../../../utilities/enqueueMarketingContentSync'
 import { htmlFromPayloadDoc, syncToMarketingBackend } from '../../../utilities/syncToMarketingBackend'
 
 export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
@@ -10,15 +14,15 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
   req,
 }) => {
   if (req.context?.disableBackendSync) return doc
+  if (isAutosaveRequest(req)) return doc
 
   const isPublished = doc._status === 'published'
   const wasPublished = previousDoc?._status === 'published'
   if (!isPublished && !wasPublished) return doc
 
-  const published = isPublished
   const fields = await buildPostSyncPayload(req.payload, doc)
 
-  await syncToMarketingBackend({
+  enqueueMarketingContentSync(req, {
     type: 'post',
     slug: doc.slug ?? '',
     title: doc.title ?? doc.slug ?? 'Untitled',
@@ -36,7 +40,7 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
     twitterTitle: fields.twitterTitle,
     twitterDescription: fields.twitterDescription,
     schemaJson: fields.schemaJson,
-    published,
+    published: isPublished,
     publishedAt: doc.publishedAt ?? null,
   })
 

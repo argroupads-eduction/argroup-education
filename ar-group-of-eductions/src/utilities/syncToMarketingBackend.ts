@@ -75,7 +75,7 @@ export async function syncToMarketingBackend(payload: SyncPayload): Promise<void
         Authorization: `Bearer ${secret}`,
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(60_000),
+      signal: AbortSignal.timeout(30_000),
     })
 
     if (!res.ok) {

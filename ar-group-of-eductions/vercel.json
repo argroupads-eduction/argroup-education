@@ -2,5 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "node scripts/vercel-install.mjs",
   "buildCommand": "node scripts/vercel-build.mjs",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "functions": {
+    "src/app/**/*": {
+      "maxDuration": 60
+    }
+  }
 }
