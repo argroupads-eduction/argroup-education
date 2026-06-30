@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!content || content.type !== 'post') {
     return { title: 'Not Found' };
   }
-  return buildSiteMetadata(content);
+  return buildSiteMetadata(content, { canonicalPath: blogPostPath(content.slug) });
 }
 
 export default async function BlogSlugPage({ params }: PageProps) {

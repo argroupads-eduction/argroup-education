@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { SiteContent } from '@/lib/contentApi';
+import { blogPostPath } from '@/lib/blogUtils';
 import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 import { toAbsoluteMediaUrl } from '@/lib/toAbsoluteMediaUrl';
@@ -7,6 +8,12 @@ import { toAbsoluteMediaUrl } from '@/lib/toAbsoluteMediaUrl';
 import { getSiteUrl } from '@/lib/siteUrl';
 
 const SITE_URL = getSiteUrl();
+
+const SITE_ICONS: Metadata['icons'] = {
+  icon: [{ url: '/ar-browser-icon.png', type: 'image/png' }],
+  shortcut: ['/ar-browser-icon.png'],
+  apple: [{ url: '/ar-browser-icon.png', type: 'image/png' }],
+};
 
 export type SiteMetadataOptions = {
   /** Override canonical path when slug route differs (e.g. program hubs). */
@@ -40,7 +47,9 @@ export function buildSiteMetadata(
   >,
   options?: SiteMetadataOptions
 ): Metadata {
-  const canonicalPath = options?.canonicalPath ?? `/${content.slug}`;
+  const defaultPath =
+    content.type === 'post' ? blogPostPath(content.slug) : `/${content.slug}`;
+  const canonicalPath = options?.canonicalPath ?? defaultPath;
   const curated = getCuratedPageSeo(canonicalPath);
 
   const title = plainTitle(
@@ -50,9 +59,7 @@ export function buildSiteMetadata(
     curated?.metaDescription ||
     metaDescriptionFromContent(content.metaDescription || content.excerpt, content.content);
 
-  const canonical = options?.canonicalPath
-    ? `${SITE_URL}${options.canonicalPath}`
-    : content.canonicalUrl || `${SITE_URL}/${content.slug}`;
+  const canonical = content.canonicalUrl || `${SITE_URL}${canonicalPath}`;
 
   const ogTitle = plainTitle(content.ogTitle || title);
   const ogDescription = curated?.metaDescription || content.ogDescription?.trim() || description;
@@ -67,6 +74,7 @@ export function buildSiteMetadata(
   return {
     title,
     description,
+    icons: SITE_ICONS,
     ...(content.keywords?.length
       ? { keywords: content.keywords }
       : content.focusKeyword

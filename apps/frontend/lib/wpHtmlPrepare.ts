@@ -1219,8 +1219,30 @@ function parseNumberedFaqItemsFromHtml(block: string): FaqItem[] {
   return parseNumberedFaqItemsFromLines(extractFaqLines(block));
 }
 
+/** Payload CMS: h3 question + p answer blocks under "Frequently Asked Questions". */
+function parseHeadingQuestionFaqItemsFromHtml(block: string): FaqItem[] {
+  const items: FaqItem[] = [];
+  const re = /<h([34])\b[^>]*>([\s\S]*?)<\/h\1>\s*(<p\b[^>]*>[\s\S]*?<\/p>)/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(block)) !== null) {
+    const question = stripHtml(m[2]).trim();
+    if (!question || /^frequently\s+asked\s+questions$/i.test(question)) continue;
+    const answer = cleanAnswerHtml(m[3].replace(/^<p\b[^>]*>|<\/p>$/gi, ''));
+    if (question.length >= 8 && answer.length > 0) {
+      items.push({ num: String(items.length + 1), question, answer });
+    }
+  }
+  return items;
+}
+
+const FAQ_SECTION_HEADING =
+  '(?:\\bFAQs?\\b|Frequently\\s+Asked\\s+Questions)';
+
 function parseFaqItemsFromHtml(block: string): FaqItem[] {
   const items: FaqItem[] = [];
+
+  const headingQa = parseHeadingQuestionFaqItemsFromHtml(block);
+  if (headingQa.length >= 2) return headingQa;
 
   const h2Blocks = [
     ...block.matchAll(
@@ -1464,11 +1486,11 @@ export function transformWpsmAccordions(html: string): string {
   return out;
 }
 
-/** All FAQ blocks under "FAQs" heading → animated accordion (transforms in place, no content copy). */
+/** All FAQ blocks under "FAQs" / "Frequently Asked Questions" → animated accordion. */
 export function transformWpFaqParagraphs(html: string): string {
   return html.replace(
     new RegExp(
-      `(<h[23][^>]*>[\\s\\S]*?\\bFAQs?\\b[\\s\\S]*?<\\/h[23]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
+      `(<h[23][^>]*>[\\s\\S]*?${FAQ_SECTION_HEADING}[\\s\\S]*?<\\/h[23]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
       'gi'
     ),
     (full, heading, _sp, body) => {
@@ -1484,13 +1506,14 @@ export function transformWpFaqParagraphs(html: string): string {
 function transformRemainingFaqSections(html: string): string {
   return html.replace(
     new RegExp(
-      `(<h[23][^>]*>[\\s\\S]*?\\bFAQs?\\b[\\s\\S]*?<\\/h[23]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
+      `(<h[23][^>]*>[\\s\\S]*?${FAQ_SECTION_HEADING}[\\s\\S]*?<\\/h[23]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
       'gi'
     ),
     (full, heading, _sp, body) => {
       const hasQa = /<p[^>]*>[\s\S]*?Q\s*\d+\s*[.:]/i.test(body);
       const hasNumbered = /<p[^>]*>[\s\S]*?\b\d+\.\s+/i.test(body);
-      if ((!hasQa && !hasNumbered) || body.includes('wp-premium-faq-group')) {
+      const hasHeadingQa = /<h[34]\b[^>]*>[\s\S]*?<\/h[34]>\s*<p\b/i.test(body);
+      if ((!hasQa && !hasNumbered && !hasHeadingQa) || body.includes('wp-premium-faq-group')) {
         return full;
       }
       const items = parseFaqItemsFromHtml(body);

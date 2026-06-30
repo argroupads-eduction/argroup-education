@@ -14,6 +14,7 @@ const outputFileTracingRoot = resolveOutputFileTracingRoot();
 
 /** Marketing images referenced as plain /filename paths in components. */
 const PUBLIC_MARKETING_ASSETS = [
+  'ar-browser-icon.png',
   'ar-group-logo.png',
   'india-homepage.jpg',
   'abroad-homepage.jpg',

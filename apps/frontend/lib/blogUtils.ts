@@ -4,6 +4,9 @@ import { metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 /** Legacy duplicate slugs hidden from blog index (canonical slug kept). */
 export const BLOG_EXCLUDED_LIST_SLUGS = new Set([
   'neet-re-exam-2026-vs-original-exam',
+  'how-much-neet-score-is-required-for-mbbs-in-russia-complete-guide-2026',
+  'can-i-get-mbbs-with-250-marks-in-neet-complete-admission-guide-2026',
+  'test-timing',
 ]);
 
 /** Short / legacy blog slugs → canonical published slug. */
@@ -11,6 +14,9 @@ export const BLOG_SLUG_CANONICAL: Record<string, string> = {
   'neet-re-exam-2026-vs-original-exam':
     'neet-re-exam-2026-vs-original-exam-which-is-tougher',
   'top-medical-colleges-india': 'top-medical-colleges-in-india',
+  'how-much-neet-score-is-required-for-mbbs-in-russia-complete-guide-2026': 'mbbs-in-russia',
+  'can-i-get-mbbs-with-250-marks-in-neet-complete-admission-guide-2026':
+    'can-i-get-mbbs-with-250-marks-in-neet',
 };
 
 function normalizeBlogTitleKey(title: string): string {
@@ -23,9 +29,15 @@ function normalizeBlogTitleKey(title: string): string {
 }
 
 function pickBetterBlogPost(a: BlogListItem, b: BlogListItem): BlogListItem {
+  if (BLOG_EXCLUDED_LIST_SLUGS.has(a.slug)) return b;
+  if (BLOG_EXCLUDED_LIST_SLUGS.has(b.slug)) return a;
+  const aIsLegacy = a.slug in BLOG_SLUG_CANONICAL;
+  const bIsLegacy = b.slug in BLOG_SLUG_CANONICAL;
+  if (aIsLegacy && !bIsLegacy) return b;
+  if (bIsLegacy && !aIsLegacy) return a;
   if (a.featuredImage && !b.featuredImage) return a;
   if (b.featuredImage && !a.featuredImage) return b;
-  if (a.slug.length !== b.slug.length) return a.slug.length > b.slug.length ? a : b;
+  if (a.slug.length !== b.slug.length) return a.slug.length < b.slug.length ? a : b;
   return new Date(b.publishedAt).getTime() >= new Date(a.publishedAt).getTime() ? b : a;
 }
 

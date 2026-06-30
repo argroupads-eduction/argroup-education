@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   description:
     'Stay informed with the latest education news and updates. Read our medical admission blogs for expert insights into NEET counseling, cutoffs, and college guides.',
   keywords: ['Education News And Updates', 'Medical Admission Blogs'],
+  icons: {
+    icon: [{ url: '/ar-browser-icon.png', type: 'image/png' }],
+    shortcut: ['/ar-browser-icon.png'],
+    apple: [{ url: '/ar-browser-icon.png', type: 'image/png' }],
+  },
   alternates: {
     canonical: `${SITE_URL}/blog`,
   },
