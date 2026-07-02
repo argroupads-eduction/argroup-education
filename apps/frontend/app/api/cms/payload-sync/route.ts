@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   }
 
   const result = await runPayloadSync(body as Parameters<typeof runPayloadSync>[0]);
-  if (result.ok && result.body.published) {
+  if (result.ok) {
     revalidateAfterContentSync({
       slug: result.body.slug,
       type: result.body.type,
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(
     {
       ...result.body,
-      ...(result.ok && result.body.published
+      ...(result.ok
         ? { revalidated: true, message: 'Synced, live site updated without redeploy' }
         : {}),
     },

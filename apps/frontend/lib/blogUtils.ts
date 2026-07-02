@@ -17,6 +17,7 @@ export const BLOG_SLUG_CANONICAL: Record<string, string> = {
   'how-much-neet-score-is-required-for-mbbs-in-russia-complete-guide-2026': 'mbbs-in-russia',
   'can-i-get-mbbs-with-250-marks-in-neet-complete-admission-guide-2026':
     'can-i-get-mbbs-with-250-marks-in-neet',
+  'NEET PG Exam 2026': 'neet-pg-exam-2026',
 };
 
 function normalizeBlogTitleKey(title: string): string {

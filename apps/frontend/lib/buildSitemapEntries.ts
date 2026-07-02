@@ -1,5 +1,5 @@
 import { buildDynamicSitemap, type SitemapEntry } from '@backend/handlers/siteSearch';
-import { BLOG_EXCLUDED_LIST_SLUGS, blogPostPath } from '@/lib/blogUtils';
+import { BLOG_EXCLUDED_LIST_SLUGS, BLOG_SLUG_CANONICAL, blogPostPath } from '@/lib/blogUtils';
 import { hasUsableDatabase } from '@/lib/databaseEnv';
 import { PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { getSupplementalSitemapEntries } from '@/lib/seoCrawlConfig';
@@ -101,12 +101,29 @@ async function getBundleSitemapEntries(baseUrl: string): Promise<SitemapEntry[]>
   return entries;
 }
 
+function filterDuplicateBlogSitemapEntries(
+  entries: SitemapEntry[],
+  baseUrl: string
+): SitemapEntry[] {
+  const base = baseUrl.replace(/\/$/, '');
+  const blogPrefix = `${base}/blog/`;
+
+  return entries.filter((entry) => {
+    if (!entry.loc.startsWith(blogPrefix)) return true;
+    const slug = decodeURIComponent(entry.loc.slice(blogPrefix.length));
+    if (BLOG_EXCLUDED_LIST_SLUGS.has(slug)) return false;
+    if (slug in BLOG_SLUG_CANONICAL) return false;
+    return true;
+  });
+}
+
 /** DB-backed blogs + CMS pages (when Neon/Postgres is available). */
 async function getDatabaseSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
   if (!hasUsableDatabase()) return [];
 
   try {
-    return await buildDynamicSitemap(baseUrl);
+    const entries = await buildDynamicSitemap(baseUrl);
+    return filterDuplicateBlogSitemapEntries(entries, baseUrl);
   } catch (error) {
     console.warn('[sitemap] Database entries skipped:', error);
     return [];

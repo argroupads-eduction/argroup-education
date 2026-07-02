@@ -1,7 +1,8 @@
 import collegeIndex from '@/data/college-image-index.json';
-import { BLOG_FEATURED_IMAGES } from '@/lib/blogFeaturedImages';
+import { resolveBlogFeaturedImage } from '@/lib/blogFeaturedImages';
 import { blogPostPath } from '@/lib/blogUtils';
 import { buildSitemapEntries } from '@/lib/buildSitemapEntries';
+import { hasUsableDatabase } from '@/lib/databaseEnv';
 import { extractHtmlImageUrls } from '@/lib/extractHtmlImageUrls';
 import { getCollegeImageBySlug } from '@/lib/collegeImageIndex';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
@@ -139,16 +140,73 @@ async function loadWpBundlePosts(): Promise<
   return [];
 }
 
+type ContentDoc = {
+  slug: string;
+  title?: string;
+  featuredImage?: string | null;
+  content?: string;
+};
+
+/** Live CMS/DB posts and pages — keeps image sitemap in sync after Payload push. */
+async function loadDatabaseContentDocs(): Promise<{ posts: ContentDoc[]; pages: ContentDoc[] }> {
+  if (!hasUsableDatabase()) return { posts: [], pages: [] };
+
+  try {
+    const { prisma, withPrismaRetry } = await import('@backend/lib/prisma');
+    const [posts, pages] = await withPrismaRetry(() =>
+      Promise.all([
+        prisma.blogPost.findMany({
+          where: { published: true },
+          select: { slug: true, title: true, featuredImage: true, content: true },
+        }),
+        prisma.sitePage.findMany({
+          where: { published: true },
+          select: { slug: true, title: true, featuredImage: true, content: true },
+        }),
+      ])
+    );
+    return { posts, pages };
+  } catch (error) {
+    console.warn('[image-sitemap] Database entries skipped:', error);
+    return { posts: [], pages: [] };
+  }
+}
+
+function addContentDocImages(
+  bucket: Map<string, Map<string, ImageSitemapImage>>,
+  baseUrl: string,
+  docs: ContentDoc[],
+  pageLocForSlug: (slug: string) => string,
+  resolveFeatured?: (slug: string, featured: string | null | undefined) => string | null
+) {
+  for (const doc of docs) {
+    const slug = doc.slug?.trim();
+    if (!slug) continue;
+    const pageLoc = pageLocForSlug(slug);
+    const featured = resolveFeatured
+      ? resolveFeatured(slug, doc.featuredImage)
+      : doc.featuredImage ?? null;
+    if (featured) {
+      addImage(bucket, pageLoc, featured, doc.title, baseUrl);
+    }
+    for (const src of extractHtmlImageUrls(doc.content)) {
+      addImage(bucket, pageLoc, src, doc.title, baseUrl);
+    }
+  }
+}
+
 /**
  * Build Google image sitemap entries grouped by page URL.
  * Sources: URL sitemap pages, college image index, WP bundle, blogs, MD/MS covers.
  */
 export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSitemapPage[]> {
-  const [urlEntries, wpPages, wpPosts, blogPosts] = await Promise.all([
+  const base = baseUrl.replace(/\/$/, '');
+  const [urlEntries, wpPages, wpPosts, blogPosts, databaseDocs] = await Promise.all([
     buildSitemapEntries(baseUrl),
     loadWpBundlePages(),
     loadWpBundlePosts(),
     getAllWpExportBlogPosts(),
+    loadDatabaseContentDocs(),
   ]);
 
   const pageLastmod = new Map(urlEntries.map((e) => [e.loc, e.lastmod]));
@@ -197,7 +255,7 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
     const slug = post.slug?.trim();
     if (!slug) continue;
     const pageLoc = `${baseUrl.replace(/\/$/, '')}${blogPostPath(slug)}`;
-    const featured = BLOG_FEATURED_IMAGES[slug] ?? post.featuredImage ?? null;
+    const featured = resolveBlogFeaturedImage(slug, post.featuredImage ?? null);
     if (featured) {
       addImage(bucket, pageLoc, featured, post.title, baseUrl);
     }
@@ -207,15 +265,29 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
   }
 
   for (const post of blogPosts) {
-    const pageLoc = `${baseUrl.replace(/\/$/, '')}${blogPostPath(post.slug)}`;
-    const featured = BLOG_FEATURED_IMAGES[post.slug] ?? post.featuredImage ?? null;
+    const pageLoc = `${base}${blogPostPath(post.slug)}`;
+    const featured = resolveBlogFeaturedImage(post.slug, post.featuredImage ?? null);
     if (featured) {
       addImage(bucket, pageLoc, featured, post.title, baseUrl);
     }
   }
 
+  addContentDocImages(
+    bucket,
+    baseUrl,
+    databaseDocs.pages,
+    (slug) => `${base}/${slug}`,
+  );
+  addContentDocImages(
+    bucket,
+    baseUrl,
+    databaseDocs.posts,
+    (slug) => `${base}${blogPostPath(slug)}`,
+    (slug, featured) => resolveBlogFeaturedImage(slug, featured),
+  );
+
   for (const [slug, src] of Object.entries(BY_SLUG)) {
-    const pageLoc = `${baseUrl.replace(/\/$/, '')}/${slug}`;
+    const pageLoc = `${base}/${slug}`;
     if (!pageLastmod.has(pageLoc)) continue;
     addImage(bucket, pageLoc, src, slug.replace(/-/g, ' '), baseUrl);
   }
