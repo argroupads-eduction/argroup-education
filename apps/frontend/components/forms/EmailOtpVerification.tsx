@@ -50,6 +50,10 @@ export function EmailOtpVerification({
   const otpInputId = useId();
   const digitRefs = useRef<Array<HTMLInputElement | null>>([]);
   const autoSendAttemptedRef = useRef<string | null>(null);
+  const prevEmailRef = useRef<string | null>(null);
+  const onVerifiedChangeRef = useRef(onVerifiedChange);
+
+  onVerifiedChangeRef.current = onVerifiedChange;
 
   const [activatedInternal, setActivatedInternal] = useState(!activateOnBlur);
   const activated = activatedProp ?? activatedInternal;
@@ -57,7 +61,6 @@ export function EmailOtpVerification({
   const [pendingToken, setPendingToken] = useState<string | null>(null);
   const [otpDigits, setOtpDigits] = useState<string[]>(() => otpToDigits(''));
   const [verified, setVerified] = useState(false);
-  const [verifiedToken, setVerifiedToken] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -66,15 +69,18 @@ export function EmailOtpVerification({
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [otpExpired, setOtpExpired] = useState(false);
 
-  const normalizedEmail = email.trim();
+  const normalizedEmail = email.trim().toLowerCase();
   const emailValid = EMAIL_RE.test(normalizedEmail);
   const otp = digitsToOtp(otpDigits);
   const showOtpEntry = Boolean(pendingToken) || sending;
   const isDark = variant === 'dark';
 
-  const reset = useCallback(() => {
+  const notifyParent = useCallback((state: { verified: boolean; verifiedToken: string | null }) => {
+    onVerifiedChangeRef.current(state);
+  }, []);
+
+  const resetVerification = useCallback(() => {
     setVerified(false);
-    setVerifiedToken(null);
     setPendingToken(null);
     setOtpDigits(otpToDigits(''));
     setStatusMessage(null);
@@ -83,59 +89,71 @@ export function EmailOtpVerification({
     setSecondsLeft(0);
     setOtpExpired(false);
     autoSendAttemptedRef.current = null;
-    onVerifiedChange({ verified: false, verifiedToken: null });
-  }, [onVerifiedChange]);
+    notifyParent({ verified: false, verifiedToken: null });
+  }, [notifyParent]);
 
-  const sendOtp = useCallback(async () => {
-    if (!emailValid) {
-      setError('Enter a valid email address first.');
-      return;
-    }
-
-    setSending(true);
-    setError(null);
-    setStatusMessage(null);
-    setOtpExpired(false);
-    setOtpDigits(otpToDigits(''));
-
-    try {
-      const res = await fetch('/api/email-otp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: normalizedEmail }),
-      });
-      const data = (await res.json()) as {
-        ok?: boolean;
-        token?: string;
-        expiresAt?: number;
-        expiresInSeconds?: number;
-        message?: string;
-        devHint?: string;
-      };
-
-      if (!res.ok || !data.ok || !data.token) {
-        setError(data.message || 'Could not send verification code. Please try again.');
-        autoSendAttemptedRef.current = null;
+  const sendOtp = useCallback(
+    async (options?: { isResend?: boolean }) => {
+      if (!emailValid) {
+        setError('Enter a valid email address first.');
         return;
       }
 
-      setPendingToken(data.token);
-      const expiry =
-        typeof data.expiresAt === 'number'
-          ? data.expiresAt
-          : Date.now() + (data.expiresInSeconds ?? 60) * 1000;
-      setExpiresAt(expiry);
-      setSecondsLeft(Math.max(1, Math.ceil((expiry - Date.now()) / 1000)));
-      setActivatedInternal(true);
-      setStatusMessage(data.devHint || 'Code sent! Check your inbox.');
-      window.setTimeout(() => digitRefs.current[0]?.focus(), 80);
-    } catch {
-      setError('Could not send verification code. Please try again.');
-      autoSendAttemptedRef.current = null;
-    } finally {
-      setSending(false);
-    }
-  }, [emailValid, normalizedEmail]);
+      setSending(true);
+      setError(null);
+      if (options?.isResend) {
+        setStatusMessage(null);
+      }
+      setOtpExpired(false);
+      if (options?.isResend) {
+        setOtpDigits(otpToDigits(''));
+      }
+
+      try {
+        const res = await fetch('/api/email-otp/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: normalizedEmail }),
+        });
+        const data = (await res.json()) as {
+          ok?: boolean;
+          token?: string;
+          expiresAt?: number;
+          expiresInSeconds?: number;
+          message?: string;
+          devHint?: string;
+        };
+
+        if (!res.ok || !data.ok || !data.token) {
+          setError(data.message || 'Could not send verification code. Please try again.');
+          autoSendAttemptedRef.current = null;
+          return;
+        }
+
+        setPendingToken(data.token);
+        const expiry =
+          typeof data.expiresAt === 'number'
+            ? data.expiresAt
+            : Date.now() + (data.expiresInSeconds ?? 60) * 1000;
+        setExpiresAt(expiry);
+        setSecondsLeft(Math.max(1, Math.ceil((expiry - Date.now()) / 1000)));
+        setActivatedInternal(true);
+        autoSendAttemptedRef.current = normalizedEmail;
+        setStatusMessage(
+          options?.isResend
+            ? 'New code sent! Check your inbox.'
+            : data.devHint || 'Code sent! Check your inbox.'
+        );
+        window.setTimeout(() => digitRefs.current[0]?.focus(), 80);
+      } catch {
+        setError('Could not send verification code. Please try again.');
+        autoSendAttemptedRef.current = null;
+      } finally {
+        setSending(false);
+      }
+    },
+    [emailValid, normalizedEmail]
+  );
 
   const verifyOtp = useCallback(async () => {
     if (otpExpired) {
@@ -169,14 +187,14 @@ export function EmailOtpVerification({
         return;
       }
       setVerified(true);
-      setVerifiedToken(data.verifiedToken);
       setStatusMessage('Email verified successfully.');
+      notifyParent({ verified: true, verifiedToken: data.verifiedToken });
     } catch {
       setError('Verification failed. Please try again.');
     } finally {
       setVerifying(false);
     }
-  }, [normalizedEmail, otp, otpExpired, pendingToken]);
+  }, [normalizedEmail, notifyParent, otp, otpExpired, pendingToken]);
 
   useEffect(() => {
     if (!expiresAt || verified) return;
@@ -195,15 +213,14 @@ export function EmailOtpVerification({
     return () => window.clearInterval(id);
   }, [expiresAt, verified]);
 
+  // Reset only when the email address actually changes — not on every parent re-render.
   useEffect(() => {
-    reset();
+    if (prevEmailRef.current === normalizedEmail) return;
+    prevEmailRef.current = normalizedEmail;
+    resetVerification();
     if (!activateOnBlur) setActivatedInternal(true);
     else setActivatedInternal(false);
-  }, [normalizedEmail, activateOnBlur, reset]);
-
-  useEffect(() => {
-    onVerifiedChange({ verified, verifiedToken });
-  }, [verified, verifiedToken, onVerifiedChange]);
+  }, [normalizedEmail, activateOnBlur, resetVerification]);
 
   useEffect(() => {
     if (!autoSend || !activated || !emailValid || verified || sending || pendingToken) return;
@@ -229,8 +246,11 @@ export function EmailOtpVerification({
     if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
       digitRefs.current[index - 1]?.focus();
     }
-    if (e.key === 'Enter' && otp.length === OTP_LENGTH && !otpExpired) {
-      void verifyOtp();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (otp.length === OTP_LENGTH && !otpExpired && !verifying) {
+        void verifyOtp();
+      }
     }
   };
 
@@ -248,11 +268,7 @@ export function EmailOtpVerification({
 
   return (
     <div
-      className={clsx(
-        'email-otp-card',
-        isDark && 'email-otp-card--dark',
-        className
-      )}
+      className={clsx('email-otp-card', isDark && 'email-otp-card--dark', className)}
       aria-live="polite"
     >
       <div className="email-otp-card__glow" aria-hidden />
@@ -273,11 +289,20 @@ export function EmailOtpVerification({
                 <p className="email-otp-card__title">Secure email verification</p>
                 <p className="email-otp-card__subtitle">
                   {sending ? (
-                    <>Sending 6-digit code to <span className="email-otp-card__email">{normalizedEmail}</span></>
+                    <>
+                      Sending 6-digit code to{' '}
+                      <span className="email-otp-card__email">{normalizedEmail}</span>
+                    </>
                   ) : pendingToken ? (
-                    <>Enter the code sent to <span className="email-otp-card__email">{normalizedEmail}</span></>
+                    <>
+                      Enter the code sent to{' '}
+                      <span className="email-otp-card__email">{normalizedEmail}</span>
+                    </>
                   ) : (
-                    <>We will verify <span className="email-otp-card__email">{normalizedEmail}</span> before submit</>
+                    <>
+                      We will verify <span className="email-otp-card__email">{normalizedEmail}</span> before
+                      submit
+                    </>
                   )}
                 </p>
               </div>
@@ -343,7 +368,11 @@ export function EmailOtpVerification({
               <div className="email-otp-actions">
                 <button
                   type="button"
-                  onClick={() => void verifyOtp()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    void verifyOtp();
+                  }}
                   disabled={verifying || otp.length !== OTP_LENGTH || otpExpired}
                   className="program-hub-btn-primary email-otp-verify-btn inline-flex items-center justify-center gap-1.5 text-xs disabled:opacity-50"
                 >
@@ -352,11 +381,13 @@ export function EmailOtpVerification({
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     autoSendAttemptedRef.current = null;
-                    void sendOtp();
+                    void sendOtp({ isResend: true });
                   }}
-                  disabled={sending}
+                  disabled={sending || verifying}
                   className="email-otp-resend-btn"
                 >
                   {sending ? 'Sending…' : otpExpired ? 'Resend new code' : 'Resend code'}
