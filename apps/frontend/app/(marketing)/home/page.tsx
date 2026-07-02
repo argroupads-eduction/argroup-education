@@ -113,6 +113,9 @@ export default async function HomePage() {
       <LazySection minHeight="24rem">
         <AboutSection />
       </LazySection>
+      <LazySection minHeight="26rem">
+        <YoutubeChannelSection />
+      </LazySection>
       <LazySection minHeight="28rem">
         <MbbsAbroadScrollSection />
       </LazySection>
@@ -124,9 +127,6 @@ export default async function HomePage() {
       </LazySection>
       <LazySection minHeight="24rem">
         <HomeSeoContentSections />
-      </LazySection>
-      <LazySection minHeight="26rem">
-        <YoutubeChannelSection />
       </LazySection>
       <LazySection minHeight="18rem">
         <FAQSection />

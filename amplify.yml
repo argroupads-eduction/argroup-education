@@ -13,7 +13,7 @@ applications:
             # Amplify console env vars are NOT available to Next.js SSR at runtime unless
             # written into .env.production during build (AWS docs: ssr-environment-variables).
             - touch apps/frontend/.env.production
-            - env | grep -E '^(DATABASE_URL|GOOGLE_SHEETS_WEBHOOK_URL|GOOGLE_SHEETS_WEBHOOK_SECRET|LEADS_NOTIFY_EMAIL|SMTP_HOST|SMTP_PORT|SMTP_USER|SMTP_PASS|SMTP_FROM|EMAIL_OTP_SECRET|PAYLOAD_CMS_ENABLED|PAYLOAD_SYNC_SECRET|REVALIDATE_SECRET|NEXT_PUBLIC_SITE_URL|NEXT_PUBLIC_SITE_NAME|CRON_SECRET|YOUTUBE_API_KEY|YOUTUBE_CHANNEL_HANDLE|YOUTUBE_CHANNEL_ID|YOUTUBE_FEED_REFRESH_SECONDS)=' >> apps/frontend/.env.production || true
+            - env | grep -E '^(DATABASE_URL|GOOGLE_SHEETS_WEBHOOK_URL|GOOGLE_SHEETS_WEBHOOK_SECRET|LEADS_NOTIFY_EMAIL|SMTP_HOST|SMTP_PORT|SMTP_USER|SMTP_PASS|SMTP_FROM|EMAIL_OTP_FROM|EMAIL_OTP_SECRET|PAYLOAD_CMS_ENABLED|PAYLOAD_SYNC_SECRET|REVALIDATE_SECRET|NEXT_PUBLIC_SITE_URL|NEXT_PUBLIC_SITE_NAME|CRON_SECRET|YOUTUBE_API_KEY|YOUTUBE_CHANNEL_HANDLE|YOUTUBE_CHANNEL_ID|YOUTUBE_FEED_REFRESH_SECONDS)=' >> apps/frontend/.env.production || true
             - npm run build --workspace=ar-education-frontend
       artifacts:
         baseDirectory: apps/frontend/.next

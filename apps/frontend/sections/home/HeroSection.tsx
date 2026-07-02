@@ -74,7 +74,8 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
   }
 
   const [variant, setVariant] = useState<HeroVariant>('india');
-  const [carouselPaused, setCarouselPaused] = useState(false);
+  const [heroFormActive, setHeroFormActive] = useState(false);
+  const [heroEmailVerified, setHeroEmailVerified] = useState(false);
   const [text, setText] = useState('');
   const [collegeIndex, setCollegeIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -85,42 +86,32 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
     [variant]
   );
 
+  const carouselPaused = heroFormActive && !heroEmailVerified;
+
   // Warm both hero form definitions in parallel (no carousel delay).
   useEffect(() => {
     prefetchMbbsHeroFormDefinitions(['india', 'abroad']);
   }, []);
 
-  // Pause auto-rotate while the user interacts with the hero enquiry form.
+  // Pause auto-rotate when user interacts with the hero enquiry form until email is verified.
   useEffect(() => {
     const zone = formZoneRef.current;
     if (!zone) return;
 
-    const pause = () => setCarouselPaused(true);
+    const lockCarousel = () => setHeroFormActive(true);
 
-    const maybeResume = () => {
-      requestAnimationFrame(() => {
-        if (!zone.contains(document.activeElement)) {
-          setCarouselPaused(false);
-        }
-      });
-    };
-
-    const onDocPointerDown = (e: PointerEvent) => {
-      if (!zone.contains(e.target as Node)) maybeResume();
-    };
-
-    zone.addEventListener('pointerdown', pause);
-    zone.addEventListener('focusin', pause);
-    zone.addEventListener('focusout', maybeResume);
-    document.addEventListener('pointerdown', onDocPointerDown);
+    zone.addEventListener('pointerdown', lockCarousel);
+    zone.addEventListener('focusin', lockCarousel);
 
     return () => {
-      zone.removeEventListener('pointerdown', pause);
-      zone.removeEventListener('focusin', pause);
-      zone.removeEventListener('focusout', maybeResume);
-      document.removeEventListener('pointerdown', onDocPointerDown);
+      zone.removeEventListener('pointerdown', lockCarousel);
+      zone.removeEventListener('focusin', lockCarousel);
     };
   }, [variant]);
+
+  const handleHeroEmailVerified = (verified: boolean) => {
+    setHeroEmailVerified(verified);
+  };
 
   // Auto-rotate India -> Abroad -> India (skipped while form is in use).
   useEffect(() => {
@@ -133,12 +124,13 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
     return () => window.clearTimeout(id);
   }, [variant, carouselPaused]);
 
-  // Reset typewriter when banner mode switches
+  // Reset typewriter and carousel lock when banner mode switches
   useEffect(() => {
     setText('');
     setCollegeIndex(0);
     setIsDeleting(false);
-    setCarouselPaused(false);
+    setHeroFormActive(false);
+    setHeroEmailVerified(false);
   }, [variant]);
 
   useEffect(() => {
@@ -294,6 +286,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                 <MbbsIndiaHeroPayloadForm
                   layout="heroSide"
                   className="w-full max-w-md lg:max-w-[20.5rem] xl:max-w-md"
+                  onCarouselEmailVerified={handleHeroEmailVerified}
                 />
               </div>
             </>
@@ -309,6 +302,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                 <MbbsAbroadHeroPayloadForm
                   layout="heroSide"
                   className="w-full max-w-md lg:max-w-[20.5rem] xl:max-w-md"
+                  onCarouselEmailVerified={handleHeroEmailVerified}
                 />
               </div>
 

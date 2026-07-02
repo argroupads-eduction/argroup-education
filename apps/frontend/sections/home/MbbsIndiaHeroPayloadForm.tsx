@@ -52,11 +52,14 @@ export type MbbsIndiaHeroPayloadFormProps = {
   /** `heroSide`: right-column panel in home hero (no top margin, stronger card). */
   layout?: 'stacked' | 'heroSide';
   className?: string;
+  /** Notifies parent (e.g. hero carousel) when email OTP verification completes. */
+  onCarouselEmailVerified?: (verified: boolean) => void;
 };
 
 export function MbbsIndiaHeroPayloadForm({
   layout = 'stacked',
   className: outerClassName,
+  onCarouselEmailVerified,
 }: MbbsIndiaHeroPayloadFormProps) {
   const { form: loadedForm, debugMessage, values, setValues } = useHeroMbbsFormDefinition('india');
   const form = loadedForm as PayloadFormDoc | null;
@@ -349,6 +352,7 @@ export function MbbsIndiaHeroPayloadForm({
             onVerifiedChange={({ verified, verifiedToken }) => {
               setEmailVerified(verified);
               setEmailVerificationToken(verifiedToken);
+              onCarouselEmailVerified?.(verified);
             }}
           />
         </div>

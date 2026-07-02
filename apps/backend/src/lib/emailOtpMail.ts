@@ -28,14 +28,18 @@ function getTransporter() {
   });
 }
 
+function getOtpFromAddress(): string {
+  return (
+    process.env.EMAIL_OTP_FROM?.trim() ||
+    'AR Group of Education <info@argroupofeducation.com>'
+  );
+}
+
 async function sendViaResendOtp(to: string, otp: string): Promise<{ sent: boolean; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) return { sent: false, error: 'RESEND_API_KEY not set' };
 
-  const from =
-    process.env.RESEND_FROM?.trim() ||
-    process.env.SMTP_FROM?.trim() ||
-    'AR Group of Education <onboarding@resend.dev>';
+  const from = getOtpFromAddress();
 
   const html = `
     <div style="font-family:Arial,sans-serif;color:#1a365d;max-width:480px;margin:0 auto;">
@@ -79,10 +83,7 @@ export async function sendEmailOtpMail(
 ): Promise<{ sent: boolean; error?: string }> {
   loadMonorepoEnv();
 
-  const from =
-    process.env.SMTP_FROM?.trim() ||
-    process.env.SMTP_USER?.trim() ||
-    'AR Group of Education <noreply@argroupofeducation.com>';
+  const from = getOtpFromAddress();
 
   const html = `
     <div style="font-family:Arial,sans-serif;color:#1a365d;max-width:480px;margin:0 auto;">

@@ -63,11 +63,14 @@ function isStateOrCountryField(field: FormFieldBlock): boolean {
 export type MbbsAbroadHeroPayloadFormProps = {
   layout?: 'stacked' | 'heroSide';
   className?: string;
+  /** Notifies parent (e.g. hero carousel) when email OTP verification completes. */
+  onCarouselEmailVerified?: (verified: boolean) => void;
 };
 
 export function MbbsAbroadHeroPayloadForm({
   layout = 'stacked',
   className: outerClassName,
+  onCarouselEmailVerified,
 }: MbbsAbroadHeroPayloadFormProps) {
   const { form: loadedForm, debugMessage, values, setValues } =
     useHeroMbbsFormDefinition('abroad');
@@ -347,6 +350,7 @@ export function MbbsAbroadHeroPayloadForm({
             onVerifiedChange={({ verified, verifiedToken }) => {
               setEmailVerified(verified);
               setEmailVerificationToken(verifiedToken);
+              onCarouselEmailVerified?.(verified);
             }}
           />
         </div>
