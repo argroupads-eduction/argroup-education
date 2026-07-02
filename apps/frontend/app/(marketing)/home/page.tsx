@@ -24,6 +24,9 @@ const AboutSection = dynamic(() =>
 const MbbsAbroadScrollSection = dynamic(() =>
   import('@/sections/home/MbbsAbroadScrollSection').then((m) => ({ default: m.MbbsAbroadScrollSection }))
 );
+const YoutubeChannelSection = dynamic(() =>
+  import('@/sections/home/YoutubeChannelSection').then((m) => ({ default: m.YoutubeChannelSection }))
+);
 const CounsellingFormSection = dynamic(() =>
   import('@/sections/home/CounsellingFormSection').then((m) => ({ default: m.CounsellingFormSection }))
 );
@@ -121,6 +124,9 @@ export default async function HomePage() {
       </LazySection>
       <LazySection minHeight="24rem">
         <HomeSeoContentSections />
+      </LazySection>
+      <LazySection minHeight="26rem">
+        <YoutubeChannelSection />
       </LazySection>
       <LazySection minHeight="18rem">
         <FAQSection />

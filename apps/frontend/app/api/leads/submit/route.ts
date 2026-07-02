@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { submitWebsiteLead, type WebsiteLeadInput } from '@backend/handlers/websiteLead';
 import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
+import { requireVerifiedEmailForSubmit } from '@/lib/emailOtp/requireForSubmit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -11,6 +12,7 @@ type LeadSubmitBody = {
   formName?: string;
   fields?: Record<string, unknown> | { field: string; value: string }[];
   pageUrl?: string;
+  emailVerificationToken?: string;
 };
 
 /** Saves every website form lead to Neon + emails argroupads@gmail.com */
@@ -28,6 +30,11 @@ export async function POST(req: NextRequest) {
   }
   if (!body.fields) {
     return NextResponse.json({ success: false, message: 'fields are required' }, { status: 400 });
+  }
+
+  const emailCheck = requireVerifiedEmailForSubmit(body.fields, body.emailVerificationToken);
+  if (!emailCheck.ok) {
+    return NextResponse.json({ success: false, message: emailCheck.message }, { status: emailCheck.status });
   }
 
   try {

@@ -18,6 +18,7 @@ import {
 } from '@backend/lib/googleSheetsLead';
 import { validateIndianMobile, validateLeadEmail } from '@backend/lib/leadValidation';
 import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
+import { verifyEmailVerificationToken } from '@/lib/emailOtp/otpToken';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -49,6 +50,7 @@ export async function POST(req: NextRequest) {
     category?: NeetCategory;
     score?: number;
     track?: 'india' | 'abroad' | 'both' | 'md-ms' | 'bams';
+    emailVerificationToken?: string;
   };
   try {
     body = (await req.json()) as typeof body;
@@ -77,6 +79,10 @@ export async function POST(req: NextRequest) {
   const emailErr = validateLeadEmail(email);
   if (emailErr) {
     return NextResponse.json({ message: emailErr }, { status: 400 });
+  }
+  const emailVerified = verifyEmailVerificationToken(email, body.emailVerificationToken);
+  if (!emailVerified.ok) {
+    return NextResponse.json({ message: emailVerified.message }, { status: 403 });
   }
   if (!phone) {
     return NextResponse.json({ message: 'Please enter a valid Indian mobile number.' }, { status: 400 });

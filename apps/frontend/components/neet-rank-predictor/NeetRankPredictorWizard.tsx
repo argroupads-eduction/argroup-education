@@ -33,6 +33,7 @@ import {
   DUPLICATE_LEAD_MESSAGE,
 } from '@/lib/leadSubmissionMessages';
 import { notifyLeadSubmissionFromResponse } from '@/lib/notifyLeadSubmission';
+import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
 
 type Step = 'form' | 'result';
 type Track = 'india' | 'abroad' | 'both' | 'md-ms' | 'bams';
@@ -138,6 +139,9 @@ export function NeetRankPredictorWizard() {
   const [city, setCity] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [otpUiActive, setOtpUiActive] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null);
   const [result, setResult] = useState<NeetRankPrediction | null>(null);
   const [colleges, setColleges] = useState<{ india: CollegeMatch[]; abroad: CollegeMatch[] }>({
     india: [],
@@ -193,12 +197,27 @@ export function NeetRankPredictorWizard() {
       return;
     }
 
+    if (!emailVerified || !emailVerificationToken) {
+      setError('Please verify your email before submitting.');
+      setOtpUiActive(true);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/neet-rank-predictor/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, city, category, score, track }),
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          city,
+          category,
+          score,
+          track,
+          emailVerificationToken,
+        }),
       });
       const json = (await res.json()) as {
         message?: string;
@@ -391,11 +410,24 @@ export function NeetRankPredictorWizard() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      onBlur={() => setOtpUiActive(true)}
                       className="neet-field-input box-border w-full max-w-full min-w-0"
                       placeholder="you@email.com"
                       autoComplete="email"
                     />
                   </label>
+
+                  <div className="sm:col-span-2">
+                    <EmailOtpVerification
+                      email={email}
+                      activated={otpUiActive}
+                      variant="light"
+                      onVerifiedChange={({ verified, verifiedToken }) => {
+                        setEmailVerified(verified);
+                        setEmailVerificationToken(verifiedToken);
+                      }}
+                    />
+                  </div>
 
                   <label className="neet-field-block sm:col-span-2">
                     <Req>
@@ -419,7 +451,11 @@ export function NeetRankPredictorWizard() {
                   </label>
                 </div>
 
-                <button type="submit" className="ui-btn ui-btn--primary ui-btn--lg neet-form-submit" disabled={loading}>
+                <button
+                  type="submit"
+                  className="ui-btn ui-btn--primary ui-btn--lg neet-form-submit"
+                  disabled={loading || !emailVerified}
+                >
                   {loading ? (
                     <>
                       <Loader2 className="h-5 w-5 animate-spin" aria-hidden />

@@ -10,6 +10,7 @@ export type SubmitWebsiteLeadPayload = {
   formName?: string;
   fields: Record<string, unknown> | { field: string; value: string }[];
   pageUrl?: string;
+  emailVerificationToken?: string;
 };
 
 export type SubmitWebsiteLeadResult = {
@@ -30,7 +31,13 @@ export async function submitWebsiteLead(
   const res = await fetch('/api/leads/submit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ ...payload, pageUrl }),
+    body: JSON.stringify({
+      source: payload.source,
+      formName: payload.formName,
+      fields: payload.fields,
+      pageUrl,
+      emailVerificationToken: payload.emailVerificationToken,
+    }),
     cache: 'no-store',
   });
 

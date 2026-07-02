@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import './ui-buttons.css';
+@import './youtube-channel-section.css';
 
 @layer base {
   :root {

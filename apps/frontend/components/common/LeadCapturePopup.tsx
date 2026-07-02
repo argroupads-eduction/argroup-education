@@ -25,6 +25,7 @@ import {
   prepareThankYouTab,
 } from '@/lib/openThankYouPage';
 import { submitWebsiteLead } from '@/lib/submitWebsiteLead';
+import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
 import {
   type HeroMbbsFormDoc,
   type HeroMbbsFormFieldBlock,
@@ -313,6 +314,10 @@ type LeadCaptureFormPanelProps = {
   dismiss: () => void;
   reduceMotion: boolean;
   variant?: 'desktop' | 'mobile';
+  otpUiActive: boolean;
+  onEmailBlur: () => void;
+  emailVerified: boolean;
+  onEmailVerifiedChange: (state: { verified: boolean; verifiedToken: string | null }) => void;
 };
 
 function LeadCaptureFormPanel({
@@ -327,6 +332,10 @@ function LeadCaptureFormPanel({
   dismiss,
   reduceMotion,
   variant = 'desktop',
+  otpUiActive,
+  onEmailBlur,
+  emailVerified,
+  onEmailVerifiedChange,
 }: LeadCaptureFormPanelProps) {
   const isMobile = variant === 'mobile';
   const labelClass = isMobile
@@ -412,6 +421,7 @@ function LeadCaptureFormPanel({
             className={fieldInputClass}
             value={values.email}
             onChange={(e) => setField('email', e.target.value)}
+            onBlur={onEmailBlur}
           />
         </motion.div>
 
@@ -479,6 +489,13 @@ function LeadCaptureFormPanel({
         </motion.div>
       </motion.div>
 
+      <EmailOtpVerification
+        email={values.email}
+        activated={otpUiActive}
+        onVerifiedChange={onEmailVerifiedChange}
+        className={isMobile ? 'col-span-2' : 'md:col-span-2'}
+      />
+
       {submitError && (
         <p
           className={clsx(
@@ -503,7 +520,7 @@ function LeadCaptureFormPanel({
           'w-full touch-manipulation rounded-lg bg-navy-900 font-bold uppercase tracking-wide text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500',
           isMobile ? 'py-2 text-sm' : 'py-3.5'
         )}
-        disabled={submitting}
+        disabled={submitting || !emailVerified}
         isLoading={submitting}
       >
         SUBMIT
@@ -577,6 +594,9 @@ export function LeadCapturePopup() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [payloadForm, setPayloadForm] = useState<HeroMbbsFormDoc | null>(null);
+  const [otpUiActive, setOtpUiActive] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null);
 
   useEffect(() => {
     /** Tablet uses mobile sheet, desktop nav also switches at xl (1280px). */
@@ -669,6 +689,12 @@ export function LeadCapturePopup() {
       return;
     }
 
+    if (!emailVerified || !emailVerificationToken) {
+      setSubmitError('Please verify your email before submitting.');
+      setOtpUiActive(true);
+      return;
+    }
+
     const phone = values.phone.replace(/\D/g, '').slice(-10);
     const normalized: LeadFormValues = {
       ...values,
@@ -698,6 +724,7 @@ export function LeadCapturePopup() {
       const lead = await submitWebsiteLead({
         source: 'lead-popup',
         formName: 'Lead capture popup',
+        emailVerificationToken,
         fields: leadFields,
       });
 
@@ -782,6 +809,13 @@ export function LeadCapturePopup() {
             dismiss={dismissMobile}
             reduceMotion={!!reduceMotion}
             variant="mobile"
+            otpUiActive={otpUiActive}
+            onEmailBlur={() => setOtpUiActive(true)}
+            emailVerified={emailVerified}
+            onEmailVerifiedChange={({ verified, verifiedToken }) => {
+              setEmailVerified(verified);
+              setEmailVerificationToken(verifiedToken);
+            }}
           />
         </LeadCaptureMobileSheet>
       )}
@@ -865,6 +899,13 @@ export function LeadCapturePopup() {
                             submitError={submitError}
                             dismiss={dismissDesktop}
                             reduceMotion={!!reduceMotion}
+                            otpUiActive={otpUiActive}
+                            onEmailBlur={() => setOtpUiActive(true)}
+                            emailVerified={emailVerified}
+                            onEmailVerifiedChange={({ verified, verifiedToken }) => {
+                              setEmailVerified(verified);
+                              setEmailVerificationToken(verifiedToken);
+                            }}
                           />
                         </motion.div>
                       </div>

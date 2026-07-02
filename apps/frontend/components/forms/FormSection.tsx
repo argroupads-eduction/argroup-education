@@ -9,6 +9,7 @@ import {
 import { submitWebsiteLead } from '@/lib/submitWebsiteLead'
 import { validatePersonName } from '@/lib/validatePersonName'
 import { validateIndianMobile, validateLeadEmail } from '@/lib/leadSubmissionMessages'
+import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification'
 
 interface FormSectionProps {
   program: 'mbbs-india' | 'mbbs-abroad' | 'md-ms'
@@ -24,6 +25,9 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [otpUiActive, setOtpUiActive] = useState(false)
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null)
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -57,6 +61,12 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
       return
     }
 
+    if (!emailVerified || !emailVerificationToken) {
+      setError('Please verify your email before submitting.')
+      setOtpUiActive(true)
+      return
+    }
+
     const thankYouTab = prepareThankYouTab()
     setLoading(true)
 
@@ -64,6 +74,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
       const lead = await submitWebsiteLead({
         source: `form-section-${program}`,
         formName: `Program enquiry (${program})`,
+        emailVerificationToken,
         fields: {
           name: formData.name,
           email: formData.email,
@@ -125,10 +136,20 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
             placeholder="Your Email"
             value={formData.email}
             onChange={handleChange}
+            onBlur={() => setOtpUiActive(true)}
             required
             className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-navy-900 transition"
           />
         </div>
+
+        <EmailOtpVerification
+          email={formData.email}
+          activated={otpUiActive}
+          onVerifiedChange={({ verified, verifiedToken }) => {
+            setEmailVerified(verified)
+            setEmailVerificationToken(verifiedToken)
+          }}
+        />
 
         <div>
           <input
@@ -161,7 +182,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !emailVerified}
           className="w-full py-3 bg-navy-900 text-white font-semibold rounded-lg hover:bg-navy-800 disabled:bg-slate-400 transition text-sm md:text-base"
         >
           {loading ? 'Submitting...' : 'Submit'}

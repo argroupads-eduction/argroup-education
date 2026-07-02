@@ -4,6 +4,7 @@ import { validateSubmissionDataNames } from '@/lib/validatePersonName';
 import { submissionDataToFields } from '@/lib/submitWebsiteLead';
 import { submitWebsiteLead } from '@backend/handlers/websiteLead';
 import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
+import { requireVerifiedEmailForSubmit } from '@/lib/emailOtp/requireForSubmit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,6 +17,7 @@ type FormSubmissionBody = {
   submissionData?: { field: string; value: string }[];
   /** When true, only proxy to Payload — lead already saved via /api/leads/submit */
   skipWebsiteLead?: boolean;
+  emailVerificationToken?: string;
 };
 
 /** Saves lead to Neon + email, then proxies to Payload CMS when available. */
@@ -34,6 +36,13 @@ export async function POST(req: NextRequest) {
   const nameErr = validateSubmissionDataNames(body.submissionData);
   if (nameErr) {
     return NextResponse.json({ message: nameErr }, { status: 400 });
+  }
+
+  if (!body.skipWebsiteLead) {
+    const emailCheck = requireVerifiedEmailForSubmit(body.submissionData, body.emailVerificationToken);
+    if (!emailCheck.ok) {
+      return NextResponse.json({ message: emailCheck.message }, { status: emailCheck.status });
+    }
   }
 
   if (!body.skipWebsiteLead) {

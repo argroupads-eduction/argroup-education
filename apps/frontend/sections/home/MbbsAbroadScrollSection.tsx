@@ -8,7 +8,6 @@ import {
   motion,
   useMotionValueEvent,
   useScroll,
-  useTransform,
 } from 'framer-motion'
 import { ArrowRight, Globe2 } from 'lucide-react'
 import { FitImage } from '@/components/ui/FitImage'
@@ -429,8 +428,6 @@ function MbbsAbroadScrollSectionDesktop({
     offset: ['start start', 'end end'],
   })
 
-  const progressWidth = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
-
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     const clamped = Math.min(1, Math.max(0, v))
     const idx =
@@ -557,16 +554,6 @@ function MbbsAbroadScrollSectionDesktop({
           <motion.div className="shrink-0 pb-6">
             <CountryProgress countries={countries} activeIndex={activeIndex} />
           </motion.div>
-        </motion.div>
-
-        <motion.div
-          className="pointer-events-none absolute bottom-0 left-0 right-0 z-[2] h-1 shrink-0 bg-white/10"
-          aria-hidden
-        >
-          <motion.div
-            className="h-full bg-gradient-to-r from-gold-400 to-gold-500"
-            style={{ width: progressWidth }}
-          />
         </motion.div>
       </motion.div>
     </section>

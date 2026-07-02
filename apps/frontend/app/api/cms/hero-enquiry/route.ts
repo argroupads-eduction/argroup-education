@@ -5,6 +5,7 @@ import type { MbbsHeroFormKind } from '@/lib/mbbsHeroFormDefinitionServer';
 import { validateSubmissionDataNames } from '@/lib/validatePersonName';
 import { submitWebsiteLead } from '@backend/handlers/websiteLead';
 import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
+import { requireVerifiedEmailForSubmit } from '@/lib/emailOtp/requireForSubmit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -93,7 +94,11 @@ async function submitToBackend(kind: MbbsHeroFormKind, submissionData: Submissio
 
 /** Hero enquiry when Payload form definition is unavailable (offline fallback fields). */
 export async function POST(req: NextRequest) {
-  let body: { kind?: MbbsHeroFormKind; submissionData?: SubmissionField[] };
+  let body: {
+    kind?: MbbsHeroFormKind;
+    submissionData?: SubmissionField[];
+    emailVerificationToken?: string;
+  };
   try {
     body = (await req.json()) as typeof body;
   } catch {
@@ -112,6 +117,11 @@ export async function POST(req: NextRequest) {
   const nameErr = validateSubmissionDataNames(submissionData);
   if (nameErr) {
     return NextResponse.json({ message: nameErr }, { status: 400 });
+  }
+
+  const emailCheck = requireVerifiedEmailForSubmit(submissionData, body.emailVerificationToken);
+  if (!emailCheck.ok) {
+    return NextResponse.json({ message: emailCheck.message }, { status: emailCheck.status });
   }
 
   try {

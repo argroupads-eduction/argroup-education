@@ -15,6 +15,8 @@ import {
 import { validateDynamicFormNames } from '@/lib/validatePersonName';
 import { validateLeadSubmissionData, leadApiErrorMessage } from '@/lib/validateLeadForm';
 import { notifyLeadSubmissionFromResponse } from '@/lib/notifyLeadSubmission';
+import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
+import { getEmailFromHeroFormValues } from '@/lib/emailOtp/heroFormEmail';
 
 type FormFieldBlock = {
   id?: string | null;
@@ -73,6 +75,9 @@ export function MbbsAbroadHeroPayloadForm({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [otpUiActive, setOtpUiActive] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null);
 
   const fields = useMemo(() => (form?.fields || []).filter(isInputField), [form?.fields]);
 
@@ -109,6 +114,12 @@ export function MbbsAbroadHeroPayloadForm({
         return;
       }
 
+      if (!emailVerified || !emailVerificationToken) {
+        setSubmitError('Please verify your email before submitting.');
+        setOtpUiActive(true);
+        return;
+      }
+
       const thankYouTab = prepareThankYouTab();
       setSubmitting(true);
       try {
@@ -120,12 +131,13 @@ export function MbbsAbroadHeroPayloadForm({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
               useOffline
-                ? { kind: 'abroad', submissionData }
+                ? { kind: 'abroad', submissionData, emailVerificationToken }
                 : {
                     form: form.id,
                     source: 'hero-mbbs-abroad',
                     formName: 'MBBS Abroad hero enquiry',
                     submissionData,
+                    emailVerificationToken,
                   }
             ),
           }
@@ -167,7 +179,7 @@ export function MbbsAbroadHeroPayloadForm({
         setSubmitting(false);
       }
     },
-    [form, fields, values]
+    [form, fields, values, emailVerified, emailVerificationToken]
   );
 
   const isSide = layout === 'heroSide';
@@ -321,10 +333,23 @@ export function MbbsAbroadHeroPayloadForm({
                 className={inputClass}
                 value={values[field.name] ?? ''}
                 onChange={(e) => setField(field.name, e.target.value)}
+                onBlur={type === 'email' ? () => setOtpUiActive(true) : undefined}
               />
             </div>
           );
         })}
+
+        <div className="sm:col-span-2">
+          <EmailOtpVerification
+            email={getEmailFromHeroFormValues(values, fields)}
+            activated={otpUiActive}
+            variant="dark"
+            onVerifiedChange={({ verified, verifiedToken }) => {
+              setEmailVerified(verified);
+              setEmailVerificationToken(verifiedToken);
+            }}
+          />
+        </div>
 
         {submitError && (
           <div className="sm:col-span-2 rounded-lg border border-red-300/50 bg-red-950/40 px-3 py-2 text-sm text-red-100">
@@ -338,7 +363,7 @@ export function MbbsAbroadHeroPayloadForm({
             variant="primary"
             size="md"
             className={isSide ? 'w-full' : 'w-full sm:w-auto'}
-            disabled={submitting}
+            disabled={submitting || !emailVerified}
             isLoading={submitting}
           >
             {form.submitButtonLabel || 'Submit'}

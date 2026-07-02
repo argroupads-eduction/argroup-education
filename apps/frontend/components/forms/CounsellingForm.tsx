@@ -20,6 +20,7 @@ import { submitWebsiteLead } from '@/lib/submitWebsiteLead';
 import { COUNSELLING_PROGRAM_SELECT_OPTIONS } from '@/lib/counsellingProgramOptions';
 import { personNameZodString } from '@/lib/validatePersonName';
 import { INVALID_INDIAN_PHONE_MESSAGE } from '@/lib/leadSubmissionMessages';
+import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
 
 const CounsellingFormSchema = z.object({
   fullName: personNameZodString(),
@@ -66,6 +67,10 @@ export const CounsellingForm = ({
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [emailValue, setEmailValue] = useState('');
+  const [otpUiActive, setOtpUiActive] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null);
   const animate = !embedded;
 
   const {
@@ -80,6 +85,12 @@ export const CounsellingForm = ({
   const onSubmit = async (data: CounsellingFormData) => {
     setSubmitError(null);
 
+    if (!emailVerified || !emailVerificationToken) {
+      setSubmitError('Please verify your email before submitting.');
+      setOtpUiActive(true);
+      return;
+    }
+
     const sessionData = {
       source: submitSource,
       name: data.fullName,
@@ -92,6 +103,7 @@ export const CounsellingForm = ({
       const lead = await submitWebsiteLead({
         source: submitSource,
         formName: 'Counselling form',
+        emailVerificationToken,
         fields: {
           fullName: data.fullName,
           email: data.email,
@@ -212,11 +224,24 @@ export const CounsellingForm = ({
                 type="email"
                 placeholder="you@email.com"
                 className={inputClass(!!errors.email)}
-                {...register('email')}
+                {...register('email', {
+                  onChange: (e) => setEmailValue(e.target.value),
+                  onBlur: () => setOtpUiActive(true),
+                })}
               />
               {errors.email && <p className={errorClass}>{errors.email.message}</p>}
             </Field>
           </div>
+
+          <EmailOtpVerification
+            email={emailValue}
+            activated={otpUiActive}
+            onVerifiedChange={({ verified, verifiedToken }) => {
+              setEmailVerified(verified);
+              setEmailVerificationToken(verifiedToken);
+            }}
+            className="col-span-full"
+          />
 
           <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-2' : 'md:grid-cols-2'} ${gridGap}`}>
             <Field animate={animate}>
@@ -316,7 +341,7 @@ export const CounsellingForm = ({
           ) : null}
 
           <Field animate={animate}>
-            <button type="submit" disabled={isLoading} className={submitBtnClass}>
+            <button type="submit" disabled={isLoading || !emailVerified} className={submitBtnClass}>
               {isLoading ? (
                 <>
                   <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
