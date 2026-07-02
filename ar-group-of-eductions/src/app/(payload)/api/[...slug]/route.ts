@@ -18,3 +18,5 @@ export const PATCH = REST_PATCH(config)
 
 export const PUT = REST_PUT(config)
 export const OPTIONS = REST_OPTIONS(config)
+
+export const maxDuration = 60

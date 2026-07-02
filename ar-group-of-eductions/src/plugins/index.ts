@@ -25,8 +25,15 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
 }
 
 const vercelBlobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim()
-/** Client uploads often hang on Submitting in admin; server upload is reliable under Vercel's 4.5MB limit. */
-const vercelBlobClientUploads = process.env.BLOB_CLIENT_UPLOADS === 'true'
+const isVercel = process.env.VERCEL === '1'
+
+/**
+ * Vercel serverless body limit is ~4.5MB — server upload often fails with "Something went wrong".
+ * Local dev uses public/media (no blob). On Vercel use browser → Blob (Payload 3.84+).
+ * Set BLOB_CLIENT_UPLOADS=false on Vercel only to force server upload (not recommended).
+ */
+const vercelBlobClientUploads =
+  Boolean(vercelBlobToken) && isVercel && process.env.BLOB_CLIENT_UPLOADS !== 'false'
 
 export const plugins: Plugin[] = [
   ...(vercelBlobToken
@@ -36,7 +43,9 @@ export const plugins: Plugin[] = [
           clientUploads: vercelBlobClientUploads,
           addRandomSuffix: true,
           collections: {
-            media: true,
+            media: {
+              disablePayloadAccessControl: true,
+            },
           },
           token: vercelBlobToken,
         }),

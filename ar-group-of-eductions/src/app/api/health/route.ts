@@ -15,8 +15,29 @@ function databaseHost(): string {
   return 'unknown'
 }
 
+async function testBlobWrite(): Promise<{ ok: boolean; message?: string }> {
+  const token = process.env.BLOB_READ_WRITE_TOKEN?.trim()
+  if (!token) return { ok: false, message: 'BLOB_READ_WRITE_TOKEN not set' }
+
+  try {
+    const { put } = await import('@vercel/blob')
+    const result = await put(`cms-health-${Date.now()}.txt`, 'ok', {
+      access: 'public',
+      token,
+      addRandomSuffix: true,
+    })
+    return { ok: true, message: result.url }
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
 /** Runtime diagnostics for argroup-education-cms (DB + required env). */
-export async function GET() {
+export async function GET(req: Request) {
+  const testBlob = new URL(req.url).searchParams.get('testBlob') === '1'
   const dbHost = databaseHost()
   const checks = {
     databaseUrl: envSet('DATABASE_URL'),
@@ -28,6 +49,9 @@ export async function GET() {
         ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
         : ''),
     blobToken: envSet('BLOB_READ_WRITE_TOKEN'),
+    vercel: process.env.VERCEL === '1',
+    blobClientUploads:
+      process.env.VERCEL === '1' && process.env.BLOB_CLIENT_UPLOADS !== 'false',
   }
 
   const missing = ['DATABASE_URL', 'PAYLOAD_SECRET'].filter((name) => !envSet(name))
@@ -53,10 +77,15 @@ export async function GET() {
       `SELECT COUNT(*)::int AS n FROM information_schema.tables WHERE table_schema = 'cms'`,
     )
     await client.end()
+
+    const blob =
+      testBlob && checks.blobToken ? await testBlobWrite() : undefined
+
     return NextResponse.json({
       ok: true,
       service: 'argroup-education-cms',
       checks: { ...checks, cmsTables: cmsTables.rows[0]?.n ?? 0 },
+      ...(blob ? { blob } : {}),
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)

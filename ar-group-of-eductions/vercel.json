@@ -5,7 +5,8 @@
   "framework": "nextjs",
   "functions": {
     "src/app/**/*": {
-      "maxDuration": 60
+      "maxDuration": 60,
+      "memory": 1024
     }
   }
 }
