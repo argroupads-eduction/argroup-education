@@ -18,6 +18,7 @@ export type EmailOtpVerificationProps = {
   autoSend?: boolean;
 };
 
+const OTP_SEND_TIMEOUT_MS = 25_000;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OTP_LENGTH = 6;
 
@@ -51,6 +52,7 @@ export function EmailOtpVerification({
   const digitRefs = useRef<Array<HTMLInputElement | null>>([]);
   const autoSendAttemptedRef = useRef<string | null>(null);
   const prevEmailRef = useRef<string | null>(null);
+  const sendAbortRef = useRef<AbortController | null>(null);
   const onVerifiedChangeRef = useRef(onVerifiedChange);
 
   onVerifiedChangeRef.current = onVerifiedChange;
@@ -80,6 +82,9 @@ export function EmailOtpVerification({
   }, []);
 
   const resetVerification = useCallback(() => {
+    sendAbortRef.current?.abort();
+    sendAbortRef.current = null;
+    setSending(false);
     setVerified(false);
     setPendingToken(null);
     setOtpDigits(otpToDigits(''));
@@ -99,21 +104,27 @@ export function EmailOtpVerification({
         return;
       }
 
+      if (sending) return;
+
+      sendAbortRef.current?.abort();
+      const controller = new AbortController();
+      sendAbortRef.current = controller;
+      const timeoutId = window.setTimeout(() => controller.abort(), OTP_SEND_TIMEOUT_MS);
+
       setSending(true);
       setError(null);
       if (options?.isResend) {
         setStatusMessage(null);
-      }
-      setOtpExpired(false);
-      if (options?.isResend) {
         setOtpDigits(otpToDigits(''));
       }
+      setOtpExpired(false);
 
       try {
         const res = await fetch('/api/email-otp/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: normalizedEmail }),
+          signal: controller.signal,
         });
         const data = (await res.json()) as {
           ok?: boolean;
@@ -124,9 +135,15 @@ export function EmailOtpVerification({
           devHint?: string;
         };
 
+        if (controller.signal.aborted) return;
+
         if (!res.ok || !data.ok || !data.token) {
-          setError(data.message || 'Could not send verification code. Please try again.');
-          autoSendAttemptedRef.current = null;
+          setError(
+            data.message ||
+              (res.status === 503
+                ? 'Could not send the code right now. Tap “Send verification code” to try again.'
+                : 'Could not send verification code. Please try again.')
+          );
           return;
         }
 
@@ -145,14 +162,23 @@ export function EmailOtpVerification({
             : data.devHint || 'Code sent! Check your inbox.'
         );
         window.setTimeout(() => digitRefs.current[0]?.focus(), 80);
-      } catch {
+      } catch (err) {
+        if (controller.signal.aborted) {
+          if (sendAbortRef.current === controller) {
+            setError('Sending timed out. Please tap “Send verification code” to try again.');
+          }
+          return;
+        }
         setError('Could not send verification code. Please try again.');
-        autoSendAttemptedRef.current = null;
       } finally {
+        window.clearTimeout(timeoutId);
+        if (sendAbortRef.current === controller) {
+          sendAbortRef.current = null;
+        }
         setSending(false);
       }
     },
-    [emailValid, normalizedEmail]
+    [emailValid, normalizedEmail, sending]
   );
 
   const verifyOtp = useCallback(async () => {
@@ -223,12 +249,12 @@ export function EmailOtpVerification({
   }, [normalizedEmail, activateOnBlur, resetVerification]);
 
   useEffect(() => {
-    if (!autoSend || !activated || !emailValid || verified || sending || pendingToken) return;
+    if (!autoSend || !activated || !emailValid || verified || pendingToken) return;
     if (autoSendAttemptedRef.current === normalizedEmail) return;
 
     autoSendAttemptedRef.current = normalizedEmail;
     void sendOtp();
-  }, [autoSend, activated, emailValid, verified, sending, pendingToken, normalizedEmail, sendOtp]);
+  }, [autoSend, activated, emailValid, verified, pendingToken, normalizedEmail, sendOtp]);
 
   const updateDigit = (index: number, value: string) => {
     const digit = value.replace(/\D/g, '').slice(-1);
@@ -332,7 +358,7 @@ export function EmailOtpVerification({
                 type="button"
                 onClick={() => {
                   autoSendAttemptedRef.current = null;
-                  void sendOtp();
+                  void sendOtp({ isResend: true });
                 }}
                 className="program-hub-btn-primary email-otp-verify-btn inline-flex items-center justify-center gap-1.5 text-xs"
               >

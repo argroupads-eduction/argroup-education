@@ -23,35 +23,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, message: 'Please enter a valid email address.' }, { status: 400 });
   }
 
-  const otp = generateEmailOtp();
-  const sent = await sendEmailOtpMail(email, otp);
+  try {
+    const otp = generateEmailOtp();
+    const sent = await sendEmailOtpMail(email, otp);
 
-  if (!sent.sent) {
-    return NextResponse.json(
-      {
-        ok: false,
-        message: sent.error || 'We could not send the verification email. Please try again.',
-      },
-      { status: 503 }
-    );
+    if (!sent.sent) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: sent.error || 'We could not send the verification email. Please try again.',
+        },
+        { status: 503 }
+      );
+    }
+
+    const token = createPendingEmailOtpToken(email, otp);
+    const expiresAt = Date.now() + EMAIL_OTP_PENDING_TTL_MS;
+    const masked = email.replace(/^(.{2})(.*)(@.*)$/, (_, a, mid, domain) => {
+      const hidden = mid.length > 2 ? '*'.repeat(Math.min(mid.length, 6)) : '***';
+      return `${a}${hidden}${domain}`;
+    });
+
+    return NextResponse.json({
+      ok: true,
+      token,
+      expiresAt,
+      expiresInSeconds: Math.ceil(EMAIL_OTP_PENDING_TTL_MS / 1000),
+      maskedEmail: masked,
+      message: 'Verification code sent to your email. It is valid for 1 minute.',
+      ...(process.env.NODE_ENV === 'development' && process.env.EMAIL_OTP_DEV === 'true'
+        ? { devHint: 'Dev OTP: 123456 (or check server console)' }
+        : {}),
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unexpected error sending verification email.';
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[email-otp/send]', message);
+    }
+    return NextResponse.json({ ok: false, message }, { status: 500 });
   }
-
-  const token = createPendingEmailOtpToken(email, otp);
-  const expiresAt = Date.now() + EMAIL_OTP_PENDING_TTL_MS;
-  const masked = email.replace(/^(.{2})(.*)(@.*)$/, (_, a, mid, domain) => {
-    const hidden = mid.length > 2 ? '*'.repeat(Math.min(mid.length, 6)) : '***';
-    return `${a}${hidden}${domain}`;
-  });
-
-  return NextResponse.json({
-    ok: true,
-    token,
-    expiresAt,
-    expiresInSeconds: Math.ceil(EMAIL_OTP_PENDING_TTL_MS / 1000),
-    maskedEmail: masked,
-    message: 'Verification code sent to your email. It is valid for 1 minute.',
-    ...(process.env.NODE_ENV === 'development' && process.env.EMAIL_OTP_DEV === 'true'
-      ? { devHint: 'Dev OTP: 123456 (or check server console)' }
-      : {}),
-  });
 }
