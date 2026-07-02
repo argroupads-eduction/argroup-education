@@ -25,13 +25,16 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
 }
 
 const vercelBlobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim()
+/** Client uploads often hang on Submitting in admin; server upload is reliable under Vercel's 4.5MB limit. */
+const vercelBlobClientUploads = process.env.BLOB_CLIENT_UPLOADS === 'true'
 
 export const plugins: Plugin[] = [
   ...(vercelBlobToken
     ? [
         vercelBlobStorage({
           enabled: true,
-          clientUploads: true,
+          clientUploads: vercelBlobClientUploads,
+          addRandomSuffix: true,
           collections: {
             media: true,
           },
