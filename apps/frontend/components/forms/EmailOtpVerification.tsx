@@ -294,7 +294,11 @@ export function EmailOtpVerification({
 
   return (
     <div
-      className={clsx('email-otp-card', isDark && 'email-otp-card--dark', className)}
+      className={clsx(
+        'email-otp-card w-full min-w-0 max-w-full',
+        isDark && 'email-otp-card--dark',
+        className
+      )}
       aria-live="polite"
     >
       <div className="email-otp-card__glow" aria-hidden />
@@ -302,7 +306,7 @@ export function EmailOtpVerification({
       {verified ? (
         <div className="email-otp-verified">
           <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" aria-hidden />
-          <span className="email-otp-verified__text">Email verified — you can submit the form</span>
+          <span className="email-otp-verified__text">Email verified</span>
         </div>
       ) : (
         <>
@@ -314,23 +318,13 @@ export function EmailOtpVerification({
               <div className="min-w-0">
                 <p className="email-otp-card__title">Secure email verification</p>
                 <p className="email-otp-card__subtitle">
-                  {sending ? (
-                    <>
-                      Sending 6-digit code to{' '}
-                      <span className="email-otp-card__email">{normalizedEmail}</span>
-                    </>
-                  ) : pendingToken ? (
-                    <>
-                      Enter the code sent to{' '}
-                      <span className="email-otp-card__email">{normalizedEmail}</span>
-                    </>
-                  ) : (
-                    <>
-                      We will verify <span className="email-otp-card__email">{normalizedEmail}</span> before
-                      submit
-                    </>
-                  )}
+                  {sending
+                    ? 'Sending 6-digit code to'
+                    : pendingToken
+                      ? 'Enter the code sent to'
+                      : 'We will verify before submit'}
                 </p>
+                <p className="email-otp-card__email-line">{normalizedEmail}</p>
               </div>
             </div>
 

@@ -417,7 +417,7 @@ export function NeetRankPredictorWizard() {
                     />
                   </label>
 
-                  <div className="sm:col-span-2">
+                  <div className="min-w-0 w-full sm:col-span-2">
                     <EmailOtpVerification
                       email={email}
                       activated={otpUiActive}

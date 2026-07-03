@@ -240,7 +240,7 @@ export const CounsellingForm = ({
               setEmailVerified(verified);
               setEmailVerificationToken(verifiedToken);
             }}
-            className="col-span-full"
+            className="w-full min-w-0"
           />
 
           <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-2' : 'md:grid-cols-2'} ${gridGap}`}>

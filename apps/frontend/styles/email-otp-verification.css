@@ -1,6 +1,12 @@
 .email-otp-card {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  container-type: inline-size;
+  container-name: email-otp;
   border-radius: 1rem;
   padding: 1rem 1.1rem;
   border: 1px solid rgba(245, 158, 11, 0.28);
@@ -87,7 +93,26 @@
 .email-otp-card__email {
   font-weight: 600;
   color: #b45309;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.email-otp-card__email-line {
+  margin: 0.2rem 0 0;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+  background: rgba(245, 158, 11, 0.08);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #b45309;
+  overflow-wrap: anywhere;
   word-break: break-all;
+}
+
+.email-otp-card--dark .email-otp-card__email-line {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fcd34d;
 }
 
 .email-otp-card--dark .email-otp-card__email {
@@ -164,30 +189,177 @@
 .email-otp-digits {
   position: relative;
   display: flex;
-  justify-content: center;
-  gap: 0.45rem;
+  justify-content: stretch;
+  align-items: stretch;
+  gap: 0.35rem;
+  width: 100%;
+  max-width: 100%;
   margin-top: 1rem;
 }
 
-@media (min-width: 640px) {
-  .email-otp-digits {
-    gap: 0.55rem;
-  }
-}
-
 .email-otp-digit {
-  width: 2.45rem;
-  height: 2.85rem;
-  border-radius: 0.7rem;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  max-width: 2.75rem;
+  height: 2.65rem;
+  border-radius: 0.65rem;
   border: 1.5px solid rgba(148, 163, 184, 0.45);
   background: #fff;
   text-align: center;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #0f2744;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   font-variant-numeric: tabular-nums;
+  padding: 0;
+}
+
+@container email-otp (min-width: 641px) {
+  .email-otp-digits {
+    justify-content: center;
+    gap: 0.55rem;
+  }
+
+  .email-otp-digit {
+    flex: 0 0 auto;
+    width: 2.45rem;
+    max-width: none;
+    height: 2.85rem;
+    font-size: 1.15rem;
+    border-radius: 0.7rem;
+  }
+}
+
+/* Narrow card width — popup, hero panel, phone, tablet portrait columns */
+@container email-otp (max-width: 640px) {
+  .email-otp-card {
+    padding: 0.65rem 0.6rem;
+    border-radius: 0.85rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .email-otp-card__head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .email-otp-card__title-wrap {
+    gap: 0.5rem;
+  }
+
+  .email-otp-card__icon {
+    height: 2rem;
+    width: 2rem;
+    border-radius: 0.6rem;
+  }
+
+  .email-otp-card__title {
+    font-size: 0.82rem;
+  }
+
+  .email-otp-card__subtitle {
+    font-size: 0.7rem;
+    line-height: 1.4;
+  }
+
+  .email-otp-card__email-line {
+    font-size: 0.68rem;
+    padding: 0.3rem 0.45rem;
+  }
+
+  .email-otp-timer {
+    align-self: flex-end;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: unset;
+    padding: 0.28rem 0.55rem;
+  }
+
+  .email-otp-timer__value {
+    font-size: 0.95rem;
+  }
+
+  .email-otp-timer__label {
+    margin-top: 0;
+    font-size: 0.55rem;
+  }
+
+  .email-otp-digits {
+    justify-content: stretch;
+    gap: 0.25rem;
+    margin-top: 0.75rem;
+  }
+
+  .email-otp-digit {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    height: 2.25rem;
+    font-size: 0.9rem;
+    border-radius: 0.45rem;
+  }
+
+  .email-otp-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+  }
+
+  .email-otp-verify-btn {
+    width: 100%;
+    min-width: unset;
+    justify-content: center;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .email-otp-resend-btn {
+    width: 100%;
+    text-align: center;
+    padding: 0.35rem;
+  }
+
+  .email-otp-status {
+    font-size: 0.68rem;
+    margin-top: 0.5rem;
+  }
+
+  .email-otp-sending {
+    margin-top: 0.65rem;
+    padding: 0.6rem 0.7rem;
+  }
+
+  .email-otp-sending__text {
+    font-size: 0.72rem;
+  }
+
+  .email-otp-verified {
+    padding: 0.2rem 0;
+  }
+
+  .email-otp-verified__text {
+    font-size: 0.8rem;
+  }
+}
+
+@container email-otp (max-width: 360px) {
+  .email-otp-digits {
+    gap: 0.2rem;
+  }
+
+  .email-otp-digit {
+    height: 2.1rem;
+    font-size: 0.85rem;
+    border-radius: 0.4rem;
+  }
 }
 
 .email-otp-card--dark .email-otp-digit {

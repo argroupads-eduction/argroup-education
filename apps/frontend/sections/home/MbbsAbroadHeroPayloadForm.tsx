@@ -226,7 +226,7 @@ export function MbbsAbroadHeroPayloadForm({
           Quick enquiry (MBBS Abroad)
         </p>
       </div>
-      <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+      <form onSubmit={onSubmit} className="grid min-w-0 w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         {fields.map((field) => {
           const label = field.label || field.name;
           const req = field.required ? ' *' : '';
@@ -342,7 +342,7 @@ export function MbbsAbroadHeroPayloadForm({
           );
         })}
 
-        <div className="sm:col-span-2">
+        <div className="min-w-0 w-full sm:col-span-2">
           <EmailOtpVerification
             email={getEmailFromHeroFormValues(values, fields)}
             activated={otpUiActive}

@@ -100,6 +100,7 @@ export const NewsletterForm = ({ className = '' }: NewsletterFormProps) => {
             setEmailVerified(verified);
             setEmailVerificationToken(verifiedToken);
           }}
+          className="w-full min-w-0"
         />
       </form>
     </motion.div>

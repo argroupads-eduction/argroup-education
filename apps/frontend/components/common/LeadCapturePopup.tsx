@@ -493,7 +493,7 @@ function LeadCaptureFormPanel({
         email={values.email}
         activated={otpUiActive}
         onVerifiedChange={onEmailVerifiedChange}
-        className={isMobile ? 'col-span-2' : 'md:col-span-2'}
+        className="w-full min-w-0"
       />
 
       {submitError && (
@@ -551,7 +551,7 @@ function LeadCaptureFormPanel({
       <form
         id={formId}
         onSubmit={onSubmit}
-        className="flex w-full min-w-0 flex-col gap-2 overflow-hidden px-3.5 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2"
+        className="flex w-full min-w-0 flex-col gap-2 px-3.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-2"
         noValidate
       >
         {fieldsBlock}

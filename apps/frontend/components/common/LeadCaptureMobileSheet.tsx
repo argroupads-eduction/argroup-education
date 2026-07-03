@@ -13,12 +13,12 @@ export type LeadCaptureMobileSheetProps = {
   title?: string;
   /** Compact navy branding strip, keep short; no internal scroll */
   header: ReactNode;
-  /** Form body, must fit without scrolling (compact fields) */
+  /** Form body — scrollable when OTP / keyboard add height */
   children: ReactNode;
 };
 
 /**
- * Mobile / tablet lead capture: centered card modal (max ~88dvh), overflow hidden.
+ * Mobile / tablet lead capture: centered card modal (max ~92dvh), body scrolls when needed.
  */
 const DEFAULT_TITLE = 'MBBS in India or abroad, expert counselling';
 
@@ -48,7 +48,7 @@ export function LeadCaptureMobileSheet({
           </Dialog.Description>
 
           <motion.div
-            className="relative flex w-full max-w-[min(100%,22.5rem)] min-h-0 max-h-[min(88dvh,36rem)] flex-col overflow-hidden rounded-2xl border border-navy-200/20 bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5"
+            className="relative flex w-full max-w-[min(100%,22.5rem)] min-h-0 max-h-[min(92dvh,40rem)] flex-col overflow-hidden rounded-2xl border border-navy-200/20 bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5 sm:max-w-[min(100%,28rem)] md:max-h-[min(90dvh,42rem)]"
             initial={motionOff ? false : { opacity: 0, y: 28, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={
@@ -77,7 +77,7 @@ export function LeadCaptureMobileSheet({
               aria-hidden
             />
 
-            <div className="flex min-h-0 shrink flex-col overflow-hidden bg-gradient-to-b from-white to-slate-50/40">
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-contain bg-gradient-to-b from-white to-slate-50/40 [-webkit-overflow-scrolling:touch]">
               {children}
             </div>
           </motion.div>

@@ -848,6 +848,13 @@
   color: rgb(100 116 139);
 }
 
+@media (max-width: 1023px) {
+  .neet-form-grid > div {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 767px) {
   .neet-predictor-tool-wrap {
     padding-left: max(0.75rem, env(safe-area-inset-left, 0px));

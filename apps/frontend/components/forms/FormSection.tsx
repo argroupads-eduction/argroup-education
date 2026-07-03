@@ -112,7 +112,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-md"
+      className="w-full min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-md md:p-8"
     >
       <h3 className="text-lg md:text-xl font-bold text-navy-900 mb-4 md:mb-6">{title}</h3>
 
@@ -149,6 +149,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
             setEmailVerified(verified)
             setEmailVerificationToken(verifiedToken)
           }}
+          className="w-full min-w-0"
         />
 
         <div>

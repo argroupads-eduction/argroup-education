@@ -79,6 +79,20 @@ async function sendViaResendOtp(to: string, otp: string): Promise<{ sent: boolea
   }
 }
 
+function sanitizeSmtpError(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err);
+  if (process.env.NODE_ENV === 'development') {
+    console.error('[email-otp] SMTP error:', raw);
+  }
+  if (/535|BadCredentials|Username and Password not accepted/i.test(raw)) {
+    return 'Email service is not configured correctly on the server. Please contact support or try again later.';
+  }
+  if (/454|Too many login attempts/i.test(raw)) {
+    return 'Email service is busy. Please wait a few minutes and try again.';
+  }
+  return 'We could not send the verification email right now. Please try again in a few minutes.';
+}
+
 /** Sends a 6-digit OTP to the visitor's email (form verification). */
 export async function sendEmailOtpMail(
   to: string,
@@ -126,6 +140,6 @@ export async function sendEmailOtpMail(
   } catch (err) {
     const resend = await sendViaResendOtp(to, otp);
     if (resend.sent) return resend;
-    return { sent: false, error: err instanceof Error ? err.message : String(err) };
+    return { sent: false, error: sanitizeSmtpError(err) };
   }
 }
