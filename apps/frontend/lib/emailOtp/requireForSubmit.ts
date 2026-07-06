@@ -1,4 +1,5 @@
 import { extractEmailFromFields } from './extractEmail';
+import { isEmailOtpEnabled } from './isEmailOtpEnabled';
 import { verifyEmailVerificationToken } from './otpToken';
 
 type FieldsInput = Record<string, unknown> | { field: string; value: string }[] | undefined;
@@ -10,6 +11,10 @@ export function requireVerifiedEmailForSubmit(
   const email = extractEmailFromFields(fields);
   if (!email) {
     return { ok: false, message: 'A valid email address is required.', status: 400 };
+  }
+
+  if (!isEmailOtpEnabled()) {
+    return { ok: true, email };
   }
 
   const verified = verifyEmailVerificationToken(email, emailVerificationToken);

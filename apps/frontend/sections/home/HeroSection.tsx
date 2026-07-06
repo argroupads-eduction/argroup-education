@@ -75,7 +75,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
 
   const [variant, setVariant] = useState<HeroVariant>('india');
   const [heroFormActive, setHeroFormActive] = useState(false);
-  const [heroEmailVerified, setHeroEmailVerified] = useState(false);
+  const [heroFormSubmitted, setHeroFormSubmitted] = useState(false);
   const [text, setText] = useState('');
   const [collegeIndex, setCollegeIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -86,14 +86,13 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
     [variant]
   );
 
-  const carouselPaused = heroFormActive && !heroEmailVerified;
-
+  const carouselPaused = heroFormActive && !heroFormSubmitted;
   // Warm both hero form definitions in parallel (no carousel delay).
   useEffect(() => {
     prefetchMbbsHeroFormDefinitions(['india', 'abroad']);
   }, []);
 
-  // Pause auto-rotate when user interacts with the hero enquiry form until email is verified.
+  // Pause auto-rotate while the hero enquiry form is in use until it is submitted.
   useEffect(() => {
     const zone = formZoneRef.current;
     if (!zone) return;
@@ -109,10 +108,9 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
     };
   }, [variant]);
 
-  const handleHeroEmailVerified = (verified: boolean) => {
-    setHeroEmailVerified(verified);
+  const handleHeroFormSubmitted = () => {
+    setHeroFormSubmitted(true);
   };
-
   // Auto-rotate India -> Abroad -> India (skipped while form is in use).
   useEffect(() => {
     if (carouselPaused) return;
@@ -130,8 +128,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
     setCollegeIndex(0);
     setIsDeleting(false);
     setHeroFormActive(false);
-    setHeroEmailVerified(false);
-  }, [variant]);
+    setHeroFormSubmitted(false);  }, [variant]);
 
   useEffect(() => {
     const currentCollege = colleges[collegeIndex];
@@ -210,8 +207,9 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
           type="button"
           aria-label="Next: MBBS Abroad banner"
           title="MBBS Abroad"
+          disabled={carouselPaused}
           onClick={() => setVariant('abroad')}
-          className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/15 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:border-gold-400/60 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-400 sm:right-5 md:h-12 md:w-12 lg:right-8"
+          className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/15 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:border-gold-400/60 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-400 disabled:pointer-events-none disabled:opacity-40 sm:right-5 md:h-12 md:w-12 lg:right-8"
         >
           <ChevronRight className="h-6 w-6 md:h-7 md:w-7" aria-hidden strokeWidth={2.5} />
         </button>
@@ -222,8 +220,9 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
           type="button"
           aria-label="Back: MBBS India banner"
           title="MBBS India"
+          disabled={carouselPaused}
           onClick={() => setVariant('india')}
-          className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/15 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:border-gold-400/60 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-400 sm:left-5 md:h-12 md:w-12 lg:left-8"
+          className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/15 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:border-gold-400/60 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-400 disabled:pointer-events-none disabled:opacity-40 sm:left-5 md:h-12 md:w-12 lg:left-8"
         >
           <ChevronLeft className="h-6 w-6 md:h-7 md:w-7" aria-hidden strokeWidth={2.5} />
         </button>
@@ -286,7 +285,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                 <MbbsIndiaHeroPayloadForm
                   layout="heroSide"
                   className="w-full max-w-md lg:max-w-[20.5rem] xl:max-w-md"
-                  onCarouselEmailVerified={handleHeroEmailVerified}
+                  onCarouselFormSubmitted={handleHeroFormSubmitted}
                 />
               </div>
             </>
@@ -302,7 +301,7 @@ export const HeroSection = ({ initialForms }: HeroSectionProps) => {
                 <MbbsAbroadHeroPayloadForm
                   layout="heroSide"
                   className="w-full max-w-md lg:max-w-[20.5rem] xl:max-w-md"
-                  onCarouselEmailVerified={handleHeroEmailVerified}
+                  onCarouselFormSubmitted={handleHeroFormSubmitted}
                 />
               </div>
 

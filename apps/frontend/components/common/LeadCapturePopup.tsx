@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
@@ -26,6 +25,13 @@ import {
 } from '@/lib/openThankYouPage';
 import { submitWebsiteLead } from '@/lib/submitWebsiteLead';
 import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
+import { emailOtpInitiallyVerified, isEmailOtpEnabled } from '@/lib/emailOtp/isEmailOtpEnabled';
+import {
+  markLeadAutoOpenDismissed,
+  markLeadPopupSubmitted,
+  scheduleLeadAutoOpenWhenSafe,
+  setLeadPopupOpen,
+} from '@/lib/sitePopupCoordination';
 import {
   type HeroMbbsFormDoc,
   type HeroMbbsFormFieldBlock,
@@ -33,8 +39,6 @@ import {
 } from '@/lib/mbbsHeroFormDefinitionsCache';
 
 /** Brief delay so layout paints before the modal animates in */
-const AUTO_OPEN_DELAY_MS = 300;
-
 const PROMO_BADGES = [
   { icon: GraduationCap, label: 'WHO-listed universities' },
   { icon: Award, label: 'Transparent low fees' },
@@ -489,12 +493,14 @@ function LeadCaptureFormPanel({
         </motion.div>
       </motion.div>
 
-      <EmailOtpVerification
-        email={values.email}
-        activated={otpUiActive}
-        onVerifiedChange={onEmailVerifiedChange}
-        className="w-full min-w-0"
-      />
+      {isEmailOtpEnabled() ? (
+        <EmailOtpVerification
+          email={values.email}
+          activated={otpUiActive}
+          onVerifiedChange={onEmailVerifiedChange}
+          className="w-full min-w-0"
+        />
+      ) : null}
 
       {submitError && (
         <p
@@ -520,7 +526,7 @@ function LeadCaptureFormPanel({
           'w-full touch-manipulation rounded-lg bg-navy-900 font-bold uppercase tracking-wide text-white shadow-lg shadow-navy-900/20 hover:bg-navy-800 focus-visible:ring-gold-500',
           isMobile ? 'py-2 text-sm' : 'py-3.5'
         )}
-        disabled={submitting || !emailVerified}
+        disabled={submitting || (isEmailOtpEnabled() && !emailVerified)}
         isLoading={submitting}
       >
         SUBMIT
@@ -579,7 +585,6 @@ function LeadCaptureFormPanel({
 }
 
 export function LeadCapturePopup() {
-  const pathname = usePathname();
   const formId = useId();
   const reduceMotion = useReducedMotion();
   const firstFieldRef = useRef<HTMLInputElement>(null);
@@ -595,7 +600,7 @@ export function LeadCapturePopup() {
   const [submitted, setSubmitted] = useState(false);
   const [payloadForm, setPayloadForm] = useState<HeroMbbsFormDoc | null>(null);
   const [otpUiActive, setOtpUiActive] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(emailOtpInitiallyVerified);
   const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -629,35 +634,28 @@ export function LeadCapturePopup() {
     return () => window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
   }, []);
 
+  // Auto-open lead popup 5 min after first visit — skipped while user fills any form.
   useEffect(() => {
-    if (isMobile !== false) return;
-    setValues(EMPTY_VALUES);
-    setSubmitError(null);
-    setSubmitted(false);
-    setDesktopOpen(false);
-    const t = window.setTimeout(() => setDesktopOpen(true), AUTO_OPEN_DELAY_MS);
-    return () => window.clearTimeout(t);
-  }, [isMobile, pathname]);
+    const openLeadPopup = () => {
+      setValues(EMPTY_VALUES);
+      setSubmitError(null);
+      setSubmitted(false);
+      if (isMobileRef.current) setMobileOpen(true);
+      else setDesktopOpen(true);
+    };
 
-  useEffect(() => {
-    if (isMobile !== true) return;
-
-    setValues(EMPTY_VALUES);
-    setSubmitError(null);
-    setSubmitted(false);
-
-    setMobileOpen(false);
-    const t = window.setTimeout(() => setMobileOpen(true), AUTO_OPEN_DELAY_MS);
-    return () => window.clearTimeout(t);
-  }, [isMobile, pathname]);
+    return scheduleLeadAutoOpenWhenSafe(openLeadPopup);
+  }, []);
 
   const dismissDesktop = useCallback(() => {
+    if (!submitted) markLeadAutoOpenDismissed();
     setDesktopOpen(false);
-  }, []);
+  }, [submitted]);
 
   const dismissMobile = useCallback(() => {
+    if (!submitted) markLeadAutoOpenDismissed();
     setMobileOpen(false);
-  }, []);
+  }, [submitted]);
 
   const handleMobileOpenChange = useCallback(
     (next: boolean) => {
@@ -669,6 +667,10 @@ export function LeadCapturePopup() {
 
   const activeOpen =
     isMobile === true ? mobileOpen : isMobile === false ? desktopOpen : false;
+
+  useEffect(() => {
+    setLeadPopupOpen(activeOpen);
+  }, [activeOpen]);
 
   useEffect(() => {
     if (!activeOpen || submitted) return;
@@ -689,7 +691,7 @@ export function LeadCapturePopup() {
       return;
     }
 
-    if (!emailVerified || !emailVerificationToken) {
+    if (isEmailOtpEnabled() && (!emailVerified || !emailVerificationToken)) {
       setSubmitError('Please verify your email before submitting.');
       setOtpUiActive(true);
       return;
@@ -724,7 +726,7 @@ export function LeadCapturePopup() {
       const lead = await submitWebsiteLead({
         source: 'lead-popup',
         formName: 'Lead capture popup',
-        emailVerificationToken,
+        emailVerificationToken: emailVerificationToken ?? undefined,
         fields: leadFields,
       });
 
@@ -759,6 +761,7 @@ export function LeadCapturePopup() {
         thankYouTab
       );
       setSubmitted(true);
+      markLeadPopupSubmitted();
     } catch {
       cancelPreparedThankYouTab(thankYouTab);
       setSubmitError('Network error. Please try again.');

@@ -1,5 +1,7 @@
 import { createHmac, randomInt, timingSafeEqual } from 'crypto';
 
+import { isEmailOtpEnabled } from './isEmailOtpEnabled';
+
 export const EMAIL_OTP_PENDING_TTL_MS = 60 * 1000;
 const VERIFIED_TTL_MS = 45 * 60 * 1000;
 
@@ -120,6 +122,10 @@ export function verifyEmailVerificationToken(
   email: string,
   verifiedToken: string | undefined
 ): { ok: true } | { ok: false; message: string } {
+  if (!isEmailOtpEnabled()) {
+    return { ok: true };
+  }
+
   if (!verifiedToken?.trim()) {
     return { ok: false, message: 'Please verify your email before submitting.' };
   }

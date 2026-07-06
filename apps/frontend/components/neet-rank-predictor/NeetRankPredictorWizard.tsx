@@ -34,6 +34,7 @@ import {
 } from '@/lib/leadSubmissionMessages';
 import { notifyLeadSubmissionFromResponse } from '@/lib/notifyLeadSubmission';
 import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
+import { emailOtpInitiallyVerified, isEmailOtpEnabled } from '@/lib/emailOtp/isEmailOtpEnabled';
 
 type Step = 'form' | 'result';
 type Track = 'india' | 'abroad' | 'both' | 'md-ms' | 'bams';
@@ -140,7 +141,7 @@ export function NeetRankPredictorWizard() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [otpUiActive, setOtpUiActive] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(emailOtpInitiallyVerified);
   const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null);
   const [result, setResult] = useState<NeetRankPrediction | null>(null);
   const [colleges, setColleges] = useState<{ india: CollegeMatch[]; abroad: CollegeMatch[] }>({
@@ -197,7 +198,7 @@ export function NeetRankPredictorWizard() {
       return;
     }
 
-    if (!emailVerified || !emailVerificationToken) {
+    if (isEmailOtpEnabled() && (!emailVerified || !emailVerificationToken)) {
       setError('Please verify your email before submitting.');
       setOtpUiActive(true);
       return;
@@ -417,17 +418,19 @@ export function NeetRankPredictorWizard() {
                     />
                   </label>
 
-                  <div className="min-w-0 w-full sm:col-span-2">
-                    <EmailOtpVerification
-                      email={email}
-                      activated={otpUiActive}
-                      variant="light"
-                      onVerifiedChange={({ verified, verifiedToken }) => {
-                        setEmailVerified(verified);
-                        setEmailVerificationToken(verifiedToken);
-                      }}
-                    />
-                  </div>
+                  {isEmailOtpEnabled() ? (
+                    <div className="min-w-0 w-full sm:col-span-2">
+                      <EmailOtpVerification
+                        email={email}
+                        activated={otpUiActive}
+                        variant="light"
+                        onVerifiedChange={({ verified, verifiedToken }) => {
+                          setEmailVerified(verified);
+                          setEmailVerificationToken(verifiedToken);
+                        }}
+                      />
+                    </div>
+                  ) : null}
 
                   <label className="neet-field-block sm:col-span-2">
                     <Req>
@@ -454,7 +457,7 @@ export function NeetRankPredictorWizard() {
                 <button
                   type="submit"
                   className="ui-btn ui-btn--primary ui-btn--lg neet-form-submit"
-                  disabled={loading || !emailVerified}
+                  disabled={loading || (isEmailOtpEnabled() && !emailVerified)}
                 >
                   {loading ? (
                     <>
@@ -507,10 +510,7 @@ export function NeetRankPredictorWizard() {
                 </div>
 
                 <p className="rounded-lg bg-navy-50 px-4 py-3 text-sm text-slate-700">{result.qualifyingNote}</p>
-                <p className="text-xs text-slate-500">
-                  Based on {result.dataSource} (reference year {result.dataYear}). Exact NEET 2026 AIR will be
-                  confirmed by NTA at result declaration.
-                </p>
+                <p className="text-xs text-slate-500">{result.dataSource}</p>
 
                 <NeetRankCollegeResults india={colleges.india} abroad={colleges.abroad} track={track} />
 

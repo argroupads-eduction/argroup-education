@@ -1,5 +1,6 @@
 import { clamp } from '../interpolation/piecewise';
-import { getPrimaryDataset, NEET_DATASETS } from '../data/registry';
+import { getQualifyingDataset, NEET_DATASETS } from '../data/registry';
+import { isOfficialNeet2026ResultsLive } from '../data/predictionMode';
 import { percentileFromAir } from '../percentile/calculator';
 import { predictWithTrendModel } from '../ai/trendModel';
 import { airForYear } from '../analytics/ensemble';
@@ -31,13 +32,20 @@ function collegeChancesForRank(rank: number): string {
 }
 
 function qualifyingNote(category: NeetCategory, score: number): string {
-  const primary = getPrimaryDataset();
-  const min = primary.qualifyingMarks[category];
+  const qualifying = getQualifyingDataset();
+  const min = qualifying.qualifyingMarks[category];
   const label = CATEGORY_LABELS[category];
   if (score >= min) {
-    return `Your score meets the NEET ${primary.year} qualifying cutoff (${min}+) for ${label}. College admission cutoffs are much higher — use AIR for counselling planning.`;
+    return `Your score meets the NEET ${qualifying.year} qualifying cutoff (${min}+) for ${label}. College admission cutoffs are much higher — use AIR for counselling planning.`;
   }
-  return `Score is below the NEET ${primary.year} qualifying marks (${min}+) for ${label}. Consider MBBS abroad or allied courses — our counsellors can guide you.`;
+  return `Score is below the NEET ${qualifying.year} qualifying marks (${min}+) for ${label}. Consider MBBS abroad or allied courses — our counsellors can guide you.`;
+}
+
+function dataSourceLabel(): string {
+  if (isOfficialNeet2026ResultsLive()) {
+    return 'NTA NEET UG 2026 official marks vs rank (re-exam result statistics)';
+  }
+  return 'NEET 2026 expected rank · Collegedunia / coaching trend · model coaching-consensus-2026';
 }
 
 
@@ -66,7 +74,7 @@ export function predictNeetRank(
     collegeChances: collegeChancesForRank(trend.expectedAir),
     qualifyingNote: qualifyingNote(category, marks),
     dataYear: 2026,
-    dataSource: 'NEET 2026 expected rank · Collegedunia / coaching trend · model coaching-consensus-2026',
+    dataSource: dataSourceLabel(),
     confidence: trend.confidence,
     referenceYears: NEET_DATASETS.map((d) => d.year),
   };
@@ -84,7 +92,7 @@ export function validatePredictor(scores: number[]): {
   ref2025: number;
   errorPct: number;
 }[] {
-  const ds2025 = getPrimaryDataset();
+  const ds2025 = NEET_DATASETS.find((d) => d.year === 2025)!;
   return scores.map((score) => {
     const predicted = predictNeetRank('general_ews', score).expectedRank;
     const ref2025 = airForYear(ds2025, score);

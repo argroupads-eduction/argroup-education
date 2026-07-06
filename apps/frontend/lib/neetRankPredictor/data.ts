@@ -1,8 +1,11 @@
 import type { NeetCategory } from './types';
-import { getPrimaryDataset } from '@backend/lib/neetRankPredictor/data/registry';
-import { NEET_2025 } from '@backend/lib/neetRankPredictor/data/years/2025';
+import { getQualifyingDataset } from '@backend/lib/neetRankPredictor/data/registry';
+import { isOfficialNeet2026ResultsLive } from '@backend/lib/neetRankPredictor/data/predictionMode';
+import { NEET_2026 } from '@backend/lib/neetRankPredictor/data/years/2026';
 
-export const NEET_EXAM_YEAR_LABEL = 'NEET 2026 expected rank (coaching trend)';
+export const NEET_EXAM_YEAR_LABEL = isOfficialNeet2026ResultsLive()
+  ? 'NEET 2026 rank from official NTA result statistics'
+  : 'NEET 2026 expected rank (coaching trend)';
 
 export const NEET_CATEGORIES: {
   id: NeetCategory;
@@ -16,7 +19,7 @@ export const NEET_CATEGORIES: {
   { id: 'pwd', label: 'PwD', cutoffHint: '129+' },
 ];
 
-export const NEET_2026_MAX_RANK = getPrimaryDataset().totalAppeared;
+export const NEET_2026_MAX_RANK = getQualifyingDataset().totalAppeared;
 
 export const RANK_VS_COLLEGE = [
   { maxRank: 100, label: 'AIIMS Delhi, top AIIMS (AIR under 100)' },
@@ -55,10 +58,10 @@ export const PERCENTILE_VS_RANK_TABLE = [
 ] as const;
 
 export const CATEGORY_CUTOFF_TABLE = [
-  { category: 'General / EWS', percentile: '50th', marks: `${NEET_2025.qualifyingMarks.general_ews}+` },
-  { category: 'OBC-NCL', percentile: '40th', marks: `${NEET_2025.qualifyingMarks.obc_ncl}+` },
-  { category: 'SC / ST', percentile: '40th', marks: `${NEET_2025.qualifyingMarks.sc}+` },
-  { category: 'PwD', percentile: '40th', marks: `${NEET_2025.qualifyingMarks.pwd}+` },
+  { category: 'General / EWS', percentile: '50th', marks: `${NEET_2026.qualifyingMarks.general_ews}+` },
+  { category: 'OBC-NCL', percentile: '40th', marks: `${NEET_2026.qualifyingMarks.obc_ncl}+` },
+  { category: 'SC / ST', percentile: '40th', marks: `${NEET_2026.qualifyingMarks.sc}+` },
+  { category: 'PwD', percentile: '40th', marks: `${NEET_2026.qualifyingMarks.pwd}+` },
 ] as const;
 
 export const NEET_PREDICTOR_FAQ = [
@@ -94,7 +97,7 @@ export const HOW_TO_STEPS = [
   {
     step: '03',
     title: 'Get rank & colleges',
-    text: 'Instant AIR estimate from NTA 2025 data, percentile, and matched MBBS colleges, plan counselling with AR Group.',
+    text: 'Instant AIR estimate from NTA 2026 data, percentile, and matched MBBS colleges — plan counselling with AR Group.',
   },
 ] as const;
 

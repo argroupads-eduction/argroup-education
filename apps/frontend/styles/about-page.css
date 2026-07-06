@@ -8,7 +8,7 @@
 
 .about-hero {
   position: relative;
-  overflow-x: clip;
+  overflow-x: visible;
   padding: 4rem 0 4.5rem;
   background: linear-gradient(155deg, #0c1f3f 0%, #152a52 40%, #1a3358 72%, #0f2744 100%);
 }
@@ -76,13 +76,17 @@
   font-weight: 700;
   line-height: 1.2;
   color: white;
+  overflow: visible;
+  padding-inline-end: 0.12em;
 }
 
 .about-hero__title em {
   font-style: italic;
   display: inline-block;
+  padding-inline: 0.04em 0.2em;
   padding-bottom: 0.14em;
   line-height: 1.25;
+  overflow: visible;
   background: linear-gradient(90deg, #fde68a, #fbbf24, #f59e0b);
   -webkit-background-clip: text;
   background-clip: text;

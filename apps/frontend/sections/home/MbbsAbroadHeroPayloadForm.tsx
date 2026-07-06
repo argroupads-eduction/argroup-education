@@ -17,6 +17,7 @@ import { validateLeadSubmissionData, leadApiErrorMessage } from '@/lib/validateL
 import { notifyLeadSubmissionFromResponse } from '@/lib/notifyLeadSubmission';
 import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
 import { getEmailFromHeroFormValues } from '@/lib/emailOtp/heroFormEmail';
+import { emailOtpInitiallyVerified, isEmailOtpEnabled } from '@/lib/emailOtp/isEmailOtpEnabled';
 
 type FormFieldBlock = {
   id?: string | null;
@@ -63,14 +64,14 @@ function isStateOrCountryField(field: FormFieldBlock): boolean {
 export type MbbsAbroadHeroPayloadFormProps = {
   layout?: 'stacked' | 'heroSide';
   className?: string;
-  /** Notifies parent (e.g. hero carousel) when email OTP verification completes. */
-  onCarouselEmailVerified?: (verified: boolean) => void;
+  /** Notifies parent (e.g. hero carousel) when the enquiry form is successfully submitted. */
+  onCarouselFormSubmitted?: () => void;
 };
 
 export function MbbsAbroadHeroPayloadForm({
   layout = 'stacked',
   className: outerClassName,
-  onCarouselEmailVerified,
+  onCarouselFormSubmitted,
 }: MbbsAbroadHeroPayloadFormProps) {
   const { form: loadedForm, debugMessage, values, setValues } =
     useHeroMbbsFormDefinition('abroad');
@@ -79,7 +80,7 @@ export function MbbsAbroadHeroPayloadForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [otpUiActive, setOtpUiActive] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(emailOtpInitiallyVerified);
   const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null);
 
   const fields = useMemo(() => (form?.fields || []).filter(isInputField), [form?.fields]);
@@ -117,7 +118,7 @@ export function MbbsAbroadHeroPayloadForm({
         return;
       }
 
-      if (!emailVerified || !emailVerificationToken) {
+      if (isEmailOtpEnabled() && (!emailVerified || !emailVerificationToken)) {
         setSubmitError('Please verify your email before submitting.');
         setOtpUiActive(true);
         return;
@@ -175,6 +176,7 @@ export function MbbsAbroadHeroPayloadForm({
           thankYouTab
         );
         setSubmitted(true);
+        onCarouselFormSubmitted?.();
       } catch {
         cancelPreparedThankYouTab(thankYouTab);
         setSubmitError('Network error. Try again.');
@@ -182,7 +184,7 @@ export function MbbsAbroadHeroPayloadForm({
         setSubmitting(false);
       }
     },
-    [form, fields, values, emailVerified, emailVerificationToken]
+    [form, fields, values, emailVerified, emailVerificationToken, onCarouselFormSubmitted]
   );
 
   const isSide = layout === 'heroSide';
@@ -343,16 +345,17 @@ export function MbbsAbroadHeroPayloadForm({
         })}
 
         <div className="min-w-0 w-full sm:col-span-2">
-          <EmailOtpVerification
-            email={getEmailFromHeroFormValues(values, fields)}
-            activated={otpUiActive}
-            variant="dark"
-            onVerifiedChange={({ verified, verifiedToken }) => {
-              setEmailVerified(verified);
-              setEmailVerificationToken(verifiedToken);
-              onCarouselEmailVerified?.(verified);
-            }}
-          />
+          {isEmailOtpEnabled() ? (
+            <EmailOtpVerification
+              email={getEmailFromHeroFormValues(values, fields)}
+              activated={otpUiActive}
+              variant="dark"
+              onVerifiedChange={({ verified, verifiedToken }) => {
+                setEmailVerified(verified);
+                setEmailVerificationToken(verifiedToken);
+              }}
+            />
+          ) : null}
         </div>
 
         {submitError && (
@@ -367,7 +370,7 @@ export function MbbsAbroadHeroPayloadForm({
             variant="primary"
             size="md"
             className={isSide ? 'w-full' : 'w-full sm:w-auto'}
-            disabled={submitting || !emailVerified}
+            disabled={submitting || (isEmailOtpEnabled() && !emailVerified)}
             isLoading={submitting}
           >
             {form.submitButtonLabel || 'Submit'}

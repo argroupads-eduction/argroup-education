@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
+import { emailOtpInitiallyVerified, isEmailOtpEnabled } from '@/lib/emailOtp/isEmailOtpEnabled';
 
 interface NewsletterFormProps {
   className?: string;
@@ -17,13 +18,13 @@ export const NewsletterForm = ({ className = '' }: NewsletterFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [otpUiActive, setOtpUiActive] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(emailOtpInitiallyVerified);
   const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    if (!emailVerified || !emailVerificationToken) {
+    if (isEmailOtpEnabled() && (!emailVerified || !emailVerificationToken)) {
       setMessage({ type: 'error', text: 'Please verify your email before subscribing.' });
       setOtpUiActive(true);
       return;
@@ -42,7 +43,7 @@ export const NewsletterForm = ({ className = '' }: NewsletterFormProps) => {
       }
       setMessage({ type: 'success', text: 'Thank you for subscribing!' });
       setEmail('');
-      setEmailVerified(false);
+      setEmailVerified(emailOtpInitiallyVerified);
       setEmailVerificationToken(null);
       setOtpUiActive(false);
       setTimeout(() => setMessage(null), 5000);
@@ -86,22 +87,24 @@ export const NewsletterForm = ({ className = '' }: NewsletterFormProps) => {
           type="submit"
           variant="primary"
           isLoading={isLoading}
-          disabled={!emailVerified}
+          disabled={isEmailOtpEnabled() && !emailVerified}
           className="px-6"
         >
           <Mail className="w-4 h-4" />
           <span className="hidden sm:inline">Subscribe</span>
         </Button>
         </div>
-        <EmailOtpVerification
-          email={email}
-          activated={otpUiActive}
-          onVerifiedChange={({ verified, verifiedToken }) => {
-            setEmailVerified(verified);
-            setEmailVerificationToken(verifiedToken);
-          }}
-          className="w-full min-w-0"
-        />
+        {isEmailOtpEnabled() ? (
+          <EmailOtpVerification
+            email={email}
+            activated={otpUiActive}
+            onVerifiedChange={({ verified, verifiedToken }) => {
+              setEmailVerified(verified);
+              setEmailVerificationToken(verifiedToken);
+            }}
+            className="w-full min-w-0"
+          />
+        ) : null}
       </form>
     </motion.div>
   );

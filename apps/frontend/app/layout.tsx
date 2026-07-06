@@ -3,9 +3,11 @@ import { Inter, Lora, Poppins } from 'next/font/google';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
+import { NeetRankPredictorPopup } from '@/components/neet-rank-predictor/NeetRankPredictorPopup';
 import { LeadSubmissionFeedbackHost } from '@/components/common/LeadSubmissionFeedbackHost';
 import { NeetRankPredictorPromoStrip } from '@/components/neet-rank-predictor/NeetRankPredictorPromoStrip';
 import '@/styles/neet-rank-predictor.css';
+import '@/styles/rank-predictor-popup.css';
 import { NavPagesProvider } from '@/components/common/NavPagesProvider';
 import { SiteGlobalsProvider } from '@/components/common/SiteGlobalsProvider';
 import { fetchDynamicNavPages } from '@/lib/dynamicNav.server';
@@ -129,6 +131,12 @@ export default async function RootLayout({
         <link rel="shortcut icon" href="/ar-browser-icon.png" type="image/png" />
         <link rel="apple-touch-icon" href="/ar-browser-icon.png" />
         <link rel="preload" href="/ar-group-logo.png" as="image" type="image/png" />
+        <style
+          dangerouslySetInnerHTML={{
+            __html:
+              '.brand-logo-link__frame--nav-wide{width:8.75rem;height:3.25rem;max-width:8.75rem;min-height:3.25rem;overflow:hidden;display:inline-flex;flex-shrink:0}.brand-logo-link__frame--nav-wide img{width:100%;height:100%;object-fit:contain}',
+          }}
+        />
         <link rel="preload" href="/india-homepage.jpg" as="image" type="image/jpeg" />
         <link rel="preload" href="/abroad-homepage.jpg" as="image" type="image/jpeg" />
         <link rel="dns-prefetch" href="https://argroupofeducation.com" />
@@ -142,6 +150,7 @@ export default async function RootLayout({
             <Navbar />
             <main className="min-w-0">{children}</main>
             <Footer />
+            <NeetRankPredictorPopup />
             <LeadCapturePopup />
             <LeadSubmissionFeedbackHost />
           </NavPagesProvider>

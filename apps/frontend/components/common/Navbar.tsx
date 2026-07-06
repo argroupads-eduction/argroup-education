@@ -180,6 +180,7 @@ export const Navbar = () => {
                   alt="AR Group of Education"
                   width={140}
                   height={56}
+                  sizes="140px"
                   priority
                   className="brand-logo-link__img"
                 />
