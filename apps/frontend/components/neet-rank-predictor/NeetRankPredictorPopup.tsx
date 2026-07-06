@@ -11,32 +11,28 @@ import {
   Building2,
   Check,
   GraduationCap,
-  Info,
   Loader2,
-  Lock,
-  Mail,
-  MapPin,
-  Phone,
-  Rocket,
-  Shield,
   ShieldCheck,
-  Sprout,
+  Sparkles,
   Trophy,
-  User,
   Users,
   X,
 } from 'lucide-react';
 import { NEET_CATEGORIES } from '@/lib/neetRankPredictor/data';
-import { INDIAN_ELIGIBILITY_STATES } from '@/lib/indianEligibilityStates';
 import {
-  RANK_POPUP_BRAND_LINE,
+  RANK_POPUP_FORM_FOOTER,
+  RANK_POPUP_FORM_TRUST_ITEMS,
   RANK_POPUP_PANEL_STATS,
+  RANK_POPUP_SIDEBAR_SUBTITLE,
+  RANK_POPUP_SIDEBAR_TAGLINE,
+  RANK_POPUP_TRACK_OPTIONS,
 } from '@/lib/rankPredictorPopupContent';
 import { getCollegeRecommendations } from '@/lib/neetRankPredictor/collegeMatches';
 import type { CollegeMatch } from '@/lib/neetRankPredictor/collegeMatches';
 import { formatRank, predictNeetRank } from '@/lib/neetRankPredictor/predict';
 import type { NeetCategory, NeetRankPrediction } from '@/lib/neetRankPredictor/types';
 import { validatePersonName } from '@/lib/validatePersonName';
+import { sanitizeCityInput, validateCityName } from '@/lib/validateCityName';
 import { validateIndianMobile, validateLeadEmail } from '@/lib/leadSubmissionMessages';
 import {
   isRankPopupExcludedPath,
@@ -45,12 +41,41 @@ import {
 import { ensureFormInteractionGuard, setRankPopupOpen } from '@/lib/sitePopupCoordination';
 
 type Step = 'form' | 'result';
+type Track = 'india' | 'abroad' | 'both';
 
 const PANEL_STAT_ICONS = {
   users: Users,
   shield: ShieldCheck,
   building: Building2,
 } as const;
+
+const FORM_TRUST_ICONS = {
+  users: Users,
+  shield: ShieldCheck,
+  check: Check,
+  building: Building2,
+} as const;
+
+function FormTrustStrip() {
+  return (
+    <div className="nrp-form-trust" aria-label="Why students trust AR Group">
+      {RANK_POPUP_FORM_TRUST_ITEMS.map((item) => {
+        const Icon = FORM_TRUST_ICONS[item.icon];
+        return (
+          <div key={item.label} className="nrp-form-trust__item">
+            <span className={`nrp-form-trust__icon nrp-form-trust__icon--${item.icon}`} aria-hidden>
+              <Icon className="h-3.5 w-3.5" strokeWidth={2.5} />
+            </span>
+            <div>
+              <p className="nrp-form-trust__value">{item.value}</p>
+              <p className="nrp-form-trust__label">{item.label}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function PanelStatsBar() {
   return (
@@ -98,45 +123,84 @@ function CollegeScroll({
   );
 }
 
-function MarksBoxes({
-  value,
-  onChange,
+function ScoreCard({
+  scoreInput,
+  score,
+  onScoreInput,
   inputId,
 }: {
-  value: string;
-  onChange: (raw: string) => void;
+  scoreInput: string;
+  score: number;
+  onScoreInput: (raw: string) => void;
   inputId: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const digits = [0, 1, 2].map((i) => value[i] ?? '');
-  const activeIndex = Math.min(value.length, 2);
+  const digits = [0, 1, 2].map((i) => scoreInput[i] ?? '');
+  const activeIndex = Math.min(scoreInput.length, 2);
 
   const focusInput = () => inputRef.current?.focus();
 
   return (
-    <div className="nrp-marks" onClick={focusInput} role="group" aria-labelledby={`${inputId}-label`}>
-      <div className="nrp-marks__boxes" aria-hidden>
+    <div className="nrp-score-card">
+      <div className="nrp-score-card__head">
+        <span className="nrp-score-card__label">
+          <Trophy className="h-4 w-4 text-amber-500" aria-hidden />
+          NEET score
+        </span>
+        <span className="nrp-score-card__value">
+          {scoreInput ? score : '—'} <span>/ 720</span>
+        </span>
+      </div>
+
+      <div
+        className="nrp-score-card__digits"
+        onClick={focusInput}
+        role="group"
+        aria-labelledby={`${inputId}-label`}
+      >
         {digits.map((digit, i) => (
           <span
             key={i}
-            className={`nrp-marks__box${digit ? ' nrp-marks__box--filled' : ''}${activeIndex === i ? ' nrp-marks__box--active' : ''}`}
+            className={`nrp-score-card__digit${digit ? ' nrp-score-card__digit--filled' : ''}${activeIndex === i ? ' nrp-score-card__digit--active' : ''}`}
+            aria-hidden
           >
             {digit || '·'}
           </span>
         ))}
       </div>
+
+      <div className="nrp-score-card__slider-wrap">
+        <span className="nrp-score-card__slider-edge">0</span>
+        <input
+          type="range"
+          className="nrp-score-card__slider"
+          min={0}
+          max={720}
+          step={1}
+          value={score || 0}
+          onChange={(e) => {
+            const next = Number(e.target.value);
+            onScoreInput(next > 0 ? String(next) : '');
+          }}
+          aria-label="NEET score slider"
+        />
+        <span className="nrp-score-card__slider-edge">720</span>
+      </div>
+      <p className="nrp-score-card__slider-hint">marks</p>
+
       <input
         ref={inputRef}
         id={inputId}
-        className="nrp-marks__input"
-        value={value}
-        onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 3))}
+        className="nrp-score-card__input"
+        value={scoreInput}
+        onChange={(e) => onScoreInput(e.target.value.replace(/\D/g, '').slice(0, 3))}
         inputMode="numeric"
         autoComplete="off"
         maxLength={3}
         required
-        aria-label="NEET 2026 marks out of 720"
+        aria-label="NEET marks out of 720"
       />
+      <p className="nrp-score-card__hint">Tap below to enter your NEET marks</p>
     </div>
   );
 }
@@ -150,8 +214,9 @@ export function NeetRankPredictorPopup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [state, setState] = useState('');
+  const [city, setCity] = useState('');
   const [category, setCategory] = useState<NeetCategory>('general_ews');
+  const [track, setTrack] = useState<Track>('both');
   const [scoreInput, setScoreInput] = useState('');
 
   const [loading, setLoading] = useState(false);
@@ -184,8 +249,9 @@ export function NeetRankPredictorPopup() {
     setName('');
     setEmail('');
     setPhone('');
-    setState('');
+    setCity('');
     setCategory('general_ews');
+    setTrack('both');
     setScoreInput('');
     setResult(null);
     setColleges({ india: [], abroad: [] });
@@ -248,8 +314,9 @@ export function NeetRankPredictorPopup() {
       setError(phoneErr);
       return;
     }
-    if (!state) {
-      setError('Select your state of eligibility');
+    const cityErr = validateCityName(city);
+    if (cityErr) {
+      setError(cityErr);
       return;
     }
 
@@ -264,10 +331,10 @@ export function NeetRankPredictorPopup() {
           name: name.trim(),
           email: email.trim(),
           phone: normalizedPhone,
-          city: state,
+          city: city.trim(),
           category,
           score,
-          track: 'both',
+          track,
         }),
       });
 
@@ -343,42 +410,49 @@ export function NeetRankPredictorPopup() {
                 >
                   <aside className="nrp-sidebar">
                     <Dialog.Title className="sr-only">NEET 2026 Rank Predictor</Dialog.Title>
-                    <Image
-                      src="/images/rank-predictor-sidebar-panel.png"
-                      alt="NEET 2026 Rank Predictor — predict your AIR and find MBBS colleges"
-                      width={447}
-                      height={661}
-                      sizes="(max-width: 1023px) 100vw, 42vw"
-                      className="nrp-sidebar__art"
-                      priority
-                    />
                     <p id="nrp-desc" className="sr-only">
                       Fill in your details to get your NEET 2026 expected rank and college list.
                     </p>
+
+                    <Dialog.Close asChild>
+                      <button type="button" className="nrp-close nrp-close--sidebar" aria-label="Close">
+                        <X className="h-5 w-5" strokeWidth={2} aria-hidden />
+                      </button>
+                    </Dialog.Close>
+
+                    <div className="nrp-sidebar__copy">
+                      <span className="nrp-live-badge">
+                        <span className="nrp-live-badge__dot" aria-hidden />
+                        Live predictor
+                      </span>
+
+                      <h2 className="nrp-sidebar__title">
+                        Your <em>NEET Rank</em> &amp; <em>college map</em>
+                      </h2>
+                      <p className="nrp-sidebar__sub">{RANK_POPUP_SIDEBAR_SUBTITLE}</p>
+                    </div>
+
+                    <div className="nrp-sidebar__photo">
+                      <Image
+                        src="/images/rank-predictor-hero-doctor.png"
+                        alt="NEET counsellor"
+                        width={320}
+                        height={380}
+                        className="nrp-sidebar__photo-img"
+                        priority
+                      />
+                      <span className="nrp-sidebar__photo-badge">NEET 2026</span>
+                    </div>
+
+                    <p className="nrp-sidebar__foot">{RANK_POPUP_SIDEBAR_TAGLINE}</p>
                   </aside>
 
                   <div className="nrp-panel">
-                    <div className="nrp-panel__header">
-                      <div className="nrp-stepper" aria-label="Progress">
-                      <div className={`nrp-stepper__step${step === 'form' ? ' nrp-stepper__step--active' : ' nrp-stepper__step--done'}`}>
-                        <span className="nrp-stepper__dot">
-                          {step === 'result' ? <Check className="h-3.5 w-3.5" /> : '1'}
-                        </span>
-                        <span>Your Details</span>
-                      </div>
-                      <span className="nrp-stepper__line" aria-hidden />
-                      <div className={`nrp-stepper__step${step === 'result' ? ' nrp-stepper__step--active' : ''}`}>
-                        <span className="nrp-stepper__dot">2</span>
-                        <span>Get Prediction</span>
-                      </div>
-                    </div>
-
-                      <Dialog.Close asChild>
-                        <button type="button" className="nrp-close" aria-label="Close">
-                          <X className="h-5 w-5" strokeWidth={2} aria-hidden />
-                        </button>
-                      </Dialog.Close>
-                    </div>
+                    <Dialog.Close asChild>
+                      <button type="button" className="nrp-close nrp-close--panel" aria-label="Close">
+                        <X className="h-5 w-5" strokeWidth={2} aria-hidden />
+                      </button>
+                    </Dialog.Close>
 
                     <AnimatePresence mode="wait">
                       {step === 'form' ? (
@@ -390,165 +464,136 @@ export function NeetRankPredictorPopup() {
                           exit={{ opacity: 0 }}
                           onSubmit={(e) => void handleSubmit(e)}
                         >
-                          <p className="nrp-tip">
-                            <Sprout className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden />
-                            Fill in a few details to get your rank &amp; college prediction
-                          </p>
-
                           {error ? (
                             <p className="nrp-error" role="alert">
                               {error}
                             </p>
                           ) : null}
 
-                          <div className="nrp-form__row">
-                            <label className="nrp-field">
-                              <span className="nrp-field__label">Your Name</span>
-                              <span className="nrp-field__wrap">
-                                <User className="nrp-field__icon" aria-hidden />
-                                <input
-                                  className="nrp-field__input"
-                                  value={name}
-                                  onChange={(e) => setName(e.target.value)}
-                                  placeholder="Enter your name"
-                                  autoComplete="name"
-                                  required
-                                />
-                              </span>
-                            </label>
-
-                            <label className="nrp-field">
-                              <span className="nrp-field__label">Email Address</span>
-                              <span className="nrp-field__wrap">
-                                <Mail className="nrp-field__icon" aria-hidden />
-                                <input
-                                  className="nrp-field__input"
-                                  type="email"
-                                  value={email}
-                                  onChange={(e) => setEmail(e.target.value)}
-                                  placeholder="you@email.com"
-                                  autoComplete="email"
-                                  required
-                                />
-                              </span>
-                            </label>
-                          </div>
+                          <div className="nrp-form__body">
+                          <label className="nrp-plain-field nrp-plain-field--full">
+                            <span className="nrp-plain-field__label">Full name</span>
+                            <input
+                              className="nrp-plain-field__input"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              placeholder="Your name"
+                              autoComplete="name"
+                              required
+                            />
+                          </label>
 
                           <div className="nrp-form__row">
-                            <label className="nrp-field">
-                              <span className="nrp-field__label">Mobile Number</span>
-                              <span className="nrp-field__wrap">
-                                <Phone className="nrp-field__icon" aria-hidden />
-                                <input
-                                  className="nrp-field__input"
-                                  type="tel"
-                                  inputMode="numeric"
-                                  value={phone}
-                                  onChange={(e) => setPhone(e.target.value)}
-                                  placeholder="10-digit mobile number"
-                                  autoComplete="tel"
-                                  required
-                                />
-                              </span>
-                            </label>
-
-                            <label className="nrp-field">
-                              <span className="nrp-field__label">State of Eligibility</span>
-                              <span className="nrp-field__wrap">
-                                <MapPin className="nrp-field__icon" aria-hidden />
-                                <select
-                                  className="nrp-field__input nrp-field__select"
-                                  value={state}
-                                  onChange={(e) => setState(e.target.value)}
-                                  required
-                                >
-                                  <option value="">Select your state</option>
-                                  {INDIAN_ELIGIBILITY_STATES.map((s) => (
-                                    <option key={s} value={s}>
-                                      {s}
-                                    </option>
-                                  ))}
-                                </select>
-                              </span>
-                            </label>
-                          </div>
-
-                          <div className="nrp-form__row">
-                            <label className="nrp-field nrp-field--full">
-                              <span className="nrp-field__label">Category</span>
-                              <span className="nrp-field__wrap">
-                                <Users className="nrp-field__icon" aria-hidden />
-                                <select
-                                  className="nrp-field__input nrp-field__select"
-                                  value={category}
-                                  onChange={(e) => setCategory(e.target.value as NeetCategory)}
-                                  required
-                                >
-                                  <option value="">Select your category</option>
-                                  {NEET_CATEGORIES.map((c) => (
-                                    <option key={c.id} value={c.id}>
-                                      {c.label}
-                                    </option>
-                                  ))}
-                                </select>
-                              </span>
-                            </label>
-                          </div>
-
-                          <div className="nrp-marks-row">
-                            <div>
-                              <p className="nrp-field__label" id="rp-marks-label">
-                                NEET 2026 Marks (Out of 720)
-                              </p>
-                              <MarksBoxes
-                                inputId="rp-marks"
-                                value={scoreInput}
-                                onChange={(v) => {
-                                  setScoreInput(v);
-                                  setError(null);
-                                }}
+                            <label className="nrp-plain-field">
+                              <span className="nrp-plain-field__label">Email</span>
+                              <input
+                                className="nrp-plain-field__input"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="you@email.com"
+                                autoComplete="email"
+                                required
                               />
-                            </div>
-                            <p className="nrp-marks-hint">
-                              <Info className="h-4 w-4 shrink-0" aria-hidden />
-                              Enter marks as per your NEET 2026 Result/Score
-                            </p>
+                            </label>
+
+                            <label className="nrp-plain-field">
+                              <span className="nrp-plain-field__label">Mobile</span>
+                              <input
+                                className="nrp-plain-field__input"
+                                type="tel"
+                                inputMode="numeric"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                placeholder="10-digit"
+                                autoComplete="tel"
+                                required
+                              />
+                            </label>
                           </div>
 
-                          <p className="nrp-secure">
-                            <Shield className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                            100% Secure · Your data is safe with us and will never be shared.
-                          </p>
+                          <div className="nrp-form__row">
+                            <label className="nrp-plain-field">
+                              <span className="nrp-plain-field__label">City</span>
+                              <input
+                                className="nrp-plain-field__input"
+                                value={city}
+                                onChange={(e) => setCity(sanitizeCityInput(e.target.value))}
+                                placeholder="Your city"
+                                autoComplete="address-level2"
+                                required
+                              />
+                            </label>
 
-                          <button
-                            type="submit"
-                            className="nrp-cta counselling-form-submit site-gold-cta"
-                            disabled={loading}
-                          >
-                            {loading ? (
-                              <>
-                                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                                Calculating your rank…
-                              </>
-                            ) : (
-                              <>
-                                <Rocket className="h-4 w-4" aria-hidden />
-                                Predict My Rank &amp; Show Colleges
-                                <ArrowRight className="h-4 w-4" aria-hidden />
-                              </>
-                            )}
-                          </button>
+                            <label className="nrp-plain-field">
+                              <span className="nrp-plain-field__label">Category</span>
+                              <select
+                                className="nrp-plain-field__input nrp-plain-field__select"
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value as NeetCategory)}
+                                required
+                              >
+                                {NEET_CATEGORIES.map((c) => (
+                                  <option key={c.id} value={c.id}>
+                                    {c.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
 
-                          <ul className="nrp-trust-badges">
-                            {['100% Free', 'Instant Result', 'No Spam Promise'].map((t) => (
-                              <li key={t}>
-                                <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
-                                {t}
-                              </li>
-                            ))}
-                          </ul>
+                          <ScoreCard
+                            inputId="rp-marks"
+                            scoreInput={scoreInput}
+                            score={score}
+                            onScoreInput={(v) => {
+                              setScoreInput(v);
+                              setError(null);
+                            }}
+                          />
 
-                          <PanelStatsBar />
+                          <fieldset className="nrp-track">
+                            <legend className="nrp-track__legend">I&apos;m exploring</legend>
+                            <div className="nrp-track__pills">
+                              {RANK_POPUP_TRACK_OPTIONS.map((option) => (
+                                <button
+                                  key={option.id}
+                                  type="button"
+                                  className={`nrp-track__pill${track === option.id ? ' nrp-track__pill--active' : ''}`}
+                                  onClick={() => setTrack(option.id)}
+                                  aria-pressed={track === option.id}
+                                >
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                          </fieldset>
+
+                          <FormTrustStrip />
+                          </div>
+
+                          <div className="nrp-form__actions">
+                            <button
+                              type="submit"
+                              className="nrp-cta counselling-form-submit site-gold-cta"
+                              disabled={loading}
+                            >
+                              {loading ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                                  Calculating your rank…
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="h-4 w-4" aria-hidden />
+                                  Unlock my rank &amp; colleges
+                                  <ArrowRight className="h-4 w-4" aria-hidden />
+                                </>
+                              )}
+                            </button>
+
+                            <p className="nrp-form__foot">{RANK_POPUP_FORM_FOOTER}</p>
+                          </div>
                         </motion.form>
                       ) : (
                         result && (
@@ -563,7 +608,7 @@ export function NeetRankPredictorPopup() {
                               <div>
                                 <p className="nrp-results__title">Your NEET 2026 prediction</p>
                                 <p className="nrp-results__meta">
-                                  {result.categoryLabel} · {result.score}/720 · {state}
+                                  {result.categoryLabel} · {result.score}/720 · {city}
                                 </p>
                               </div>
                             </div>
@@ -611,22 +656,6 @@ export function NeetRankPredictorPopup() {
                       )}
                     </AnimatePresence>
                   </div>
-
-                  <footer className="nrp-footer">
-                    <div className="nrp-footer__brand">
-                      <p className="nrp-footer__brand-title">
-                        Trusted Counselling Partner | <strong>AR Group of Education</strong>
-                      </p>
-                      <p className="nrp-footer__brand-sub">{RANK_POPUP_BRAND_LINE}</p>
-                    </div>
-
-                    <p className="nrp-footer__privacy">
-                      <span className="nrp-footer__privacy-lock" aria-hidden>
-                        <Lock className="h-3.5 w-3.5" />
-                      </span>
-                      Your privacy is our priority
-                    </p>
-                  </footer>
                 </motion.div>
               </Dialog.Content>
             </div>

@@ -1,4 +1,24 @@
 import { ABOUT_ESTABLISHED, ABOUT_STATS } from '@/lib/aboutContent';
+import { NEET_PREDICTOR_SUBTITLE } from '@/lib/neetRankPredictor/data';
+
+export const RANK_POPUP_SIDEBAR_TAGLINE = 'PREDICT RANK · MAP COLLEGES · PLAN MBBS';
+
+export const RANK_POPUP_SIDEBAR_SUBTITLE = NEET_PREDICTOR_SUBTITLE;
+
+export const RANK_POPUP_FORM_FOOTER =
+  'Powered by AR Group of Education — trusted NEET rank guidance for MBBS counselling · 100% free tool.';
+
+export const RANK_POPUP_TRACK_OPTIONS = [
+  { id: 'india' as const, label: 'MBBS India' },
+  { id: 'abroad' as const, label: 'MBBS Abroad' },
+  { id: 'both' as const, label: 'India + Abroad' },
+];
+
+export const RANK_POPUP_FORM_TRUST_ITEMS = [
+  { icon: 'shield' as const, value: '19+', label: 'Years of trust' },
+  { icon: 'users' as const, value: '4000+', label: 'Students guided' },
+  { icon: 'check' as const, value: '100%', label: 'Free · No spam' },
+];
 
 export const RANK_POPUP_FEATURES = [
   {
