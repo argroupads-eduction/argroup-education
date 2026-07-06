@@ -26,6 +26,7 @@ function isInNtaBand(
 /**
  * Predict AIR — coaching consensus before NTA 2026 re-exam results;
  * NTA official marks-vs-rank from 20 Jul 2026 (IST) onward.
+ * 
  */
 export function predictWithTrendModel(marks: number, _targetYear = 2026): TrendModelOutput {
   const m = clamp(Math.round(marks), 0, 720);

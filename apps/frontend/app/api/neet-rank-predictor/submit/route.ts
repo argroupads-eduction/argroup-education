@@ -4,6 +4,7 @@ import { getCollegeRecommendations } from '@/lib/neetRankPredictor/collegeMatche
 import { predictNeetRank } from '@backend/lib/neetRankPredictor';
 import type { NeetCategory } from '@/lib/neetRankPredictor/types';
 import { validatePersonName } from '@/lib/validatePersonName';
+import { validateCityName } from '@/lib/validateCityName';
 import { prisma, withPrismaRetry } from '@backend/lib/prisma';
 import {
   submitWebsiteLead,
@@ -91,8 +92,10 @@ export async function POST(req: NextRequest) {
   if (phoneErr) {
     return NextResponse.json({ message: phoneErr }, { status: 400 });
   }
-  if (!city || city.length < 2) {
-    return NextResponse.json({ message: 'Enter your city' }, { status: 400 });
+  const cityTrimmed = city?.trim() ?? '';
+  const cityErr = validateCityName(cityTrimmed);
+  if (cityErr) {
+    return NextResponse.json({ message: cityErr }, { status: 400 });
   }
   if (!NEET_CATEGORIES.some((c) => c.id === category)) {
     return NextResponse.json({ message: 'Invalid category' }, { status: 400 });
@@ -111,7 +114,7 @@ export async function POST(req: NextRequest) {
     fullName: name,
     email,
     phone,
-    city,
+    city: cityTrimmed,
     reservationCategory: prediction.categoryLabel,
     neetScore: roundedScore,
     studyTrack: trackLabel,
@@ -134,7 +137,7 @@ export async function POST(req: NextRequest) {
         email,
         neetScore: roundedScore,
         predictedRank: prediction.expectedRank,
-        state: city,
+        state: cityTrimmed,
         course: trackLabel,
       });
 
@@ -171,7 +174,7 @@ export async function POST(req: NextRequest) {
             name,
             email,
             phone,
-            city,
+            city: cityTrimmed,
             category: cat,
             score: roundedScore,
             bestRank: prediction.bestRank,

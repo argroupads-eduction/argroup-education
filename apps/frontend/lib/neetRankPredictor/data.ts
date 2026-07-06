@@ -5,7 +5,10 @@ import { NEET_2026 } from '@backend/lib/neetRankPredictor/data/years/2026';
 
 export const NEET_EXAM_YEAR_LABEL = isOfficialNeet2026ResultsLive()
   ? 'NEET 2026 rank from official NTA result statistics'
-  : 'NEET 2026 expected rank (coaching trend)';
+  : 'NEET 2026 expected rank & All India Rank (AIR) estimate';
+
+export const NEET_PREDICTOR_SUBTITLE =
+  'Share your details once — your expected AIR updates live as you enter your NEET score.';
 
 export const NEET_CATEGORIES: {
   id: NeetCategory;

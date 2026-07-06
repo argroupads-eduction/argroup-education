@@ -5,6 +5,11 @@ import { Footer } from '@/components/common/Footer';
 import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
 import { NeetRankPredictorPopup } from '@/components/neet-rank-predictor/NeetRankPredictorPopup';
 import { LeadSubmissionFeedbackHost } from '@/components/common/LeadSubmissionFeedbackHost';
+import {
+  SITE_PROTECTION_INLINE_SCRIPT,
+  isSiteProtectionEnabled,
+} from '@/lib/siteProtection';
+import { SiteInteractionGuard } from '@/components/common/SiteInteractionGuard';
 import { NeetRankPredictorPromoStrip } from '@/components/neet-rank-predictor/NeetRankPredictorPromoStrip';
 import '@/styles/neet-rank-predictor.css';
 import '@/styles/rank-predictor-popup.css';
@@ -140,6 +145,9 @@ export default async function RootLayout({
         <link rel="preload" href="/india-homepage.jpg" as="image" type="image/jpeg" />
         <link rel="preload" href="/abroad-homepage.jpg" as="image" type="image/jpeg" />
         <link rel="dns-prefetch" href="https://argroupofeducation.com" />
+        {isSiteProtectionEnabled() ? (
+          <script dangerouslySetInnerHTML={{ __html: SITE_PROTECTION_INLINE_SCRIPT }} />
+        ) : null}
       </head>
       <body
         className={`${inter.className} min-h-dvh min-w-0 overflow-x-hidden [padding-bottom:env(safe-area-inset-bottom,0px)] [padding-left:env(safe-area-inset-left,0px)] [padding-right:env(safe-area-inset-right,0px)]`}
@@ -153,6 +161,7 @@ export default async function RootLayout({
             <NeetRankPredictorPopup />
             <LeadCapturePopup />
             <LeadSubmissionFeedbackHost />
+            <SiteInteractionGuard />
           </NavPagesProvider>
         </SiteGlobalsProvider>
       </body>

@@ -20,6 +20,7 @@ import {
   User,
 } from 'lucide-react';
 import { NEET_EXAM_YEAR_LABEL } from '@/lib/neetRankPredictor/data';
+import { sanitizeCityInput, validateCityName } from '@/lib/validateCityName';
 import { CONTACT_INFO } from '@/lib/constants';
 import { NEET_CATEGORIES } from '@/lib/neetRankPredictor/data';
 import type { CollegeMatch } from '@/lib/neetRankPredictor/collegeMatches';
@@ -193,8 +194,9 @@ export function NeetRankPredictorWizard() {
       setError(phoneErr);
       return;
     }
-    if (!city.trim()) {
-      setError('Enter your city');
+    const cityErr = validateCityName(city);
+    if (cityErr) {
+      setError(cityErr);
       return;
     }
 
@@ -440,7 +442,7 @@ export function NeetRankPredictorWizard() {
                     <input
                       required
                       value={city}
-                      onChange={(e) => setCity(e.target.value)}
+                      onChange={(e) => setCity(sanitizeCityInput(e.target.value))}
                       list="neet-city-list"
                       className="neet-field-input box-border w-full max-w-full min-w-0"
                       placeholder="Your city"

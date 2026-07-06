@@ -95,10 +95,7 @@ export function YoutubeChannelSection() {
           <h2 id="youtube-channel-title" className="youtube-channel-section__title">
             AR Group Of Education on <span className="text-[#ff3b3b]">YouTube</span>
           </h2>
-          <p className="youtube-channel-section__subtitle">
-            Watch real student journeys and get expert insights on your medical career. Newest uploads appear
-            here automatically!
-          </p>
+          <p className="youtube-channel-section__subtitle">Watch real student journeys and get expert insights on your medical career. Latest uploads appear here</p>
 
           <div className="youtube-channel-section__meta">
             <Link

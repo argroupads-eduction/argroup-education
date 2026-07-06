@@ -45,7 +45,7 @@ function dataSourceLabel(): string {
   if (isOfficialNeet2026ResultsLive()) {
     return 'NTA NEET UG 2026 official marks vs rank (re-exam result statistics)';
   }
-  return 'NEET 2026 expected rank · Collegedunia / coaching trend · model coaching-consensus-2026';
+  return 'NEET 2026 expected rank · consensus mark-band model · coaching-consensus-2026';
 }
 
 
