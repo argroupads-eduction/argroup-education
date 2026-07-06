@@ -14,6 +14,7 @@ import {
   Info,
   Loader2,
   Lock,
+  Mail,
   MapPin,
   Phone,
   Rocket,
@@ -36,7 +37,7 @@ import type { CollegeMatch } from '@/lib/neetRankPredictor/collegeMatches';
 import { formatRank, predictNeetRank } from '@/lib/neetRankPredictor/predict';
 import type { NeetCategory, NeetRankPrediction } from '@/lib/neetRankPredictor/types';
 import { validatePersonName } from '@/lib/validatePersonName';
-import { validateIndianMobile } from '@/lib/leadSubmissionMessages';
+import { validateIndianMobile, validateLeadEmail } from '@/lib/leadSubmissionMessages';
 import {
   isRankPopupExcludedPath,
   RANK_PREDICTOR_POPUP_DELAY_MS,
@@ -147,6 +148,7 @@ export function NeetRankPredictorPopup() {
   const [step, setStep] = useState<Step>('form');
 
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [state, setState] = useState('');
   const [category, setCategory] = useState<NeetCategory>('general_ews');
@@ -180,6 +182,7 @@ export function NeetRankPredictorPopup() {
     setError(null);
     setLoading(false);
     setName('');
+    setEmail('');
     setPhone('');
     setState('');
     setCategory('general_ews');
@@ -235,6 +238,11 @@ export function NeetRankPredictorPopup() {
       setError(nameErr);
       return;
     }
+    const emailErr = validateLeadEmail(email);
+    if (emailErr) {
+      setError(emailErr);
+      return;
+    }
     const phoneErr = validateIndianMobile(phone);
     if (phoneErr) {
       setError(phoneErr);
@@ -246,7 +254,6 @@ export function NeetRankPredictorPopup() {
     }
 
     const normalizedPhone = phone.replace(/\D/g, '').slice(-10);
-    const leadEmail = `${normalizedPhone}@leads.argroupofeducation.com`;
 
     setLoading(true);
     try {
@@ -255,7 +262,7 @@ export function NeetRankPredictorPopup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: name.trim(),
-          email: leadEmail,
+          email: email.trim(),
           phone: normalizedPhone,
           city: state,
           category,
@@ -411,6 +418,24 @@ export function NeetRankPredictorPopup() {
                             </label>
 
                             <label className="nrp-field">
+                              <span className="nrp-field__label">Email Address</span>
+                              <span className="nrp-field__wrap">
+                                <Mail className="nrp-field__icon" aria-hidden />
+                                <input
+                                  className="nrp-field__input"
+                                  type="email"
+                                  value={email}
+                                  onChange={(e) => setEmail(e.target.value)}
+                                  placeholder="you@email.com"
+                                  autoComplete="email"
+                                  required
+                                />
+                              </span>
+                            </label>
+                          </div>
+
+                          <div className="nrp-form__row">
+                            <label className="nrp-field">
                               <span className="nrp-field__label">Mobile Number</span>
                               <span className="nrp-field__wrap">
                                 <Phone className="nrp-field__icon" aria-hidden />
@@ -426,9 +451,7 @@ export function NeetRankPredictorPopup() {
                                 />
                               </span>
                             </label>
-                          </div>
 
-                          <div className="nrp-form__row">
                             <label className="nrp-field">
                               <span className="nrp-field__label">State of Eligibility</span>
                               <span className="nrp-field__wrap">
@@ -448,8 +471,10 @@ export function NeetRankPredictorPopup() {
                                 </select>
                               </span>
                             </label>
+                          </div>
 
-                            <label className="nrp-field">
+                          <div className="nrp-form__row">
+                            <label className="nrp-field nrp-field--full">
                               <span className="nrp-field__label">Category</span>
                               <span className="nrp-field__wrap">
                                 <Users className="nrp-field__icon" aria-hidden />

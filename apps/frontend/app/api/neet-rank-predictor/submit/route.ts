@@ -41,6 +41,10 @@ function normalizePhone(raw: string): string | null {
   return null;
 }
 
+function isPlaceholderLeadEmail(email: string): boolean {
+  return /^[6-9]\d{9}@leads\.argroupofeducation\.com$/i.test(email.trim());
+}
+
 /** NEET rank predictor, saves to Neon + same lead email as all other forms */
 export async function POST(req: NextRequest) {
   let body: {
@@ -80,6 +84,9 @@ export async function POST(req: NextRequest) {
   const emailErr = validateLeadEmail(email);
   if (emailErr) {
     return NextResponse.json({ message: emailErr }, { status: 400 });
+  }
+  if (isPlaceholderLeadEmail(email)) {
+    return NextResponse.json({ message: 'Enter a valid email address' }, { status: 400 });
   }
   const emailVerified = verifyEmailVerificationToken(email, body.emailVerificationToken);
   if (!emailVerified.ok) {

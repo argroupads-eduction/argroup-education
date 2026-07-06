@@ -71,11 +71,12 @@
 @media (min-width: 1024px) {
   .nrp-modal {
     grid-template-columns: 42% 58%;
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
     max-width: 58rem;
-    max-height: min(90dvh, 40rem);
+    max-height: min(92dvh, 44rem);
     border-radius: 1.15rem;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .nrp-sidebar {
@@ -106,27 +107,39 @@
   flex-shrink: 0;
   overflow: hidden;
   background: #0b2d52;
+  line-height: 0;
 }
 
 .nrp-sidebar__art {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: contain;
-  object-position: center center;
+  object-position: center top;
+}
+
+/* Stacked mobile/tablet — full artwork scaled inside hero box */
+@media (max-width: 1023px) {
+  .nrp-sidebar {
+    height: min(calc(100vw * 661 / 447), min(50dvh, 24rem));
+    min-height: 11rem;
+    max-height: min(50dvh, 24rem);
+  }
 }
 
 @media (min-width: 1024px) {
   .nrp-sidebar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-    height: 100%;
+    grid-row: 1 / 2;
+    align-self: stretch;
+    min-height: min(86dvh, 40rem);
+    height: min(86dvh, 40rem);
+    max-height: none;
   }
 
-  .nrp-sidebar__art {
-    max-height: 100%;
+  .nrp-panel {
+    min-height: min(86dvh, 40rem);
   }
 }
 
@@ -301,6 +314,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+}
+
+.nrp-field--full {
+  grid-column: 1 / -1;
 }
 
 .nrp-field__label {
@@ -831,32 +848,29 @@
 
   .nrp-modal {
     max-height: 96dvh;
-    grid-template-columns: 38% 62%;
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-columns: 34% 66%;
+    grid-template-rows: auto auto;
     max-width: 52rem;
     border-radius: 0.85rem;
+    overflow-y: auto;
   }
 
   .nrp-sidebar {
     grid-row: 1 / 2;
-    max-height: none;
     min-height: 0;
-    height: 100%;
-    aspect-ratio: auto;
+    height: calc(96dvh - 3.5rem);
+    max-height: calc(96dvh - 3.5rem);
   }
 
   .nrp-panel {
     grid-row: 1 / 2;
     padding: 0.65rem 0.75rem;
+    min-height: 0;
   }
 
   .nrp-footer {
     grid-column: 1 / -1;
     padding: 0.45rem 0.75rem;
-  }
-
-  .nrp-sidebar {
-    max-height: none;
   }
 
   .nrp-tip,
