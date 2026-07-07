@@ -34,6 +34,12 @@ const nextConfig = {
 
   // @vercel/nft traces all of public/ when route uses dynamic path.join(cwd, 'public', …) — exclude then re-include only fallbacks.
   outputFileTracingExcludes: {
+    // Keep Amplify/Vercel server bundles under the ~220MB deploy limit (public/wp-content is ~770MB).
+    '*': [
+      './public/wp-content/**',
+      './public/**',
+      '../../public/wp-content/**',
+    ],
     '/api/public-asset/[...path]': ['./public/**'],
     // wp-media must NOT bundle public/wp-content (~763MB). Static files deploy via public/; API proxies on miss.
     '/api/wp-media/[...path]': ['./public/**', '../../_uploads/**'],
