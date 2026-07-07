@@ -1,4 +1,5 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
+import path from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -12,8 +13,10 @@ import payloadSyncRouter from './routes/payloadSync';
 import leadsRouter from './routes/leads';
 import neetRouter from './routes/neet';
 import { connectPrisma, prisma, reconnectPrisma } from './lib/prisma';
+import { getDatabaseProviderLabel } from './lib/neonDatabaseUrl';
 
 const app: Application = express();
+const REPO_ROOT = path.resolve(__dirname, '../../..');
 const PORT = process.env.PORT || 3001;
 
 // Middleware
@@ -33,7 +36,7 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Health Check (includes Neon / Prisma connectivity)
+// Health Check (includes Postgres / Prisma connectivity)
 app.get('/health', async (_req: Request, res: Response) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -93,12 +96,13 @@ app.use((err: Error & { status?: number }, _req: Request, res: Response, _next: 
 async function start() {
   try {
     await connectPrisma();
-    console.log('🗄️  Database: Neon connected');
+    console.log(`🗄️  Database: ${getDatabaseProviderLabel()} connected`);
   } catch (err) {
     console.error('⚠️  Database: could not connect (API will retry on requests):', err);
   }
 
   const server = app.listen(PORT, () => {
+    console.log(`📁 Project root: ${REPO_ROOT}`);
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
   });

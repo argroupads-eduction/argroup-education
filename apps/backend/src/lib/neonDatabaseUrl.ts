@@ -2,6 +2,13 @@
  * Neon pooled URLs require `pgbouncer=true` for Prisma (disables prepared statements).
  * @see https://www.prisma.io/docs/guides/database/neon
  */
+export function getDatabaseProviderLabel(raw?: string): string {
+  const url = raw?.trim() ?? process.env.DATABASE_URL?.trim() ?? '';
+  if (url.includes('supabase.com')) return 'Supabase';
+  if (url.includes('.neon.tech')) return 'Neon';
+  return 'Postgres';
+}
+
 export function neonDatabaseUrl(raw?: string): string {
   if (!raw?.trim()) {
     throw new Error(

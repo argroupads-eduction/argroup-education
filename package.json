@@ -7,7 +7,7 @@
     "dev": "npm run dev:stack",
     "dev:website": "npm run dev -w apps/frontend",
     "dev:with-cms": "npx concurrently -k -n cms,frontend -c blue,cyan \"npm run dev:cms\" \"npm run dev -w apps/frontend\"",
-    "dev:stack": "npx concurrently -k -n backend,frontend -c yellow,cyan \"npm run dev -w apps/backend\" \"npm run dev -w apps/frontend\"",
+    "dev:stack": "node scripts/dev-stack.mjs",
     "dev:frontend": "npm run dev -w apps/frontend",
     "dev:backend": "npm run dev -w apps/backend",
     "dev:cms": "npm run dev:8000 --prefix ar-group-of-eductions",

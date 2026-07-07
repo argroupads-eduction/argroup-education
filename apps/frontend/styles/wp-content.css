@@ -2067,7 +2067,22 @@
 
 .wp-content-root .wp-table-scroll thead th :is(p, b, strong, span, a) {
   color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
   margin: 0 !important;
+}
+
+/* eael / generic multi-column tables — keep every header cell readable */
+.wp-content-root .wp-table-scroll table.eael-data-table thead th,
+.wp-content-root .eael-data-table-wrap table.eael-data-table thead th {
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.wp-content-root .wp-table-scroll table.eael-data-table thead th :is(p, b, strong, span, a, div, .data-table-header-text),
+.wp-content-root .eael-data-table-wrap table.eael-data-table thead th :is(p, b, strong, span, a, div, .data-table-header-text) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 .wp-content-root .wp-table-scroll tbody td :is(p, span),
@@ -2122,7 +2137,6 @@
   overflow-wrap: break-word;
 }
 
-.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 thead th:nth-child(1),
 .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:nth-child(1) {
   width: 7.5rem;
   min-width: 7.5rem;
@@ -2133,13 +2147,28 @@
   border-left: 3px solid #d97706;
 }
 
-.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 thead th:nth-child(2),
 .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:nth-child(2),
-.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 thead th:nth-child(3),
 .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:nth-child(3) {
   min-width: 11rem;
   color: #334155 !important;
   background: #ffffff !important;
+}
+
+/* Labelled data tables — header row always dark (body cell colors must not bleed into th) */
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table thead th,
+.wp-content-root .eael-data-table-wrap table.wp-labeled-data-table thead th {
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border-left: none !important;
+  border-bottom: 2px solid #d97706 !important;
+  font-weight: 700 !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table thead th :is(p, b, strong, span, a, div, .data-table-header-text),
+.wp-content-root .eael-data-table-wrap table.wp-labeled-data-table thead th :is(p, b, strong, span, a, div, .data-table-header-text) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 /* 4-column comparison tables */
@@ -2159,7 +2188,6 @@
   overflow-wrap: break-word;
 }
 
-.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 thead th:nth-child(1),
 .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:nth-child(1) {
   width: 7.5rem;
   min-width: 7.5rem;

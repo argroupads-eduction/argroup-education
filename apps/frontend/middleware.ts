@@ -7,6 +7,19 @@ import { resolveSlugAlias } from '@/lib/wpSlugAliases';
 const API_LIMIT = parseInt(process.env.RATE_LIMIT_API_MAX || '120', 10);
 const API_WINDOW_MS = parseInt(process.env.RATE_LIMIT_API_WINDOW_MS || '60000', 10);
 
+/** Read-heavy routes polled by the homepage — skip edge rate limit to avoid 429 noise on Amplify. */
+const RATE_LIMIT_SKIP_PREFIXES = [
+  '/api/health',
+  '/api/youtube/videos',
+  '/api/google-reviews',
+  '/api/wp-media/',
+  '/api/public-asset/',
+] as const;
+
+function isRateLimitSkipped(pathname: string): boolean {
+  return RATE_LIMIT_SKIP_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
 function clientIp(req: NextRequest): string {
   return (
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -78,7 +91,7 @@ export function middleware(req: NextRequest) {
   const legacy = legacyWpRedirect(req);
   if (legacy) return legacy;
 
-  if (pathname.startsWith('/api/')) {
+  if (pathname.startsWith('/api/') && !isRateLimitSkipped(pathname)) {
     pruneRateLimitBuckets();
     const ip = clientIp(req);
     const key = `${ip}:${pathname.split('/').slice(0, 4).join('/')}`;

@@ -54,7 +54,7 @@ async function youtubeGet<T>(path: string, params: Record<string, string>, apiKe
   url.searchParams.set('key', apiKey);
 
   const res = await fetch(url.toString(), {
-    cache: 'no-store',
+    next: { revalidate: YOUTUBE_FEED_REVALIDATE_SECONDS },
   });
 
   if (!res.ok) {

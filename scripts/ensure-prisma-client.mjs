@@ -7,9 +7,10 @@ import { existsSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { resolveRepoRoot } from './resolve-repo-root.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, '..');
+const repoRoot = resolveRepoRoot();
 
 const clientDir = path.join(repoRoot, 'node_modules', '.prisma', 'client');
 const enginePath = path.join(clientDir, 'query_engine-windows.dll.node');

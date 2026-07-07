@@ -1,34 +1,42 @@
 import { NextResponse } from 'next/server';
-import { fetchYoutubeChannelVideos } from '@/lib/youtube/fetchChannelVideos';
+import {
+  fetchYoutubeChannelVideos,
+  YOUTUBE_FEED_REVALIDATE_SECONDS,
+} from '@/lib/youtube/fetchChannelVideos';
+import { withTtlCache } from '@/lib/serverTtlCache';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+
+const CACHE_KEY = 'youtube-channel-videos';
+const CACHE_TTL_MS = YOUTUBE_FEED_REVALIDATE_SECONDS * 1000;
 
 export async function GET() {
-  const payload = await fetchYoutubeChannelVideos();
+  const payload = await withTtlCache(CACHE_KEY, CACHE_TTL_MS, fetchYoutubeChannelVideos);
 
   if (!payload) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(
-        '[youtube] Feed unavailable — set YOUTUBE_API_KEY and enable YouTube Data API v3 in Google Cloud.'
-      );
-    }
     return NextResponse.json(
       {
-        error: 'unavailable',
-        message: 'Our YouTube feed is temporarily unavailable. Please visit our channel directly.',
+        channelId: '',
+        channelTitle: 'AR Group of Education',
+        channelUrl: 'https://www.youtube.com/@argroupofeducation',
+        subscriberCount: null,
+        videoCount: null,
+        videos: [],
+        syncedAt: new Date().toISOString(),
+        unavailable: true,
       },
-      { status: 503 }
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': `public, s-maxage=${YOUTUBE_FEED_REVALIDATE_SECONDS}, stale-while-revalidate=300`,
+        },
+      },
     );
   }
 
-  // Never cache at CDN/browser — client polls every ~60s; each hit fetches fresh from YouTube API.
   return NextResponse.json(payload, {
     headers: {
-      'Cache-Control': 'private, no-store, no-cache, must-revalidate',
-      Pragma: 'no-cache',
-      Expires: '0',
+      'Cache-Control': `public, s-maxage=${YOUTUBE_FEED_REVALIDATE_SECONDS}, stale-while-revalidate=300`,
     },
   });
 }

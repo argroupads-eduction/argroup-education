@@ -6,6 +6,11 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const health = await getHealthStatus();
-  const status = health.status === 'ok' ? 200 : 503;
-  return NextResponse.json(health, { status });
+  // Amplify/ALB liveness — always 200; degraded state stays in JSON body.
+  return NextResponse.json(health, {
+    status: 200,
+    headers: {
+      'Cache-Control': 'no-store',
+    },
+  });
 }

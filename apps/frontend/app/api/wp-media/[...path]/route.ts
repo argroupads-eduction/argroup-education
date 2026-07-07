@@ -1,4 +1,6 @@
 import path from 'node:path';
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { NextResponse } from 'next/server';
 
 const MIME: Record<string, string> = {
@@ -54,39 +56,22 @@ function elementorThumbAlternates(relativePath: string): string[] {
   return alts;
 }
 
-function deploymentOrigin(request: Request): string | null {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  try {
-    return new URL(request.url).origin;
-  } catch {
-    return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || null;
-  }
+const PUBLIC_WP_ROOT = path.join(process.cwd(), 'public', 'wp-content');
+
+function resolvePublicWpFile(relativePath: string): string | null {
+  const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
+  const resolved = path.resolve(PUBLIC_WP_ROOT, safe);
+  const root = path.resolve(PUBLIC_WP_ROOT);
+  if (!resolved.startsWith(root)) return null;
+  return resolved;
 }
 
-/** Fetch bundled media from static /wp-content/ — no fs reads (keeps Vercel function small). */
-async function fetchBundledStatic(
-  relativePath: string,
-  request: Request
-): Promise<Buffer | null> {
-  const origin = deploymentOrigin(request);
-  if (!origin) return null;
-
-  const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
-  const url = encodeWpContentUrl(origin, safe);
-
+/** Read bundled media from public/wp-content — avoids HTTP rewrite loops on Amplify. */
+async function readBundledStatic(relativePath: string): Promise<Buffer | null> {
+  const filePath = resolvePublicWpFile(relativePath);
+  if (!filePath || !existsSync(filePath)) return null;
   try {
-    const res = await fetch(url, {
-      headers: { Accept: 'image/*,*/*' },
-      signal: AbortSignal.timeout(15_000),
-      redirect: 'follow',
-      cache: 'force-cache',
-    });
-    if (!res.ok || !res.body) return null;
-    const contentType = res.headers.get('content-type') ?? '';
-    if (contentType.includes('application/json')) return null;
-    return Buffer.from(await res.arrayBuffer());
+    return await readFile(filePath);
   } catch {
     return null;
   }
@@ -134,7 +119,7 @@ async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null
 }
 
 export async function GET(
-  request: Request,
+  _request: Request,
   context: { params: Promise<{ path: string[] }> }
 ) {
   const { path: segments } = await context.params;
@@ -153,11 +138,11 @@ export async function GET(
       },
     });
 
-  const bundled = await fetchBundledStatic(relativePath, request);
+  const bundled = await readBundledStatic(relativePath);
   if (bundled) return serveBuffer(bundled);
 
   for (const alt of elementorThumbAlternates(relativePath)) {
-    const altBundled = await fetchBundledStatic(alt, request);
+    const altBundled = await readBundledStatic(alt);
     if (altBundled) return serveBuffer(altBundled);
   }
 
