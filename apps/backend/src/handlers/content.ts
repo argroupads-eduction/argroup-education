@@ -54,3 +54,26 @@ export async function getContentBySlug(slug: string) {
     },
   };
 }
+
+/** True when CMS/DB explicitly removed or unpublished this slug (blocks static bundle fallback). */
+export async function isContentSuppressedBySlug(slug: string): Promise<boolean> {
+  const decoded = decodeURIComponent(slug);
+  const [post, page] = await withPrismaRetry(() =>
+    Promise.all([
+      prisma.blogPost.findFirst({ where: { slug: decoded }, select: { published: true } }),
+      prisma.sitePage.findFirst({ where: { slug: decoded }, select: { published: true } }),
+    ])
+  );
+  const row = post ?? page;
+  return row != null && !row.published;
+}
+
+export async function getSuppressedBlogSlugs(): Promise<Set<string>> {
+  const rows = await withPrismaRetry(() =>
+    prisma.blogPost.findMany({
+      where: { published: false },
+      select: { slug: true },
+    })
+  );
+  return new Set(rows.map((row) => row.slug));
+}

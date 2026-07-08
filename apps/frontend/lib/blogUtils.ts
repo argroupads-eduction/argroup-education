@@ -18,6 +18,8 @@ export const BLOG_SLUG_CANONICAL: Record<string, string> = {
   'can-i-get-mbbs-with-250-marks-in-neet-complete-admission-guide-2026':
     'can-i-get-mbbs-with-250-marks-in-neet',
   'NEET PG Exam 2026': 'neet-pg-exam-2026',
+  'mata-gujri-memorial-medical-college,kishanganj':
+    'mata-gujri-memorial-medical-college-kishanganj',
 };
 
 function normalizeBlogTitleKey(title: string): string {

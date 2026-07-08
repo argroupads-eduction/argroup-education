@@ -87,6 +87,17 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
 
   try {
     if (type === 'post') {
+      if (!published) {
+        await withPrismaRetry(() =>
+          prisma.blogPost.deleteMany({
+            where: {
+              OR: [{ slug }, { title: { equals: title, mode: 'insensitive' } }],
+            },
+          })
+        );
+        return { ok: true, status: 200, body: { success: true, type: 'post', slug, published: false } };
+      }
+
       const data = {
         title,
         slug,
@@ -108,6 +119,15 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
         published,
         publishedAt,
       };
+
+      await withPrismaRetry(() =>
+        prisma.blogPost.deleteMany({
+          where: {
+            title: { equals: title, mode: 'insensitive' },
+            slug: { not: slug },
+          },
+        })
+      );
 
       const existing = await withPrismaRetry(() =>
         prisma.blogPost.findUnique({ where: { slug } })
@@ -149,6 +169,26 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
       published,
       publishedAt,
     };
+
+    if (!published) {
+      await withPrismaRetry(() =>
+        prisma.sitePage.deleteMany({
+          where: {
+            OR: [{ slug }, { title: { equals: title, mode: 'insensitive' } }],
+          },
+        })
+      );
+      return { ok: true, status: 200, body: { success: true, type: 'page', slug, published: false } };
+    }
+
+    await withPrismaRetry(() =>
+      prisma.sitePage.deleteMany({
+        where: {
+          title: { equals: title, mode: 'insensitive' },
+          slug: { not: slug },
+        },
+      })
+    );
 
     const existingPage = await withPrismaRetry(() =>
       prisma.sitePage.findUnique({ where: { slug } })

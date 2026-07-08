@@ -556,6 +556,29 @@ async function fetchPayloadBlogPosts(limit = 30): Promise<BlogListItem[]> {
   }
 }
 
+async function isContentSuppressedInBackend(slug: string): Promise<boolean> {
+  if (typeof window !== 'undefined' || !hasUsableDatabase()) return false;
+  try {
+    const { isContentSuppressedBySlug } = await import('@backend/handlers/content');
+    for (const candidate of slugLookupVariants(slug)) {
+      if (await isContentSuppressedBySlug(candidate)) return true;
+    }
+  } catch {
+    /* DB offline */
+  }
+  return false;
+}
+
+async function getSuppressedBlogSlugsFromBackend(): Promise<Set<string>> {
+  if (typeof window !== 'undefined' || !hasUsableDatabase()) return new Set();
+  try {
+    const { getSuppressedBlogSlugs } = await import('@backend/handlers/content');
+    return await getSuppressedBlogSlugs();
+  } catch {
+    return new Set();
+  }
+}
+
 async function fetchBackendContentBySlug(slug: string): Promise<SiteContent | null> {
   const load = async (): Promise<SiteContent | null> => {
     if (typeof window === 'undefined' && hasUsableDatabase()) {
@@ -667,6 +690,10 @@ async function fetchSyncedContentBySlug(slug: string): Promise<SiteContent | nul
 export const getContentBySlug = cache(async function getContentBySlug(
   slug: string
 ): Promise<SiteContent | null> {
+  if (await isContentSuppressedInBackend(slug)) {
+    return null;
+  }
+
   const bundled = await loadBundledContent(slug);
   const synced = await fetchSyncedContentBySlug(slug);
 
@@ -731,12 +758,12 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   const safePage = Math.max(1, page);
   const safeLimit = Math.min(50, Math.max(1, limit));
   const mergedBySlug = new Map<string, BlogListItem>();
-  const bundleSlugs = new Set<string>();
+  const suppressedSlugs = await getSuppressedBlogSlugsFromBackend();
 
   try {
     const { getAllWpExportBlogPosts } = await import('@/lib/wpExportContent');
     for (const item of await getAllWpExportBlogPosts()) {
-      bundleSlugs.add(item.slug);
+      if (suppressedSlugs.has(item.slug)) continue;
       mergedBySlug.set(item.slug, normalizeBlogItem(item));
     }
   } catch {
@@ -745,6 +772,7 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
 
   try {
     for (const item of await fetchAllBlogPostsFromApi()) {
+      if (suppressedSlugs.has(item.slug)) continue;
       mergedBySlug.set(
         item.slug,
         mergeBlogListItem(mergedBySlug.get(item.slug), item)
@@ -757,6 +785,7 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   if (!isBackendPrimaryContent()) {
     const payloadPosts = await fetchPayloadBlogPosts(200);
     for (const item of payloadPosts) {
+      if (suppressedSlugs.has(item.slug)) continue;
       mergedBySlug.set(
         item.slug,
         mergeBlogListItem(mergedBySlug.get(item.slug), item)
