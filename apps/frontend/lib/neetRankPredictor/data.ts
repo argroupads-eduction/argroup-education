@@ -90,7 +90,7 @@ export const HOW_TO_STEPS = [
   {
     step: '01',
     title: 'Enter score & pathway',
-    text: 'Choose MBBS India, Abroad, or both. Pick category and enter your 3-digit NEET score.',
+    text: 'Choose MBBS India, Abroad, MD/MS, or BAMS. Pick category and enter your 3-digit NEET score.',
   },
   {
     step: '02',

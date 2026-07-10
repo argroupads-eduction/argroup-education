@@ -41,7 +41,7 @@ import {
 import { ensureFormInteractionGuard, setRankPopupOpen } from '@/lib/sitePopupCoordination';
 
 type Step = 'form' | 'result';
-type Track = 'india' | 'abroad' | 'both';
+type Track = 'india' | 'abroad' | 'md-ms' | 'bams';
 
 const PANEL_STAT_ICONS = {
   users: Users,
@@ -216,7 +216,7 @@ export function NeetRankPredictorPopup() {
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [category, setCategory] = useState<NeetCategory>('general_ews');
-  const [track, setTrack] = useState<Track>('both');
+  const [track, setTrack] = useState<Track>('india');
   const [scoreInput, setScoreInput] = useState('');
 
   const [loading, setLoading] = useState(false);
@@ -251,7 +251,7 @@ export function NeetRankPredictorPopup() {
     setPhone('');
     setCity('');
     setCategory('general_ews');
-    setTrack('both');
+    setTrack('india');
     setScoreInput('');
     setResult(null);
     setColleges({ india: [], abroad: [] });
@@ -630,8 +630,27 @@ export function NeetRankPredictorPopup() {
 
                             <p className="nrp-results__note">{result.qualifyingNote}</p>
 
-                            <CollegeScroll title="MBBS India matches" colleges={colleges.india} onNavigate={closePopup} />
-                            <CollegeScroll title="MBBS Abroad matches" colleges={colleges.abroad} onNavigate={closePopup} />
+                            {(track === 'md-ms' || track === 'bams') && (
+                              <p className="nrp-results__note">
+                                Our counsellors will call you with{' '}
+                                {track === 'md-ms' ? 'MD/MS' : 'BAMS'} college options based on your
+                                NEET rank and budget.
+                              </p>
+                            )}
+                            {track === 'india' && (
+                              <CollegeScroll
+                                title="MBBS India matches"
+                                colleges={colleges.india}
+                                onNavigate={closePopup}
+                              />
+                            )}
+                            {track === 'abroad' && (
+                              <CollegeScroll
+                                title="MBBS Abroad matches"
+                                colleges={colleges.abroad}
+                                onNavigate={closePopup}
+                              />
+                            )}
 
                             <Link
                               href="/neet-rank-predictor"

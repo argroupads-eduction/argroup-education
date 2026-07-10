@@ -28,7 +28,6 @@ export const maxDuration = 30;
 const TRACK_LABELS: Record<string, string> = {
   india: 'MBBS India',
   abroad: 'MBBS Abroad',
-  both: 'MBBS India + Abroad',
   'md-ms': 'MD/MS',
   bams: 'BAMS',
 };
@@ -54,7 +53,7 @@ export async function POST(req: NextRequest) {
     city?: string;
     category?: NeetCategory;
     score?: number;
-    track?: 'india' | 'abroad' | 'both' | 'md-ms' | 'bams';
+    track?: 'india' | 'abroad' | 'md-ms' | 'bams';
     emailVerificationToken?: string;
   };
   try {
@@ -69,7 +68,7 @@ export async function POST(req: NextRequest) {
   const phone = normalizePhone(body.phone ?? '');
   const category = body.category;
   const score = Number(body.score);
-  const track = body.track ?? 'both';
+  const track = body.track ?? 'india';
 
   if (!name || name.length < 2) {
     return NextResponse.json({ message: 'Enter your full name' }, { status: 400 });

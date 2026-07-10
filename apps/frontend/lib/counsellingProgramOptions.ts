@@ -15,6 +15,10 @@ export const EXTRA_PROGRAM_FORM_OPTIONS = [
   { label: 'BAMS', value: 'BAMS' },
 ] as const;
 
+/** Combined India+Abroad style options removed from all site forms. */
+const REMOVED_COMBINED_PROGRAM_RE =
+  /india\s*\+\s*abroad|mbbs\s*india\s*\+\s*abroad|both\s*(india|abroad)|india\s*(and|&)\s*abroad/i;
+
 const PROGRAM_FIELD_RE = /course|program|interest|counselling|special/i;
 
 /** Merge MD/MS + BAMS into Payload select fields that list MBBS programmes. */
@@ -35,8 +39,12 @@ export function enrichHeroFormProgramSelects<
 
       if (!isProgramField) return field;
 
-      const existing = new Set(field.options.map((o) => o.value.trim().toLowerCase()));
-      const merged = [...field.options];
+      const withoutCombined = field.options.filter(
+        (o) => !REMOVED_COMBINED_PROGRAM_RE.test(o.label) && !REMOVED_COMBINED_PROGRAM_RE.test(o.value)
+      );
+
+      const existing = new Set(withoutCombined.map((o) => o.value.trim().toLowerCase()));
+      const merged = [...withoutCombined];
 
       for (const opt of EXTRA_PROGRAM_FORM_OPTIONS) {
         if (!existing.has(opt.value.toLowerCase())) {

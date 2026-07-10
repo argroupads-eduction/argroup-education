@@ -42,7 +42,7 @@ export function NeetRankPredictorHomeSection() {
 
             <ul className="mt-6 space-y-2.5 text-sm text-navy-800">
               {[
-                'MBBS India, Abroad, or both, one smart form',
+                'MBBS India, Abroad, MD/MS or BAMS — one smart form',
                 'Live rank preview as you enter your score',
                 'College shortlists you can explore instantly',
               ].map((t) => (

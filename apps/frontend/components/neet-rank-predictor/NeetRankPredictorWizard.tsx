@@ -38,7 +38,7 @@ import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
 import { emailOtpInitiallyVerified, isEmailOtpEnabled } from '@/lib/emailOtp/isEmailOtpEnabled';
 
 type Step = 'form' | 'result';
-type Track = 'india' | 'abroad' | 'both' | 'md-ms' | 'bams';
+type Track = 'india' | 'abroad' | 'md-ms' | 'bams';
 
 const INDIAN_CITIES = [
   'Delhi',
@@ -61,7 +61,6 @@ const INDIAN_CITIES = [
 const TRACK_OPTIONS: { id: Track; label: string }[] = [
   { id: 'india', label: 'MBBS India' },
   { id: 'abroad', label: 'MBBS Abroad' },
-  { id: 'both', label: 'MBBS India + Abroad' },
   { id: 'md-ms', label: 'MD/MS' },
   { id: 'bams', label: 'BAMS' },
 ];
@@ -132,7 +131,7 @@ function SelectField({
 
 export function NeetRankPredictorWizard() {
   const [step, setStep] = useState<Step>('form');
-  const [track, setTrack] = useState<Track>('both');
+  const [track, setTrack] = useState<Track>('india');
   const [category, setCategory] = useState<NeetCategory>('general_ews');
   const [scoreInput, setScoreInput] = useState('');
   const [name, setName] = useState('');

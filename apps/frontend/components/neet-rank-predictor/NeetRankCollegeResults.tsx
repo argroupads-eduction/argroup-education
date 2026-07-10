@@ -67,7 +67,7 @@ export function NeetRankCollegeResults({
 }: {
   india: CollegeMatch[];
   abroad: CollegeMatch[];
-  track: 'india' | 'abroad' | 'both' | 'md-ms' | 'bams';
+  track: 'india' | 'abroad' | 'md-ms' | 'bams';
 }) {
   const programOnly = track === 'md-ms' || track === 'bams';
 
@@ -98,7 +98,7 @@ export function NeetRankCollegeResults({
         />
       ) : null}
 
-      {!programOnly && (track === 'india' || track === 'both') && (
+      {!programOnly && track === 'india' && (
         <CollegeGrid
           title="MBBS in India"
           icon={MapPin}
@@ -108,7 +108,7 @@ export function NeetRankCollegeResults({
         />
       )}
 
-      {!programOnly && (track === 'abroad' || track === 'both') && (
+      {!programOnly && track === 'abroad' && (
         <CollegeGrid
           title="MBBS Abroad"
           icon={Globe}

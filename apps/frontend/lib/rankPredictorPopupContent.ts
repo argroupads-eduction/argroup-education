@@ -11,7 +11,8 @@ export const RANK_POPUP_FORM_FOOTER =
 export const RANK_POPUP_TRACK_OPTIONS = [
   { id: 'india' as const, label: 'MBBS India' },
   { id: 'abroad' as const, label: 'MBBS Abroad' },
-  { id: 'both' as const, label: 'India + Abroad' },
+  { id: 'md-ms' as const, label: 'MD/MS' },
+  { id: 'bams' as const, label: 'BAMS' },
 ];
 
 export const RANK_POPUP_FORM_TRUST_ITEMS = [
