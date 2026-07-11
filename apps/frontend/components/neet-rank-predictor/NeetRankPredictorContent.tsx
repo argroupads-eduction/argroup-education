@@ -1,4 +1,5 @@
 import { ClipboardList, GraduationCap, LineChart } from 'lucide-react';
+import { Accordion } from '@/components/ui/Accordion';
 import { ContentSidebar } from '@/components/content/ContentSidebar';
 import {
   CATEGORY_CUTOFF_TABLE,
@@ -131,14 +132,20 @@ export function NeetRankPredictorContent() {
 
       <section>
         <h2 className="neet-section-title">Frequently asked questions</h2>
-        <dl className="mt-8 space-y-3">
-          {NEET_PREDICTOR_FAQ.map((item) => (
-            <div key={item.q} className="neet-faq-item">
-              <dt className="font-semibold text-navy-900">{item.q}</dt>
-              <dd className="mt-2 text-sm leading-relaxed text-slate-600">{item.a}</dd>
-            </div>
-          ))}
-        </dl>
+        <p className="neet-section-lead">
+          Quick answers about how the NEET Rank Predictor works, accuracy, and counselling support.
+        </p>
+        <div className="mt-8">
+          <Accordion
+            variant="premium"
+            defaultOpen="neet-faq-0"
+            items={NEET_PREDICTOR_FAQ.map((item, index) => ({
+              id: `neet-faq-${index}`,
+              title: item.q,
+              content: item.a,
+            }))}
+          />
+        </div>
       </section>
           </div>
 

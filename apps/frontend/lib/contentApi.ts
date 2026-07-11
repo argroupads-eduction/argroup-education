@@ -87,7 +87,7 @@ function normalizeBlogItem(doc: BlogListItem): BlogListItem {
     ...doc,
     title: plainTextFromHtml(doc.title),
     excerpt: plainTextFromHtml(doc.excerpt),
-    featuredImage: resolveBlogFeaturedImage(doc.slug, resolveWpMediaUrl(doc.featuredImage)),
+    featuredImage: resolveBlogFeaturedImage(doc.slug, doc.featuredImage),
     publishedAt: resolveBlogPublishedAt(doc.slug, doc.publishedAt) ?? doc.publishedAt,
   };
 }

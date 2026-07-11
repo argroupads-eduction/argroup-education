@@ -33,11 +33,31 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
   if (trimmed.startsWith('/wp-content/')) {
     return normalizeWpContentRel(trimmed.replace(/^\/+/, ''));
   }
+  if (trimmed.startsWith('/images/') || trimmed.startsWith('/ar-')) {
+    return trimmed;
+  }
 
   const withoutHost = trimmed.replace(WP_MEDIA_HOST, '');
   if (withoutHost !== trimmed) {
     const rel = withoutHost.replace(/^\/+/, '');
     if (rel.startsWith('wp-content/')) return normalizeWpContentRel(rel);
+  }
+
+  // Keep known CDN hosts (Payload / Vercel Blob); drop other third-party hotlinks.
+  if (/^https?:\/\//i.test(trimmed)) {
+    try {
+      const host = new URL(trimmed).hostname.replace(/^www\./, '').toLowerCase();
+      if (
+        host.endsWith('argroupofeducation.com') ||
+        host.endsWith('vercel-storage.com') ||
+        host.endsWith('public.blob.vercel-storage.com')
+      ) {
+        return trimmed;
+      }
+    } catch {
+      return null;
+    }
+    return null;
   }
 
   return trimmed;

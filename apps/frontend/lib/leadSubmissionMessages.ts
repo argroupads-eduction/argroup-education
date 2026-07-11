@@ -7,13 +7,13 @@ export const INVALID_INDIAN_PHONE_MESSAGE = 'Please enter a valid Indian mobile 
 export const INVALID_EMAIL_MESSAGE = 'Please enter a valid email address.';
 
 export const DUPLICATE_LEAD_MESSAGE =
-  'We have already received your enquiry. Our counselling team will contact you shortly. For urgent assistance please call our support team.';
+  'Your details are already with us. You can continue exploring the site, or call our support line if you need help right away.';
 
 export const SUCCESS_LEAD_MESSAGE =
-  'Thank you for contacting AR Group of Education. Our counselling team will contact you shortly.';
+  'Thank you. Your details have been received successfully. You may continue browsing — we appreciate your interest in AR Group of Education.';
 
 export const SHEETS_UNAVAILABLE_MESSAGE =
-  'We are unable to process your enquiry right now. Please try again later.';
+  'Something went wrong while saving your details. Please try again in a moment.';
 
 const INDIAN_MOBILE_REGEX = /^[6-9]\d{9}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

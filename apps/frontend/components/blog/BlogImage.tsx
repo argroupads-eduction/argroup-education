@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 type BlogImageProps = {
@@ -18,6 +21,15 @@ const variantClass: Record<BlogImageProps['variant'], string> = {
 /** Full image visible, never cropped (object-contain). Native img avoids Next/Image remote restrictions. */
 export function BlogImage({ src, alt, variant, priority, sizes }: BlogImageProps) {
   const resolvedSrc = resolveWpMediaUrl(src) ?? src;
+  const [failed, setFailed] = useState(false);
+
+  if (!resolvedSrc || failed) {
+    return (
+      <div className={`blog-image-frame ${variantClass[variant]} blog-image-frame--empty`} aria-hidden>
+        <span className="blog-image-frame__empty-label">Blog</span>
+      </div>
+    );
+  }
 
   if (variant === 'hero' || variant === 'featured') {
     return (
@@ -30,6 +42,7 @@ export function BlogImage({ src, alt, variant, priority, sizes }: BlogImageProps
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
           sizes={sizes}
+          onError={() => setFailed(true)}
         />
       </div>
     );
@@ -45,6 +58,7 @@ export function BlogImage({ src, alt, variant, priority, sizes }: BlogImageProps
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         sizes={sizes}
+        onError={() => setFailed(true)}
       />
     </div>
   );

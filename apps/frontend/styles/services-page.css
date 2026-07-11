@@ -105,10 +105,11 @@
 .services-hero__title {
   max-width: 22ch;
   font-family: var(--font-playfair), Georgia, serif;
-  font-size: clamp(2rem, 4.8vw, 3.25rem);
+  font-size: clamp(1.75rem, 7vw, 3.25rem);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
 }
 
 .services-hero__title em {
@@ -122,9 +123,16 @@
 .services-hero__lead {
   margin-top: 1.15rem;
   max-width: 44rem;
-  font-size: 1.05rem;
-  line-height: 1.72;
+  font-size: 0.98rem;
+  line-height: 1.65;
   color: rgb(203 213 225);
+}
+
+@media (min-width: 640px) {
+  .services-hero__lead {
+    font-size: 1.05rem;
+    line-height: 1.72;
+  }
 }
 
 .services-hero__stats {
@@ -171,7 +179,8 @@
 
 /* Sections */
 .services-section {
-  padding: 3rem 1rem;
+  padding: 2.25rem 0.85rem calc(2.25rem + env(safe-area-inset-bottom, 0px));
+  min-width: 0;
 }
 
 @media (min-width: 768px) {
@@ -181,7 +190,7 @@
 }
 
 .services-hero + .services-section {
-  padding-top: 2.75rem;
+  padding-top: 2.25rem;
 }
 
 @media (min-width: 768px) {
@@ -192,6 +201,8 @@
 
 .services-section__inner {
   max-width: 72rem;
+  width: 100%;
+  min-width: 0;
   margin: 0 auto;
 }
 
@@ -266,7 +277,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 1.5rem;
+  min-width: 0;
+  padding: 1.25rem;
   border-radius: 1.15rem;
   border: 1px solid rgb(226 232 240);
   background: #fff;
@@ -554,8 +566,8 @@
 .services-cta {
   position: relative;
   overflow: hidden;
-  margin: 0 1rem 3rem;
-  padding: 2rem 1.35rem;
+  margin: 0 0.85rem calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  padding: 1.75rem 1.15rem;
   border-radius: 1.25rem;
   background: linear-gradient(135deg, #051219 0%, #1a365d 50%, #0f2840 100%);
   color: #fff;

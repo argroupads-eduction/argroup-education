@@ -105,7 +105,7 @@ export function LegalPageShell({
             </nav>
           </aside>
 
-          <div>
+          <div className="min-w-0">
             <div className="legal-sections">
               {sections.map((section, index) => {
                 const Icon = sectionIcons[section.id] ?? DefaultIcon;

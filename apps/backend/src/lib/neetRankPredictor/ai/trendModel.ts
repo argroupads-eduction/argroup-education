@@ -18,7 +18,7 @@ export type TrendModelOutput = {
 
 function isInNtaBand(
   marks: number,
-  bands: readonly { marksMin: number; marksMax: number }[]
+  bands: readonly { marksMin: number; marksMax: number }[] 
 ): boolean {
   return bands.some((b) => marks >= b.marksMin && marks <= b.marksMax);
 }

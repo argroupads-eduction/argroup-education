@@ -87,7 +87,7 @@ export function DisclaimerPageView() {
             </nav>
           </aside>
 
-          <div>
+          <div className="min-w-0">
             <div className="disclaimer-sections">
               {DISCLAIMER_SECTIONS.map((section, index) => {
                 const Icon = SECTION_ICONS[section.id] ?? FileCheck;

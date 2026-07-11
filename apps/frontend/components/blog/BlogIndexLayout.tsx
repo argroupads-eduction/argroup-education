@@ -7,6 +7,8 @@ import { BlogPagination } from './BlogPagination';
 
 type BlogIndexLayoutProps = {
   blogs: BlogListItem[];
+  /** Always the newest posts for the shared sidebar (not the current page slice). */
+  latestPosts?: BlogListItem[];
   currentPage?: number;
   totalPages?: number;
   totalPosts?: number;
@@ -15,12 +17,14 @@ type BlogIndexLayoutProps = {
 
 export function BlogIndexLayout({
   blogs,
+  latestPosts,
   currentPage = 1,
   totalPages = 1,
   totalPosts = 0,
   postsPerPage = 12,
 }: BlogIndexLayoutProps) {
   const sorted = sortBlogPostsByNewest(blogs);
+  const sidebarPosts = sortBlogPostsByNewest(latestPosts ?? blogs);
   const showFeatured = currentPage === 1;
   const featured = showFeatured ? sorted[0] : null;
   const rest = showFeatured ? sorted.slice(1) : sorted;
@@ -36,7 +40,7 @@ export function BlogIndexLayout({
           </nav>
           <p className="blog-index-hero__eyebrow">Latest updates & guides</p>
           <h1 className="blog-index-hero__title">
-            Medical education <span className="text-gold-500">insights</span>
+            Medical education <span className="text-gold-500"> insights</span>
           </h1>
           <p className="blog-index-hero__lead">
             MBBS India & Abroad, admission guides, fees, eligibility, NEET tips, and expert
@@ -67,7 +71,7 @@ export function BlogIndexLayout({
               perPage={postsPerPage}
             />
           </div>
-          <BlogLatestSidebar posts={sorted} title="On this page" />
+          <BlogLatestSidebar posts={sidebarPosts} title="Latest blogs" />
         </div>
       </div>
     </div>

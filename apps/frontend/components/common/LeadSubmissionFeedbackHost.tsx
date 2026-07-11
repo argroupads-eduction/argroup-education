@@ -18,19 +18,19 @@ const COPY: Record<
   { title: string; message: string; icon: typeof CheckCircle2; tone: string }
 > = {
   success: {
-    title: 'Enquiry Submitted Successfully',
+    title: 'Submitted Successfully',
     message: SUCCESS_LEAD_MESSAGE,
     icon: CheckCircle2,
     tone: 'text-emerald-600',
   },
   duplicate: {
-    title: 'Enquiry Already Received',
+    title: 'Already Received',
     message: DUPLICATE_LEAD_MESSAGE,
     icon: Info,
     tone: 'text-amber-600',
   },
   error: {
-    title: 'Submission Failed',
+    title: 'Unable to Complete',
     message: SHEETS_UNAVAILABLE_MESSAGE,
     icon: Info,
     tone: 'text-red-600',

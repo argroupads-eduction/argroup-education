@@ -1,4 +1,6 @@
 import { BLOG_SLUG_CANONICAL } from '@/lib/blogUtils';
+import { getCollegeImageBySlug } from '@/lib/collegeImageIndex';
+import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 /** Curated blog hero images when CMS/DB has no featuredImage set. */
 export const BLOG_FEATURED_IMAGES: Record<string, string> = {
@@ -45,7 +47,13 @@ export function resolveBlogFeaturedImage(
     }
   }
 
-  return fallback ?? null;
+  const fromMediaIndex = getCollegeImageBySlug(slug);
+  if (fromMediaIndex) return fromMediaIndex;
+
+  const resolvedFallback = resolveWpMediaUrl(fallback);
+  if (resolvedFallback) return resolvedFallback;
+
+  return null;
 }
 
 export function resolveBlogPublishedAt(

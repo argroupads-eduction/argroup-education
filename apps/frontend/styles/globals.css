@@ -80,7 +80,9 @@
       .contact-footer-link
     ):not(.thank-you-page__link):not(.nav-latest-updates-item):not(.nav-latest-updates-flyout-item):not(
       .site-footer-main__social-link
-    ):not(.site-topbar-social-link):not(.site-footer-follow__icon) {
+    ):not(.site-topbar-social-link):not(.site-footer-follow__icon):not(.blog-pagination__page):not(
+      .blog-pagination__btn
+    ) {
     @apply text-gold-600;
   }
 

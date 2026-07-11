@@ -27,7 +27,7 @@ export function BlogListingCard({ blog, variant = 'compact' }: BlogListingCardPr
               />
             ) : (
               <div className="blog-card__media-fallback" aria-hidden>
-                MBBS Guides
+                {blog.category || 'Blog'}
               </div>
             )}
             <span className="blog-card__badge">Featured</span>
@@ -54,7 +54,7 @@ export function BlogListingCard({ blog, variant = 'compact' }: BlogListingCardPr
             <BlogImage src={blog.featuredImage} alt={blog.title} variant="compact" sizes="200px" />
           ) : (
             <div className="blog-card__media-fallback blog-card__media-fallback--sm" aria-hidden>
-              📚
+              {blog.category || 'Blog'}
             </div>
           )}
         </div>

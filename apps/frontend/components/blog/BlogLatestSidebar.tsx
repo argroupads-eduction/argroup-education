@@ -1,7 +1,12 @@
 import Link from 'next/link';
 import type { BlogListItem } from '@/lib/contentApi';
 import { BlogImage } from './BlogImage';
-import { blogCardExcerpt, blogPostPath, formatBlogDate } from '@/lib/blogUtils';
+import {
+  blogCardExcerpt,
+  blogPostPath,
+  formatBlogDate,
+  sortBlogPostsByNewest,
+} from '@/lib/blogUtils';
 
 type BlogLatestSidebarProps = {
   posts: BlogListItem[];
@@ -9,12 +14,15 @@ type BlogLatestSidebarProps = {
   title?: string;
 };
 
+/** Shared “Latest blogs” widget — same newest list on /blog and every post page. */
 export function BlogLatestSidebar({
   posts,
   currentSlug,
   title = 'Latest blogs',
 }: BlogLatestSidebarProps) {
-  const items = posts.filter((p) => p.slug !== currentSlug).slice(0, 8);
+  const items = sortBlogPostsByNewest(posts)
+    .filter((p) => p.slug !== currentSlug)
+    .slice(0, 8);
 
   if (!items.length) return null;
 
@@ -38,7 +46,7 @@ export function BlogLatestSidebar({
                       sizes="80px"
                     />
                   ) : (
-                    <span className="blog-sidebar__thumb-fallback">📰</span>
+                    <span className="blog-sidebar__thumb-fallback" aria-hidden />
                   )}
                 </span>
                 <span className="blog-sidebar__meta">

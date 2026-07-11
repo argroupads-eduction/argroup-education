@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Accordion } from '@/components/ui/Accordion';
 import { MBBS_ABROAD_HUB } from '@/lib/mbbsAbroadHubContent';
 import '@/styles/mbbs-abroad-hub-guide.css';
 
@@ -215,14 +216,15 @@ export function MbbsAbroadHubGuide({ variant }: MbbsAbroadHubGuideProps) {
           <h3 id="faq-title" className="abroad-guide__h3">
             Frequently asked questions
           </h3>
-          <div className="abroad-guide__faqs">
-            {MBBS_ABROAD_HUB.faqs.map((faq, i) => (
-              <details key={faq.question} className="abroad-guide__faq" open={i === 0}>
-                <summary>{faq.question}</summary>
-                <p>{faq.answer}</p>
-              </details>
-            ))}
-          </div>
+          <Accordion
+            variant="premium"
+            defaultOpen="abroad-faq-0"
+            items={MBBS_ABROAD_HUB.faqs.map((faq, i) => ({
+              id: `abroad-faq-${i}`,
+              title: faq.question,
+              content: faq.answer,
+            }))}
+          />
         </section>
 
         <p className="sr-only">
