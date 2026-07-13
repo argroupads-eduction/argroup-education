@@ -723,6 +723,29 @@ function mergeBlogListItem(
 
 
 async function fetchAllBlogPostsFromApi(): Promise<BlogListItem[]> {
+  // Prefer Prisma handler in-process so Next uses the same DATABASE_URL as /api/blogs
+  // (avoids Express :3001 pointing at a different Neon DB during local dev).
+  if (typeof window === 'undefined') {
+    try {
+      const { listBlogPosts } = await import('@backend/handlers/blogs');
+      const items: BlogListItem[] = [];
+      let page = 1;
+      let totalPages = 1;
+      while (page <= totalPages && page <= 40) {
+        const result = await listBlogPosts(page, 50);
+        totalPages = Math.max(1, Number(result.pages) || 1);
+        for (const item of result.data ?? []) {
+          items.push(item as BlogListItem);
+        }
+        if (!(result.data?.length)) break;
+        page += 1;
+      }
+      if (items.length) return items;
+    } catch {
+      /* fall through to HTTP */
+    }
+  }
+
   const items: BlogListItem[] = [];
   let page = 1;
   let totalPages = 1;
@@ -756,7 +779,7 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
   pages: number;
 }> {
   const safePage = Math.max(1, page);
-  const safeLimit = Math.min(50, Math.max(1, limit));
+  const safeLimit = Math.min(500, Math.max(1, limit));
   const mergedBySlug = new Map<string, BlogListItem>();
   const suppressedSlugs = await getSuppressedBlogSlugsFromBackend();
 
@@ -782,7 +805,8 @@ export async function getBlogPosts(page = 1, limit = 12): Promise<{
     /* API optional */
   }
 
-  if (!isBackendPrimaryContent()) {
+  // Always merge Payload when configured — CMS may be ahead of Express/Neon.
+  if (isPayloadCmsConfigured()) {
     const payloadPosts = await fetchPayloadBlogPosts(200);
     for (const item of payloadPosts) {
       if (suppressedSlugs.has(item.slug)) continue;

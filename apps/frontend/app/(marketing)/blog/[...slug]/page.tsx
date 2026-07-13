@@ -37,7 +37,7 @@ export default async function BlogSlugPage({ params }: PageProps) {
     notFound();
   }
 
-  const { data: latestPosts } = await getBlogPosts(1, 12);
+  const { data: latestPosts } = await getBlogPosts(1, 500);
   const breadcrumbs = [{ label: 'Blog', href: '/blog' }, { label: content.title }];
 
   return (

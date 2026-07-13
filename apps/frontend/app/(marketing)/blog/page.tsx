@@ -41,9 +41,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
   const { data: blogs, total, pages } = await getBlogPosts(currentPage, POSTS_PER_PAGE);
 
-  // Sidebar always shows the newest posts — same list as on every blog article page.
+  // Sidebar catalog: newest list + searchable title/slug across posts.
   const latestPosts =
     currentPage === 1 ? blogs : (await getBlogPosts(1, POSTS_PER_PAGE)).data;
+  const { data: searchCatalog } = await getBlogPosts(1, 500);
 
   if (currentPage > 1 && blogs.length === 0) {
     redirect('/blog');
@@ -66,7 +67,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   return (
     <BlogIndexLayout
       blogs={blogs}
-      latestPosts={latestPosts}
+      latestPosts={searchCatalog.length ? searchCatalog : latestPosts}
       currentPage={currentPage}
       totalPages={pages}
       totalPosts={total}

@@ -8,7 +8,7 @@ import { QuickFactsGrid } from '@/components/content/QuickFactsGrid';
 import { WpFaqEnhancer } from '@/components/content/WpFaqEnhancer';
 import { WpLazyReveal } from '@/components/content/WpLazyReveal';
 import { BlogImage } from './BlogImage';
-import { BlogLatestSidebar } from './BlogLatestSidebar';
+import { BlogPostStickySearch } from './BlogPostStickySearch';
 import { formatBlogDate, readingTimeMinutes } from '@/lib/blogUtils';
 import { CONTACT_INFO } from '@/lib/constants';
 import { sanitizeCmsHtml } from '@/lib/sanitizeCmsHtml';
@@ -84,30 +84,27 @@ export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLa
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-4 pb-16 md:pb-24">
-        <div className="blog-post-grid">
-          <article className="blog-article wp-content-root wp-content-affinity min-w-0">
-            <WpLazyReveal />
-            <WpFaqEnhancer />
-            <ContentTableOfContents headings={headings} variant="mobile" />
+      <BlogPostStickySearch
+        posts={latestPosts}
+        currentSlug={content.slug}
+        toc={<ContentTableOfContents headings={headings} variant="sidebar" />}
+        counselling={<BlogCounsellingCard />}
+      >
+        <article className="blog-article wp-content-root wp-content-affinity min-w-0">
+          <WpLazyReveal />
+          <WpFaqEnhancer />
+          <ContentTableOfContents headings={headings} variant="mobile" />
 
-            <QuickFactsGrid facts={quickFacts} />
+          <QuickFactsGrid facts={quickFacts} />
 
-            <div
-              className="wp-content wp-content-body wp-content-blog"
-              dangerouslySetInnerHTML={{ __html: safeHtml }}
-            />
+          <div
+            className="wp-content wp-content-body wp-content-blog"
+            dangerouslySetInnerHTML={{ __html: safeHtml }}
+          />
 
-            <BlogPostFooter />
-          </article>
-
-          <div className="blog-post-aside space-y-5 lg:sticky lg:top-24 lg:self-start">
-            <ContentTableOfContents headings={headings} variant="sidebar" />
-            <BlogLatestSidebar posts={latestPosts} currentSlug={content.slug} title="Latest blogs" />
-            <BlogCounsellingCard />
-          </div>
-        </div>
-      </div>
+          <BlogPostFooter />
+        </article>
+      </BlogPostStickySearch>
 
       <div className="border-t border-slate-200 bg-white py-6">
         <div className="mx-auto max-w-7xl px-4">

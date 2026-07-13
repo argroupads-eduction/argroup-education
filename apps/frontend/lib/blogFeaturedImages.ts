@@ -34,6 +34,10 @@ export function resolveBlogFeaturedImage(
   slug: string,
   fallback: string | null | undefined
 ): string | null {
+  // Payload / CMS featured image always wins over curated or college backfills.
+  const resolvedFallback = resolveWpMediaUrl(fallback);
+  if (resolvedFallback) return resolvedFallback;
+
   if (BLOG_FEATURED_IMAGES[slug]) return BLOG_FEATURED_IMAGES[slug];
 
   const normalized = normalizeBlogSlugKey(slug);
@@ -47,11 +51,9 @@ export function resolveBlogFeaturedImage(
     }
   }
 
+  // Last resort only when CMS has no featured image.
   const fromMediaIndex = getCollegeImageBySlug(slug);
   if (fromMediaIndex) return fromMediaIndex;
-
-  const resolvedFallback = resolveWpMediaUrl(fallback);
-  if (resolvedFallback) return resolvedFallback;
 
   return null;
 }
