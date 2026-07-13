@@ -10,6 +10,7 @@ export function formatBlogListItem(post: {
   publishedAt: Date | null;
   createdAt: Date;
 }) {
+  const publishedAt = post.publishedAt ?? post.createdAt;
   return {
     id: post.id,
     title: post.title,
@@ -17,7 +18,8 @@ export function formatBlogListItem(post: {
     excerpt: post.excerpt,
     featuredImage: post.featuredImage,
     category: post.category,
-    publishedAt: post.publishedAt ?? post.createdAt,
+    publishedAt:
+      publishedAt instanceof Date ? publishedAt.toISOString() : String(publishedAt),
   };
 }
 

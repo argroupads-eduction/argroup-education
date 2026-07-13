@@ -735,7 +735,18 @@ async function fetchAllBlogPostsFromApi(): Promise<BlogListItem[]> {
         const result = await listBlogPosts(page, 50);
         totalPages = Math.max(1, Number(result.pages) || 1);
         for (const item of result.data ?? []) {
-          items.push(item as BlogListItem);
+          items.push({
+            id: String(item.id),
+            title: item.title,
+            slug: item.slug,
+            excerpt: item.excerpt,
+            featuredImage: item.featuredImage,
+            category: item.category,
+            publishedAt:
+              typeof item.publishedAt === 'string'
+                ? item.publishedAt
+                : new Date(item.publishedAt as string | number | Date).toISOString(),
+          });
         }
         if (!(result.data?.length)) break;
         page += 1;
