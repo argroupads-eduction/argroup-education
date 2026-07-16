@@ -1,9 +1,8 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Lora, Poppins } from 'next/font/google';
+import { Inter, Lora } from 'next/font/google';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
-import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
-import { NeetRankPredictorPopup } from '@/components/neet-rank-predictor/NeetRankPredictorPopup';
+import { DeferredSitePopups } from '@/components/common/DeferredSitePopups';
 import { LeadSubmissionFeedbackHost } from '@/components/common/LeadSubmissionFeedbackHost';
 import {
   SITE_PROTECTION_INLINE_SCRIPT,
@@ -11,8 +10,6 @@ import {
 } from '@/lib/siteProtection';
 import { SiteInteractionGuard } from '@/components/common/SiteInteractionGuard';
 import { NeetRankPredictorPromoStrip } from '@/components/neet-rank-predictor/NeetRankPredictorPromoStrip';
-import '@/styles/neet-rank-predictor.css';
-import '@/styles/rank-predictor-popup.css';
 import { NavPagesProvider } from '@/components/common/NavPagesProvider';
 import { SiteGlobalsProvider } from '@/components/common/SiteGlobalsProvider';
 import { fetchDynamicNavPages } from '@/lib/dynamicNav.server';
@@ -33,7 +30,7 @@ import '@/styles/brand-logo.css';
 import '@/styles/footer-main.css';
 import { getSiteUrl } from '@/lib/siteUrl';
 
-// Font imports
+// Font imports — only weights used on-site (Inter for UI; Lora for disclaimer headings)
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
@@ -46,14 +43,7 @@ const playfair = Lora({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-playfair',
-  weight: ['400', '500', '600', '700'],
-});
-
-const poppins = Poppins({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-poppins',
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['600', '700'],
 });
 
 export const metadata: Metadata = {
@@ -128,22 +118,22 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable} ${poppins.variable}`}>
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <head>
         <meta charSet="utf-8" />
         <meta name="theme-color" content="#1a365d" />
         <link rel="icon" href="/ar-browser-icon.png" type="image/png" />
         <link rel="shortcut icon" href="/ar-browser-icon.png" type="image/png" />
         <link rel="apple-touch-icon" href="/ar-browser-icon.png" />
-        <link rel="preload" href="/ar-group-logo.png" as="image" type="image/png" />
+        <link rel="preload" href="/ar-group-logo.webp" as="image" type="image/webp" />
         <style
           dangerouslySetInnerHTML={{
             __html:
               '.brand-logo-link__frame--nav-wide{width:8.75rem;height:3.25rem;max-width:8.75rem;min-height:3.25rem;overflow:hidden;display:inline-flex;flex-shrink:0}.brand-logo-link__frame--nav-wide img{width:100%;height:100%;object-fit:contain}',
           }}
         />
-        <link rel="preload" href="/india-homepage.jpg" as="image" type="image/jpeg" />
-        <link rel="preload" href="/abroad-homepage.jpg" as="image" type="image/jpeg" />
+        {/* Single LCP preload — homepage India hero only (abroad loads lazily on carousel). */}
+        <link rel="preload" href="/india-homepage.webp" as="image" type="image/webp" />
         <link rel="dns-prefetch" href="https://argroupofeducation.com" />
         {isSiteProtectionEnabled() ? (
           <script dangerouslySetInnerHTML={{ __html: SITE_PROTECTION_INLINE_SCRIPT }} />
@@ -158,8 +148,7 @@ export default async function RootLayout({
             <Navbar />
             <main className="min-w-0">{children}</main>
             <Footer />
-            <NeetRankPredictorPopup />
-            <LeadCapturePopup />
+            <DeferredSitePopups />
             <LeadSubmissionFeedbackHost />
             <SiteInteractionGuard />
           </NavPagesProvider>

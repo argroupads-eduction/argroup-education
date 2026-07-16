@@ -71,3 +71,4 @@ posts.unshift(item);
 
 await writeFile(postsPath, `${JSON.stringify(posts, null, 2)}\n`, 'utf8');
 console.log(`Updated post: ${slug}`);
+

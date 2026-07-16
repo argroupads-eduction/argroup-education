@@ -32,7 +32,7 @@ export function NeetRankPredictorHomeSection() {
 
             <h2 className="mt-5 font-serif text-3xl font-bold leading-tight text-navy-900 md:text-4xl">
               Know your NEET rank{' '}
-              <span className="text-gold-600">before results</span>
+              <span className="text-gold-800">before results</span>
             </h2>
 
             <p className="mt-4 text-sm leading-relaxed text-slate-600 md:text-base">
@@ -59,7 +59,7 @@ export function NeetRankPredictorHomeSection() {
                 Check my NEET rank
                 <ArrowRight className="h-5 w-5" aria-hidden />
               </Link>
-              <p className="text-xs font-medium text-slate-500">Instant results · Trusted by AR Group</p>
+              <p className="text-xs font-medium text-slate-600">Instant results · Trusted by AR Group</p>
             </div>
           </div>
 
@@ -78,9 +78,9 @@ export function NeetRankPredictorHomeSection() {
                 </span>
               </div>
 
-              <p className="mt-4 text-sm text-slate-500">Score 420 / 720 · General</p>
+              <p className="mt-4 text-sm text-slate-600">Score 420 / 720 · General</p>
               <p className="mt-1 font-serif text-3xl font-bold text-navy-900">
-                AIR ~<span className="text-gold-600">80,372</span>
+                AIR ~<span className="text-gold-800">80,372</span>
               </p>
 
               <div className="mt-4 grid grid-cols-3 gap-2">
@@ -93,7 +93,7 @@ export function NeetRankPredictorHomeSection() {
                     key={b.label}
                     className="rounded-lg bg-navy-50 px-2 py-2 text-center ring-1 ring-navy-100"
                   >
-                    <p className="text-[9px] font-bold uppercase text-slate-500">{b.label}</p>
+                    <p className="text-[9px] font-bold uppercase text-slate-600">{b.label}</p>
                     <p className="text-sm font-bold text-navy-900">{b.value}</p>
                   </div>
                 ))}

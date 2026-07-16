@@ -176,7 +176,7 @@ export const Navbar = () => {
             <div className="site-navbar-logo" onMouseEnter={forceClose}>
               <BrandLogoLink frameClassName="brand-logo-link__frame--nav-wide">
                 <Image
-                  src="/ar-group-logo.png"
+                  src="/ar-group-logo.webp"
                   alt="AR Group of Education"
                   width={140}
                   height={56}

@@ -16,8 +16,11 @@ const outputFileTracingRoot = resolveOutputFileTracingRoot();
 const PUBLIC_MARKETING_ASSETS = [
   'ar-browser-icon.png',
   'ar-group-logo.png',
+  'ar-group-logo.webp',
   'india-homepage.jpg',
+  'india-homepage.webp',
   'abroad-homepage.jpg',
+  'abroad-homepage.webp',
   'about-counsellor.png',
   'lead-mbbs-doctor.png',
   'medical-admission-counselling-hero.png',
@@ -104,7 +107,50 @@ const nextConfig = {
   },
 
   headers: async () => {
+    const longCache = [
+      {
+        key: 'Cache-Control',
+        value: 'public, max-age=31536000, immutable',
+      },
+    ];
+
     return [
+      {
+        source: '/_next/static/:path*',
+        headers: longCache,
+      },
+      {
+        source: '/:path*.jpg',
+        headers: longCache,
+      },
+      {
+        source: '/:path*.jpeg',
+        headers: longCache,
+      },
+      {
+        source: '/:path*.png',
+        headers: longCache,
+      },
+      {
+        source: '/:path*.webp',
+        headers: longCache,
+      },
+      {
+        source: '/:path*.avif',
+        headers: longCache,
+      },
+      {
+        source: '/:path*.svg',
+        headers: longCache,
+      },
+      {
+        source: '/:path*.ico',
+        headers: longCache,
+      },
+      {
+        source: '/:path*.woff2',
+        headers: longCache,
+      },
       {
         source: '/:path*',
         headers: [

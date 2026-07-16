@@ -26,9 +26,9 @@ const BY_SLUG = collegeIndex.bySlug as Record<string, string>;
 /** Marketing images keyed by page path (no UI change — crawl signals only). */
 const STATIC_PAGE_IMAGES: Record<string, { src: string; title: string }[]> = {
   '/': [
-    { src: '/ar-group-logo.png', title: 'AR Group of Education logo' },
-    { src: '/india-homepage.jpg', title: 'MBBS in India counselling' },
-    { src: '/abroad-homepage.jpg', title: 'MBBS abroad counselling' },
+    { src: '/ar-group-logo.webp', title: 'AR Group of Education logo' },
+    { src: '/india-homepage.webp', title: 'MBBS in India counselling' },
+    { src: '/abroad-homepage.webp', title: 'MBBS abroad counselling' },
   ],
   '/about': [{ src: '/about-counsellor.png', title: 'AR Group medical admission counsellor' }],
   '/contact': [{ src: '/lead-mbbs-doctor.png', title: 'MBBS admission counselling contact' }],

@@ -28,7 +28,7 @@ function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
     <div className="mb-8 flex items-center gap-3">
       <span className="h-px w-10 bg-gradient-to-r from-gold-500 to-transparent" aria-hidden />
-      <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-gold-600">{children}</p>
+      <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-gold-800">{children}</p>
     </div>
   );
 }
@@ -87,7 +87,7 @@ export function HomeSeoContentSections() {
                 height={640}
                 sizes="(max-width: 1024px) 100vw, 560px"
                 className="aspect-[4/5] w-full object-cover object-center"
-                priority
+                loading="lazy"
               />
             </div>
           </motion.div>

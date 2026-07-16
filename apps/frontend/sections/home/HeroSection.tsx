@@ -56,8 +56,8 @@ const INDIA_SHOW_MS = 15_000;
 /** MBBS Abroad hero visible before switching back to India. */
 const ABROAD_SHOW_MS = 15_000;
 
-const BANNER_INDIA = '/india-homepage.jpg';
-const BANNER_ABROAD = '/abroad-homepage.jpg';
+const BANNER_INDIA = '/india-homepage.webp';
+const BANNER_ABROAD = '/abroad-homepage.webp';
 
 export type HeroSectionProps = {
   initialForms?: {

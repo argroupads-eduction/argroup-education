@@ -5,8 +5,11 @@ import { NextResponse } from 'next/server'
 /** Small marketing images only — must match PUBLIC_MARKETING_ASSETS in next.config.js */
 const ALLOWED_FILES = new Set([
   'ar-group-logo.png',
+  'ar-group-logo.webp',
   'india-homepage.jpg',
+  'india-homepage.webp',
   'abroad-homepage.jpg',
+  'abroad-homepage.webp',
   'about-counsellor.png',
   'lead-mbbs-doctor.png',
   'medical-admission-counselling-hero.png',
@@ -28,10 +31,16 @@ function assetPath(fileName: string): string | null {
   switch (fileName) {
     case 'ar-group-logo.png':
       return path.join(root, 'public', 'ar-group-logo.png')
+    case 'ar-group-logo.webp':
+      return path.join(root, 'public', 'ar-group-logo.webp')
     case 'india-homepage.jpg':
       return path.join(root, 'public', 'india-homepage.jpg')
+    case 'india-homepage.webp':
+      return path.join(root, 'public', 'india-homepage.webp')
     case 'abroad-homepage.jpg':
       return path.join(root, 'public', 'abroad-homepage.jpg')
+    case 'abroad-homepage.webp':
+      return path.join(root, 'public', 'abroad-homepage.webp')
     case 'about-counsellor.png':
       return path.join(root, 'public', 'about-counsellor.png')
     case 'lead-mbbs-doctor.png':

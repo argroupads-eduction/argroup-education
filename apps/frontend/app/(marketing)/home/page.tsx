@@ -42,6 +42,9 @@ const FAQSection = dynamic(() =>
 
 const SITE = getSiteUrl();
 
+/** ISR — warmer Amplify HTML for homepage (field TTFB support). */
+export const revalidate = 300;
+
 const HOME_SEO_TITLE = 'Medical Admission Guidance | MBBS Admission Consultancy';
 const HOME_SEO_DESCRIPTION =
   "Secure your seat with India's trusted MBBS admission consultancy. Get expert medical admission guidance for top colleges in India and abroad. Call today!";

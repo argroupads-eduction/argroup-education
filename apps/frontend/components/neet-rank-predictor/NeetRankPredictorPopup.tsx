@@ -39,6 +39,13 @@ import {
   RANK_PREDICTOR_POPUP_DELAY_MS,
 } from '@/lib/rankPredictorPopup';
 import { ensureFormInteractionGuard, setRankPopupOpen } from '@/lib/sitePopupCoordination';
+import '@/styles/neet-rank-predictor.css';
+import '@/styles/rank-predictor-popup.css';
+
+type NeetRankPredictorPopupProps = {
+  /** Remaining ms before auto-open (from DeferredSitePopups). Defaults to full delay. */
+  openDelayMs?: number;
+};
 
 type Step = 'form' | 'result';
 type Track = 'india' | 'abroad' | 'md-ms' | 'bams';
@@ -205,7 +212,9 @@ function ScoreCard({
   );
 }
 
-export function NeetRankPredictorPopup() {
+export function NeetRankPredictorPopup({
+  openDelayMs = RANK_PREDICTOR_POPUP_DELAY_MS,
+}: NeetRankPredictorPopupProps = {}) {
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
@@ -269,14 +278,14 @@ export function NeetRankPredictorPopup() {
 
     resetForNewPage();
 
-    const delay = Math.max(0, RANK_PREDICTOR_POPUP_DELAY_MS);
+    const delay = Math.max(0, openDelayMs);
     const timer = window.setTimeout(() => {
       if (isRankPopupExcludedPath(pathname)) return;
       setOpen(true);
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [pathname, resetForNewPage]);
+  }, [pathname, resetForNewPage, openDelayMs]);
 
   const handleClose = useCallback(() => {
     setOpen(false);

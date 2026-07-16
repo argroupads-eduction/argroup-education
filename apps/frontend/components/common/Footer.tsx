@@ -75,7 +75,7 @@ export const Footer = () => {
               <BrandLogoLink frameClassName="brand-logo-link__frame--footer">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/ar-group-logo.png"
+                  src="/ar-group-logo.webp"
                   alt="AR Group of Education"
                   width={84}
                   height={84}

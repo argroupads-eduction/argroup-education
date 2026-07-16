@@ -318,7 +318,7 @@ export const CounsellingForm = ({
               <div className="flex items-center gap-1.5">
                 <MessageSquare className="h-3.5 w-3.5 text-gold-600" aria-hidden />
                 <label className="text-xs font-semibold text-navy-900">
-                  Quick note <span className="font-normal text-slate-400">(optional)</span>
+                  Quick note <span className="font-normal text-slate-500">(optional)</span>
                 </label>
               </div>
               <div className="mt-1.5 overflow-hidden rounded-xl border border-navy-100 bg-gradient-to-br from-navy-50/50 via-white to-gold-50/30 shadow-sm transition-all focus-within:border-gold-400 focus-within:shadow-md focus-within:ring-2 focus-within:ring-gold-500/15">

@@ -83,7 +83,7 @@ export function PremiumCollegeCard({
             {college.city}
           </p>
         ) : null}
-        <p className="mt-auto pt-3 text-xs font-semibold uppercase tracking-wide text-gold-700 opacity-80 transition group-hover:opacity-100">
+        <p className="mt-auto pt-3 text-xs font-semibold uppercase tracking-wide text-gold-800 transition group-hover:text-gold-900">
           View full details
         </p>
       </div>
