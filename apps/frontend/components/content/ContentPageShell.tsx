@@ -77,7 +77,13 @@ export function ContentArticle({
 
       {displayFeatured ? (
         <div className="mb-10 overflow-hidden rounded-2xl bg-slate-100 shadow-lg ring-1 ring-black/5">
-          <FitImage src={featuredImage} alt={title} priority frameClassName="rounded-2xl" />
+          <FitImage
+            src={featuredImage}
+            alt={title}
+            priority
+            fit="cover"
+            frameClassName="rounded-2xl"
+          />
         </div>
       ) : null}
 

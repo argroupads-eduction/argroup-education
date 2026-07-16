@@ -43,8 +43,9 @@ function elementorThumbAlternates(relativePath: string): string[] {
   if (!match) return [];
 
   const baseFile = `${match[1]}.${match[2]}`;
-  const years = ['2026', '2025', '2024', '2023', '2022', '2021', '2020', '2018', '2017'];
-  const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+  // Prefer recent upload months first (MD/MS / college assets cluster in mid–late year).
+  const years = ['2025', '2024', '2026', '2023', '2022', '2021', '2020', '2018', '2017'];
+  const months = ['09', '10', '08', '07', '06', '05', '04', '03', '02', '01', '11', '12'];
 
   const alts: string[] = [];
   for (const year of years) {
@@ -66,7 +67,11 @@ function resolvePublicWpFile(relativePath: string): string | null {
   return resolved;
 }
 
-/** Read bundled media from public/wp-content — avoids HTTP rewrite loops on Amplify. */
+/**
+ * Read bundled media from public/wp-content via fs.
+ * NEVER fetch our own /wp-content URLs — next.config rewrites misses back to
+ * this route and that creates an infinite proxy storm.
+ */
 async function readBundledStatic(relativePath: string): Promise<Buffer | null> {
   const filePath = resolvePublicWpFile(relativePath);
   if (!filePath || !existsSync(filePath)) return null;
@@ -77,6 +82,11 @@ async function readBundledStatic(relativePath: string): Promise<Buffer | null> {
   }
 }
 
+function isImageResponse(res: Response): boolean {
+  const contentType = res.headers.get('content-type') ?? '';
+  return contentType.startsWith('image/') || contentType.includes('octet-stream');
+}
+
 async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null> {
   const origin = process.env.WP_MEDIA_ORIGIN?.replace(/\/$/, '');
   if (!origin) return null;
@@ -84,7 +94,8 @@ async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null
   const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
   const candidates = new Set<string>();
   candidates.add(safe);
-  for (const alt of elementorThumbAlternates(safe)) candidates.add(alt.replace(/^uploads\//, ''));
+  // Keep `uploads/` prefix — stripping it built invalid /wp-content/2025/09/... URLs.
+  for (const alt of elementorThumbAlternates(safe)) candidates.add(alt);
 
   const file = safe.split('/').pop() ?? '';
   const dir = safe.includes('/') ? safe.slice(0, safe.lastIndexOf('/') + 1) : '';
@@ -94,7 +105,7 @@ async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null
 
   for (const candidate of candidates) {
     const urls = [encodeWpContentUrl(origin, candidate)];
-    if (candidate.startsWith('uploads/')) {
+    if (candidate.startsWith('uploads/uploads/')) {
       urls.push(encodeWpContentUrl(origin, candidate.replace(/^uploads\//, '')));
     }
 
@@ -105,10 +116,10 @@ async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null
             'User-Agent': 'ARGroupMediaProxy/1.0',
             Accept: 'image/*,*/*',
           },
-          signal: AbortSignal.timeout(20_000),
+          signal: AbortSignal.timeout(8_000),
           redirect: 'follow',
         });
-        if (res.ok && res.body) return res;
+        if (res.ok && res.body && isImageResponse(res)) return res;
       } catch {
         /* try next candidate */
       }

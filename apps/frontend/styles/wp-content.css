@@ -910,6 +910,47 @@
   align-items: stretch !important;
 }
 
+/* Hub / India guide banners — fill the content column (no letterbox gutters) */
+.wp-content-mbbs-india .wp-content-body > .elementor-section:first-of-type .elementor-widget-image,
+.wp-content-mbbs-india .wp-content-body > .elementor-section:first-of-type .elementor-widget-image .elementor-widget-container {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.wp-content-mbbs-india .wp-content-body > .elementor-section:first-of-type .elementor-widget-image img {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  border-radius: 1rem;
+}
+
+/* Collapse empty 50/50 spacer columns so content uses the full article width */
+.wp-content-mbbs-india
+  .wp-content-body
+  .elementor-container:has(> .elementor-column.elementor-col-50):not(:has(.eael-data-table-wrap)):not(:has(.wp-university-profile)) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 1rem !important;
+}
+
+.wp-content-mbbs-india
+  .wp-content-body
+  .elementor-container:has(> .elementor-column.elementor-col-50):not(:has(.eael-data-table-wrap)):not(:has(.wp-university-profile))
+  > .elementor-column {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.wp-content-mbbs-india
+  .wp-content-body
+  .elementor-container:has(> .elementor-column.elementor-col-50):not(:has(.eael-data-table-wrap)):not(:has(.wp-university-profile))
+  > .elementor-column:not(:has(img, table, .elementor-heading-title, p, li, .elementor-button)) {
+  display: none !important;
+}
+
 .wp-content-mbbs-india .wp-content-body .wp-university-profile > .elementor-container > .elementor-column,
 .wp-content-mbbs-india .wp-content-body .wp-university-profile-grid > .elementor-column,
 .wp-content-mbbs-india

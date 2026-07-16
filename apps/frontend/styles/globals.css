@@ -268,6 +268,20 @@
     object-fit: contain !important;
   }
 
+  .fit-image-frame--cover {
+    aspect-ratio: 21 / 9;
+    max-height: min(52vh, 26rem);
+    background: rgb(15 23 42);
+  }
+
+  .fit-image-frame__img--cover {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+  }
+
   .horizontal-scroll-row {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;

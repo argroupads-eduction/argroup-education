@@ -6,7 +6,7 @@ import { ProgramHubHero } from '@/components/program-hub/ProgramHubHero';
 import { ProgramHubTrustBar } from '@/components/program-hub/ProgramHubTrustBar';
 import type { SiteContent } from '@/lib/contentApi';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
-import { PROGRAM_HUB_SEO } from '@/lib/programHubContent';
+import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type MdMsHubProps = {
@@ -24,7 +24,7 @@ export function MdMsHub({ wpContent }: MdMsHubProps) {
       id: 'md-ms-hub',
       type: 'page',
       title,
-      slug: 'md-ms',
+      slug: PROGRAM_HUB_WP_SLUG.mdms,
       content: '',
       excerpt: seo.description,
       featuredImage: null,
@@ -67,13 +67,16 @@ export function MdMsHub({ wpContent }: MdMsHubProps) {
               <p className="program-hub-section-kicker">Complete guide</p>
               <h2 className="program-hub-section-title">{title}</h2>
             </div>
-            <ContentPageShell
-              html={wpContent.content}
-              featuredImage={wpContent.featuredImage}
-              title={title}
-              showFeaturedImage={Boolean(wpContent.featuredImage)}
-            />
           </div>
+          {/* Shell owns its own max-width grid — avoid nested max-w-7xl squeezing the article. */}
+          <ContentPageShell
+            html={wpContent.content}
+            featuredImage={wpContent.featuredImage}
+            title={title}
+            showFeaturedImage={Boolean(wpContent.featuredImage)}
+            pageSlug={PROGRAM_HUB_WP_SLUG.mdms}
+            articleClassName="wp-content-mbbs-india"
+          />
         </section>
       ) : null}
 

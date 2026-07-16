@@ -10,17 +10,12 @@ function apiMediaToStatic(url: string): string {
   return toStaticWpContentPath(url.replace(/^\/api\/wp-media\//, ''));
 }
 
-/** Elementor thumb hashes may not be bundled — map to full upload in uploads/. */
-function elementorThumbToUpload(rel: string): string | null {
-  const m = rel.match(/elementor\/thumbs\/(.+)-[a-z0-9]{20,}(\.[^./]+)$/i);
-  if (!m) return null;
-  return `/wp-content/uploads/2025/09/${m[1]}${m[2]}`;
-}
-
+/**
+ * Keep Elementor thumb paths as static /wp-content URLs.
+ * Missing files fall through next.config rewrite → /api/wp-media (fs + remote).
+ * Do not rewrite to /api/wp-media here — that used to self-fetch /wp-content and loop.
+ */
 function normalizeWpContentRel(rel: string): string {
-  if (rel.includes('elementor/thumbs/')) {
-    return elementorThumbToUpload(rel) ?? `/${rel.startsWith('wp-content/') ? rel : `wp-content/${rel}`}`;
-  }
   return rel.startsWith('wp-content/') ? `/${rel}` : `/wp-content/${rel.replace(/^\/+/, '')}`;
 }
 
@@ -29,6 +24,7 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
   if (!url?.trim()) return null;
 
   const trimmed = url.trim();
+  // Prefer static /wp-content for bundled colleges images (deploy-stable).
   if (trimmed.startsWith('/api/wp-media/')) return apiMediaToStatic(trimmed);
   if (trimmed.startsWith('/wp-content/')) {
     return normalizeWpContentRel(trimmed.replace(/^\/+/, ''));
