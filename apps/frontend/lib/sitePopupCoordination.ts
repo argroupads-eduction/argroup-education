@@ -1,7 +1,6 @@
 /** Shared timing + guards for rank & lead site popups. */
 
-export const LEAD_POPUP_AUTO_DELAY_MS =
-  Number(process.env.NEXT_PUBLIC_LEAD_POPUP_DELAY_MS) || 5 * 60 * 1000;
+export const LEAD_POPUP_AUTO_DELAY_MS = 4000;
 
 const LEAD_SESSION_START_KEY = 'ar-lead-popup-session-start';
 export const LEAD_POPUP_AUTO_DISMISSED_KEY = 'ar-lead-popup-auto-dismissed';

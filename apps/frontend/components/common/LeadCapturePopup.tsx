@@ -634,7 +634,7 @@ export function LeadCapturePopup() {
     return () => window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
   }, []);
 
-  // Auto-open lead popup 5 min after first visit — skipped while user fills any form.
+  // Auto-open the lead popup 4 seconds after the first visit, when no form is active.
   useEffect(() => {
     const openLeadPopup = () => {
       setValues(EMPTY_VALUES);
