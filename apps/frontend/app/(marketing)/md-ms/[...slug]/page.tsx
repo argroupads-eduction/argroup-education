@@ -38,6 +38,9 @@ export default async function MdMsStatePage({ params }: PageProps) {
     { label: 'MD / MS', href: '/md-ms' },
     { label: item.label.replace('MD/MS in ', '') },
   ];
+  // Prefer curated coverImage — CMS featuredImage alone often rewrites to a
+  // missing relative /wp-content path and shows a broken hero.
+  const featuredImage = item.coverImage || wpContent?.featuredImage || null;
 
   return (
     <>
@@ -51,13 +54,13 @@ export default async function MdMsStatePage({ params }: PageProps) {
         theme="mdms"
         breadcrumbs={breadcrumbs}
         subtitle="Postgraduate medical admission · Counselling & seat selection support"
-        featuredImage={wpContent?.featuredImage}
+        featuredImage={featuredImage}
       />
 
       {wpContent ? (
         <ContentPageShell
           html={wpContent.content}
-          featuredImage={wpContent.featuredImage}
+          featuredImage={featuredImage}
           title={title}
           showFeaturedImage={false}
           pageSlug={item.wpSlug}

@@ -27,10 +27,18 @@ export function getMbbsIndiaStateFeaturedImage(wpSlug: string | null | undefined
   return MBBS_INDIA_STATE_FEATURED_IMAGES[wpSlug] ?? null;
 }
 
+function isElementorThumb(url: string | null | undefined): boolean {
+  return Boolean(url && /elementor\/thumbs/i.test(url));
+}
+
 export function resolveMbbsIndiaFeaturedImage(
   wpSlug: string | null | undefined,
-  fallback: string | null | undefined
+  fallback: string | null | undefined,
+  collegeFallback?: string | null
 ): string | null {
+  // Elementor thumbs often 404 on CDN; prefer usable CMS media, then a college pack image.
+  if (fallback && !isElementorThumb(fallback)) return fallback;
+  if (collegeFallback?.trim()) return collegeFallback;
   return getMbbsIndiaStateFeaturedImage(wpSlug) ?? fallback ?? null;
 }
 

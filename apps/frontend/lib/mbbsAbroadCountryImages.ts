@@ -30,10 +30,17 @@ export function getMbbsAbroadCountryFeaturedImage(wpSlug: string | null | undefi
   return MBBS_ABROAD_COUNTRY_FEATURED_IMAGES[wpSlug] ?? null;
 }
 
+function isElementorThumb(url: string | null | undefined): boolean {
+  return Boolean(url && /elementor\/thumbs/i.test(url));
+}
+
 export function resolveMbbsAbroadFeaturedImage(
   wpSlug: string | null | undefined,
-  fallback: string | null | undefined
+  fallback: string | null | undefined,
+  collegeFallback?: string | null
 ): string | null {
+  if (fallback && !isElementorThumb(fallback)) return fallback;
+  if (collegeFallback?.trim()) return collegeFallback;
   return getMbbsAbroadCountryFeaturedImage(wpSlug) ?? fallback ?? null;
 }
 

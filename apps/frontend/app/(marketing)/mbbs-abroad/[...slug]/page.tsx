@@ -95,9 +95,16 @@ export default async function MbbsAbroadCountryPage({ params }: PageProps) {
 
   const wpContent = country.wpSlug ? await getContentBySlug(country.wpSlug) : null;
   const title = plainTitle(wpContent?.title || `MBBS in ${country.name}`);
+  const collegeHero =
+    country.colleges?.find((college) => college.image)?.image ??
+    country.universities
+      ?.flatMap((university) => university.colleges ?? [])
+      .find((college) => college.image)?.image ??
+    null;
   const featuredImage = resolveMbbsAbroadFeaturedImage(
     country.wpSlug,
-    country.featuredImage ?? wpContent?.featuredImage
+    country.featuredImage ?? wpContent?.featuredImage,
+    collegeHero
   );
   const collegeCount = mbbsAbroadCountryCollegeCount(country);
   const breadcrumbs = [

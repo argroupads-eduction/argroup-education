@@ -35,7 +35,12 @@ export default async function MbbsIndiaStatePage({ params }: PageProps) {
 
   const wpContent = state.wpSlug ? await getContentBySlug(state.wpSlug) : null;
   const title = plainTitle(wpContent?.title || `MBBS in ${state.name}`);
-  const featuredImage = resolveMbbsIndiaFeaturedImage(state.wpSlug, wpContent?.featuredImage);
+  const collegeHero = state.colleges.find((college) => college.image)?.image ?? null;
+  const featuredImage = resolveMbbsIndiaFeaturedImage(
+    state.wpSlug,
+    wpContent?.featuredImage,
+    collegeHero
+  );
   const pageHtml = wpContent?.content ?? null;
 
   const breadcrumbs = [
