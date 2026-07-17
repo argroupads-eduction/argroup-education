@@ -43,6 +43,16 @@ const COLLEGE_SLUG_OVERRIDES = new Map([
   ['chirayu medical college and hospital', 'chirayu-medical-college-bhopal'],
   ['college of medical science', 'college-of-medical-science-bharatpur'],
   ['belgorod state university russia', 'belgorod-state-university-russia'],
+  ['prince medical college', 'prince-medical-college'],
+  ['bharat vikas medical college', 'bharat-vikas-medical-college'],
+  [
+    'dr bs tomar institute of medical sciences and research',
+    'dr-b-s-tomar-institute-of-medical-sciences-and-research',
+  ],
+  [
+    'dr b s tomar institute of medical sciences and research',
+    'dr-b-s-tomar-institute-of-medical-sciences-and-research',
+  ],
 ]);
 
 export function extractFirstContentImage(html) {

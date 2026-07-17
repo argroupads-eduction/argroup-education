@@ -10,6 +10,7 @@ loadMonorepoEnv();
 type PrismaGlobal = typeof globalThis & {
   __arPrisma?: PrismaClient;
   __arPrismaKeepalive?: ReturnType<typeof setInterval>;
+  __arPrismaShutdownBound?: boolean;
 };
 
 const globalForPrisma = globalThis as PrismaGlobal;
@@ -107,7 +108,8 @@ export async function withPrismaRetry<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && !globalForPrisma.__arPrismaShutdownBound) {
+  globalForPrisma.__arPrismaShutdownBound = true;
   const shutdown = () => {
     if (globalForPrisma.__arPrismaKeepalive) {
       clearInterval(globalForPrisma.__arPrismaKeepalive);

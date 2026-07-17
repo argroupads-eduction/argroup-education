@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-15T09:35:37.120Z",
+  "generatedAt": "2026-07-17T07:56:52.771Z",
   "source": "C:\\Users\\akash\\OneDrive\\Desktop\\ARGROUP OF EDUCTION\\apps\\frontend\\data\\wp-export-bundle\\pages.json",
   "states": [
     {
@@ -394,6 +394,27 @@
           "slug": "geetanjali-medical-college-rajasthan",
           "href": "/geetanjali-medical-college-rajasthan",
           "image": "/wp-content/uploads/colleges/geetanjali-medical-college-rajasthan.png"
+        },
+        {
+          "name": "Prince Medical College",
+          "city": "Sikar",
+          "slug": "prince-medical-college",
+          "href": "/prince-medical-college",
+          "image": "/wp-content/uploads/colleges/prince-medical-college.png"
+        },
+        {
+          "name": "BHARAT VIKAS Medical College",
+          "city": "Kota",
+          "slug": "bharat-vikas-medical-college",
+          "href": "/bharat-vikas-medical-college",
+          "image": "/wp-content/uploads/colleges/bharat-vikas-medical-college-kota.png"
+        },
+        {
+          "name": "Dr. B. S. Tomar Institute of Medical Sciences and Research",
+          "city": "Jagatpura",
+          "slug": "dr-b-s-tomar-institute-of-medical-sciences-and-research",
+          "href": "/dr-b-s-tomar-institute-of-medical-sciences-and-research",
+          "image": "/wp-content/uploads/colleges/dr-b-s-tomar-institute-of-medical-sciences-and-research.png"
         }
       ]
     },

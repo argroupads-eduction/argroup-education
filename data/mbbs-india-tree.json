@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-15T09:35:37.120Z",
+  "generatedAt": "2026-07-17T07:56:52.771Z",
   "source": "C:\\Users\\akash\\OneDrive\\Desktop\\ARGROUP OF EDUCTION\\apps\\frontend\\data\\wp-export-bundle\\pages.json",
   "states": [
     {
@@ -14,7 +14,7 @@
           "city": "Kanpur",
           "slug": "rmc-hospital-and-research-centre",
           "href": "/rmc-hospital-and-research-centre",
-          "image": "/wp-content/uploads/colleges/rmc-hospital-and-research-centre.jpg"
+          "image": "/wp-content/uploads/colleges/rmc-hospital-and-research-centre.png"
         },
         {
           "name": "Saraswathi Institute of Medical Sciences",
@@ -28,106 +28,106 @@
           "city": "Meerut",
           "slug": "ncr-institute-of-medical-sciences-meerut",
           "href": "/ncr-institute-of-medical-sciences-meerut",
-          "image": "/wp-content/uploads/colleges/ncr-institute-of-medical-sciences-meerut.webp"
+          "image": "/wp-content/uploads/colleges/ncr-institute-of-medical-sciences-meerut.png"
         },
         {
           "name": "Venkateshwara Institute of Medical Sciences",
           "city": "Gajraula",
           "slug": "venkateshwara-institute-of-medical-sciences-gajraula",
           "href": "/venkateshwara-institute-of-medical-sciences-gajraula",
-          "image": "/wp-content/uploads/colleges/venkateshwara-institute-of-medical-sciences-gajraula.webp"
+          "image": "/wp-content/uploads/colleges/venkateshwara-institute-of-medical-sciences-gajraula.png"
         },
         {
           "name": "Shri Gorakhnath Medical College",
           "slug": "shri-gorakhnath-medical-college",
           "href": "/shri-gorakhnath-medical-college",
-          "image": "/wp-content/uploads/colleges/shri-gorakhnath-medical-college.jpg"
+          "image": "/wp-content/uploads/colleges/shri-gorakhnath-medical-college.png"
         },
         {
           "name": "Muzaffarnagar Medical College - [MMC]",
           "city": "Muzaffarnagar",
           "slug": "muzaffarnagar-medical-college-mmc-muzaffarnagar",
           "href": "/muzaffarnagar-medical-college-mmc-muzaffarnagar",
-          "image": "/wp-content/uploads/colleges/muzaffarnagar-medical-college-mmc-muzaffarnagar.jpg"
+          "image": "/wp-content/uploads/colleges/muzaffarnagar-medical-college-mmc-muzaffarnagar.png"
         },
         {
           "name": "FH Medical College",
           "city": "Agra",
           "slug": "f-h-medical-college-and-hospital-agra",
           "href": "/f-h-medical-college-and-hospital-agra",
-          "image": "/wp-content/uploads/colleges/f-h-medical-college-and-hospital-agra.jpg"
+          "image": "/wp-content/uploads/colleges/f-h-medical-college-and-hospital-agra.png"
         },
         {
           "name": "Subharti Medical College",
           "slug": "subharti-medical-college",
           "href": "/subharti-medical-college",
-          "image": "/wp-content/uploads/colleges/subharti-medical-college.jpg"
+          "image": "/wp-content/uploads/colleges/subharti-medical-college.png"
         },
         {
           "name": "K.D. Medical College - Hospital and Research Center",
           "city": "Mathura",
           "slug": "k-d-medical-college-hospital-and-research-center-mathura",
           "href": "/k-d-medical-college-hospital-and-research-center-mathura",
-          "image": "/wp-content/uploads/colleges/k-d-medical-college-hospital-and-research-center-mathura.jpg"
+          "image": "/wp-content/uploads/colleges/k-d-medical-college-hospital-and-research-center-mathura.png"
         },
         {
           "name": "Naraina Medical College & Research Center - [NMRC]",
           "city": "Kanpur",
           "slug": "naraina-medical-college-research-center-nmrc-kanpur",
           "href": "/naraina-medical-college-research-center-nmrc-kanpur",
-          "image": "/wp-content/uploads/colleges/naraina-medical-college-research-center-nmrc-kanpur.jpg"
+          "image": "/wp-content/uploads/colleges/naraina-medical-college-research-center-nmrc-kanpur.png"
         },
         {
           "name": "Ajay Sangal Institute Of Medical Sciences",
           "slug": "ajay-sangaal-institute-of-medical-sciences",
           "href": "/ajay-sangaal-institute-of-medical-sciences",
-          "image": "/wp-content/uploads/colleges/ajay-sangaal-institute-of-medical-sciences.webp"
+          "image": "/wp-content/uploads/colleges/ajay-sangaal-institute-of-medical-sciences.png"
         },
         {
           "name": "Dr SS Kushwah Institute of Medical Sciences",
           "slug": "dr-bs-kushwah-institute-of-medical-sciences",
           "href": "/dr-bs-kushwah-institute-of-medical-sciences",
-          "image": "/wp-content/uploads/colleges/dr-bs-kushwah-institute-of-medical-sciences.jpg"
+          "image": "/wp-content/uploads/colleges/dr-bs-kushwah-institute-of-medical-sciences.png"
         },
         {
           "name": "Prasad Institute of Medical Sciences",
           "city": "Lucknow",
           "slug": "prasad-institute-of-medical-sciences-lucknow",
           "href": "/prasad-institute-of-medical-sciences-lucknow",
-          "image": "/wp-content/uploads/colleges/prasad-institute-of-medical-sciences-lucknow.jpg"
+          "image": "/wp-content/uploads/colleges/prasad-institute-of-medical-sciences-lucknow.png"
         },
         {
           "name": "KMC Medical College",
           "slug": "kmc-medical-college",
           "href": "/kmc-medical-college",
-          "image": "/wp-content/uploads/colleges/kmc-medical-college.jpg"
+          "image": "/wp-content/uploads/colleges/kmc-medical-college.png"
         },
         {
           "name": "Shri Siddhi Vinayak Medical College and Hospital",
           "slug": "shri-siddhi-vinayak-medical-college",
           "href": "/shri-siddhi-vinayak-medical-college",
-          "image": "/wp-content/uploads/colleges/shri-siddhi-vinayak-medical-college.webp"
+          "image": "/wp-content/uploads/colleges/shri-siddhi-vinayak-medical-college.png"
         },
         {
           "name": "Rajshree Medical Research Institute",
           "city": "Bareilly",
           "slug": "rajshree-medical-research-institute-bareilly",
           "href": "/rajshree-medical-research-institute-bareilly",
-          "image": "/wp-content/uploads/colleges/rajshree-medical-research-institute-bareilly.jpg"
+          "image": "/wp-content/uploads/colleges/rajshree-medical-research-institute-bareilly.png"
         },
         {
           "name": "Career Institute of Medical Sciences",
           "city": "Lucknow",
           "slug": "career-institute-of-medical-sciences-lucknow",
           "href": "/career-institute-of-medical-sciences-lucknow",
-          "image": "/wp-content/uploads/colleges/career-institute-of-medical-sciences-lucknow.jpg"
+          "image": "/wp-content/uploads/colleges/career-institute-of-medical-sciences-lucknow.png"
         },
         {
           "name": "United Institute of Medical Sciences",
           "city": "Prayagraj",
           "slug": "united-institute-of-medical-sciences-prayagraj",
           "href": "/united-institute-of-medical-sciences-prayagraj",
-          "image": "/wp-content/uploads/colleges/united-institute-of-medical-sciences-prayagraj.webp"
+          "image": "/wp-content/uploads/colleges/united-institute-of-medical-sciences-prayagraj.png"
         },
         {
           "name": "Heritage Institute of Medical Sciences",
@@ -140,7 +140,7 @@
           "city": "Sitapur",
           "slug": "hind-institute-of-medical-sciences-lucknow",
           "href": "/hind-institute-of-medical-sciences-lucknow",
-          "image": "/wp-content/uploads/colleges/hind-institute-of-medical-sciences-lucknow.jpg"
+          "image": "/wp-content/uploads/colleges/hind-institute-of-medical-sciences-lucknow.png"
         },
         {
           "name": "Integral Institute Of Medical Sciences",
@@ -188,7 +188,7 @@
           "city": "Greater Noida",
           "slug": "noida-international-institute-of-medical-sciences",
           "href": "/noida-international-institute-of-medical-sciences",
-          "image": "/wp-content/uploads/colleges/noida-international-institute-of-medical-sciences.jpg"
+          "image": "/wp-content/uploads/colleges/noida-international-institute-of-medical-sciences.png"
         },
         {
           "name": "TS Misra Medical College & Hospital",
@@ -394,6 +394,27 @@
           "slug": "geetanjali-medical-college-rajasthan",
           "href": "/geetanjali-medical-college-rajasthan",
           "image": "/wp-content/uploads/colleges/geetanjali-medical-college-rajasthan.png"
+        },
+        {
+          "name": "Prince Medical College",
+          "city": "Sikar",
+          "slug": "prince-medical-college",
+          "href": "/prince-medical-college",
+          "image": "/wp-content/uploads/colleges/prince-medical-college.png"
+        },
+        {
+          "name": "BHARAT VIKAS Medical College",
+          "city": "Kota",
+          "slug": "bharat-vikas-medical-college",
+          "href": "/bharat-vikas-medical-college",
+          "image": "/wp-content/uploads/colleges/bharat-vikas-medical-college-kota.png"
+        },
+        {
+          "name": "Dr. B. S. Tomar Institute of Medical Sciences and Research",
+          "city": "Jagatpura",
+          "slug": "dr-b-s-tomar-institute-of-medical-sciences-and-research",
+          "href": "/dr-b-s-tomar-institute-of-medical-sciences-and-research",
+          "image": "/wp-content/uploads/colleges/dr-b-s-tomar-institute-of-medical-sciences-and-research.png"
         }
       ]
     },

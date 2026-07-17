@@ -7,6 +7,7 @@ import {
   prepareThankYouTab,
 } from '@/lib/openThankYouPage'
 import { submitWebsiteLead } from '@/lib/submitWebsiteLead'
+import { LEAD_CATEGORY_OPTIONS } from '@/lib/leadCategoryOptions'
 import { validatePersonName } from '@/lib/validatePersonName'
 import { validateIndianMobile, validateLeadEmail } from '@/lib/leadSubmissionMessages'
 import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification'
@@ -22,6 +23,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
     name: '',
     email: '',
     phone: '',
+    category: '',
     message: '',
   })
   const [loading, setLoading] = useState(false)
@@ -31,7 +33,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
   const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null)
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -62,6 +64,11 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
       return
     }
 
+    if (!formData.category.trim()) {
+      setError('Please select a category.')
+      return
+    }
+
     if (isEmailOtpEnabled() && (!emailVerified || !emailVerificationToken)) {
       setError('Please verify your email before submitting.')
       setOtpUiActive(true)
@@ -80,6 +87,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
+          category: formData.category,
           message: formData.message,
           program,
         },
@@ -101,7 +109,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
         undefined,
         thankYouTab
       )
-      setFormData({ name: '', email: '', phone: '', message: '' })
+      setFormData({ name: '', email: '', phone: '', category: '', message: '' })
     } catch (err) {
       cancelPreparedThankYouTab(thankYouTab)
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -165,6 +173,25 @@ export const FormSection: React.FC<FormSectionProps> = ({ program, title = 'Get 
             required
             className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-navy-900 transition"
           />
+        </div>
+
+        <div>
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-navy-900 transition"
+          >
+            <option value="" disabled>
+              Select category
+            </option>
+            {LEAD_CATEGORY_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

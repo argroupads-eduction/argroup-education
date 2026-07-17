@@ -41,6 +41,19 @@ export function getMbbsHeroFallbackForm(kind: 'india' | 'abroad'): HeroMbbsFormD
           label: 'State',
           required: true,
         },
+        {
+          blockType: 'select',
+          name: 'category',
+          label: 'Category',
+          required: true,
+          options: [
+            { label: 'General', value: 'General' },
+            { label: 'EWS', value: 'EWS' },
+            { label: 'OBC', value: 'OBC' },
+            { label: 'SC', value: 'SC' },
+            { label: 'ST', value: 'ST' },
+          ],
+        },
       ],
     };
   }
@@ -76,6 +89,19 @@ export function getMbbsHeroFallbackForm(kind: 'india' | 'abroad'): HeroMbbsFormD
         name: 'country',
         label: 'Preferred country',
         required: true,
+      },
+      {
+        blockType: 'select',
+        name: 'category',
+        label: 'Category',
+        required: true,
+        options: [
+          { label: 'General', value: 'General' },
+          { label: 'EWS', value: 'EWS' },
+          { label: 'OBC', value: 'OBC' },
+          { label: 'SC', value: 'SC' },
+          { label: 'ST', value: 'ST' },
+        ],
       },
     ],
   };

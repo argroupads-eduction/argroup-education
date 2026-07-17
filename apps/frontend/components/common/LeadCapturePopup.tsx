@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { LeadCapturePromoBanner } from '@/components/common/LeadCapturePromoBanner';
 import { LeadCaptureMobileSheet } from '@/components/common/LeadCaptureMobileSheet';
 import { LEAD_CAPTURE_TARGET_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOptions';
+import { LEAD_CATEGORY_OPTIONS } from '@/lib/leadCategoryOptions';
 import { LEAD_CAPTURE_OPEN_EVENT } from '@/lib/openLeadCapture';
 import {
   cancelPreparedThankYouTab,
@@ -27,9 +28,7 @@ import { submitWebsiteLead } from '@/lib/submitWebsiteLead';
 import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
 import { emailOtpInitiallyVerified, isEmailOtpEnabled } from '@/lib/emailOtp/isEmailOtpEnabled';
 import {
-  markLeadAutoOpenDismissed,
   markLeadPopupSubmitted,
-  scheduleLeadAutoOpenWhenSafe,
   setLeadPopupOpen,
 } from '@/lib/sitePopupCoordination';
 import {
@@ -74,6 +73,7 @@ type LeadFormValues = {
   email: string;
   phone: string;
   city: string;
+  category: string;
   targetCountry: string;
 };
 
@@ -82,6 +82,7 @@ const EMPTY_VALUES: LeadFormValues = {
   email: '',
   phone: '',
   city: '',
+  category: '',
   targetCountry: '',
 };
 
@@ -133,6 +134,8 @@ function buildSubmissionPayload(
     const phoneField =
       findPayloadFieldName(fields, ['phone', 'mobile', 'contact']) || 'phone';
     const cityField = findPayloadFieldName(fields, ['city']) || 'city';
+    const categoryField =
+      findPayloadFieldName(fields, ['category', 'reservation', 'caste']) || 'category';
     const countryField =
       findPayloadFieldName(fields, ['country', 'state', 'destination', 'target']) ||
       'country';
@@ -142,6 +145,7 @@ function buildSubmissionPayload(
       [emailField]: values.email,
       [phoneField]: values.phone,
       [cityField]: values.city,
+      [categoryField]: values.category,
       [countryField]: values.targetCountry,
     };
 
@@ -168,6 +172,7 @@ function buildSubmissionPayload(
         { field: emailField, value: values.email },
         { field: phoneField, value: values.phone },
         { field: cityField, value: values.city },
+        { field: categoryField, value: values.category },
         { field: countryField, value: values.targetCountry }
       );
     }
@@ -182,6 +187,7 @@ function buildSubmissionPayload(
       { field: 'email', value: values.email },
       { field: 'phone', value: values.phone },
       { field: 'city', value: values.city },
+      { field: 'category', value: values.category },
       { field: 'targetCountry', value: values.targetCountry },
       { field: 'source', value: 'website-lead-popup' },
     ],
@@ -199,6 +205,7 @@ function validate(values: LeadFormValues): string | null {
   const phoneErr = validateIndianMobile(values.phone);
   if (phoneErr) return phoneErr;
   if (!values.city.trim()) return 'City is required.';
+  if (!values.category.trim()) return 'Please select a category.';
   if (!values.targetCountry.trim()) return 'Please select a target destination.';
   return null;
 }
@@ -469,6 +476,29 @@ function LeadCaptureFormPanel({
           </datalist>
         </motion.div>
 
+        <motion.div className={fieldWrapClass}>
+          <label htmlFor="lead-category" className={labelClass}>
+            Category *
+          </label>
+          <select
+            id="lead-category"
+            name="category"
+            required
+            className={fieldSelectClass}
+            value={values.category}
+            onChange={(e) => setField('category', e.target.value)}
+          >
+            <option value="" disabled>
+              Select category
+            </option>
+            {LEAD_CATEGORY_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </motion.div>
+
         <motion.div className={clsx(fieldWrapClass, 'col-span-2')}>
           <label htmlFor="lead-country" className={labelClass}>
             Target destination *
@@ -588,11 +618,11 @@ export function LeadCapturePopup() {
   const formId = useId();
   const reduceMotion = useReducedMotion();
   const firstFieldRef = useRef<HTMLInputElement>(null);
-  const isMobileRef = useRef(false);
+  const openRef = useRef(false);
 
-  const [isMobile, setIsMobile] = useState<boolean | null>(null);
-  const [desktopOpen, setDesktopOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  /** Single open flag for both mobile sheet and desktop dialog. */
+  const [open, setOpen] = useState(false);
 
   const [values, setValues] = useState<LeadFormValues>(EMPTY_VALUES);
   const [submitting, setSubmitting] = useState(false);
@@ -606,11 +636,7 @@ export function LeadCapturePopup() {
   useEffect(() => {
     /** Tablet uses mobile sheet, desktop nav also switches at xl (1280px). */
     const mq = window.matchMedia('(max-width: 1279px)');
-    const apply = () => {
-      const next = mq.matches;
-      setIsMobile(next);
-      isMobileRef.current = next;
-    };
+    const apply = () => setIsMobile(mq.matches);
     apply();
     mq.addEventListener('change', apply);
     return () => mq.removeEventListener('change', apply);
@@ -622,61 +648,41 @@ export function LeadCapturePopup() {
     });
   }, []);
 
+  const openLeadPopup = useCallback(() => {
+    setValues(EMPTY_VALUES);
+    setSubmitError(null);
+    setSubmitted(false);
+    setOpen(true);
+  }, []);
+
+  const dismiss = useCallback(() => {
+    setOpen(false);
+  }, []);
+
   useEffect(() => {
-    const onOpenRequest = () => {
-      setValues(EMPTY_VALUES);
-      setSubmitError(null);
-      setSubmitted(false);
-      if (isMobileRef.current) setMobileOpen(true);
-      else setDesktopOpen(true);
-    };
+    const onOpenRequest = () => openLeadPopup();
     window.addEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
     return () => window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
-  }, []);
-
-  // Auto-open the lead popup 4 seconds after the first visit, when no form is active.
-  useEffect(() => {
-    const openLeadPopup = () => {
-      setValues(EMPTY_VALUES);
-      setSubmitError(null);
-      setSubmitted(false);
-      if (isMobileRef.current) setMobileOpen(true);
-      else setDesktopOpen(true);
-    };
-
-    return scheduleLeadAutoOpenWhenSafe(openLeadPopup);
-  }, []);
-
-  const dismissDesktop = useCallback(() => {
-    if (!submitted) markLeadAutoOpenDismissed();
-    setDesktopOpen(false);
-  }, [submitted]);
-
-  const dismissMobile = useCallback(() => {
-    if (!submitted) markLeadAutoOpenDismissed();
-    setMobileOpen(false);
-  }, [submitted]);
-
-  const handleMobileOpenChange = useCallback(
-    (next: boolean) => {
-      if (next) setMobileOpen(true);
-      else dismissMobile();
-    },
-    [dismissMobile]
-  );
-
-  const activeOpen =
-    isMobile === true ? mobileOpen : isMobile === false ? desktopOpen : false;
+  }, [openLeadPopup]);
 
   useEffect(() => {
-    setLeadPopupOpen(activeOpen);
-  }, [activeOpen]);
+    openRef.current = open;
+    setLeadPopupOpen(open);
+  }, [open]);
 
   useEffect(() => {
-    if (!activeOpen || submitted) return;
+    if (!open || submitted) return;
     const t = window.setTimeout(() => firstFieldRef.current?.focus(), 80);
     return () => window.clearTimeout(t);
-  }, [activeOpen, submitted, isMobile]);
+  }, [open, submitted, isMobile]);
+
+  const handleOpenChange = useCallback(
+    (next: boolean) => {
+      if (next) setOpen(true);
+      else dismiss();
+    },
+    [dismiss]
+  );
 
   const setField = useCallback(<K extends keyof LeadFormValues>(key: K, value: string) => {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -704,6 +710,7 @@ export function LeadCapturePopup() {
       email: values.email.trim(),
       phone,
       city: values.city.trim(),
+      category: values.category,
       targetCountry: values.targetCountry,
     };
 
@@ -720,6 +727,7 @@ export function LeadCapturePopup() {
             email: normalized.email,
             phone: normalized.phone,
             city: normalized.city,
+            category: normalized.category,
             targetCountry: normalized.targetCountry,
           };
 
@@ -786,16 +794,12 @@ export function LeadCapturePopup() {
         },
       };
 
-  if (isMobile === null) {
-    return null;
-  }
-
   return (
-    <>
-      {isMobile === true && (
+    <div data-lead-capture-popup="">
+      {isMobile ? (
         <LeadCaptureMobileSheet
-          open={mobileOpen}
-          onOpenChange={handleMobileOpenChange}
+          open={open}
+          onOpenChange={handleOpenChange}
           reduceMotion={!!reduceMotion}
           title="Looking for MBBS in India or Abroad?"
           header={<PromoPanel variant="mobileSheet" />}
@@ -809,7 +813,7 @@ export function LeadCapturePopup() {
             submitted={submitted}
             submitting={submitting}
             submitError={submitError}
-            dismiss={dismissMobile}
+            dismiss={dismiss}
             reduceMotion={!!reduceMotion}
             variant="mobile"
             otpUiActive={otpUiActive}
@@ -821,18 +825,13 @@ export function LeadCapturePopup() {
             }}
           />
         </LeadCaptureMobileSheet>
-      )}
-
-      {isMobile === false && (
+      ) : (
         <Dialog.Root
-          open={desktopOpen}
-          onOpenChange={(next) => {
-            if (!next) dismissDesktop();
-            else setDesktopOpen(true);
-          }}
+          open={open}
+          onOpenChange={handleOpenChange}
         >
           <AnimatePresence>
-            {desktopOpen && (
+            {open && (
               <Dialog.Portal forceMount>
                 <Dialog.Overlay asChild forceMount>
                   <motion.div
@@ -869,7 +868,7 @@ export function LeadCapturePopup() {
                           type="button"
                           className="absolute right-[max(0.75rem,env(safe-area-inset-right,0px))] top-[max(0.75rem,env(safe-area-inset-top,0px))] z-10 flex h-11 w-11 items-center justify-center rounded-full border border-slate-200/80 bg-white/95 text-navy-800 shadow-md transition-colors hover:bg-navy-50 hover:text-navy-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 touch-manipulation"
                           aria-label="Close lead form"
-                          onClick={dismissDesktop}
+                          onClick={dismiss}
                         >
                           <X className="h-5 w-5" aria-hidden />
                         </button>
@@ -900,7 +899,7 @@ export function LeadCapturePopup() {
                             submitted={submitted}
                             submitting={submitting}
                             submitError={submitError}
-                            dismiss={dismissDesktop}
+                            dismiss={dismiss}
                             reduceMotion={!!reduceMotion}
                             otpUiActive={otpUiActive}
                             onEmailBlur={() => setOtpUiActive(true)}
@@ -920,6 +919,6 @@ export function LeadCapturePopup() {
           </AnimatePresence>
         </Dialog.Root>
       )}
-    </>
+    </div>
   );
 }

@@ -5,7 +5,15 @@ import { buildSitemapEntries } from '@/lib/buildSitemapEntries';
 import { hasUsableDatabase } from '@/lib/databaseEnv';
 import { extractHtmlImageUrls } from '@/lib/extractHtmlImageUrls';
 import { getCollegeImageBySlug } from '@/lib/collegeImageIndex';
+import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
+import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaTree';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
+import {
+  getPayloadCmsServerFetchUrl,
+  isPayloadCmsConfigured,
+} from '@/lib/payloadCmsUrl';
+import { readPayloadCms } from '@/lib/payloadCmsRead';
+import { withServerTimeout } from '@/lib/serverTimeout';
 import { toAbsoluteMediaUrl } from '@/lib/toAbsoluteMediaUrl';
 import { getAllWpExportBlogPosts } from '@/lib/wpExportContent';
 
@@ -22,6 +30,34 @@ export type ImageSitemapPage = {
 };
 
 const BY_SLUG = collegeIndex.bySlug as Record<string, string>;
+
+/** Prefer human college names for Google image sitemap titles. */
+const COLLEGE_TITLE_BY_SLUG: Record<string, string> = (() => {
+  const out: Record<string, string> = {};
+  for (const state of MBBS_INDIA_STATES) {
+    for (const college of state.colleges) {
+      if (college.slug) out[college.slug] = college.name;
+    }
+  }
+  for (const country of MBBS_ABROAD_COUNTRIES) {
+    for (const college of country.colleges ?? []) {
+      if (college.slug) out[college.slug] = college.name;
+    }
+    for (const university of country.universities ?? []) {
+      for (const college of university.colleges ?? []) {
+        if (college.slug) out[college.slug] = college.name;
+      }
+    }
+  }
+  return out;
+})();
+
+function collegeImageTitle(slug: string | null | undefined, fallback?: string): string {
+  if (slug && COLLEGE_TITLE_BY_SLUG[slug]) return COLLEGE_TITLE_BY_SLUG[slug];
+  if (fallback?.trim()) return fallback.trim();
+  if (slug) return slug.replace(/-/g, ' ');
+  return 'College campus';
+}
 
 /** Marketing images keyed by page path (no UI change — crawl signals only). */
 const STATIC_PAGE_IMAGES: Record<string, { src: string; title: string }[]> = {
@@ -172,6 +208,97 @@ async function loadDatabaseContentDocs(): Promise<{ posts: ContentDoc[]; pages: 
   }
 }
 
+type PayloadMediaDoc = {
+  slug?: string | null;
+  title?: string | null;
+  featuredImageUrl?: string | null;
+  htmlContent?: string | null;
+  meta?: { image?: { url?: string | null } | string | null } | null;
+  heroImage?: { url?: string | null } | string | null;
+  _status?: string | null;
+};
+
+function payloadFeaturedUrl(doc: PayloadMediaDoc): string | null {
+  if (typeof doc.featuredImageUrl === 'string' && doc.featuredImageUrl.trim()) {
+    return doc.featuredImageUrl.trim();
+  }
+  const hero = doc.heroImage;
+  if (typeof hero === 'string' && hero.trim()) return hero.trim();
+  if (hero && typeof hero === 'object' && typeof hero.url === 'string') return hero.url;
+  const metaImage = doc.meta?.image;
+  if (typeof metaImage === 'string' && metaImage.trim()) return metaImage.trim();
+  if (metaImage && typeof metaImage === 'object' && typeof metaImage.url === 'string') {
+    return metaImage.url;
+  }
+  return null;
+}
+
+async function fetchPayloadCollectionForImages(
+  collection: 'pages' | 'posts'
+): Promise<ContentDoc[]> {
+  if (!isPayloadCmsConfigured()) return [];
+  const base = getPayloadCmsServerFetchUrl();
+  if (!base) return [];
+
+  const docs: ContentDoc[] = [];
+  let page = 1;
+  const limit = 100;
+
+  while (page <= 50) {
+    const qs = new URLSearchParams({
+      limit: String(limit),
+      page: String(page),
+      depth: '1',
+      sort: '-updatedAt',
+    });
+    const result = await withServerTimeout(
+      readPayloadCms(`${base}/api/${collection}?${qs.toString()}`),
+      8000,
+      null
+    );
+    if (!result?.responseOk || !result.json || typeof result.json !== 'object') break;
+
+    const body = result.json as {
+      docs?: PayloadMediaDoc[];
+      hasNextPage?: boolean;
+      totalPages?: number;
+    };
+
+    for (const doc of body.docs ?? []) {
+      const slug = doc.slug?.trim();
+      if (!slug) continue;
+      if (doc._status && doc._status !== 'published') continue;
+      docs.push({
+        slug,
+        title: doc.title ?? undefined,
+        featuredImage: payloadFeaturedUrl(doc),
+        content: typeof doc.htmlContent === 'string' ? doc.htmlContent : undefined,
+      });
+    }
+
+    if (!body.hasNextPage && page >= (body.totalPages ?? page)) break;
+    if (!(body.docs?.length)) break;
+    page += 1;
+  }
+
+  return docs;
+}
+
+/** Live Payload CMS docs — images appear in sitemap as soon as editors publish. */
+async function loadPayloadContentDocs(): Promise<{ posts: ContentDoc[]; pages: ContentDoc[] }> {
+  if (!isPayloadCmsConfigured()) return { posts: [], pages: [] };
+  try {
+    const [pages, posts] = await Promise.all([
+      fetchPayloadCollectionForImages('pages'),
+      fetchPayloadCollectionForImages('posts'),
+    ]);
+    return { pages, posts };
+  } catch (error) {
+    console.warn('[image-sitemap] Payload CMS entries skipped:', error);
+    return { posts: [], pages: [] };
+  }
+}
+
 function addContentDocImages(
   bucket: Map<string, Map<string, ImageSitemapImage>>,
   baseUrl: string,
@@ -201,12 +328,13 @@ function addContentDocImages(
  */
 export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSitemapPage[]> {
   const base = baseUrl.replace(/\/$/, '');
-  const [urlEntries, wpPages, wpPosts, blogPosts, databaseDocs] = await Promise.all([
+  const [urlEntries, wpPages, wpPosts, blogPosts, databaseDocs, payloadDocs] = await Promise.all([
     buildSitemapEntries(baseUrl),
     loadWpBundlePages(),
     loadWpBundlePosts(),
     getAllWpExportBlogPosts(),
     loadDatabaseContentDocs(),
+    loadPayloadContentDocs(),
   ]);
 
   const pageLastmod = new Map(urlEntries.map((e) => [e.loc, e.lastmod]));
@@ -223,7 +351,7 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
     if (slug) {
       const fromIndex = getCollegeImageBySlug(slug) ?? BY_SLUG[slug];
       if (fromIndex) {
-        addImage(bucket, entry.loc, fromIndex, slug.replace(/-/g, ' '), baseUrl);
+        addImage(bucket, entry.loc, fromIndex, collegeImageTitle(slug), baseUrl);
       }
     }
 
@@ -244,10 +372,10 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
     if (!slug) continue;
     const pageLoc = `${baseUrl.replace(/\/$/, '')}/${slug}`;
     if (doc.featuredImage) {
-      addImage(bucket, pageLoc, doc.featuredImage, doc.title, baseUrl);
+      addImage(bucket, pageLoc, doc.featuredImage, collegeImageTitle(slug, doc.title), baseUrl);
     }
     for (const src of extractHtmlImageUrls(doc.content)) {
-      addImage(bucket, pageLoc, src, doc.title, baseUrl);
+      addImage(bucket, pageLoc, src, collegeImageTitle(slug, doc.title), baseUrl);
     }
   }
 
@@ -285,11 +413,24 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
     (slug) => `${base}${blogPostPath(slug)}`,
     (slug, featured) => resolveBlogFeaturedImage(slug, featured),
   );
+  addContentDocImages(
+    bucket,
+    baseUrl,
+    payloadDocs.pages,
+    (slug) => `${base}/${slug}`,
+  );
+  addContentDocImages(
+    bucket,
+    baseUrl,
+    payloadDocs.posts,
+    (slug) => `${base}${blogPostPath(slug)}`,
+    (slug, featured) => resolveBlogFeaturedImage(slug, featured),
+  );
 
   for (const [slug, src] of Object.entries(BY_SLUG)) {
     const pageLoc = `${base}/${slug}`;
     if (!pageLastmod.has(pageLoc)) continue;
-    addImage(bucket, pageLoc, src, slug.replace(/-/g, ' '), baseUrl);
+    addImage(bucket, pageLoc, src, collegeImageTitle(slug), baseUrl);
   }
 
   const pages: ImageSitemapPage[] = [];

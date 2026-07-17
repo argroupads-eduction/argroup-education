@@ -1,16 +1,34 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
+import { openLeadCapturePopup } from '@/lib/openLeadCapture';
+import {
+  clearLegacyLeadPopupBlocks,
+  isLeadPopupOpen,
+  isLeadPopupSubmitted,
+  LEAD_POPUP_AUTO_DELAY_MS,
+} from '@/lib/sitePopupCoordination';
 
-const LeadCapturePopup = dynamic(
-  () =>
-    import('@/components/common/LeadCapturePopup').then((m) => ({
-      default: m.LeadCapturePopup,
-    })),
-  { ssr: false }
-);
-
-/** Load the site-wide enquiry popup on the client. */
+/**
+ * Site-wide enquiry popup. Opens once, 4s after each page/route change.
+ * Closing does not reschedule — only a new navigation starts a fresh 4s timer.
+ */
 export function DeferredSitePopups() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    clearLegacyLeadPopupBlocks();
+    if (isLeadPopupSubmitted()) return undefined;
+
+    const timer = window.setTimeout(() => {
+      if (isLeadPopupSubmitted() || isLeadPopupOpen()) return;
+      openLeadCapturePopup();
+    }, LEAD_POPUP_AUTO_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
+
   return <LeadCapturePopup />;
 }

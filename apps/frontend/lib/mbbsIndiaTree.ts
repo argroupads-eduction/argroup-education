@@ -1,6 +1,7 @@
 import treeData from '@/data/mbbs-india-tree.json';
 import { resolveCollegeImageUrl } from '@/lib/collegeImageIndex';
 
+/** MBBS India state → college tree (rebuild via `npm run build:mbbs-india`). */
 export type MbbsIndiaCollege = {
   name: string;
   city?: string;

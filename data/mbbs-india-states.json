@@ -223,6 +223,18 @@
       {
         "name": "Geetanjali Medical College",
         "city": "Rajasthan"
+      },
+      {
+        "name": "Prince Medical College",
+        "city": "Sikar"
+      },
+      {
+        "name": "BHARAT VIKAS Medical College",
+        "city": "Kota"
+      },
+      {
+        "name": "Dr. B. S. Tomar Institute of Medical Sciences and Research",
+        "city": "Jagatpura"
       }
     ]
   },

@@ -1,96 +1,39 @@
-/** Shared timing + guards for rank & lead site popups. */
+/** Shared timing helpers for the site lead popup. */
 
 export const LEAD_POPUP_AUTO_DELAY_MS = 4000;
-
-const LEAD_SESSION_START_KEY = 'ar-lead-popup-session-start';
-export const LEAD_POPUP_AUTO_DISMISSED_KEY = 'ar-lead-popup-auto-dismissed';
 export const LEAD_POPUP_SUBMITTED_KEY = 'ar-lead-popup-submitted';
 
-let rankPopupOpen = false;
-let leadPopupOpen = false;
-let formFillActive = false;
-let formGuardReady = false;
-let blurTimer: ReturnType<typeof setTimeout> | null = null;
+const LEGACY_DISMISSED_KEY = 'ar-lead-popup-auto-dismissed';
+const LEGACY_SESSION_START_KEY = 'ar-lead-popup-session-start';
 
-export function setRankPopupOpen(open: boolean): void {
-  rankPopupOpen = open;
-}
+let leadPopupOpen = false;
 
 export function setLeadPopupOpen(open: boolean): void {
   leadPopupOpen = open;
-}
-
-export function isRankPopupOpen(): boolean {
-  return rankPopupOpen;
 }
 
 export function isLeadPopupOpen(): boolean {
   return leadPopupOpen;
 }
 
+/** Kept for older call sites — rank popup is no longer mounted site-wide. */
+export function setRankPopupOpen(_open: boolean): void {
+  /* no-op */
+}
+
+export function isRankPopupOpen(): boolean {
+  return false;
+}
+
 export function isUserFillingAnyForm(): boolean {
-  if (formFillActive) return true;
+  if (typeof document === 'undefined') return false;
   const el = document.activeElement;
   if (!el || !(el instanceof HTMLElement)) return false;
   const tag = el.tagName;
   if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') return false;
+  // Ignore the lead popup's own fields — those mean it is already open.
+  if (el.closest('[data-lead-capture-popup]')) return false;
   return Boolean(el.closest('form'));
-}
-
-export function shouldDeferLeadAutoOpen(): boolean {
-  return isUserFillingAnyForm() || isRankPopupOpen() || isLeadPopupOpen();
-}
-
-/** One-time document listeners — safe to call from multiple popups. */
-export function ensureFormInteractionGuard(): void {
-  if (formGuardReady || typeof document === 'undefined') return;
-  formGuardReady = true;
-
-  document.addEventListener(
-    'focusin',
-    (e) => {
-      const target = e.target;
-      if (target instanceof HTMLElement && target.closest('form')) {
-        formFillActive = true;
-        if (blurTimer) {
-          clearTimeout(blurTimer);
-          blurTimer = null;
-        }
-      }
-    },
-    true
-  );
-
-  document.addEventListener(
-    'focusout',
-    () => {
-      if (blurTimer) clearTimeout(blurTimer);
-      blurTimer = setTimeout(() => {
-        if (!isUserFillingAnyForm()) formFillActive = false;
-      }, 500);
-    },
-    true
-  );
-}
-
-export function isLeadAutoOpenSuppressedForSession(): boolean {
-  if (typeof window === 'undefined') return true;
-  try {
-    return (
-      sessionStorage.getItem(LEAD_POPUP_AUTO_DISMISSED_KEY) === '1' ||
-      sessionStorage.getItem(LEAD_POPUP_SUBMITTED_KEY) === '1'
-    );
-  } catch {
-    return false;
-  }
-}
-
-export function markLeadAutoOpenDismissed(): void {
-  try {
-    sessionStorage.setItem(LEAD_POPUP_AUTO_DISMISSED_KEY, '1');
-  } catch {
-    /* ignore */
-  }
 }
 
 export function markLeadPopupSubmitted(): void {
@@ -101,71 +44,25 @@ export function markLeadPopupSubmitted(): void {
   }
 }
 
-/** Ms until lead auto-popup from first visit in this tab session. */
-export function msUntilLeadAutoOpen(): number {
-  if (typeof window === 'undefined') return LEAD_POPUP_AUTO_DELAY_MS;
+export function isLeadPopupSubmitted(): boolean {
   try {
-    const now = Date.now();
-    const raw = sessionStorage.getItem(LEAD_SESSION_START_KEY);
-    if (!raw) {
-      sessionStorage.setItem(LEAD_SESSION_START_KEY, String(now));
-      return LEAD_POPUP_AUTO_DELAY_MS;
-    }
-    const start = Number(raw);
-    if (!Number.isFinite(start)) {
-      sessionStorage.setItem(LEAD_SESSION_START_KEY, String(now));
-      return LEAD_POPUP_AUTO_DELAY_MS;
-    }
-    return Math.max(0, LEAD_POPUP_AUTO_DELAY_MS - (now - start));
+    return sessionStorage.getItem(LEAD_POPUP_SUBMITTED_KEY) === '1';
   } catch {
-    return LEAD_POPUP_AUTO_DELAY_MS;
+    return false;
   }
 }
 
-const DEFER_POLL_MS = 2000;
-const DEFER_MAX_MS = 15 * 60 * 1000;
+/** Removes old dismiss/session keys only — never clears a successful submit. */
+export function clearLegacyLeadPopupBlocks(): void {
+  try {
+    sessionStorage.removeItem(LEGACY_DISMISSED_KEY);
+    sessionStorage.removeItem(LEGACY_SESSION_START_KEY);
+  } catch {
+    /* ignore */
+  }
+}
 
-/**
- * Run callback when lead popup may open — waits if user is filling a form.
- * Returns cancel function.
- */
-export function scheduleLeadAutoOpenWhenSafe(onOpen: () => void): () => void {
-  ensureFormInteractionGuard();
-
-  const started = Date.now();
-  let mainTimer: ReturnType<typeof setTimeout> | null = null;
-  let pollTimer: ReturnType<typeof setInterval> | null = null;
-
-  const tryOpen = () => {
-    if (isLeadAutoOpenSuppressedForSession()) return;
-    if (shouldDeferLeadAutoOpen()) return;
-    onOpen();
-  };
-
-  const startPolling = () => {
-    if (pollTimer) return;
-    pollTimer = setInterval(() => {
-      if (Date.now() - started > DEFER_MAX_MS) {
-        if (pollTimer) clearInterval(pollTimer);
-        return;
-      }
-      if (!shouldDeferLeadAutoOpen()) {
-        if (pollTimer) clearInterval(pollTimer);
-        tryOpen();
-      }
-    }, DEFER_POLL_MS);
-  };
-
-  mainTimer = setTimeout(() => {
-    if (shouldDeferLeadAutoOpen()) {
-      startPolling();
-      return;
-    }
-    tryOpen();
-  }, msUntilLeadAutoOpen());
-
-  return () => {
-    if (mainTimer) clearTimeout(mainTimer);
-    if (pollTimer) clearInterval(pollTimer);
-  };
+/** No-op retained for leftover rank-popup imports. */
+export function ensureFormInteractionGuard(): void {
+  /* no-op */
 }

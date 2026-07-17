@@ -162,6 +162,10 @@ function buildSheetPayloadFromLead(
     pickLeadField(fields, ['subject']),
     pickLeadField(fields, ['neetScore', 'examScore', 'score']),
     pickLeadField(fields, ['preferredDate']),
+    (() => {
+      const category = pickLeadField(fields, ['category', 'reservation', 'caste']);
+      return category ? `Category: ${category}` : '';
+    })(),
   ].filter(Boolean);
 
   const routing = resolveLeadCourseSheet({

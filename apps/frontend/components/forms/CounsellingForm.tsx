@@ -18,6 +18,7 @@ import {
 } from '@/lib/openThankYouPage';
 import { submitWebsiteLead } from '@/lib/submitWebsiteLead';
 import { COUNSELLING_PROGRAM_SELECT_OPTIONS } from '@/lib/counsellingProgramOptions';
+import { LEAD_CATEGORY_OPTIONS } from '@/lib/leadCategoryOptions';
 import { personNameZodString } from '@/lib/validatePersonName';
 import { INVALID_INDIAN_PHONE_MESSAGE } from '@/lib/leadSubmissionMessages';
 import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
@@ -29,6 +30,7 @@ const CounsellingFormSchema = z.object({
   phone: z
     .string()
     .regex(/^[6-9]\d{9}$/, INVALID_INDIAN_PHONE_MESSAGE),
+  category: z.string().min(1, 'Please select a category'),
   counsellingInterest: z.enum(['mbbs-india', 'mbbs-abroad', 'md-ms', 'bams'], {
     errorMap: () => ({ message: 'Please select a programme' }),
   }),
@@ -109,6 +111,7 @@ export const CounsellingForm = ({
           fullName: data.fullName,
           email: data.email,
           phone: data.phone,
+          category: data.category,
           counsellingInterest: data.counsellingInterest,
           examScore: data.examScore ?? '',
           preferredDate: data.preferredDate ?? '',
@@ -259,6 +262,27 @@ export const CounsellingForm = ({
               {errors.phone && <p className={errorClass}>{errors.phone.message}</p>}
             </Field>
 
+            <Field animate={animate}>
+              <label className={labelClass}>Category *</label>
+              <select
+                className={selectClass(!!errors.category)}
+                {...register('category')}
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  Select category
+                </option>
+                {LEAD_CATEGORY_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              {errors.category && <p className={errorClass}>{errors.category.message}</p>}
+            </Field>
+          </div>
+
+          <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-2' : 'md:grid-cols-2'} ${gridGap}`}>
             <Field animate={animate}>
               <label className={labelClass}>I want counselling for *</label>
               <select

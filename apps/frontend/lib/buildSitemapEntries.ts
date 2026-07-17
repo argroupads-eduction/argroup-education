@@ -1,8 +1,14 @@
 import { buildDynamicSitemap, type SitemapEntry } from '@backend/handlers/siteSearch';
 import { BLOG_EXCLUDED_LIST_SLUGS, BLOG_SLUG_CANONICAL, blogPostPath } from '@/lib/blogUtils';
 import { hasUsableDatabase } from '@/lib/databaseEnv';
+import {
+  getPayloadCmsServerFetchUrl,
+  isPayloadCmsConfigured,
+} from '@/lib/payloadCmsUrl';
+import { readPayloadCms } from '@/lib/payloadCmsRead';
 import { PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 import { getSupplementalSitemapEntries } from '@/lib/seoCrawlConfig';
+import { withServerTimeout } from '@/lib/serverTimeout';
 import { getAllWpExportBlogPosts } from '@/lib/wpExportContent';
 
 export type { SitemapEntry };
@@ -27,6 +33,14 @@ const SITEMAP_EXCLUDED_SLUGS = new Set([
   ...LEGACY_HUB_SLUGS,
 ]);
 
+type PayloadListDoc = {
+  slug?: string | null;
+  updatedAt?: string | null;
+  publishedAt?: string | null;
+  createdAt?: string | null;
+  _status?: string | null;
+};
+
 function mergeSitemapEntries(...groups: SitemapEntry[][]): SitemapEntry[] {
   const seen = new Set<string>();
   const merged: SitemapEntry[] = [];
@@ -44,6 +58,95 @@ function absoluteUrl(baseUrl: string, path: string): string {
   const base = baseUrl.replace(/\/$/, '');
   if (path === '/') return `${base}/`;
   return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
+function isPublishedPayloadDoc(doc: PayloadListDoc): boolean {
+  return Boolean(doc.slug?.trim()) && (doc._status === 'published' || !doc._status);
+}
+
+async function fetchAllPayloadCollectionDocs(
+  collection: 'pages' | 'posts'
+): Promise<PayloadListDoc[]> {
+  if (!isPayloadCmsConfigured()) return [];
+  const base = getPayloadCmsServerFetchUrl();
+  if (!base) return [];
+
+  const docs: PayloadListDoc[] = [];
+  let page = 1;
+  const limit = 100;
+
+  while (page <= 50) {
+    const qs = new URLSearchParams({
+      limit: String(limit),
+      page: String(page),
+      depth: '0',
+      sort: '-updatedAt',
+    });
+    const result = await withServerTimeout(
+      readPayloadCms(`${base}/api/${collection}?${qs.toString()}`),
+      8000,
+      null
+    );
+    if (!result?.responseOk || !result.json || typeof result.json !== 'object') break;
+
+    const body = result.json as {
+      docs?: PayloadListDoc[];
+      hasNextPage?: boolean;
+      totalPages?: number;
+    };
+    const batch = (body.docs ?? []).filter(isPublishedPayloadDoc);
+    docs.push(...batch);
+
+    if (!body.hasNextPage && page >= (body.totalPages ?? page)) break;
+    if (!batch.length && !(body.docs?.length)) break;
+    page += 1;
+  }
+
+  return docs;
+}
+
+/** Live Payload CMS pages + posts — keeps sitemap in sync when editors publish in CMS. */
+async function getPayloadCmsSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
+  if (!isPayloadCmsConfigured()) return [];
+
+  try {
+    const now = new Date().toISOString();
+    const [pages, posts] = await Promise.all([
+      fetchAllPayloadCollectionDocs('pages'),
+      fetchAllPayloadCollectionDocs('posts'),
+    ]);
+
+    const entries: SitemapEntry[] = [];
+
+    for (const doc of pages) {
+      const slug = doc.slug?.trim();
+      if (!slug || SITEMAP_EXCLUDED_SLUGS.has(slug)) continue;
+      const lastmod = doc.updatedAt ?? doc.publishedAt ?? doc.createdAt ?? now;
+      entries.push({
+        loc: absoluteUrl(baseUrl, `/${slug}`),
+        lastmod: new Date(lastmod).toISOString(),
+        changefreq: 'weekly',
+        priority: 0.65,
+      });
+    }
+
+    for (const doc of posts) {
+      const slug = doc.slug?.trim();
+      if (!slug || BLOG_EXCLUDED_LIST_SLUGS.has(slug) || slug in BLOG_SLUG_CANONICAL) continue;
+      const lastmod = doc.updatedAt ?? doc.publishedAt ?? doc.createdAt ?? now;
+      entries.push({
+        loc: absoluteUrl(baseUrl, blogPostPath(slug)),
+        lastmod: new Date(lastmod).toISOString(),
+        changefreq: 'weekly',
+        priority: 0.7,
+      });
+    }
+
+    return entries;
+  } catch (error) {
+    console.warn('[sitemap] Payload CMS entries skipped:', error);
+    return [];
+  }
 }
 
 /** WP export bundle — pages (root slug) + blog posts (/blog/...). */
@@ -101,18 +204,23 @@ async function getBundleSitemapEntries(baseUrl: string): Promise<SitemapEntry[]>
   return entries;
 }
 
-function filterDuplicateBlogSitemapEntries(
-  entries: SitemapEntry[],
-  baseUrl: string
-): SitemapEntry[] {
+function filterSitemapEntries(entries: SitemapEntry[], baseUrl: string): SitemapEntry[] {
   const base = baseUrl.replace(/\/$/, '');
   const blogPrefix = `${base}/blog/`;
 
   return entries.filter((entry) => {
-    if (!entry.loc.startsWith(blogPrefix)) return true;
-    const slug = decodeURIComponent(entry.loc.slice(blogPrefix.length));
-    if (BLOG_EXCLUDED_LIST_SLUGS.has(slug)) return false;
-    if (slug in BLOG_SLUG_CANONICAL) return false;
+    if (entry.loc.startsWith(blogPrefix)) {
+      const slug = decodeURIComponent(entry.loc.slice(blogPrefix.length));
+      if (BLOG_EXCLUDED_LIST_SLUGS.has(slug)) return false;
+      if (slug in BLOG_SLUG_CANONICAL) return false;
+      return true;
+    }
+
+    if (entry.loc.startsWith(`${base}/`) && entry.loc !== `${base}/`) {
+      const slug = decodeURIComponent(entry.loc.slice(base.length + 1).split('/')[0] ?? '');
+      if (SITEMAP_EXCLUDED_SLUGS.has(slug)) return false;
+    }
+
     return true;
   });
 }
@@ -123,7 +231,7 @@ async function getDatabaseSitemapEntries(baseUrl: string): Promise<SitemapEntry[
 
   try {
     const entries = await buildDynamicSitemap(baseUrl);
-    return filterDuplicateBlogSitemapEntries(entries, baseUrl);
+    return filterSitemapEntries(entries, baseUrl);
   } catch (error) {
     console.warn('[sitemap] Database entries skipped:', error);
     return [];
@@ -132,14 +240,16 @@ async function getDatabaseSitemapEntries(baseUrl: string): Promise<SitemapEntry[
 
 /**
  * Build the full public sitemap from all sources:
- * structured hubs (MBBS/MD-MS), WP bundle, and live CMS/DB content.
+ * structured hubs (MBBS/MD-MS), WP bundle, live Payload CMS, and Neon/DB content.
+ * Any newly published page, college page, or blog is picked up automatically.
  */
 export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
   const supplemental = getSupplementalSitemapEntries(baseUrl);
-  const [bundle, database] = await Promise.all([
+  const [bundle, payload, database] = await Promise.all([
     getBundleSitemapEntries(baseUrl),
+    getPayloadCmsSitemapEntries(baseUrl),
     getDatabaseSitemapEntries(baseUrl),
   ]);
 
-  return mergeSitemapEntries(supplemental, bundle, database);
+  return mergeSitemapEntries(supplemental, bundle, payload, database);
 }
