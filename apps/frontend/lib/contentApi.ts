@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import {
+  BLOG_REMOVED_PUBLIC_SLUGS,
   BLOG_SLUG_CANONICAL,
   dedupeBlogPosts,
   sortBlogPostsByNewest,
@@ -690,6 +691,10 @@ async function fetchSyncedContentBySlug(slug: string): Promise<SiteContent | nul
 export const getContentBySlug = cache(async function getContentBySlug(
   slug: string
 ): Promise<SiteContent | null> {
+  if (BLOG_REMOVED_PUBLIC_SLUGS.has(slug)) {
+    return null;
+  }
+
   if (await isContentSuppressedInBackend(slug)) {
     return null;
   }

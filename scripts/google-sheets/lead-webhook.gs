@@ -4,7 +4,8 @@
  * IMPORTANT: Create this script from YOUR spreadsheet:
  *   Extensions → Apps Script (on the same Google Sheet where leads should appear)
  *
- * Tabs created by setupSheets(): MBBS INDIA | MBBS ABROAD | MD/MS | BAMS | Rank Predictor Leads
+ * Tabs created by setupSheets():
+ *   MBBS INDIA | MBBS ABROAD | MD/MS | BAMS | Rank Predictor Leads | College Predictor
  *
  * Setup:
  * 1. New Google Sheet → Extensions → Apps Script → paste this file
@@ -22,8 +23,9 @@ var SHEET_MBBS_ABROAD = 'MBBS ABROAD';
 var SHEET_MD_MS = 'MD/MS';
 var SHEET_BAMS = 'BAMS';
 var SHEET_RANK = 'Rank Predictor Leads';
+var SHEET_COLLEGE = 'College Predictor';
 var TZ = 'Asia/Kolkata';
-var SCRIPT_VERSION = '2026-06-17-v2';
+var SCRIPT_VERSION = '2026-07-20-v3';
 
 var COURSE_SHEETS = [SHEET_MBBS_INDIA, SHEET_MBBS_ABROAD, SHEET_MD_MS, SHEET_BAMS];
 
@@ -50,6 +52,19 @@ var RANK_HEADERS = [
   'Phone Number',
   'NEET Score',
   'Predicted Rank',
+  'State',
+  'Course',
+  'Timestamp',
+  'Date',
+  'Time',
+];
+
+var COLLEGE_HEADERS = [
+  'Name',
+  'Email',
+  'Phone Number',
+  'NEET AIR',
+  'Category',
   'State',
   'Course',
   'Timestamp',
@@ -144,7 +159,7 @@ function doPost(e) {
     var phone = normalizePhone_(payload.phone);
     var email = normalizeEmail_(payload.email);
 
-    if (type === 'rank_predictor') {
+    if (type === 'rank_predictor' || type === 'college_predictor') {
       if (!phone || !isValidIndianPhone_(phone)) {
         return jsonResponse_({ ok: false, message: 'Please enter a valid Indian mobile number.' });
       }
@@ -167,17 +182,22 @@ function doPost(e) {
 
     var ss = getSpreadsheet_();
     var parts = getISTParts_();
+    var savedSheet = '';
 
     if (type === 'rank_predictor') {
       appendRankPredictorRow_(ss, payload, phone, email, parts);
+      savedSheet = SHEET_RANK;
+    } else if (type === 'college_predictor') {
+      appendCollegePredictorRow_(ss, payload, phone, email, parts);
+      savedSheet = SHEET_COLLEGE;
     } else {
-      var sheetName = resolveCourseSheet_(payload);
-      appendCourseLeadRow_(ss, sheetName, payload, phone, email, parts);
+      savedSheet = resolveCourseSheet_(payload);
+      appendCourseLeadRow_(ss, savedSheet, payload, phone, email, parts);
     }
 
     if (requestId) markRequestProcessed_(requestId);
 
-    return jsonResponse_({ ok: true, leadId: parts.leadId, sheet: type === 'rank_predictor' ? SHEET_RANK : resolveCourseSheet_(payload) });
+    return jsonResponse_({ ok: true, leadId: parts.leadId, sheet: savedSheet });
   } catch (err) {
     Logger.log('lead-webhook error: ' + err);
     var detail = err && err.message ? String(err.message) : String(err);
@@ -199,6 +219,8 @@ function setupSheets() {
   }
   ensureSheet_(ss, SHEET_RANK, RANK_HEADERS);
   migrateContactColumnOrder_(ss.getSheetByName(SHEET_RANK), 2, 3);
+  ensureSheet_(ss, SHEET_COLLEGE, COLLEGE_HEADERS);
+  migrateContactColumnOrder_(ss.getSheetByName(SHEET_COLLEGE), 2, 3);
 }
 
 /** Swap Email / Phone columns when sheets still use the legacy Name → Phone → Email order. */
@@ -345,14 +367,15 @@ function sanitize_(value, maxLen) {
 
 function isDuplicateLead_(phone, email) {
   var ss = getSpreadsheet_();
-  var allSheets = COURSE_SHEETS.concat([SHEET_RANK]);
+  var allSheets = COURSE_SHEETS.concat([SHEET_RANK, SHEET_COLLEGE]);
 
   for (var s = 0; s < allSheets.length; s++) {
     var sheet = ss.getSheetByName(allSheets[s]);
     if (!sheet) continue;
 
-    var phoneCol = getHeaderColumnIndex_(sheet, 'Phone Number', allSheets[s] === SHEET_RANK ? 3 : 6);
-    var emailCol = getHeaderColumnIndex_(sheet, 'Email', allSheets[s] === SHEET_RANK ? 2 : 5);
+    var isToolSheet = allSheets[s] === SHEET_RANK || allSheets[s] === SHEET_COLLEGE;
+    var phoneCol = getHeaderColumnIndex_(sheet, 'Phone Number', isToolSheet ? 3 : 6);
+    var emailCol = getHeaderColumnIndex_(sheet, 'Email', isToolSheet ? 2 : 5);
 
     if (phone && phoneExistsInSheet_(sheet, phoneCol, phone)) return true;
     if (email && emailExistsInSheet_(sheet, emailCol, email)) return true;
@@ -427,6 +450,23 @@ function appendRankPredictorRow_(ss, payload, phone, email, parts) {
     'Phone Number': phone,
     'NEET Score': Number(payload.neetScore) || 0,
     'Predicted Rank': Number(payload.predictedRank) || 0,
+    'State': sanitize_(payload.state, 80),
+    'Course': sanitize_(payload.course, 120),
+    'Timestamp': parts.timestamp,
+    'Date': parts.date,
+    'Time': parts.time,
+  });
+}
+
+function appendCollegePredictorRow_(ss, payload, phone, email, parts) {
+  var sheet = ensureSheet_(ss, SHEET_COLLEGE, COLLEGE_HEADERS);
+
+  appendRowFromHeaders_(sheet, COLLEGE_HEADERS, {
+    'Name': sanitize_(payload.name, 120),
+    'Email': email,
+    'Phone Number': phone,
+    'NEET AIR': Number(payload.neetAir) || Number(payload.predictedRank) || 0,
+    'Category': sanitize_(payload.category, 80),
     'State': sanitize_(payload.state, 80),
     'Course': sanitize_(payload.course, 120),
     'Timestamp': parts.timestamp,

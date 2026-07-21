@@ -34,6 +34,16 @@ export type RankPredictorSheetPayload = {
   course?: string;
 };
 
+export type CollegePredictorSheetPayload = {
+  name: string;
+  phone: string;
+  email: string;
+  neetAir: number;
+  category: string;
+  state?: string;
+  course?: string;
+};
+
 type SheetsWebhookResponse = {
   ok?: boolean;
   duplicate?: boolean;
@@ -366,6 +376,35 @@ export async function submitRankPredictorToGoogleSheets(
       email,
       neetScore: payload.neetScore,
       predictedRank: payload.predictedRank,
+      state: sanitizeLeadText(payload.state, 80),
+      course: sanitizeLeadText(payload.course, 120),
+    },
+  });
+}
+
+export async function submitCollegePredictorToGoogleSheets(
+  payload: CollegePredictorSheetPayload,
+  meta?: { requestId?: string }
+): Promise<SheetsWebhookResponse> {
+  const phone = normalizeIndianMobile(payload.phone);
+  const email = normalizeLeadEmail(payload.email);
+
+  if (!phone || !isValidIndianMobile(phone)) {
+    return { ok: false, message: 'Invalid phone number' };
+  }
+  if (!email || !isValidLeadEmail(email)) {
+    return { ok: false, message: 'Invalid email address' };
+  }
+
+  return postToSheetsWebhook({
+    type: 'college_predictor',
+    requestId: meta?.requestId,
+    payload: {
+      name: sanitizeLeadText(payload.name, 120),
+      phone: phone || '',
+      email,
+      neetAir: payload.neetAir,
+      category: sanitizeLeadText(payload.category, 80),
       state: sanitizeLeadText(payload.state, 80),
       course: sanitizeLeadText(payload.course, 120),
     },

@@ -9,7 +9,7 @@ import {
   isSiteProtectionEnabled,
 } from '@/lib/siteProtection';
 import { SiteInteractionGuard } from '@/components/common/SiteInteractionGuard';
-import { NeetRankPredictorPromoStrip } from '@/components/neet-rank-predictor/NeetRankPredictorPromoStrip';
+import CollegePredictorPromoStrip from '@/components/common/CollegePredictorPromoStrip';
 import { NavPagesProvider } from '@/components/common/NavPagesProvider';
 import { SiteGlobalsProvider } from '@/components/common/SiteGlobalsProvider';
 import { fetchDynamicNavPages } from '@/lib/dynamicNav.server';
@@ -144,7 +144,7 @@ export default async function RootLayout({
       >
         <SiteGlobalsProvider globals={siteGlobals}>
           <NavPagesProvider pages={navPages}>
-            <NeetRankPredictorPromoStrip />
+            <CollegePredictorPromoStrip />
             <Navbar />
             <main className="min-w-0">{children}</main>
             <Footer />

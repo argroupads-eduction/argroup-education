@@ -83,10 +83,16 @@ export const NAV_LINKS = [
   },
 ] as const;
 
-/** Shown in navbar CTA row (right of Expert Counselling), not in main nav links */
+/** Rank Predictor page (home promo / footer) — not the navbar CTA */
 export const NEET_RANK_PREDICTOR_LINK = {
   label: 'NEET Rank',
   href: '/neet-rank-predictor',
+} as const;
+
+/** Shown in navbar CTA row (right of Expert Counselling) */
+export const COLLEGE_PREDICTOR_LINK = {
+  label: 'College Predictor',
+  href: '/college-predictor',
 } as const;
 
 // Countries Data

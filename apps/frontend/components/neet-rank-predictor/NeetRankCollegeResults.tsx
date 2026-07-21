@@ -1,59 +1,151 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowUpRight, Globe, MapPin } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowUpRight, Building2, Globe, MapPin, Sparkles } from 'lucide-react';
 import type { CollegeMatch } from '@/lib/neetRankPredictor/collegeMatches';
+
+function chanceClass(chance?: CollegeMatch['chance']) {
+  if (chance === 'high') return 'cp-chance--high';
+  if (chance === 'reach') return 'cp-chance--reach';
+  return 'cp-chance--mid';
+}
+
+function collegeKey(c: CollegeMatch, index: number, scope = ''): string {
+  return [scope, c.href, c.name, c.closingRank ?? '', c.collegeType ?? '', index].join('::');
+}
+
+function CollegeCard({ c, index }: { c: CollegeMatch; index: number }) {
+  return (
+    <motion.li
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: Math.min(index * 0.04, 0.35), duration: 0.35, ease: 'easeOut' }}
+    >
+      <Link href={c.href || '/contact'} className={`cp-college-card ${chanceClass(c.chance)}`}>
+        <span className="cp-college-card__rail" aria-hidden />
+        <div className="cp-college-card__top">
+          <span className="cp-college-card__type">
+            <Building2 className="h-3 w-3" aria-hidden />
+            {c.collegeType ?? 'College'}
+          </span>
+          <span className="cp-college-card__go" aria-hidden>
+            <ArrowUpRight className="h-4 w-4" />
+          </span>
+        </div>
+        <p className="cp-college-card__name">{c.name}</p>
+        <p className="cp-college-card__meta">
+          <MapPin className="h-3 w-3 shrink-0" aria-hidden />
+          {c.meta}
+        </p>
+        {c.badge ? (
+          <div className="cp-college-card__footer">
+            <span className="cp-college-card__badge">{c.badge}</span>
+          </div>
+        ) : null}
+      </Link>
+    </motion.li>
+  );
+}
 
 function CollegeGrid({
   title,
   icon: Icon,
-  accent,
   colleges,
   emptyMessage,
+  groupByState,
+  tone = 'navy',
 }: {
   title: string;
   icon: typeof MapPin;
-  accent: string;
   colleges: CollegeMatch[];
   emptyMessage?: string;
+  groupByState?: boolean;
+  tone?: 'navy' | 'gold';
 }) {
   if (!colleges.length) {
     return emptyMessage ? (
-      <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/80 px-4 py-6 text-center text-sm text-slate-500">
-        {emptyMessage}
-      </p>
+      <p className="cp-empty">{emptyMessage}</p>
     ) : null;
   }
 
-  return (
-    <div>
-      <div className="mb-4 flex items-center gap-2">
-        <span className={`flex h-9 w-9 items-center justify-center rounded-xl shadow-sm ${accent}`}>
-          <Icon className="h-4 w-4 text-white" aria-hidden />
-        </span>
-        <h3 className="font-serif text-lg font-bold text-navy-900">{title}</h3>
+  if (groupByState) {
+    const groups = new Map<string, CollegeMatch[]>();
+    for (const c of colleges) {
+      const key = c.meta || 'Other';
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(c);
+    }
+    const states = [...groups.keys()].sort((a, b) => a.localeCompare(b));
+    let cardIndex = 0;
+
+    return (
+      <div className={`cp-results-block cp-results-block--${tone}`}>
+        <div className="cp-results-block__head">
+          <span className="cp-results-block__icon">
+            <Icon className="h-4 w-4" aria-hidden />
+          </span>
+          <div>
+            <h3 className="cp-results-block__title">{title}</h3>
+            <p className="cp-results-block__count">
+              {colleges.length} match{colleges.length === 1 ? '' : 'es'} · {states.length} region
+              {states.length === 1 ? '' : 's'}
+            </p>
+          </div>
+        </div>
+
+        <div className="cp-state-stack">
+          {states.map((state, sIdx) => {
+            const list = groups.get(state)!;
+            return (
+              <motion.section
+                key={state}
+                className="cp-state-panel"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(sIdx * 0.05, 0.4), duration: 0.4 }}
+              >
+                <header className="cp-state-panel__head">
+                  <div className="cp-state-panel__label">
+                    <span className="cp-state-panel__pin" aria-hidden />
+                    <h4>{state}</h4>
+                  </div>
+                  <span className="cp-state-panel__count">
+                    {list.length} college{list.length === 1 ? '' : 's'}
+                  </span>
+                </header>
+                <ul className="cp-college-grid">
+                  {list.map((c, localIdx) => {
+                    const i = cardIndex++;
+                    return (
+                      <CollegeCard key={collegeKey(c, localIdx, state)} c={c} index={i} />
+                    );
+                  })}
+                </ul>
+              </motion.section>
+            );
+          })}
+        </div>
       </div>
-      <ul className="grid gap-3 sm:grid-cols-2">
-        {colleges.map((c) => (
-          <li key={c.href}>
-            <Link
-              href={c.href}
-              className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-gold-400 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <p className="font-semibold leading-snug text-navy-900 group-hover:text-gold-700">
-                  {c.name}
-                </p>
-                <ArrowUpRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:text-gold-600" />
-              </div>
-              <p className="mt-1 text-xs text-slate-500">{c.meta}</p>
-              {c.badge ? (
-                <span className="mt-3 inline-flex w-fit rounded-full bg-gold-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-800">
-                  {c.badge}
-                </span>
-              ) : null}
-            </Link>
-          </li>
+    );
+  }
+
+  return (
+    <div className={`cp-results-block cp-results-block--${tone}`}>
+      <div className="cp-results-block__head">
+        <span className="cp-results-block__icon">
+          <Icon className="h-4 w-4" aria-hidden />
+        </span>
+        <div>
+          <h3 className="cp-results-block__title">{title}</h3>
+          <p className="cp-results-block__count">
+            {colleges.length} option{colleges.length === 1 ? '' : 's'}
+          </p>
+        </div>
+      </div>
+      <ul className="cp-college-grid">
+        {colleges.map((c, i) => (
+          <CollegeCard key={collegeKey(c, i, 'flat')} c={c} index={i} />
         ))}
       </ul>
     </div>
@@ -64,59 +156,82 @@ export function NeetRankCollegeResults({
   india,
   abroad,
   track,
+  title,
+  subtitle,
+  disclaimer,
 }: {
   india: CollegeMatch[];
   abroad: CollegeMatch[];
   track: 'india' | 'abroad' | 'md-ms' | 'bams';
+  title?: string;
+  subtitle?: string;
+  disclaimer?: string;
 }) {
   const programOnly = track === 'md-ms' || track === 'bams';
 
   return (
-    <div className="space-y-8 border-t border-slate-100 pt-8">
-      <div>
-        <h3 className="font-serif text-xl font-bold text-navy-900 md:text-2xl">
-          {programOnly ? 'Counselling for your programme' : 'Colleges matched to your score'}
+    <div className="cp-results">
+      <div className="cp-results__intro">
+        <span className="cp-results__eyebrow">
+          <Sparkles className="h-3.5 w-3.5" aria-hidden />
+          AR Group shortlist
+        </span>
+        <h3 className="cp-results__title">
+          {title ??
+            (programOnly
+              ? 'Options for your programme'
+              : track === 'abroad'
+                ? 'MBBS Abroad colleges for your profile'
+                : 'Colleges that fit this rank')}
         </h3>
-        <p className="mt-1 text-sm text-slate-600">
-          {programOnly
-            ? 'Our counsellors will call you with MD/MS or BAMS college options based on your NEET rank and budget.'
-            : 'Shortlisted options from AR Group, tap any college for fees, eligibility & counselling.'}
+        <p className="cp-results__sub">
+          {subtitle ??
+            (programOnly
+              ? 'Shortlisted pathways from AR Group — tap for details or talk to a counsellor.'
+              : 'Indicative MCC AIQ closing ranks for your category — grouped so you can scan by state.')}
         </p>
       </div>
 
-      {programOnly ? (
+      {track === 'md-ms' ? (
         <CollegeGrid
-          title={track === 'md-ms' ? 'MD/MS pathways' : 'BAMS pathways'}
+          title="MD/MS state hubs"
           icon={Globe}
-          accent="bg-gradient-to-br from-navy-800 to-navy-600"
-          colleges={[]}
-          emptyMessage={
-            track === 'md-ms'
-              ? 'Explore MD/MS admission guidance with our counsellors.'
-              : 'Explore BAMS college options with our counsellors.'
-          }
+          colleges={india}
+          emptyMessage="Explore MD/MS admission guidance with our counsellors."
         />
       ) : null}
 
-      {!programOnly && track === 'india' && (
+      {track === 'bams' ? (
         <CollegeGrid
-          title="MBBS in India"
-          icon={MapPin}
-          accent="bg-gradient-to-br from-navy-800 to-navy-600"
-          colleges={india}
-          emptyMessage="Explore MBBS India options with our counsellors."
-        />
-      )}
-
-      {!programOnly && track === 'abroad' && (
-        <CollegeGrid
-          title="MBBS Abroad"
+          title="BAMS pathways"
           icon={Globe}
-          accent="bg-gradient-to-br from-gold-500 to-amber-600"
+          colleges={india}
+          emptyMessage="Explore BAMS college options with our counsellors."
+        />
+      ) : null}
+
+      {track === 'india' ? (
+        <CollegeGrid
+          title="MBBS in India — state-wise"
+          icon={MapPin}
+          colleges={india}
+          groupByState
+          emptyMessage="No matching colleges found for this AIR & category. Try Abroad / BAMS, or talk to our counsellor."
+        />
+      ) : null}
+
+      {track === 'abroad' ? (
+        <CollegeGrid
+          title="MBBS Abroad — by country"
+          icon={Globe}
           colleges={abroad}
+          groupByState
+          tone="gold"
           emptyMessage="Explore MBBS Abroad destinations with our counsellors."
         />
-      )}
+      ) : null}
+
+      {disclaimer ? <p className="cp-disclaimer">{disclaimer}</p> : null}
     </div>
   );
 }

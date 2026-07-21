@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { GraduationCap, X } from 'lucide-react';
 
-const STORAGE_KEY = 'ar-college-predictor-promo-dismissed';
+const STORAGE_KEY = 'ar-college-predictor-promo-v2-dismissed';
 
-export function NeetRankPredictorPromoStrip() {
+/** Top/mobile promo — College Predictor (replaces Rank Predictor strip). */
+export function CollegePredictorPromoStrip() {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
 
@@ -36,40 +37,38 @@ export function NeetRankPredictorPromoStrip() {
 
   return (
     <>
-      {/* Desktop / tablet — full-width top strip */}
       <div
         className="relative z-[45] hidden border-b border-navy-800/20 bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900 text-white sm:block"
         role="region"
         aria-label="College Predictor promotion"
       >
-        <div className="mx-auto flex max-w-6xl flex-row items-center justify-between gap-3 px-4 py-2.5 text-left text-sm">
-          <p className="flex min-w-0 flex-wrap items-center gap-2 font-medium leading-snug">
-            <GraduationCap className="h-4 w-4 shrink-0 text-amber-200" aria-hidden />
-            <span className="min-w-0">
-              <strong className="text-amber-200">NEW:</strong> College Predictor 2026, know which
-              colleges fit your NEET rank in seconds
-            </span>
-          </p>
-          <div className="flex shrink-0 items-center justify-end gap-2">
+        <div className="relative mx-auto flex max-w-6xl items-center justify-center px-4 py-2.5 pr-12 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+            <p className="flex items-center gap-2 font-medium leading-snug">
+              <GraduationCap className="h-4 w-4 shrink-0 text-amber-200" aria-hidden />
+              <span>
+                <strong className="text-amber-200">NEW:</strong> College Predictor 2026, know which
+                colleges fit your NEET rank in seconds
+              </span>
+            </p>
             <Link
               href="/college-predictor"
-              className="rounded-full bg-white px-4 py-1.5 text-xs font-bold text-teal-900 shadow hover:bg-amber-50"
+              className="inline-flex shrink-0 items-center rounded-full bg-white px-4 py-1.5 text-xs font-bold text-teal-900 shadow transition hover:bg-amber-50"
             >
               Try now →
             </Link>
-            <button
-              type="button"
-              onClick={dismiss}
-              className="rounded-full p-1 hover:bg-white/15"
-              aria-label="Dismiss promotion"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
+          <button
+            type="button"
+            onClick={dismiss}
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 hover:bg-white/15"
+            aria-label="Dismiss promotion"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
-      {/* Mobile — bottom floating card */}
       <div
         className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:hidden"
         role="region"
@@ -108,3 +107,5 @@ export function NeetRankPredictorPromoStrip() {
     </>
   );
 }
+
+export default CollegePredictorPromoStrip;

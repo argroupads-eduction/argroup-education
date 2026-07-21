@@ -4,6 +4,7 @@ import { getSiteUrl } from '@/lib/siteUrl';
 import { getMbbsHeroFallbackForm } from '@/lib/mbbsHeroFormFallback';
 import { loadMbbsHeroFormDefinitionsServer } from '@/lib/mbbsHeroFormDefinitionServer';
 import { HeroSection } from '@/sections/home/HeroSection';
+import { CollegePredictorHomeSection } from '@/sections/home/CollegePredictorHomeSection';
 import { NeetRankPredictorHomeSection } from '@/sections/home/NeetRankPredictorHomeSection';
 import { LazySection } from '@/components/common/LazySection';
 import { HomeFaqJsonLd } from '@/components/home/HomeFaqJsonLd';
@@ -109,13 +110,15 @@ export default async function HomePage() {
           abroad: forms.abroad.ok ? forms.abroad.doc : getMbbsHeroFallbackForm('abroad'),
         }}
       />
-      <NeetRankPredictorHomeSection />
+      <CollegePredictorHomeSection />
       <LazySection minHeight="22rem">
         <MBBSIndiaStateSection />
       </LazySection>
       <LazySection minHeight="24rem">
         <AboutSection />
       </LazySection>
+      {/* Unique mid-page tool moment — dark band, after brand story */}
+      <NeetRankPredictorHomeSection />
       <LazySection minHeight="26rem">
         <YoutubeChannelSection />
       </LazySection>

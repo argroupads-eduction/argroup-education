@@ -13,6 +13,7 @@ https://docs.google.com/spreadsheets/d/1G_qR3KEutbjxw22V2qnCAC1Ymr48BV3sQgf8lgnz
 | **MD/MS** | MD/MS forms and popup selection |
 | **BAMS** | BAMS forms and popup selection |
 | **Rank Predictor Leads** | NEET Rank Predictor only |
+| **College Predictor** | College Predictor tool only (`/college-predictor`) |
 
 **MBBS ABROAD** includes a **Country** column — filled from the form dropdown (Russia, Nepal, Kazakhstan, etc.).
 
@@ -26,7 +27,7 @@ https://docs.google.com/spreadsheets/d/1G_qR3KEutbjxw22V2qnCAC1Ymr48BV3sQgf8lgnz
 1. Open the spreadsheet → **Extensions → Apps Script**.
 2. Paste `scripts/google-sheets/lead-webhook.gs` (replace old code if you deployed v1).
 3. **Script properties** → `WEBHOOK_SECRET` = long random string.
-4. Run **`setupSheets()`** once (creates all 5 tabs + headers).
+4. Run **`setupSheets()`** once (creates all 6 tabs + headers).
 5. **Deploy → New deployment → Web app** (Execute as: Me, Access: **Anyone**).
 6. Copy the `/exec` URL.
 

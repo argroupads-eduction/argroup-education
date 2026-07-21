@@ -20,6 +20,7 @@ export default function SitemapPage() {
     ]},
     { category: 'Resources', links: [
       { title: 'NEET Rank Predictor', href: '/neet-rank-predictor' },
+      { title: 'College Predictor', href: '/college-predictor' },
       { title: 'Blog', href: '/blog' },
       { title: 'FAQs', href: '/' },
       { title: 'Success Stories', href: '/' },

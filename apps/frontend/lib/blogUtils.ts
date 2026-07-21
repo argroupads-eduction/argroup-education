@@ -1,8 +1,34 @@
 import type { BlogListItem } from '@/lib/contentApi';
 import { metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 
+/**
+ * Blogs fully removed from the public site (listing, sitemap, and /blog/… URLs).
+ * Keep in sync with editorial takedowns — direct URLs return 404.
+ */
+export const BLOG_REMOVED_PUBLIC_SLUGS = new Set([
+  'big-update-neet-aspirants-2026',
+  'bukhara-state-medical-institute-eligibility',
+  'cheapest-mbbs-colleges-in-the-world',
+  'deemed-universities-in-india-for-mbbs',
+  'do-or-die-chapters-for-neet-2026',
+  'mbbs-abroad-read-this',
+  'mbbs-admission-through-nri-quota-india',
+  'mbbs-admission-through-state-quota',
+  'medical-college-reality-check-india',
+  'neet-2026-answer-key',
+  'neet-2026-expected-difficulty-level',
+  'neet-2026-result-date-and-time',
+  'neet-dress-code-2026',
+  'neet-ug-counselling-2026-step-by-step-process',
+  'nta-cancelled-neet-ug-2026-exam',
+  'state-wise-neet-pg-medical-seats-in-india',
+  'top-medical-universities-in-philippines',
+  'what-to-do-after-neet-exam-2026',
+]);
+
 /** Legacy duplicate slugs hidden from blog index (canonical slug kept). */
 export const BLOG_EXCLUDED_LIST_SLUGS = new Set([
+  ...BLOG_REMOVED_PUBLIC_SLUGS,
   '5-best-medical-colleges-in-india',
   'a-complete-guide-to-the-top-medical-colleges-in-uttarakhand-2024',
   'a-comprehensive-guide-for-indian-medical-aspirants-to-mbbs-in-india',

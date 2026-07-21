@@ -3,7 +3,12 @@ import { notFound, redirect } from 'next/navigation';
 import { BlogPostLayout } from '@/components/blog/BlogPostLayout';
 import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
-import { blogPostPath, BLOG_SLUG_CANONICAL, slugFromBlogRouteSegments } from '@/lib/blogUtils';
+import {
+  blogPostPath,
+  BLOG_REMOVED_PUBLIC_SLUGS,
+  BLOG_SLUG_CANONICAL,
+  slugFromBlogRouteSegments,
+} from '@/lib/blogUtils';
 import { getBlogPosts, getContentBySlug } from '@/lib/contentApi';
 
 export const revalidate = 300;
@@ -15,6 +20,9 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug: segments } = await params;
   const decoded = slugFromBlogRouteSegments(segments ?? []);
+  if (!decoded || BLOG_REMOVED_PUBLIC_SLUGS.has(decoded)) {
+    return { title: 'Not Found' };
+  }
   const content = await getContentBySlug(decoded);
   if (!content || content.type !== 'post') {
     return { title: 'Not Found' };
@@ -26,6 +34,10 @@ export default async function BlogSlugPage({ params }: PageProps) {
   const { slug: segments } = await params;
   const decoded = slugFromBlogRouteSegments(segments ?? []);
   if (!decoded) notFound();
+
+  if (BLOG_REMOVED_PUBLIC_SLUGS.has(decoded)) {
+    notFound();
+  }
 
   const canonical = BLOG_SLUG_CANONICAL[decoded];
   if (canonical) {

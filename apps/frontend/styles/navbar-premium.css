@@ -282,11 +282,11 @@
   height: 2.5rem;
   min-height: 2.5rem;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   white-space: nowrap;
   border-radius: 9999px;
-  padding: 0 0.9rem;
-  font-size: 0.8125rem;
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
   font-weight: 700;
   line-height: 1;
   color: #fff;

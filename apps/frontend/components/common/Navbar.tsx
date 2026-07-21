@@ -17,7 +17,6 @@ import {
 import { CTA_EXPERT_COUNSELLING } from '@/lib/brandCopy';
 import { CONTACT_INFO, FOOTER_SOCIAL_PLATFORMS, NAV_LINKS, SOCIAL_LINKS } from '@/lib/constants';
 import { openLeadCapturePopup } from '@/lib/openLeadCapture';
-import { NeetRankNavCta } from '@/components/common/NeetRankNavCta';
 import { MbbsIndiaNavMegaMenu } from '@/components/common/MbbsIndiaNavMegaMenu';
 import { MbbsAbroadNavMegaMenu } from '@/components/common/MbbsAbroadNavMegaMenu';
 import { MdMsNavMegaMenu } from '@/components/common/MdMsNavMegaMenu';
@@ -28,6 +27,29 @@ import { navPagesForSection } from '@/lib/dynamicNav';
 import { BrandLogoLink } from '@/components/common/BrandLogoLink';
 import { Button } from '@/components/ui/Button';
 import { useBodyScrollLock, useMegaMenu, useScrollPosition, type MegaMenuId } from '@/hooks';
+
+/** Navbar LIVE CTA — College Predictor only (inlined to avoid stale Rank Predictor HMR). */
+function NavCollegePredictorCta({ onClick }: { onClick?: () => void }) {
+  return (
+    <div className="nav-neet-cta-wrap" suppressHydrationWarning>
+      <span className="nav-live-pill" aria-hidden>
+        <span className="nav-live-pill__ping" />
+        <span className="nav-live-pill__dot" />
+        LIVE
+      </span>
+      <Link
+        href="/college-predictor"
+        onClick={onClick}
+        className="nav-neet-cta-btn"
+        suppressHydrationWarning
+        prefetch={false}
+      >
+        College Predictor
+        <span className="nav-neet-cta-btn__badge">NEW</span>
+      </Link>
+    </div>
+  );
+}
 
 type NavBarLink = {
   label: string;
@@ -268,7 +290,7 @@ export const Navbar = () => {
               <Button type="button" variant="primary" size="md" onClick={() => openLeadCapturePopup()}>
                 {CTA_EXPERT_COUNSELLING}
               </Button>
-              <NeetRankNavCta onClick={forceClose} />
+              <NavCollegePredictorCta onClick={forceClose} />
             </div>
 
             {/* Mobile Menu Button */}
@@ -627,7 +649,7 @@ export const Navbar = () => {
                 >
                   {CTA_EXPERT_COUNSELLING}
                 </Button>
-                <NeetRankNavCta onClick={closeMobileNav} />
+                <NavCollegePredictorCta onClick={closeMobileNav} />
               </div>
             </div>
         </div>

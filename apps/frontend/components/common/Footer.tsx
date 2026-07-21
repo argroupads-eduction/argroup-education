@@ -27,6 +27,7 @@ const PROGRAM_LINKS = [
   { label: 'MBBS Abroad', href: '/mbbs-abroad' },
   { label: 'MD / MS', href: '/md-ms' },
   { label: 'NEET Rank Predictor', href: '/neet-rank-predictor' },
+  { label: 'College Predictor', href: '/college-predictor' },
   { label: 'Blog & Updates', href: '/blog' },
   { label: 'Services', href: '/services' },
 ] as const;

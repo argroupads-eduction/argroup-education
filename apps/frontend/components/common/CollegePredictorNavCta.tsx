@@ -1,13 +1,12 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
-import { NEET_RANK_PREDICTOR_LINK } from '@/lib/constants';
 
-type NeetRankNavCtaProps = {
+type CollegePredictorNavCtaProps = {
   onClick?: () => void;
 };
 
-export function NeetRankNavCta({ onClick }: NeetRankNavCtaProps) {
+export function CollegePredictorNavCta({ onClick }: CollegePredictorNavCtaProps) {
   return (
     <div className="nav-neet-cta-wrap">
       <span className="nav-live-pill" aria-hidden>
@@ -15,8 +14,8 @@ export function NeetRankNavCta({ onClick }: NeetRankNavCtaProps) {
         <span className="nav-live-pill__dot" />
         LIVE
       </span>
-      <Link href={NEET_RANK_PREDICTOR_LINK.href} onClick={onClick} className="nav-neet-cta-btn">
-        {NEET_RANK_PREDICTOR_LINK.label}
+      <Link href="/college-predictor" onClick={onClick} className="nav-neet-cta-btn">
+        College Predictor
         <span className="nav-neet-cta-btn__badge">NEW</span>
       </Link>
     </div>

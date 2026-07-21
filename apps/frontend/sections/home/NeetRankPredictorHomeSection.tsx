@@ -1,122 +1,122 @@
-'use client';
-
 import Link from 'next/link';
-import { ArrowRight, Calculator, GraduationCap, Sparkles, TrendingUp } from 'lucide-react';
+import { ArrowRight, Calculator, Check, GraduationCap, TrendingUp } from 'lucide-react';
+import '@/styles/home-rank-promo.css';
 
-/** Home teaser only, full tool lives on /neet-rank-predictor */
+/**
+ * Home Rank Predictor — navy+gold stage (site palette).
+ * Distinct from College Predictor light card; uses dedicated CSS (no missing Tailwind shades).
+ */
 export function NeetRankPredictorHomeSection() {
+  const bullets = [
+    'MBBS India, Abroad, MD/MS or BAMS — one smart form',
+    'Live rank preview as you enter your score',
+    'College shortlists you can explore instantly',
+  ] as const;
+
   return (
     <section
       id="neet-rank-promo"
-      className="relative overflow-hidden bg-gradient-to-b from-white via-navy-50/50 to-gold-50/30 py-14 md:py-20"
+      className="home-rank-promo"
+      aria-labelledby="neet-rank-home-heading"
     >
-      <div
-        className="pointer-events-none absolute -right-20 top-0 h-64 w-64 rounded-full bg-navy-400/10 blur-3xl"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-gold-400/20 blur-3xl"
-        aria-hidden
-      />
-
-      <div className="relative mx-auto max-w-6xl px-4">
-        <div className="overflow-hidden rounded-3xl border border-navy-200/80 bg-gradient-to-br from-white via-navy-50/40 to-gold-50/60 p-6 shadow-xl shadow-navy-900/10 ring-1 ring-gold-300/40 md:p-10 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-gold-300 bg-gold-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-gold-800">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-              </span>
+      <div className="home-rank-promo__shell">
+        <div className="home-rank-promo__stage">
+          <div className="home-rank-promo__copy">
+            <span className="home-rank-promo__badge">
+              <span className="home-rank-promo__live" aria-hidden />
               Live · NEET Rank Predictor
             </span>
 
-            <h2 className="mt-5 font-serif text-3xl font-bold leading-tight text-navy-900 md:text-4xl">
-              Know your NEET rank{' '}
-              <span className="text-gold-800">before results</span>
+            <h2 id="neet-rank-home-heading" className="home-rank-promo__title">
+              Know your NEET rank <em>before results</em>
             </h2>
 
-            <p className="mt-4 text-sm leading-relaxed text-slate-600 md:text-base">
-              Trusted AR Group tool, enter your score, see expected AIR, percentile, and MBBS India /
+            <p className="home-rank-promo__lead">
+              Trusted AR Group tool — enter your score, see expected AIR, percentile, and MBBS India /
               Abroad colleges matched to you. Takes under a minute.
             </p>
 
-            <ul className="mt-6 space-y-2.5 text-sm text-navy-800">
-              {[
-                'MBBS India, Abroad, MD/MS or BAMS — one smart form',
-                'Live rank preview as you enter your score',
-                'College shortlists you can explore instantly',
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-2">
-                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold-500" aria-hidden />
+            <ul className="home-rank-promo__list">
+              {bullets.map((t) => (
+                <li key={t}>
+                  <span className="home-rank-promo__check" aria-hidden>
+                    <Check className="h-3 w-3" strokeWidth={3} />
+                  </span>
                   {t}
                 </li>
               ))}
             </ul>
 
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Link href="/neet-rank-predictor" className="ui-btn ui-btn--primary ui-btn--lg inline-flex">
+            <div className="home-rank-promo__actions">
+              <Link href="/neet-rank-predictor" className="home-rank-promo__cta">
                 <Calculator className="h-5 w-5" aria-hidden />
                 Check my NEET rank
-                <ArrowRight className="h-5 w-5" aria-hidden />
+                <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
-              <p className="text-xs font-medium text-slate-600">Instant results · Trusted by AR Group</p>
+              <p className="home-rank-promo__note">Instant results · Trusted by AR Group</p>
             </div>
           </div>
 
-          <Link
-            href="/neet-rank-predictor"
-            className="group relative mt-8 block lg:mt-0"
-            aria-label="Open NEET Rank Predictor"
-          >
-            <div className="relative overflow-hidden rounded-2xl border border-navy-200/90 bg-white p-5 shadow-lg transition duration-300 group-hover:-translate-y-1 group-hover:shadow-2xl group-hover:ring-2 group-hover:ring-gold-400/50">
-              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                <span className="text-xs font-bold uppercase tracking-wide text-navy-700">
-                  Sample preview
-                </span>
-                <span className="rounded-full bg-gold-100 px-2 py-0.5 text-[10px] font-bold text-gold-800">
-                  Tap to start
-                </span>
+          <div className="home-rank-promo__visual">
+            <Link
+              href="/neet-rank-predictor"
+              className="home-rank-promo__preview"
+              aria-label="Open NEET Rank Predictor"
+            >
+              <div className="home-rank-promo__preview-top">
+                <span>Sample preview</span>
+                <span className="home-rank-promo__tap">Tap to start</span>
               </div>
 
-              <p className="mt-4 text-sm text-slate-600">Score 420 / 720 · General</p>
-              <p className="mt-1 font-serif text-3xl font-bold text-navy-900">
-                AIR ~<span className="text-gold-800">80,372</span>
+              <div className="relative home-rank-promo__meter">
+                <svg viewBox="0 0 100 100" aria-hidden>
+                  <defs>
+                    <linearGradient id="homeRankGold" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#ffb74d" />
+                      <stop offset="100%" stopColor="#e65100" />
+                    </linearGradient>
+                  </defs>
+                  <circle className="home-rank-promo__meter-track" cx="50" cy="50" r="35" />
+                  <circle className="home-rank-promo__meter-value" cx="50" cy="50" r="35" />
+                </svg>
+                <div className="home-rank-promo__meter-center">
+                  <strong>420</strong>
+                  <span>/ 720</span>
+                </div>
+              </div>
+
+              <p className="home-rank-promo__score-line">General category · sample</p>
+              <p className="home-rank-promo__air">
+                AIR ~<b>80,372</b>
               </p>
 
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {[
-                  { label: 'Best', value: '72K' },
-                  { label: 'Likely', value: '80K' },
-                  { label: 'Buffer', value: '89K' },
-                ].map((b) => (
-                  <div
-                    key={b.label}
-                    className="rounded-lg bg-navy-50 px-2 py-2 text-center ring-1 ring-navy-100"
-                  >
-                    <p className="text-[9px] font-bold uppercase text-slate-600">{b.label}</p>
-                    <p className="text-sm font-bold text-navy-900">{b.value}</p>
-                  </div>
-                ))}
+              <div className="home-rank-promo__bands">
+                <div>
+                  <p>Best</p>
+                  <strong>72K</strong>
+                </div>
+                <div>
+                  <p>Likely</p>
+                  <strong>80K</strong>
+                </div>
+                <div>
+                  <p>Buffer</p>
+                  <strong>89K</strong>
+                </div>
               </div>
 
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-2 rounded-lg bg-gold-50/80 px-3 py-2 text-xs font-semibold text-navy-800">
-                  <GraduationCap className="h-4 w-4 text-gold-600" aria-hidden />
+              <div className="home-rank-promo__chips">
+                <span>
+                  <GraduationCap className="h-3.5 w-3.5 text-gold-600" aria-hidden />
                   MBBS India colleges matched
-                </div>
-                <div className="flex items-center gap-2 rounded-lg bg-navy-50 px-3 py-2 text-xs font-semibold text-navy-800">
-                  <TrendingUp className="h-4 w-4 text-navy-600" aria-hidden />
+                </span>
+                <span>
+                  <TrendingUp className="h-3.5 w-3.5 text-navy-600" aria-hidden />
                   MBBS Abroad options matched
-                </div>
-              </div>
-
-              <div className="absolute inset-0 flex items-center justify-center bg-navy-900/0 opacity-0 transition group-hover:bg-navy-900/5 group-hover:opacity-100">
-                <span className="translate-y-2 rounded-full bg-gold-500 px-5 py-2.5 text-sm font-bold text-navy-900 shadow-lg transition group-hover:translate-y-0">
-                  Open predictor →
                 </span>
               </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

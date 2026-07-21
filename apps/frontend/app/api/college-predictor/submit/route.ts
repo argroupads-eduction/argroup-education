@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NEET_CATEGORIES } from '@/lib/neetRankPredictor/data';
-import { getCollegeRecommendations } from '@/lib/neetRankPredictor/collegeMatches';
-import { predictNeetRank } from '@backend/lib/neetRankPredictor';
+import { getCollegeRecommendationsByRank } from '@/lib/neetRankPredictor/collegeMatches';
 import type { NeetCategory } from '@/lib/neetRankPredictor/types';
 import { validatePersonName } from '@/lib/validatePersonName';
 import { validateCityName } from '@/lib/validateCityName';
-import { prisma, withPrismaRetry } from '@backend/lib/prisma';
 import {
   submitWebsiteLead,
   DUPLICATE_LEAD_MESSAGE,
   sendLeadEmailWithRetry,
 } from '@backend/handlers/websiteLead';
-import { isDatabaseUnavailableError } from '@backend/lib/neonDatabaseUrl';
 import {
   isGoogleSheetsLeadEnabled,
-  submitRankPredictorToGoogleSheets,
+  submitCollegePredictorToGoogleSheets,
   SHEETS_UNAVAILABLE_MESSAGE,
 } from '@backend/lib/googleSheetsLead';
 import { validateIndianMobile, validateLeadEmail } from '@backend/lib/leadValidation';
@@ -32,6 +29,8 @@ const TRACK_LABELS: Record<string, string> = {
   bams: 'BAMS',
 };
 
+const MAX_AIR = 2_000_000;
+
 function normalizePhone(raw: string): string | null {
   const digits = raw.replace(/\D/g, '');
   if (digits.length === 10) return digits;
@@ -44,7 +43,10 @@ function isPlaceholderLeadEmail(email: string): boolean {
   return /^[6-9]\d{9}@leads\.argroupofeducation\.com$/i.test(email.trim());
 }
 
-/** NEET rank predictor, saves to Neon + same lead email as all other forms */
+/**
+ * College Predictor — user enters AIR, get matched colleges.
+ * Lead goes to the "College Predictor" Google Sheet tab.
+ */
 export async function POST(req: NextRequest) {
   let body: {
     name?: string;
@@ -52,7 +54,7 @@ export async function POST(req: NextRequest) {
     phone?: string;
     city?: string;
     category?: NeetCategory;
-    score?: number;
+    rank?: number;
     track?: 'india' | 'abroad' | 'md-ms' | 'bams';
     emailVerificationToken?: string;
   };
@@ -67,7 +69,7 @@ export async function POST(req: NextRequest) {
   const city = body.city?.trim();
   const phone = normalizePhone(body.phone ?? '');
   const category = body.category;
-  const score = Number(body.score);
+  const rank = Number(body.rank);
   const track = body.track ?? 'india';
 
   if (!name || name.length < 2) {
@@ -106,45 +108,45 @@ export async function POST(req: NextRequest) {
   if (!NEET_CATEGORIES.some((c) => c.id === category)) {
     return NextResponse.json({ message: 'Invalid category' }, { status: 400 });
   }
-  if (!Number.isFinite(score) || score < 0 || score > 720) {
-    return NextResponse.json({ message: 'Score must be between 0 and 720' }, { status: 400 });
+  if (!Number.isFinite(rank) || rank < 1 || rank > MAX_AIR) {
+    return NextResponse.json(
+      { message: `Enter a valid NEET AIR between 1 and ${MAX_AIR.toLocaleString('en-IN')}` },
+      { status: 400 }
+    );
   }
 
   const cat = category as NeetCategory;
-  const roundedScore = Math.round(score);
-  const prediction = predictNeetRank(cat, roundedScore);
-  const colleges = getCollegeRecommendations(cat, roundedScore, prediction.expectedRank, track, 24);
+  const roundedRank = Math.round(rank);
+  const colleges = getCollegeRecommendationsByRank(roundedRank, cat, 36, track);
   const trackLabel = TRACK_LABELS[track] ?? track;
+  const courseLabel = `College Predictor · ${trackLabel}`;
+  const categoryLabel = NEET_CATEGORIES.find((c) => c.id === cat)?.label ?? cat;
 
   const leadFields = {
     fullName: name,
     email,
     phone,
     city: cityTrimmed,
-    reservationCategory: prediction.categoryLabel,
-    neetScore: roundedScore,
+    reservationCategory: categoryLabel,
+    neetAir: roundedRank,
     studyTrack: trackLabel,
-    expectedRank: prediction.expectedRank,
-    bestRank: prediction.bestRank,
-    worstRank: prediction.worstRank,
-    percentile: prediction.percentileLabel,
-    collegeChances: prediction.collegeChances,
     category: cat,
     track,
+    tool: 'college-predictor',
   };
 
   try {
     let sheetsSaved = false;
 
     if (isGoogleSheetsLeadEnabled()) {
-      const sheetsResult = await submitRankPredictorToGoogleSheets({
+      const sheetsResult = await submitCollegePredictorToGoogleSheets({
         name,
         phone,
         email,
-        neetScore: roundedScore,
-        predictedRank: prediction.expectedRank,
+        neetAir: roundedRank,
+        category: categoryLabel,
         state: cityTrimmed,
-        course: trackLabel,
+        course: courseLabel,
       });
 
       if (sheetsResult.duplicate) {
@@ -157,12 +159,12 @@ export async function POST(req: NextRequest) {
       if (sheetsResult.ok) {
         sheetsSaved = true;
       } else {
-        console.error('[neet-rank-predictor] Sheets failed — email fallback');
+        console.error('[college-predictor] Sheets failed — email fallback');
         const emailResult = await sendLeadEmailWithRetry({
-          source: 'neet-rank-predictor',
-          formName: 'NEET Rank Predictor',
+          source: 'college-predictor',
+          formName: 'College Predictor',
           fields: { ...leadFields, _sheetsError: sheetsResult.message },
-          pageUrl: req.headers.get('referer') ?? '/neet-rank-predictor',
+          pageUrl: req.headers.get('referer') ?? '/college-predictor',
         });
         if (!emailResult.sent) {
           return NextResponse.json(
@@ -173,37 +175,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    try {
-      await withPrismaRetry(() =>
-        prisma.neetRankPredictorSubmission.create({
-          data: {
-            name,
-            email,
-            phone,
-            city: cityTrimmed,
-            category: cat,
-            score: roundedScore,
-            bestRank: prediction.bestRank,
-            expectedRank: prediction.expectedRank,
-            worstRank: prediction.worstRank,
-            percentile: prediction.percentile,
-            collegeChances: `${prediction.collegeChances} | track:${track}`,
-          },
-        })
-      );
-    } catch (err) {
-      if (!isDatabaseUnavailableError(err)) {
-        console.error('[neet-rank-predictor] analytics save failed:', err);
-      }
-    }
-
     if (!sheetsSaved && !isGoogleSheetsLeadEnabled()) {
       const leadResult = await submitWebsiteLead(
         {
-          source: 'neet-rank-predictor',
-          formName: 'NEET Rank Predictor',
+          source: 'college-predictor',
+          formName: 'College Predictor',
           fields: leadFields,
-          pageUrl: req.headers.get('referer') ?? '/neet-rank-predictor',
+          pageUrl: req.headers.get('referer') ?? '/college-predictor',
           userAgent: req.headers.get('user-agent') ?? undefined,
         },
         { deferEmail: true, skipGoogleSheets: true }
@@ -218,20 +196,17 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      prediction,
+      rank: roundedRank,
+      categoryLabel,
       colleges: {
-        india:
-          track === 'abroad' ? [] : colleges.india,
+        india: track === 'abroad' ? [] : colleges.india,
         abroad:
           track === 'india' || track === 'md-ms' || track === 'bams' ? [] : colleges.abroad,
       },
       disclaimer: colleges.disclaimer,
     });
   } catch (error) {
-    console.error('[neet-rank-predictor/submit]', error);
-    return NextResponse.json(
-      { message: SHEETS_UNAVAILABLE_MESSAGE },
-      { status: 503 }
-    );
+    console.error('[college-predictor/submit]', error);
+    return NextResponse.json({ message: SHEETS_UNAVAILABLE_MESSAGE }, { status: 503 });
   }
 }

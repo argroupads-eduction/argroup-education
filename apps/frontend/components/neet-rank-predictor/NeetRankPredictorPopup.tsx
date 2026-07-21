@@ -355,7 +355,7 @@ export function NeetRankPredictorPopup({
 
       const prediction = json.prediction ?? predictNeetRank(category, score);
       const collegeData =
-        json.colleges ?? getCollegeRecommendations(category, score, prediction.expectedRank);
+        json.colleges ?? getCollegeRecommendations(category, score, prediction.expectedRank, 'india');
 
       if (res.ok || res.status === 409) {
         revealResults(prediction, collegeData);
@@ -365,7 +365,7 @@ export function NeetRankPredictorPopup({
       setError(json.message || 'Could not calculate your rank. Please try again.');
     } catch {
       const prediction = predictNeetRank(category, score);
-      revealResults(prediction, getCollegeRecommendations(category, score, prediction.expectedRank));
+      revealResults(prediction, getCollegeRecommendations(category, score, prediction.expectedRank, 'india'));
     } finally {
       setLoading(false);
     }

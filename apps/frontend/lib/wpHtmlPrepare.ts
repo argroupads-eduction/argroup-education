@@ -1050,6 +1050,15 @@ type FaqItem = { num: string; question: string; answer: string };
 
 const FAQ_ANSWER_PREFIX = /(?:Answer\s*:|Ans(?:wer)?\s*[.:]|A\s*\d+\s*[.:]|A\s*:)/i;
 
+/** Drop leading "1." / "Q1." — badge already shows 01, 02, … */
+function stripFaqQuestionNumberPrefix(question: string): string {
+  return question
+    .replace(/^Q\s*\d+\s*[.:)\]]\s*/i, '')
+    .replace(/^\d+\s*[.)]\s+/, '')
+    .replace(/^\d+\s*[-–—]\s+/, '')
+    .trim();
+}
+
 function wrapFaqAnswerHtml(answer: string): string {
   const trimmed = answer.trim();
   if (!trimmed) return '';
@@ -1063,16 +1072,18 @@ function wrapFaqAnswerHtml(answer: string): string {
 
 function buildFaqDetailsHtml(items: FaqItem[]): string {
   return items
-    .map(
-      (item, i) =>
+    .map((item, i) => {
+      const question = stripFaqQuestionNumberPrefix(item.question) || item.question;
+      return (
         `<details class="wp-premium-faq" style="--faq-i:${i}">` +
         `<summary class="wp-premium-faq-summary">` +
         `<span class="wp-premium-faq-qnum">${item.num.padStart(2, '0')}</span>` +
-        `<span class="wp-premium-faq-qtext">${escapeHtml(item.question)}</span>` +
+        `<span class="wp-premium-faq-qtext">${escapeHtml(question)}</span>` +
         `</summary>` +
         `<div class="wp-premium-faq-body"><div class="wp-premium-faq-body-inner">${wrapFaqAnswerHtml(item.answer)}</div></div>` +
         `</details>`
-    )
+      );
+    })
     .join('');
 }
 
