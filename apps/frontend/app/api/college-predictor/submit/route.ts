@@ -15,6 +15,7 @@ import {
   SHEETS_UNAVAILABLE_MESSAGE,
 } from '@backend/lib/googleSheetsLead';
 import { validateIndianMobile, validateLeadEmail } from '@backend/lib/leadValidation';
+import { predictNeetRank } from '@backend/lib/neetRankPredictor';
 import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
 import { verifyEmailVerificationToken } from '@/lib/emailOtp/otpToken';
 
@@ -30,6 +31,35 @@ const TRACK_LABELS: Record<string, string> = {
 };
 
 const MAX_AIR = 2_000_000;
+
+/** Indicative NEET PG score → AIR curve used only for MD/MS shortlisting. */
+const NEET_PG_SCORE_RANK_POINTS = [
+  { score: 800, rank: 1 },
+  { score: 700, rank: 1000 },
+  { score: 650, rank: 5000 },
+  { score: 600, rank: 15000 },
+  { score: 550, rank: 30000 },
+  { score: 500, rank: 50000 },
+  { score: 450, rank: 75000 },
+  { score: 400, rank: 100000 },
+  { score: 350, rank: 125000 },
+  { score: 300, rank: 150000 },
+  { score: 250, rank: 180000 },
+  { score: 200, rank: 220000 },
+  { score: 0, rank: 250000 },
+] as const;
+
+function predictNeetPgRank(score: number): number {
+  for (let i = 0; i < NEET_PG_SCORE_RANK_POINTS.length - 1; i += 1) {
+    const high = NEET_PG_SCORE_RANK_POINTS[i]!;
+    const low = NEET_PG_SCORE_RANK_POINTS[i + 1]!;
+    if (score <= high.score && score >= low.score) {
+      const progress = (high.score - score) / (high.score - low.score);
+      return Math.round(high.rank + progress * (low.rank - high.rank));
+    }
+  }
+  return score > 800 ? 1 : 250000;
+}
 
 function normalizePhone(raw: string): string | null {
   const digits = raw.replace(/\D/g, '');
@@ -54,6 +84,8 @@ export async function POST(req: NextRequest) {
     phone?: string;
     city?: string;
     category?: NeetCategory;
+    score?: number;
+    /** Legacy client compatibility; new UI sends score. */
     rank?: number;
     track?: 'india' | 'abroad' | 'md-ms' | 'bams';
     emailVerificationToken?: string;
@@ -69,8 +101,9 @@ export async function POST(req: NextRequest) {
   const city = body.city?.trim();
   const phone = normalizePhone(body.phone ?? '');
   const category = body.category;
-  const rank = Number(body.rank);
   const track = body.track ?? 'india';
+  const score = Number(body.score);
+  const legacyRank = Number(body.rank);
 
   if (!name || name.length < 2) {
     return NextResponse.json({ message: 'Enter your full name' }, { status: 400 });
@@ -108,15 +141,26 @@ export async function POST(req: NextRequest) {
   if (!NEET_CATEGORIES.some((c) => c.id === category)) {
     return NextResponse.json({ message: 'Invalid category' }, { status: 400 });
   }
-  if (!Number.isFinite(rank) || rank < 1 || rank > MAX_AIR) {
+  const cat = category as NeetCategory;
+  const hasScore = Number.isFinite(score);
+  const maxScore = track === 'md-ms' ? 800 : 720;
+  if (hasScore && (score < 0 || score > maxScore)) {
     return NextResponse.json(
-      { message: `Enter a valid NEET AIR between 1 and ${MAX_AIR.toLocaleString('en-IN')}` },
+      { message: `Enter a valid ${track === 'md-ms' ? 'NEET PG' : 'NEET'} score` },
       { status: 400 }
     );
   }
+  if (!hasScore && (!Number.isFinite(legacyRank) || legacyRank < 1 || legacyRank > MAX_AIR)) {
+    return NextResponse.json({ message: 'Enter a valid NEET score' }, { status: 400 });
+  }
 
-  const cat = category as NeetCategory;
-  const roundedRank = Math.round(rank);
+  const roundedScore = hasScore ? Math.round(score) : undefined;
+  const roundedRank =
+    roundedScore !== undefined
+      ? track === 'md-ms'
+        ? predictNeetPgRank(roundedScore)
+        : predictNeetRank(cat, roundedScore).expectedRank
+      : Math.round(legacyRank);
   const colleges = getCollegeRecommendationsByRank(roundedRank, cat, 36, track);
   const trackLabel = TRACK_LABELS[track] ?? track;
   const courseLabel = `College Predictor · ${trackLabel}`;
@@ -128,6 +172,7 @@ export async function POST(req: NextRequest) {
     phone,
     city: cityTrimmed,
     reservationCategory: categoryLabel,
+    neetScore: roundedScore,
     neetAir: roundedRank,
     studyTrack: trackLabel,
     category: cat,
@@ -196,6 +241,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
+      score: roundedScore,
       rank: roundedRank,
       categoryLabel,
       colleges: {

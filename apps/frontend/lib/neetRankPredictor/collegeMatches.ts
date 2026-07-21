@@ -1,6 +1,5 @@
 import cutoffsData from '@/data/neet-ug-college-cutoffs.json';
 import { flattenAbroadColleges, MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
-import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 import { predictNeetRank } from '@backend/lib/neetRankPredictor';
 import type { NeetCategory } from './types';
 
@@ -232,21 +231,87 @@ function pickAbroadByRank(air: number, limit = 12): CollegeMatch[] {
   return out;
 }
 
-function pickMdMsByRank(air: number): CollegeMatch[] {
-  // UG AIR is only a rough signal for future PG planning — show state hubs with guidance badge
-  const tier =
-    air <= 5000 ? 'Top clinical branches (highly competitive PG)' :
-    air <= 40000 ? 'Strong MD/MS options via state / AIQ PG' :
-    'Explore MD/MS counselling — branch depends on NEET PG rank';
+const MD_MS_CATEGORY_MULT: Record<NeetCategory, number> = {
+  general_ews: 1,
+  obc_ncl: 1.18,
+  sc: 1.65,
+  st: 1.9,
+  pwd: 2.15,
+};
 
-  return MD_MS_NAV_ITEMS.map((item) => ({
-    name: item.label,
-    href: item.href,
-    meta: item.label.replace(/^MD\/MS in\s+/i, ''),
-    badge: tier,
-    collegeType: 'MD/MS hub',
-    chance: air <= 40000 ? 'moderate' : 'reach',
-  }));
+/**
+ * Build a broad NEET PG counselling range from the available private/deemed
+ * institution inventory. MD/MS cutoffs vary heavily by branch and round, so
+ * the UI labels these as indicative ranges rather than official cutoffs.
+ */
+function indicativePgClosingRank(college: CutoffCollege, category: NeetCategory): number {
+  const inventoryMin = 148000;
+  const inventorySpan = 202000;
+  const qualityBand = Math.max(
+    0,
+    Math.min(1, (college.closingRankUR - inventoryMin) / inventorySpan)
+  );
+  const base = college.type === 'deemed' ? 52000 : 34000;
+  const spread = college.type === 'deemed' ? 76000 : 66000;
+  return Math.round((base + qualityBand * spread) * MD_MS_CATEGORY_MULT[category]);
+}
+
+function pickMdMsByRank(
+  air: number,
+  category: NeetCategory,
+  limit = 36
+): { list: CollegeMatch[]; byState: Record<string, CollegeMatch[]> } {
+  const rows = PRIVATE_DEEMED.map((college) => {
+    const close = indicativePgClosingRank(college, category);
+    const chance = chanceForRank(air, close);
+    return {
+      college,
+      close,
+      chance,
+      eligible: air <= close * 1.08,
+      fit: Math.abs(close - air * 1.3),
+    };
+  })
+    .filter((row) => row.eligible)
+    .sort((a, b) => {
+      const chanceOrder = { high: 0, moderate: 1, reach: 2 };
+      if (chanceOrder[a.chance] !== chanceOrder[b.chance]) {
+        return chanceOrder[a.chance] - chanceOrder[b.chance];
+      }
+      if (a.fit !== b.fit) return a.fit - b.fit;
+      return a.close - b.close;
+    });
+
+  const list: CollegeMatch[] = [];
+  const byState: Record<string, CollegeMatch[]> = {};
+  const perState = new Map<string, number>();
+  const maxPerState = 5;
+
+  for (const row of rows) {
+    const chanceLabel =
+      row.chance === 'high' ? 'Safe range' : row.chance === 'moderate' ? 'Competitive' : 'Reach';
+    const match: CollegeMatch = {
+      name: row.college.name,
+      href: row.college.href,
+      meta: row.college.state,
+      badge: `${CATEGORY_SHORT[category]} · Indicative PG close ~${row.close.toLocaleString(
+        'en-IN'
+      )} · ${chanceLabel}`,
+      closingRank: row.close,
+      collegeType: 'MD/MS',
+      chance: row.chance,
+    };
+
+    if (!byState[row.college.state]) byState[row.college.state] = [];
+    byState[row.college.state]!.push(match);
+
+    const stateCount = perState.get(row.college.state) ?? 0;
+    if (stateCount >= maxPerState || list.length >= limit) continue;
+    perState.set(row.college.state, stateCount + 1);
+    list.push(match);
+  }
+
+  return { list, byState };
 }
 
 function pickBamsByRank(air: number, category: NeetCategory): CollegeMatch[] {
@@ -344,11 +409,13 @@ export function getCollegeRecommendationsByRank(
   }
 
   if (track === 'md-ms') {
+    const { list, byState } = pickMdMsByRank(safeAir, category, limit);
     return {
-      india: pickMdMsByRank(safeAir),
+      india: list,
       abroad: [],
+      byState,
       disclaimer:
-        'MD/MS admissions use NEET PG rank (not NEET UG AIR). These hubs help you plan; final branch/college depends on PG counselling.',
+        `MD/MS matches use NEET PG AIR and ${CATEGORY_SHORT[category]}. Ranges are indicative because final cutoff changes by specialty, quota, counselling round and seat type — confirm the exact branch with official counselling / AR Group.`,
     };
   }
 

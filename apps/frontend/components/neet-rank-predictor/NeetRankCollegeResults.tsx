@@ -194,10 +194,11 @@ export function NeetRankCollegeResults({
 
       {track === 'md-ms' ? (
         <CollegeGrid
-          title="MD/MS state hubs"
-          icon={Globe}
+          title="MD/MS colleges — state-wise"
+          icon={MapPin}
           colleges={india}
-          emptyMessage="Explore MD/MS admission guidance with our counsellors."
+          groupByState
+          emptyMessage="No indicative MD/MS college match was found for this NEET PG AIR and category. Talk to our counsellor for branch-wise options."
         />
       ) : null}
 

@@ -108,7 +108,7 @@ export function CollegePredictorWizard() {
   const [step, setStep] = useState<Step>('form');
   const [track, setTrack] = useState<Track>('india');
   const [category, setCategory] = useState<NeetCategory>('general_ews');
-  const [rankInput, setRankInput] = useState('');
+  const [scoreInput, setScoreInput] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -126,21 +126,22 @@ export function CollegePredictorWizard() {
   });
   const [disclaimer, setDisclaimer] = useState<string | undefined>();
 
-  function onRankInput(raw: string) {
-    setRankInput(raw.replace(/\D/g, '').slice(0, 7));
+  function onScoreInput(raw: string) {
+    setScoreInput(raw.replace(/\D/g, '').slice(0, 3));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    const rank = parseInt(rankInput, 10);
-    if (!rankInput || Number.isNaN(rank) || rank < 1) {
-      setError('Enter your NEET All India Rank (AIR)');
+    const score = parseInt(scoreInput, 10);
+    if (!scoreInput || Number.isNaN(score) || score < 0) {
+      setError(track === 'md-ms' ? 'Enter your NEET PG score' : 'Enter your NEET score');
       return;
     }
-    if (rank > 2_000_000) {
-      setError('Enter a valid NEET AIR');
+    const maxScore = track === 'md-ms' ? 800 : 720;
+    if (score > maxScore) {
+      setError(track === 'md-ms' ? 'Enter a valid NEET PG score' : 'Enter a valid NEET score');
       return;
     }
     const nameErr = validatePersonName(name);
@@ -181,7 +182,7 @@ export function CollegePredictorWizard() {
           phone,
           city,
           category,
-          rank,
+          score,
           track,
           emailVerificationToken,
         }),
@@ -203,7 +204,7 @@ export function CollegePredictorWizard() {
         );
       }
       notifyLeadSubmissionFromResponse(res, json);
-      setResultRank(json.rank ?? rank);
+      setResultRank(json.rank ?? null);
       setCategoryLabel(json.categoryLabel ?? '');
       setColleges(json.colleges ?? { india: [], abroad: [] });
       setDisclaimer(json.disclaimer);
@@ -232,10 +233,14 @@ export function CollegePredictorWizard() {
           AR Group tool
         </span>
         <h2 className="mt-2 font-serif text-xl font-bold text-navy-900 md:text-2xl">
-          Check colleges for your NEET rank
+          {track === 'md-ms'
+            ? 'Check MD/MS colleges from your NEET PG score'
+            : 'Check colleges from your NEET score'}
         </h2>
         <p className="mt-1 text-sm text-slate-600">
-          Enter your AIR, get the college list that fits your rank, and our team will follow up.
+          {track === 'md-ms'
+            ? 'Enter your NEET PG score and category to see matching colleges grouped by state.'
+            : 'Enter your score, get the college list that fits your predicted rank, and our team will follow up.'}
         </p>
       </header>
 
@@ -267,7 +272,10 @@ export function CollegePredictorWizard() {
                     id="cp-track"
                     label={<Req>Where do you want to study?</Req>}
                     value={track}
-                    onChange={(v) => setTrack(v as Track)}
+                    onChange={(v) => {
+                      setTrack(v as Track);
+                      setScoreInput('');
+                    }}
                   >
                     {TRACK_OPTIONS.map((o) => (
                       <option key={o.id} value={o.id}>
@@ -290,24 +298,30 @@ export function CollegePredictorWizard() {
                   </SelectField>
 
                   <label className="neet-field-block neet-field-block--score sm:col-span-2">
-                    <Req>Your NEET All India Rank (AIR)</Req>
+                    <Req>
+                      {track === 'md-ms'
+                        ? 'Your NEET PG Score'
+                        : 'Your NEET Score'}
+                    </Req>
                     <div className="neet-score-digit-wrap">
                       <input
                         id="cp-rank"
                         type="text"
                         inputMode="numeric"
                         pattern="[0-9]*"
-                        maxLength={7}
-                        value={rankInput}
-                        onChange={(e) => onRankInput(e.target.value)}
+                        maxLength={3}
+                        value={scoreInput}
+                        onChange={(e) => onScoreInput(e.target.value)}
                         className="neet-score-digit-input"
-                        placeholder="e.g. 45000"
+                        placeholder="e.g. 450"
                         required
                         aria-describedby="cp-rank-hint"
                       />
                     </div>
                     <p id="cp-rank-hint" className="mt-1.5 text-xs text-slate-500">
-                      Enter the rank from your NEET result / scorecard
+                      {track === 'md-ms'
+                        ? 'Enter the score from your NEET PG result / scorecard'
+                        : 'Enter the score from your NEET result / scorecard'}
                     </p>
                   </label>
 
@@ -430,7 +444,9 @@ export function CollegePredictorWizard() {
                     <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
                     Shortlist ready
                   </div>
-                  <p className="cp-air-hero__label">Your NEET AIR</p>
+                  <p className="cp-air-hero__label">
+                    {track === 'md-ms' ? 'Your NEET PG AIR' : 'Your NEET AIR'}
+                  </p>
                   <p className="cp-air-hero__rank">{formatRank(resultRank)}</p>
                   <p className="cp-air-hero__meta">
                     {categoryLabel ? `${categoryLabel} · ` : ''}
@@ -438,7 +454,7 @@ export function CollegePredictorWizard() {
                   </p>
                   <p className="cp-air-hero__hint">
                     <GraduationCap className="h-3.5 w-3.5" aria-hidden />
-                    Scroll for state-wise options
+                    Scroll for state-wise college options
                   </p>
                 </div>
 
@@ -446,8 +462,10 @@ export function CollegePredictorWizard() {
                   india={colleges.india}
                   abroad={colleges.abroad}
                   track={track}
-                  title="Colleges for your rank"
-                  subtitle={`Matched for ${categoryLabel || 'your category'} and AIR ${formatRank(resultRank)}. Tap any college for fees & counselling.`}
+                  title={track === 'md-ms' ? 'MD/MS colleges for your rank' : 'Colleges for your rank'}
+                  subtitle={`Matched for ${categoryLabel || 'your category'} and ${
+                    track === 'md-ms' ? 'NEET PG ' : ''
+                  }AIR ${formatRank(resultRank)}. Tap any college for fees & counselling.`}
                   disclaimer={disclaimer}
                 />
 

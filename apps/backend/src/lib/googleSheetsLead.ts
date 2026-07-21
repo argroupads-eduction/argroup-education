@@ -284,6 +284,7 @@ export async function checkGoogleSheetsWebhookHealth(): Promise<{
   message?: string;
   spreadsheetId?: string;
   spreadsheetName?: string;
+  version?: string;
   webhookUrlValid?: boolean;
 }> {
   const config = getWebhookConfig();
@@ -323,6 +324,7 @@ export async function checkGoogleSheetsWebhookHealth(): Promise<{
       ok?: boolean;
       spreadsheetId?: string;
       spreadsheetName?: string;
+      version?: string;
       message?: string;
     };
     try {
@@ -343,6 +345,7 @@ export async function checkGoogleSheetsWebhookHealth(): Promise<{
       message: json.ok === true ? undefined : json.message || 'Apps Script returned ok:false',
       spreadsheetId: json.spreadsheetId,
       spreadsheetName: json.spreadsheetName,
+      version: json.version,
     };
   } catch (error) {
     return {
