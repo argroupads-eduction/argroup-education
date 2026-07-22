@@ -33,7 +33,6 @@ import {
   validateIndianMobile,
   validateLeadEmail,
 } from '@/lib/leadSubmissionMessages';
-import { notifyLeadSubmissionFromResponse } from '@/lib/notifyLeadSubmission';
 import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
 import { emailOtpInitiallyVerified, isEmailOtpEnabled } from '@/lib/emailOtp/isEmailOtpEnabled';
 import {
@@ -315,14 +314,15 @@ export function CollegePredictorPopup() {
         disclaimer?: string;
       };
       if (!res.ok) {
-        notifyLeadSubmissionFromResponse(res, json);
+        // Keep error inline in the popup — avoid nested success/OK dialogs that dismiss this sheet.
         throw new Error(
           res.status === 409 || json.duplicate
             ? DUPLICATE_LEAD_MESSAGE
             : json.message || 'Could not load colleges'
         );
       }
-      notifyLeadSubmissionFromResponse(res, json);
+      // Results view is the success state — do not open the global OK feedback dialog
+      // (closing that dialog was also dismissing this popup on mobile).
       setResultRank(json.rank ?? null);
       setCategoryLabel(json.categoryLabel ?? '');
       setColleges(json.colleges ?? { india: [], abroad: [] });
@@ -356,8 +356,19 @@ export function CollegePredictorPopup() {
     <Dialog.Root
       open={open}
       onOpenChange={(next) => {
-        if (!next) dismiss();
-        else setOpen(true);
+        if (next) {
+          setOpen(true);
+          return;
+        }
+        // Nested global OK/success dialogs can fire onOpenChange(false) on this root —
+        // ignore those so college results stay open on mobile.
+        if (
+          typeof document !== 'undefined' &&
+          document.querySelector('[data-lead-submission-feedback]')
+        ) {
+          return;
+        }
+        dismiss();
       }}
     >
       <AnimatePresence>
@@ -372,7 +383,25 @@ export function CollegePredictorPopup() {
                 exit="hidden"
               />
             </Dialog.Overlay>
-            <Dialog.Content asChild aria-describedby={`${formId}-desc`}>
+            <Dialog.Content
+              asChild
+              aria-describedby={`${formId}-desc`}
+              onPointerDownOutside={(e) => {
+                if (document.querySelector('[data-lead-submission-feedback]')) {
+                  e.preventDefault();
+                }
+              }}
+              onInteractOutside={(e) => {
+                if (document.querySelector('[data-lead-submission-feedback]')) {
+                  e.preventDefault();
+                }
+              }}
+              onFocusOutside={(e) => {
+                if (document.querySelector('[data-lead-submission-feedback]')) {
+                  e.preventDefault();
+                }
+              }}
+            >
               <motion.div
                 className="cpp-shell"
                 variants={cardMotion}

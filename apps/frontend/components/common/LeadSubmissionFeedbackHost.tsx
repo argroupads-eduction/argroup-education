@@ -53,7 +53,14 @@ export function LeadSubmissionFeedbackHost() {
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[200] bg-navy-950/55 backdrop-blur-[2px]" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-[201] w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl outline-none">
+        <Dialog.Content
+          data-lead-submission-feedback
+          className="fixed left-1/2 top-1/2 z-[201] w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl outline-none"
+          onCloseAutoFocus={(e) => {
+            // Keep focus from collapsing parent dialogs (e.g. College Predictor on mobile).
+            e.preventDefault();
+          }}
+        >
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">
               <Icon className={`mt-0.5 h-6 w-6 shrink-0 ${copy.tone}`} aria-hidden />
