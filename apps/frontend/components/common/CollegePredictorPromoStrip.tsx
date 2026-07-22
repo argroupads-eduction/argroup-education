@@ -48,7 +48,7 @@ export function CollegePredictorPromoStrip() {
               <GraduationCap className="h-4 w-4 shrink-0 text-amber-200" aria-hidden />
               <span>
                 <strong className="text-amber-200">NEW:</strong> College Predictor 2026, know which
-                colleges fit your NEET rank in seconds
+                colleges match your NEET rank in seconds
               </span>
             </p>
             <Link
@@ -84,7 +84,7 @@ export function CollegePredictorPromoStrip() {
               <strong className="text-amber-200">NEW:</strong> College Predictor 2026
             </p>
             <p className="mt-0.5 text-[12px] leading-snug text-slate-300">
-              Know which colleges fit your NEET rank in seconds
+              Know which colleges match your NEET rank in seconds
             </p>
             <Link
               href="/college-predictor"

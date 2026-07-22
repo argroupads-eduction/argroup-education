@@ -371,7 +371,16 @@ function lexicalToHtml(value: unknown): string {
         const nh = qText.match(/^(\d+)\.\s+(.+)$/);
         if (!nh) break;
 
-        const aNode = children[j + 1] as Record<string, unknown> | undefined;
+        // Skip blank nodes between question heading and answer paragraph.
+        let k = j + 1;
+        while (k < children.length) {
+          const gap = children[k] as Record<string, unknown> | undefined;
+          if (!gap) break;
+          if (lexicalNodeToText(gap).trim()) break;
+          k += 1;
+        }
+
+        const aNode = children[k] as Record<string, unknown> | undefined;
         if (!aNode || aNode.type !== 'paragraph') break;
         const aText = lexicalNodeToText(aNode).trim();
         if (!aText || /^\d+\.\s+/.test(aText) || /^Q\s*\d+\s*[:.]/i.test(aText)) break;
@@ -381,7 +390,7 @@ function lexicalToHtml(value: unknown): string {
           q: escapeHtml(nh[2].trim()),
           a: escapeHtml(aText),
         });
-        j += 2;
+        j = k + 1;
       }
 
       if (numberedItems.length >= 2) {

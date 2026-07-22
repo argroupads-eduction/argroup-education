@@ -82,7 +82,7 @@ export function MbbsIndiaHub({ wpContent }: MbbsIndiaHubProps) {
       ) : null}
 
       <ProgramHubCta
-        title="Not sure which state or college fits your NEET rank?"
+        title="Not sure which state or college matches your NEET rank?"
         description="Our counsellors compare cut-offs, fees, and admission timelines, expert and confidential."
       />
     </div>

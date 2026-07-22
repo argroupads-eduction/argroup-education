@@ -18,7 +18,7 @@ import { LeadCapturePromoBanner } from '@/components/common/LeadCapturePromoBann
 import { LeadCaptureMobileSheet } from '@/components/common/LeadCaptureMobileSheet';
 import { LEAD_CAPTURE_TARGET_OPTIONS } from '@/lib/mbbsAbroadHeroCountryOptions';
 import { LEAD_CATEGORY_OPTIONS } from '@/lib/leadCategoryOptions';
-import { LEAD_CAPTURE_OPEN_EVENT } from '@/lib/openLeadCapture';
+import { LEAD_CAPTURE_CLOSE_EVENT, LEAD_CAPTURE_OPEN_EVENT } from '@/lib/openLeadCapture';
 import {
   cancelPreparedThankYouTab,
   openThankYouInNewTab,
@@ -31,6 +31,7 @@ import {
   markLeadPopupSubmitted,
   setLeadPopupOpen,
 } from '@/lib/sitePopupCoordination';
+import { armCollegeScheduleFromNow } from '@/lib/collegePredictorPopup';
 import {
   type HeroMbbsFormDoc,
   type HeroMbbsFormFieldBlock,
@@ -661,13 +662,23 @@ export function LeadCapturePopup() {
 
   useEffect(() => {
     const onOpenRequest = () => openLeadPopup();
+    const onCloseRequest = () => dismiss();
     window.addEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
-    return () => window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
-  }, [openLeadPopup]);
+    window.addEventListener(LEAD_CAPTURE_CLOSE_EVENT, onCloseRequest);
+    return () => {
+      window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
+      window.removeEventListener(LEAD_CAPTURE_CLOSE_EVENT, onCloseRequest);
+    };
+  }, [openLeadPopup, dismiss]);
 
   useEffect(() => {
+    const wasOpen = openRef.current;
     openRef.current = open;
     setLeadPopupOpen(open);
+    // When lead opens on a page, start the 3‑min College Predictor countdown.
+    if (!wasOpen && open) {
+      armCollegeScheduleFromNow();
+    }
   }, [open]);
 
   useEffect(() => {
@@ -770,6 +781,7 @@ export function LeadCapturePopup() {
       );
       setSubmitted(true);
       markLeadPopupSubmitted();
+      armCollegeScheduleFromNow();
     } catch {
       cancelPreparedThankYouTab(thankYouTab);
       setSubmitError('Network error. Please try again.');

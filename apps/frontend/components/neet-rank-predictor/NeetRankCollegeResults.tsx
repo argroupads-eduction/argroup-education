@@ -76,7 +76,9 @@ function CollegeGrid({
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(c);
     }
-    const states = [...groups.keys()].sort((a, b) => a.localeCompare(b));
+    // Preserve recommendation order (Russia→Georgia→Kazakhstan / UP→Rajasthan→Bihar).
+    // Do NOT alphabetize — that put Bangladesh above Georgia/Russia.
+    const states = [...groups.keys()];
     let cardIndex = 0;
 
     return (
@@ -182,7 +184,7 @@ export function NeetRankCollegeResults({
               ? 'Options for your programme'
               : track === 'abroad'
                 ? 'MBBS Abroad colleges for your profile'
-                : 'Colleges that fit this rank')}
+                : 'Colleges for this rank')}
         </h3>
         <p className="cp-results__sub">
           {subtitle ??

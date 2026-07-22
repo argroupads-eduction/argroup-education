@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { GraduationCap, MapPin, Sparkles, Users } from 'lucide-react';
+import { GraduationCap, MapPin, Sparkles } from 'lucide-react';
 import { CollegePredictorWizard } from '@/components/college-predictor/CollegePredictorWizard';
 import { NEET_EXAM_YEAR_LABEL } from '@/lib/neetRankPredictor/data';
 import '@/styles/neet-rank-predictor.css';
@@ -10,7 +10,7 @@ export async function generateMetadata() {
   return {
     title: 'NEET College Predictor 2026 | Colleges by Your Rank',
     description:
-      'Enter your NEET AIR and instantly see MBBS colleges that fit your rank. Free College Predictor by AR Group of Education — counselling follow-up included.',
+      'Enter your NEET AIR and instantly see MBBS colleges for your rank. Free College Predictor by AR Group of Education.',
     keywords: [
       'NEET College Predictor 2026',
       'MBBS colleges by NEET rank',
@@ -21,7 +21,6 @@ export async function generateMetadata() {
 }
 
 const STATS = [
-  { icon: Users, value: '23L+', label: 'Students guided' },
   { icon: GraduationCap, value: '700+', label: 'Colleges mapped' },
   { icon: MapPin, value: 'All India', label: 'Rank-based matches' },
 ];
@@ -37,13 +36,13 @@ export default function CollegePredictorPage() {
           </span>
 
           <h1 className="mt-5 max-w-3xl font-serif text-[clamp(1.85rem,5vw,3.25rem)] font-bold leading-tight text-white">
-            NEET College Predictor,{' '}
-            <span className="text-gold-400">colleges for your rank</span>
+            NEET College Predictor
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-blue-50/95 md:text-base">
-            Know your AIR? Enter it below and see which MBBS colleges typically admit at that rank —
-            then talk to AR Group counsellors for choice filling and admission support.
+            Your NEET AIR can unlock the right medical college. Enter your rank to discover MBBS
+            colleges that match your profile, then let AR Group experts guide you through counselling,
+            choice filling, and admission.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-6 md:gap-10">

@@ -348,11 +348,70 @@ function simplifyIconChipGridLists(html: string): string {
   );
 }
 
+/**
+ * Chip cards are flex rows (badge + text). Multiple direct children (span + a, etc.)
+ * stretch apart and break the UI — wrap all copy into one text node.
+ */
+function flattenChipGridListItems(html: string): string {
+  return html.replace(
+    /(<(?:ul|ol)\b[^>]*wp-premium-chip-grid[^>]*>)([\s\S]*?)(<\/(?:ul|ol)>)/gi,
+    (_full, open: string, inner: string, close: string) => {
+      const fixed = inner.replace(/<li(\b[^>]*)>([\s\S]*?)<\/li>/gi, (liMatch, attrs: string, liInner: string) => {
+        const icon = liInner.match(
+          /<span\b[^>]*elementor-icon-list-icon[^>]*>[\s\S]*?<\/span>/i
+        )?.[0] ?? '';
+        let body = liInner
+          .replace(/<span\b[^>]*elementor-icon-list-icon[^>]*>[\s\S]*?<\/span>/gi, '')
+          .trim();
+        if (!body) return liMatch;
+
+        // Already a single text wrapper — keep links inside as-is.
+        if (
+          /^<span\b[^>]*(?:elementor-icon-list-text|wp-premium-chip-text)[^>]*>[\s\S]*<\/span>$/i.test(
+            body
+          )
+        ) {
+          body = body.replace(
+            /^<span\b([^>]*)>/i,
+            '<span class="wp-premium-chip-text elementor-icon-list-text">'
+          );
+          return `<li${attrs}>${icon}${body}</li>`;
+        }
+
+        // Unwrap nested span shells but preserve anchors / emphasis.
+        body = body
+          .replace(/<\/?span\b[^>]*>/gi, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return `<li${attrs}>${icon}<span class="wp-premium-chip-text elementor-icon-list-text">${body}</span></li>`;
+      });
+      return `${open}${fixed}${close}`;
+    }
+  );
+}
+
 const CTA_CONTACT_LABEL_RE =
   /Get\s+Consultation|Book\s+(?:Your\s+)?Consultation(?:\s+Now)?|Expert\s+Counsell?ing|Book\s+expert\s+counsell?ing/i;
 
 function isAddressPlainText(text: string): boolean {
-  return /\b(floor|tower|noida|sec-|wave silver|201301|pin\s*code|uttar pradesh)\b/i.test(text);
+  const t = text.trim();
+  if (t.length < 12 || t.length > 220) return false;
+  // Prose / FAQ answers mentioning a state must not become address cards.
+  if (/[?]/.test(t)) return false;
+  if (
+    /^(who|what|when|where|why|how|is |are |do |does |can |mbbs|neet|admission)\b/i.test(t) &&
+    !/\b(floor|tower|plot|sector|pin\s*code|pincode)\b/i.test(t)
+  ) {
+    return false;
+  }
+  const hasAddressCue =
+    /\b(floor|tower|plot|building|sector|sec-|wave silver|pin\s*code|pincode)\b/i.test(t) ||
+    /\b\d{6}\b/.test(t) ||
+    /\d{1,4},\s*[A-Za-z0-9]/.test(t);
+  if (!hasAddressCue) return false;
+  return /\b(noida|delhi|gurgaon|gurugram|uttar pradesh|india|mumbai|bangalore|bengaluru|hyderabad)\b/i.test(
+    t
+  );
 }
 
 function contactHrefForPlainText(text: string): string {
@@ -739,7 +798,7 @@ export function highlightAddressBlocks(html: string): string {
   return html.replace(
     /<p(\b[^>]*)>([\s\S]*?)<\/p>/gi,
     (full, attrs, inner) => {
-      if (/wp-address-highlight/.test(full)) return full;
+      if (/wp-address-highlight|wp-premium-faq-answer/.test(full)) return full;
       const plain = stripHtml(inner);
       if (!isAddressPlainText(plain) || plain.length > 220) return full;
       return `<div class="wp-address-highlight"><p${attrs}>${inner}</p></div>`;
@@ -1062,8 +1121,14 @@ function stripFaqQuestionNumberPrefix(question: string): string {
 function wrapFaqAnswerHtml(answer: string): string {
   const trimmed = answer.trim();
   if (!trimmed) return '';
+  if (/wp-premium-faq-answer-label/.test(trimmed)) return trimmed;
   const label =
     '<strong class="wp-premium-faq-answer-label">Answer:</strong> ';
+  if (/^<p\b[^>]*\bwp-premium-faq-answer\b/i.test(trimmed)) {
+    return trimmed.replace(/^<p([^>]*)>/i, (open) =>
+      open.includes('>') ? `${open.slice(0, -1)}>${label}` : open
+    );
+  }
   if (/^<p[\s>]/i.test(trimmed)) {
     return trimmed.replace(/^<p([^>]*)>/i, `<p class="wp-premium-faq-answer"$1>${label}`);
   }
@@ -1326,9 +1391,114 @@ function parseFaqItemsFromHtml(block: string): FaqItem[] {
 function wrapFaqGroup(items: FaqItem[], heading?: string): string {
   if (!items.length) return heading ?? '';
   const titledHeading = heading
-    ? heading.replace(/<h([23])\b/i, '<h$1 class="wp-faq-section-title"')
+    ? heading.replace(/<h([2-4])\b/i, '<h$1 class="wp-faq-section-title"')
     : '<h2 class="wp-faq-section-title">FAQs</h2>';
   return `${titledHeading}<div class="wp-premium-faq-group wp-premium-faq-group--animated">${buildFaqDetailsHtml(items)}</div>`;
+}
+
+/** Rebuild FAQ items already rendered as premium <details> accordions. */
+function parseFaqDetailsFromGroupInner(inner: string): FaqItem[] {
+  const items: FaqItem[] = [];
+  const re = /<details\b[^>]*\bwp-premium-faq\b[^>]*>([\s\S]*?)<\/details>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(inner)) !== null) {
+    if (/\bwp-premium-faq-group\b/.test(m[0].slice(0, 80))) continue;
+    const block = m[1];
+    const num = stripHtml(block.match(/wp-premium-faq-qnum">\s*([^<]*)/i)?.[1] ?? '').replace(
+      /\D/g,
+      ''
+    );
+    const question = stripHtml(block.match(/wp-premium-faq-qtext">([\s\S]*?)<\/span>/i)?.[1] ?? '').trim();
+    let answer = (block.match(/wp-premium-faq-body-inner">([\s\S]*?)<\/div>/i)?.[1] ?? '').trim();
+    answer = answer.replace(
+      /<strong class="wp-premium-faq-answer-label">\s*Answer:\s*<\/strong>\s*/gi,
+      ''
+    );
+    if (question) {
+      items.push({ num: num || String(items.length + 1), question, answer });
+    }
+  }
+  return items;
+}
+
+/**
+ * Orphan FAQ headings left outside an accordion (common when EAEL/WPSM converts
+ * only part of the section, or the first Q has no immediate <p> answer).
+ */
+function parseOrphanFaqFragments(block: string): FaqItem[] {
+  if (!block.trim()) return [];
+
+  const withAnswers = parseFaqItemsFromHtml(block);
+  if (withAnswers.length) return withAnswers;
+
+  const items: FaqItem[] = [];
+  const re = /<h([34])\b[^>]*>([\s\S]*?)<\/h\1>(\s*<p\b[^>]*>[\s\S]*?<\/p>)?/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(block)) !== null) {
+    const question = stripHtml(m[2]).trim();
+    if (!question || FAQ_SECTION_HEADING_TEST.test(question)) continue;
+    if (!/^\d+\s*[.)]/.test(question) && !/^Q\s*\d+/i.test(question) && question.length < 12) {
+      continue;
+    }
+    const answer = m[3] ? cleanAnswerHtml(m[3].replace(/^<p\b[^>]*>|<\/p>$/gi, '')) : '';
+    items.push({ num: String(items.length + 1), question, answer: answer || '—' });
+  }
+  return items;
+}
+
+const FAQ_SECTION_HEADING_TEST = /^(?:FAQs?|Frequently\s+Asked\s+Questions)$/i;
+
+function renumberFaqItems(items: FaqItem[]): FaqItem[] {
+  return items.map((item, i) => ({ ...item, num: String(i + 1) }));
+}
+
+/**
+ * Fold leftover FAQ headings/paragraphs that sit between the FAQs title and an
+ * existing accordion (or before a lone accordion) into one numbered group.
+ */
+function foldOrphansIntoFaqGroups(html: string): string {
+  const sectionRe = new RegExp(
+    `(<h[2-4][^>]*>[\\s\\S]*?${FAQ_SECTION_HEADING}[\\s\\S]*?<\\/h[2-4]>)(\\s*)([\\s\\S]*?)(?=<h2\\b|<div class="xs_social|<\\/section>|<section\\b|$)`,
+    'gi'
+  );
+
+  return html.replace(sectionRe, (full, heading: string, _sp: string, body: string) => {
+    const openMatch = body.match(/<div class="wp-premium-faq-group[^"]*"[^>]*>/i);
+    if (!openMatch || openMatch.index == null) return full;
+
+    const openIdx = openMatch.index;
+    const innerStart = openIdx + openMatch[0].length;
+    let depth = 1;
+    let i = innerStart;
+    while (i < body.length && depth > 0) {
+      const nextOpen = body.indexOf('<div', i);
+      const nextClose = body.indexOf('</div>', i);
+      if (nextClose < 0) return full;
+      if (nextOpen >= 0 && nextOpen < nextClose) {
+        depth += 1;
+        i = nextOpen + 4;
+      } else {
+        depth -= 1;
+        if (depth === 0) {
+          const groupInner = body.slice(innerStart, nextClose);
+          const groupEnd = nextClose + 6;
+          const before = body.slice(0, openIdx);
+          const after = body.slice(groupEnd);
+          const orphans = parseOrphanFaqFragments(before);
+          if (!orphans.length) return full;
+
+          const existing = parseFaqDetailsFromGroupInner(groupInner);
+          const merged = renumberFaqItems([...orphans, ...existing]);
+          if (!merged.length) return full;
+
+          const leftover = after.trim();
+          return `${wrapFaqGroup(merged, heading)}${leftover ? `\n${leftover}` : ''}`;
+        }
+        i = nextClose + 6;
+      }
+    }
+    return full;
+  });
 }
 
 /** Yoast SEO FAQ blocks → premium accordion. */
@@ -1501,7 +1671,7 @@ export function transformWpsmAccordions(html: string): string {
 export function transformWpFaqParagraphs(html: string): string {
   return html.replace(
     new RegExp(
-      `(<h[23][^>]*>[\\s\\S]*?${FAQ_SECTION_HEADING}[\\s\\S]*?<\\/h[23]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
+      `(<h[2-4][^>]*>[\\s\\S]*?${FAQ_SECTION_HEADING}[\\s\\S]*?<\\/h[2-4]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
       'gi'
     ),
     (full, heading, _sp, body) => {
@@ -1517,7 +1687,7 @@ export function transformWpFaqParagraphs(html: string): string {
 function transformRemainingFaqSections(html: string): string {
   return html.replace(
     new RegExp(
-      `(<h[23][^>]*>[\\s\\S]*?${FAQ_SECTION_HEADING}[\\s\\S]*?<\\/h[23]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
+      `(<h[2-4][^>]*>[\\s\\S]*?${FAQ_SECTION_HEADING}[\\s\\S]*?<\\/h[2-4]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
       'gi'
     ),
     (full, heading, _sp, body) => {
@@ -1540,7 +1710,9 @@ export function stripFaqSectionJunk(html: string): string {
   out = out.replace(/<style>[\s\S]*?#wpsm_accordion_\d+[\s\S]*?<\/style>/gi, '');
   out = out.replace(/<p>\s*<style>\s*(?=<div[^>]*wp-premium-faq-group)/gi, '');
   out = out.replace(/<style>\s*(?=<div[^>]*wp-premium-faq-group)/gi, '');
-  out = out.replace(/<\/h2>\s*<p>\s*(?=<div[^>]*wp-premium-faq-group)/gi, '</h2>');
+  out = out.replace(/<\/h[2-4]>\s*<p>\s*(?=<div[^>]*wp-premium-faq-group)/gi, (m) =>
+    m.replace(/\s*<p>\s*$/i, '')
+  );
   out = out.replace(/<p>\s*(?=<div[^>]*wp-premium-faq-group)/gi, '');
   out = out.replace(/<\/style>\s*(?=<div[^>]*wp-premium-faq-group)/gi, '');
   out = out.replace(/<p>\s*<\/p>/gi, '');
@@ -1555,6 +1727,7 @@ export function transformAllFaqs(html: string): string {
   out = transformWpsmAccordions(out);
   out = transformWpFaqParagraphs(out);
   out = transformRemainingFaqSections(out);
+  out = foldOrphansIntoFaqGroups(out);
   out = stripFaqSectionJunk(out);
   return out;
 }
@@ -1600,6 +1773,7 @@ export function prepareWpHtml(
   out = transformLongListsToGrid(out);
   out = simplifyFeatureGridIconLists(out);
   out = simplifyIconChipGridLists(out);
+  out = flattenChipGridListItems(out);
   out = transformEaelAccordions(out);
   out = transformAllFaqs(out);
   out = stripFaqSectionJunk(out);

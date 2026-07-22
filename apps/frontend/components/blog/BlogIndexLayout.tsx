@@ -87,7 +87,7 @@ export function BlogIndexLayout({
                 <h2 className="blog-index-list__heading">Search results</h2>
                 {searchResults.length > 0 ? (
                   searchResults.map((blog) => (
-                    <BlogListingCard key={blog.id} blog={blog} variant="compact" />
+                    <BlogListingCard key={blog.slug || blog.id} blog={blog} variant="compact" />
                   ))
                 ) : (
                   <div className="blog-search-empty">
@@ -104,7 +104,7 @@ export function BlogIndexLayout({
                       {currentPage === 1 ? 'More articles' : `Articles · Page ${currentPage}`}
                     </h2>
                     {rest.map((blog) => (
-                      <BlogListingCard key={blog.id} blog={blog} variant="compact" />
+                      <BlogListingCard key={blog.slug || blog.id} blog={blog} variant="compact" />
                     ))}
                   </div>
                 ) : null}

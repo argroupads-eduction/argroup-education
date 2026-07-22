@@ -28,7 +28,7 @@ export const NEET_2025: NeetYearDataset = {
   source: 'NTA NEET UG 2025 official result statistics',
   totalAppeared: 2_209_318,
   totalQualified: 1_236_531,
-  maxScore: 686,
+  maxScore: 720,
   difficulty: 'very_hard',
   difficultyScore: 0.15,
   qualifyingMarks: {

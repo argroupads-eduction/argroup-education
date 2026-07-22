@@ -55,18 +55,6 @@ const CATEGORY_SHORT: Record<NeetCategory, string> = {
   pwd: 'PwD',
 };
 
-/**
- * For strong AIRs, General/OBC still prefer stronger private colleges.
- * SC/ST/PwD see a wider private pool even at the same AIR.
- */
-const PREMIUM_UR_CAP: Record<NeetCategory, number> = {
-  general_ews: 240000,
-  obc_ncl: 300000,
-  sc: 520000,
-  st: 580000,
-  pwd: 450000,
-};
-
 const TYPE_BADGE: Record<string, string> = {
   aiims: 'AIIMS',
   central: 'Central / INI',
@@ -74,6 +62,9 @@ const TYPE_BADGE: Record<string, string> = {
   private: 'MBBS',
   deemed: 'MBBS',
 };
+
+/** Preferred India state order when eligible for this AIR. */
+const INDIA_STATE_PRIORITY: readonly string[] = ['up', 'rajasthan', 'bihar'];
 
 /** AR Group counselling focus: private + deemed inventory (govt/AIIMS excluded). */
 const PRIVATE_DEEMED = CUTOFF_COLLEGES.filter(
@@ -103,46 +94,54 @@ function formatCloseBadge(
 }
 
 /**
+ * For strong AIRs, prefer colleges whose closing rank sits near the student
+ * (not every open private seat). Soft band scales with AIR so 650 ≠ 550 lists.
+ */
+function idealCloseForAir(air: number, category: NeetCategory): number {
+  const mult = category === 'general_ews' ? 1.35 : category === 'obc_ncl' ? 1.55 : 2.1;
+  return Math.max(air * mult, air + 25_000);
+}
+
+function statePriorityIndex(stateId: string): number {
+  const idx = INDIA_STATE_PRIORITY.indexOf(stateId);
+  return idx === -1 ? INDIA_STATE_PRIORITY.length + 50 : idx;
+}
+
+/**
  * MBBS India — Private & Deemed only, filtered by AIR + reservation category.
+ * State order: UP → Rajasthan → Bihar → rest (only if eligible for this AIR).
  */
 function pickIndiaByCutoff(
   air: number,
   category: NeetCategory,
   limit = 48
 ): { list: CollegeMatch[]; byState: Record<string, CollegeMatch[]> } {
-  const premiumCap = PREMIUM_UR_CAP[category];
-  const strongAir = air <= 80000;
+  const idealClose = idealCloseForAir(air, category);
 
   const scored = PRIVATE_DEEMED.map((c) => {
     const close = closingRankForCategory(c.closingRankUR, category);
     const chance = chanceForRank(air, close);
 
     // Must clear category-adjusted closing rank (with small buffer)
-    let eligible = air <= close * 1.1;
+    const eligible = air <= close * 1.12;
 
-    // Strong AIR + General/OBC: keep list to better private/deemed (not every open college)
-    if (eligible && strongAir && c.closingRankUR > premiumCap) {
-      eligible = false;
-    }
-
-    // Fit: prefer colleges whose category close sits just above the student's AIR
-    const idealClose = air * (category === 'general_ews' ? 2.2 : category === 'obc_ncl' ? 2.8 : 4.5);
+    // Fit: closer to the student's "ideal" close = better shortlist match
     const fit = Math.abs(close - idealClose);
-
-    return { c, close, chance, eligible, fit };
+    // Prefer colleges just above AIR (reachable), not far below/above
+    const stretch = close < air ? (air - close) * 2 : Math.max(0, close - air * 2.8);
+    return { c, close, chance, eligible, fit: fit + stretch };
   }).filter((x) => x.eligible);
 
   scored.sort((a, b) => {
+    // Preferred states first among eligible
+    const sa = statePriorityIndex(a.c.stateId);
+    const sb = statePriorityIndex(b.c.stateId);
+    if (sa !== sb) return sa - sb;
+
     const chanceOrder = { high: 0, moderate: 1, reach: 2 };
     if (chanceOrder[a.chance] !== chanceOrder[b.chance]) {
       return chanceOrder[a.chance] - chanceOrder[b.chance];
     }
-    // Deemed slightly ahead of private within same chance
-    const typeOrder = (t: string) => (t === 'deemed' ? 0 : 1);
-    if (typeOrder(a.c.type) !== typeOrder(b.c.type)) {
-      return typeOrder(a.c.type) - typeOrder(b.c.type);
-    }
-    // Best fit for this AIR + category
     if (a.fit !== b.fit) return a.fit - b.fit;
     return a.close - b.close;
   });
@@ -161,16 +160,24 @@ function pickIndiaByCutoff(
             fit: Math.abs(close - air),
           };
         })
-          .filter((x) => air <= x.close * 1.25 || x.close >= air)
-          .sort((a, b) => a.fit - b.fit)
+          .filter((x) => air <= x.close * 1.3 || x.close >= air)
+          .sort((a, b) => {
+            const sa = statePriorityIndex(a.c.stateId);
+            const sb = statePriorityIndex(b.c.stateId);
+            if (sa !== sb) return sa - sb;
+            return a.fit - b.fit;
+          })
           .slice(0, limit);
 
   const perState = new Map<string, number>();
   const list: CollegeMatch[] = [];
   const byState: Record<string, CollegeMatch[]> = {};
-  const maxPerState = category === 'general_ews' || category === 'obc_ncl' ? 5 : 7;
+  const maxPerState = category === 'general_ews' || category === 'obc_ncl' ? 6 : 8;
 
   for (const row of pool) {
+    const stateCount = byState[row.c.state]?.length ?? 0;
+    if (stateCount >= maxPerState) continue;
+
     const match: CollegeMatch = {
       name: row.c.name,
       href: row.c.href,
@@ -184,45 +191,69 @@ function pickIndiaByCutoff(
     if (!byState[row.c.state]) byState[row.c.state] = [];
     byState[row.c.state]!.push(match);
 
-    const n = perState.get(row.c.state) ?? 0;
-    if (n >= maxPerState) continue;
     if (list.length >= limit) continue;
-    perState.set(row.c.state, n + 1);
+    const n = perState.get(row.c.stateId) ?? 0;
+    perState.set(row.c.stateId, n + 1);
     list.push(match);
   }
 
   return { list, byState };
 }
 
-/** Abroad — NEET-qualified students can apply; country tiers by competitiveness of India options. */
-function pickAbroadByRank(air: number, limit = 12): CollegeMatch[] {
-  // Lower AIR → still show premium destinations; higher AIR → value/budget first
-  let countryOrder: string[];
-  if (air <= 50000) {
-    countryOrder = ['georgia', 'russia', 'kazakhstan', 'uzbekistan', 'kyrgyzstan', 'bangladesh', 'nepal'];
-  } else if (air <= 200000) {
-    countryOrder = ['georgia', 'kazakhstan', 'uzbekistan', 'kyrgyzstan', 'russia', 'bangladesh', 'nepal', 'philippines'];
-  } else {
-    countryOrder = ['kyrgyzstan', 'uzbekistan', 'bangladesh', 'nepal', 'kazakhstan', 'georgia', 'philippines', 'russia'];
-  }
+/**
+ * Abroad country order for a given AIR.
+ * Always prefer Russia → Georgia → Kazakhstan when that score can still take them
+ * (NEET-qualified students can typically apply); then budget destinations.
+ */
+function abroadCountryOrderForAir(air: number): string[] {
+  const priority = ['russia', 'georgia', 'kazakhstan'];
+  const mid = ['uzbekistan', 'kyrgyzstan'];
+  const value = ['bangladesh', 'nepal', 'philippines'];
 
+  if (air <= 80_000) {
+    // Strong profile — premium destinations first, then mid Asia
+    return [...priority, ...mid, ...value];
+  }
+  if (air <= 250_000) {
+    return [...priority, ...mid, ...value];
+  }
+  // Weaker AIR — still Russia/Georgia/Kazakhstan first (AR counselling focus),
+  // then more budget-friendly regions.
+  return [...priority, 'kyrgyzstan', 'uzbekistan', 'bangladesh', 'nepal', 'philippines'];
+}
+
+function abroadCollegesPerCountry(air: number): number {
+  if (air <= 80_000) return 4;
+  if (air <= 250_000) return 3;
+  return 3;
+}
+
+/** Abroad — NEET-qualified; country order Russia → Georgia → Kazakhstan → rest. */
+function pickAbroadByRank(air: number, limit = 24): CollegeMatch[] {
+  const countryOrder = abroadCountryOrderForAir(air);
+  const perCountry = abroadCollegesPerCountry(air);
   const out: CollegeMatch[] = [];
   const seen = new Set<string>();
 
   for (const id of countryOrder) {
     const country = MBBS_ABROAD_COUNTRIES.find((c) => c.id === id);
     if (!country) continue;
-    const colleges = flattenAbroadColleges(country).slice(0, 3);
+    const colleges = flattenAbroadColleges(country).slice(0, perCountry);
     for (const col of colleges) {
       if (!col.href || seen.has(col.href)) continue;
       seen.add(col.href);
+      const chance: CollegeMatch['chance'] =
+        air <= 100_000 ? 'high' : air <= 300_000 ? 'moderate' : 'reach';
       out.push({
         name: col.name,
         href: col.href,
         meta: country.name,
-        badge: 'NMC pathway · NEET qualified',
+        badge:
+          id === 'russia' || id === 'georgia' || id === 'kazakhstan'
+            ? 'Priority destination · NMC pathway'
+            : 'NMC pathway · NEET qualified',
         collegeType: 'Abroad',
-        chance: air <= 200000 ? 'high' : 'moderate',
+        chance,
       });
       if (out.length >= limit) return out;
     }
@@ -429,15 +460,24 @@ export function getCollegeRecommendationsByRank(
   }
 
   const { list, byState } = pickIndiaByCutoff(safeAir, category, limit);
-  const byStateFlat = Object.values(byState)
-    .flat()
-    .sort((a, b) => {
-      const chanceOrder = { high: 0, moderate: 1, reach: 2 };
-      const ca = chanceOrder[a.chance ?? 'moderate'];
-      const cb = chanceOrder[b.chance ?? 'moderate'];
-      if (ca !== cb) return ca - cb;
-      return (a.closingRank ?? 0) - (b.closingRank ?? 0);
-    });
+
+  const stateNameToId = new Map<string, string>();
+  for (const c of PRIVATE_DEEMED) {
+    if (!stateNameToId.has(c.state)) stateNameToId.set(c.state, c.stateId);
+  }
+
+  // Flatten in preferred state order (UP → Rajasthan → Bihar → rest)
+  const stateOrder = Object.keys(byState).sort((a, b) => {
+    const pa = statePriorityIndex(stateNameToId.get(a) ?? '');
+    const pb = statePriorityIndex(stateNameToId.get(b) ?? '');
+    if (pa !== pb) return pa - pb;
+    return a.localeCompare(b);
+  });
+
+  const byStateFlat: CollegeMatch[] = [];
+  for (const state of stateOrder) {
+    byStateFlat.push(...(byState[state] ?? []));
+  }
 
   const catLabel = CATEGORY_SHORT[category];
   return {

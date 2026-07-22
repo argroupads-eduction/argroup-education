@@ -114,7 +114,7 @@ export function ContentTableOfContents({ headings, variant = 'sidebar' }: Conten
           h.level === 3 ? 'pl-5 sm:pl-6' : h.level === 4 ? 'pl-7 sm:pl-8' : h.level >= 5 ? 'pl-9 sm:pl-10' : 'pl-1';
 
         return (
-          <li key={h.id} className={indent}>
+          <li key={`${variant}-${h.id || 'section'}-${index}`} className={indent}>
             <a
               href={`#${h.id}`}
               data-toc-id={h.id}

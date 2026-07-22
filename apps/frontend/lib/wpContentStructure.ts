@@ -42,8 +42,15 @@ export function injectHeadingIds(html: string): { html: string; headings: Conten
     if (!text) return match;
     if (/id\s*=/.test(attrs)) {
       const idMatch = /id\s*=\s*["']([^"']+)["']/.exec(attrs);
-      if (idMatch) headings.push({ id: idMatch[1], text, level });
-      return match;
+      let id = (idMatch?.[1] || '').trim();
+      if (!id) {
+        id = slugify(text) || `section-${headings.length + 1}`;
+      }
+      while (used.has(id)) id = `${id}-${headings.length + 1}`;
+      used.add(id);
+      headings.push({ id, text, level });
+      if (idMatch?.[1] === id) return match;
+      return `<h${level}${attrs.replace(/\sid\s*=\s*["'][^"']*["']/i, '')} id="${id}">${inner}</h${level}>`;
     }
     let id = slugify(text) || `section-${headings.length + 1}`;
     while (used.has(id)) id = `${id}-${headings.length + 1}`;

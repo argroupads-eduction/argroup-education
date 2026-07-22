@@ -4,9 +4,10 @@ import { ArrowRight, GraduationCap, MapPin, Sparkles, Trophy } from 'lucide-reac
 /** Home teaser for /college-predictor — server component (no client bundle). */
 export function CollegePredictorHomeSection() {
   const bullets = [
-    'MBBS India, Abroad, MD/MS or BAMS — pick your path',
-    'Colleges grouped by state for your rank & category',
-    'Free shortlist with expert counselling follow-up',
+    'Personalized MBBS college list based on your rank',
+    'Compare fees, cut-offs, and state-wise options',
+    'Get a free counselling session from AR Group of Education',
+    'Explore MBBS, BDS, BAMS, AYUSH, and Study Abroad opportunities',
   ] as const;
 
   const previewStats = [
@@ -41,13 +42,13 @@ export function CollegePredictorHomeSection() {
             </span>
 
             <h2 className="mt-5 font-serif text-3xl font-bold leading-tight text-navy-900 md:text-4xl">
-              Know which colleges fit{' '}
-              <span className="text-gold-800">your NEET rank</span>
+              Find Your Best MBBS College in{' '}
+              <span className="text-gold-800">60 Seconds</span>
             </h2>
 
             <p className="mt-4 text-sm leading-relaxed text-slate-600 md:text-base">
-              Enter your AIR and category, see state-wise MBBS colleges matched to you — then talk to
-              AR Group for counselling. Takes under a minute.
+              Just enter your NEET AIR and category to instantly discover colleges where you have the
+              best admission chances.
             </p>
 
             <ul className="mt-6 space-y-2.5 text-sm text-navy-800">

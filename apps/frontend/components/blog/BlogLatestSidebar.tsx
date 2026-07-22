@@ -73,7 +73,7 @@ export function BlogLatestSidebar({
         {items.length ? (
           <ul className="blog-sidebar__list">
             {items.map((post, index) => (
-              <li key={post.id}>
+              <li key={post.slug || post.id || `latest-${index}`}>
                 <Link href={blogPostPath(post.slug)} className="blog-sidebar__item">
                   <span className="blog-sidebar__index" aria-hidden>
                     {String(index + 1).padStart(2, '0')}

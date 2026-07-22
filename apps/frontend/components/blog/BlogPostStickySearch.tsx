@@ -35,7 +35,7 @@ export function BlogPostStickySearch({
   }, [posts, currentSlug, isSearching, normalizedQuery]);
 
   return (
-    <>
+    <div className="blog-post-sticky-root">
       <div className="blog-index-search-sticky blog-post-search-sticky" role="search">
         <div className="blog-index-search-sticky__inner">
           <BlogSearchField
@@ -49,9 +49,9 @@ export function BlogPostStickySearch({
 
       <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 md:pb-24 md:pt-8">
         <div className="blog-post-grid">
-          {children}
-          <div className="blog-post-aside space-y-5 lg:sticky lg:top-[7.5rem] lg:self-start">
-            {toc}
+          <div className="blog-post-main min-w-0">{children}</div>
+          <aside className="blog-post-aside space-y-5 lg:sticky lg:top-[7.5rem] lg:self-start">
+            {toc ? <div className="blog-post-aside__toc">{toc}</div> : null}
             <BlogLatestSidebar
               posts={posts}
               currentSlug={currentSlug}
@@ -60,10 +60,12 @@ export function BlogPostStickySearch({
               query={query}
               onQueryChange={setQuery}
             />
-            {counselling}
-          </div>
+            {counselling ? (
+              <div className="blog-post-aside__counselling">{counselling}</div>
+            ) : null}
+          </aside>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -2635,7 +2635,7 @@ html:has(.wp-content-affinity) {
   color: #111827 !important;
   min-width: 0;
   word-break: normal;
-  overflow-wrap: normal;
+  overflow-wrap: break-word;
   hyphens: none;
   transition:
     transform 0.2s ease,
@@ -2703,17 +2703,42 @@ html:has(.wp-content-affinity) {
 .wp-content-root ul.wp-premium-chip-grid > li > span,
 .wp-content-root ol.wp-premium-chip-grid > li > span,
 .wp-content-root ul.wp-premium-chip-grid .elementor-icon-list-text,
-.wp-content-root ol.wp-premium-chip-grid .elementor-icon-list-text {
+.wp-content-root ol.wp-premium-chip-grid .elementor-icon-list-text,
+.wp-content-root ul.wp-premium-chip-grid .wp-premium-chip-text,
+.wp-content-root ol.wp-premium-chip-grid .wp-premium-chip-text {
   display: block;
-  flex: 1 1 0;
+  flex: 1 1 auto;
   min-width: 0;
   color: #111827 !important;
   font-weight: 600;
   padding: 0 !important;
   white-space: normal !important;
   word-break: normal;
-  overflow-wrap: normal;
+  overflow-wrap: break-word;
   hyphens: none;
+}
+
+/* Links inside chip text stay inline — never become separate flex items. */
+.wp-content-root ul.wp-premium-chip-grid > li > a,
+.wp-content-root ol.wp-premium-chip-grid > li > a {
+  display: inline;
+  flex: none;
+  min-width: 0;
+  color: #b45309 !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.wp-content-root ul.wp-premium-chip-grid .wp-premium-chip-text a,
+.wp-content-root ol.wp-premium-chip-grid .wp-premium-chip-text a,
+.wp-content-root ul.wp-premium-chip-grid .elementor-icon-list-text a,
+.wp-content-root ol.wp-premium-chip-grid .elementor-icon-list-text a {
+  display: inline;
+  color: #b45309 !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ span) > span,

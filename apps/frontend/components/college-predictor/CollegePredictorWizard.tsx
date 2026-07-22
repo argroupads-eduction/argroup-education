@@ -240,7 +240,7 @@ export function CollegePredictorWizard() {
         <p className="mt-1 text-sm text-slate-600">
           {track === 'md-ms'
             ? 'Enter your NEET PG score and category to see matching colleges grouped by state.'
-            : 'Enter your score, get the college list that fits your predicted rank, and our team will follow up.'}
+            : 'Enter your score and get the college list for your predicted rank.'}
         </p>
       </header>
 
