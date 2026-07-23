@@ -156,13 +156,14 @@ export default async function RootLayout({
       >
         <SiteGlobalsProvider globals={siteGlobals}>
           <NavPagesProvider pages={navPages}>
+            {/* Mobile slim top alert + desktop floating install chip (one instance). */}
+            <PwaRegistrar />
             <CollegePredictorPromoStrip />
             <Navbar />
             <main className="min-w-0">{children}</main>
             <Footer />
             <DeferredSitePopups />
             <LeadSubmissionFeedbackHost />
-            <PwaRegistrar />
             <SiteInteractionGuard />
           </NavPagesProvider>
         </SiteGlobalsProvider>
