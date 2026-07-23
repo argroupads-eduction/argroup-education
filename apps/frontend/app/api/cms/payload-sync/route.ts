@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runPayloadSync, verifyPayloadSyncAuth } from '@backend/handlers/payloadSync';
+import { notifyNewBlogPush } from '@backend/lib/webPush';
 import { revalidateAfterContentSync } from '@/lib/revalidateSite';
 
 export const runtime = 'nodejs';
@@ -27,6 +28,20 @@ export async function POST(req: NextRequest) {
       slug: result.body.slug,
       type: result.body.type,
     });
+
+    // New published blog from Payload → push to everyone who installed the PWA.
+    if (
+      result.body.type === 'post' &&
+      result.body.published &&
+      result.body.isNew &&
+      result.body.title
+    ) {
+      void notifyNewBlogPush({
+        title: result.body.title,
+        slug: result.body.slug,
+        excerpt: result.body.excerpt,
+      }).catch((err) => console.error('[push] blog notify failed', err));
+    }
   }
 
   return NextResponse.json(

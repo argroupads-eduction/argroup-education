@@ -183,7 +183,7 @@ export function transformEaelAccordions(html: string): string {
     }
 
     const block = out.slice(accOpen, blockEnd);
-    const items = parseEaelAccordionItems(block);
+    const items = dedupeFaqItems(parseEaelAccordionItems(block));
     if (!items.length) {
       searchFrom = accIdx + marker.length;
       continue;
@@ -1109,13 +1109,109 @@ type FaqItem = { num: string; question: string; answer: string };
 
 const FAQ_ANSWER_PREFIX = /(?:Answer\s*:|Ans(?:wer)?\s*[.:]|A\s*\d+\s*[.:]|A\s*:)/i;
 
-/** Drop leading "1." / "Q1." — badge already shows 01, 02, … */
+/** Drop leading "1." / "Q1." / "Ques1-" — badge already shows 01, 02, … */
 function stripFaqQuestionNumberPrefix(question: string): string {
   return question
+    .replace(/^Ques(?:tion)?\s*\d+\s*[-–—:.)\]]\s*/i, '')
     .replace(/^Q\s*\d+\s*[.:)\]]\s*/i, '')
     .replace(/^\d+\s*[.)]\s+/, '')
     .replace(/^\d+\s*[-–—]\s+/, '')
     .trim();
+}
+
+/** True for Q1 / Ques1 / Question 1 style labels. */
+function hasFaqQuestionLabel(text: string): boolean {
+  return /^(?:Ques(?:tion)?\s*\d+|Q\s*\d+)\s*[-–—:.)\]]/i.test(text.trim());
+}
+
+function normalizeFaqQuestionKey(question: string): string {
+  return stripFaqQuestionNumberPrefix(question)
+    .toLowerCase()
+    .replace(/&amp;/g, 'and')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\bnow\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function faqQuestionTokens(question: string): Set<string> {
+  const stop =
+    /^(?:the|a|an|in|for|of|to|is|are|does|do|did|what|how|much|many|from|can|i|we|you|our|your|it)$/;
+  return new Set(
+    normalizeFaqQuestionKey(question)
+      .split(' ')
+      .filter((t) => t && !stop.test(t))
+  );
+}
+
+function faqQuestionTokenOverlap(a: string, b: string): number {
+  const ta = faqQuestionTokens(a);
+  const tb = faqQuestionTokens(b);
+  if (!ta.size || !tb.size) return 0;
+  let inter = 0;
+  for (const t of ta) if (tb.has(t)) inter += 1;
+  return inter / Math.max(ta.size, tb.size);
+}
+
+/** True when both ask about MBBS tuition/fees (not living cost / country comparisons). */
+function isMbbsTuitionCostQuestion(question: string): boolean {
+  const q = normalizeFaqQuestionKey(question);
+  if (/\bliving\b/.test(q)) return false;
+  if (/\b(?:country|countries)\b/.test(q)) return false;
+  return (
+    /\bmbbs\b/.test(q) &&
+    /\b(?:cost|costs|fee|fees|money|tuition|expensive|cheap|cheapest|price|budget)\b/.test(q)
+  );
+}
+
+function isDuplicateFaqQuestion(a: string, b: string): boolean {
+  const ka = normalizeFaqQuestionKey(a);
+  const kb = normalizeFaqQuestionKey(b);
+  if (!ka || !kb) return false;
+  if (ka === kb) return true;
+
+  // "…safe…?" vs "…safe… now?"
+  if (ka.includes(kb) || kb.includes(ka)) {
+    const shorter = Math.min(ka.length, kb.length);
+    const longer = Math.max(ka.length, kb.length);
+    if (shorter / longer >= 0.78) return true;
+  }
+
+  // "Is Russia good for MBBS?" vs "…for Indian students?"
+  const ta = faqQuestionTokens(a);
+  const tb = faqQuestionTokens(b);
+  const [smaller, larger] = ta.size <= tb.size ? [ta, tb] : [tb, ta];
+  if (smaller.size >= 3) {
+    let hit = 0;
+    for (const t of smaller) if (larger.has(t)) hit += 1;
+    if (hit / smaller.size >= 0.9 && smaller.size / larger.size >= 0.5) return true;
+  }
+
+  // Repeated tuition/fee phrasings ("how much cost" / "fees" / "money required")
+  if (isMbbsTuitionCostQuestion(a) && isMbbsTuitionCostQuestion(b)) return true;
+
+  return faqQuestionTokenOverlap(a, b) >= 0.88;
+}
+
+/** Drop near-duplicate questions (e.g. cost / safety variants); keep longer answer. */
+function dedupeFaqItems(items: FaqItem[]): FaqItem[] {
+  const kept: FaqItem[] = [];
+  for (const item of items) {
+    const q = stripFaqQuestionNumberPrefix(item.question) || item.question;
+    const dupIdx = kept.findIndex((k) => {
+      const kq = stripFaqQuestionNumberPrefix(k.question) || k.question;
+      return isDuplicateFaqQuestion(kq, q);
+    });
+    if (dupIdx === -1) {
+      kept.push({ ...item, question: q });
+      continue;
+    }
+    const existing = kept[dupIdx];
+    if (stripHtml(item.answer).length > stripHtml(existing.answer).length) {
+      kept[dupIdx] = { ...item, question: q, num: existing.num };
+    }
+  }
+  return kept.map((item, i) => ({ ...item, num: String(i + 1) }));
 }
 
 function wrapFaqAnswerHtml(answer: string): string {
@@ -1181,9 +1277,9 @@ function extractFaqLines(html: string): string[] {
   return lines.length ? lines : extractParagraphs(html);
 }
 
-/** Stop FAQ body capture at next major section (Payload has no WP </section> after FAQs). */
+/** Stop FAQ body at next page heading / social block — not Elementor nested <section>. */
 const FAQ_SECTION_BODY_END =
-  '(?=<h2\\b|<div class="xs_social|<\\/section>|<section\\b|$)';
+  '(?=<h2\\b|<div class="xs_social|<\\/section>|$)';
 
 function cleanAnswerHtml(inner: string): string {
   let out = inner.trim();
@@ -1203,13 +1299,13 @@ function cleanAnswerHtml(inner: string): string {
 }
 
 function parseSameParagraphQa(inner: string): FaqItem | null {
-  if (!/Q\s*\d+\s*[.:]/i.test(inner)) return null;
+  if (!/(?:Ques(?:tion)?|Q)\s*\d+\s*[-–—:.]/i.test(inner)) return null;
   const parts = inner.split(/<br\s*\/?>/i);
   if (parts.length < 2) return null;
   const qPart = parts[0];
   const aPart = parts.slice(1).join(' ');
-  const num = (qPart.match(/Q\s*(\d+)/i) ?? [])[1];
-  const question = stripHtml(qPart).replace(/^Q\s*\d+\s*[.:]\s*/i, '').trim();
+  const num = (qPart.match(/(?:Ques(?:tion)?|Q)\s*(\d+)/i) ?? [])[1];
+  const question = stripFaqQuestionNumberPrefix(stripHtml(qPart));
   const answer = cleanAnswerHtml(aPart);
   if (!num || !question || !answer) return null;
   return { num, question, answer };
@@ -1217,24 +1313,28 @@ function parseSameParagraphQa(inner: string): FaqItem | null {
 
 function parseQuestionParagraph(inner: string): { num: string; question: string; inlineAnswer?: string } | null {
   const text = stripHtml(inner);
-  const qOnly = text.match(/^Q\s*(\d+)\s*[.:]\s*(.+)$/i);
+  const qOnly = text.match(/^(?:Ques(?:tion)?|Q)\s*(\d+)\s*[-–—:.]\s*(.+)$/i);
   if (qOnly && !FAQ_ANSWER_PREFIX.test(text.slice(0, 80))) {
     const inline = inner.match(
-      /Q\s*\d+\s*[.:][\s\S]*?(?:<br\s*\/?>\s*)+(?:<b>\s*)?(?:Answer\s*:|Ans(?:wer)?\s*[.:]|A\s*\d+\s*[.:]|A\s*:)([\s\S]*)$/i
+      /(?:Ques(?:tion)?|Q)\s*\d+\s*[-–—:.][\s\S]*?(?:<br\s*\/?>\s*)+(?:<b>\s*)?(?:Answer\s*:|Ans(?:wer)?\s*[.:]|A\s*\d+\s*[.:]|A\s*:)([\s\S]*)$/i
     );
     if (inline) {
-      return { num: qOnly[1], question: qOnly[2].trim(), inlineAnswer: cleanAnswerHtml(inline[1]) };
+      return {
+        num: qOnly[1],
+        question: stripFaqQuestionNumberPrefix(qOnly[2].trim()),
+        inlineAnswer: cleanAnswerHtml(inline[1]),
+      };
     }
-    return { num: qOnly[1], question: qOnly[2].trim() };
+    return { num: qOnly[1], question: stripFaqQuestionNumberPrefix(qOnly[2].trim()) };
   }
 
   const combined = inner.match(
-    /Q\s*(\d+)\s*[.:]\s*([\s\S]*?)(?:<br\s*\/?>\s*)+(?:<b>\s*)?(?:Answer\s*:|Ans(?:wer)?\s*[.:]|A\s*\d+\s*[.:]|A\s*:)([\s\S]*)$/i
+    /(?:Ques(?:tion)?|Q)\s*(\d+)\s*[-–—:.]\s*([\s\S]*?)(?:<br\s*\/?>\s*)+(?:<b>\s*)?(?:Answer\s*:|Ans(?:wer)?\s*[.:]|A\s*\d+\s*[.:]|A\s*:)([\s\S]*)$/i
   );
   if (combined) {
     return {
       num: combined[1],
-      question: stripHtml(combined[2]).trim(),
+      question: stripFaqQuestionNumberPrefix(stripHtml(combined[2]).trim()),
       inlineAnswer: cleanAnswerHtml(combined[3]),
     };
   }
@@ -1242,9 +1342,11 @@ function parseQuestionParagraph(inner: string): { num: string; question: string;
 }
 
 function isAnswerParagraph(inner: string): boolean {
-  if (/Q\s*\d+\s*[.:]/i.test(inner) && !FAQ_ANSWER_PREFIX.test(inner)) return false;
+  if (/(?:Ques(?:tion)?|Q)\s*\d+\s*[-–—:.]/i.test(inner) && !FAQ_ANSWER_PREFIX.test(inner)) {
+    return false;
+  }
   const text = stripHtml(inner);
-  if (/^Q\s*\d+\s*[.:]/i.test(text)) return false;
+  if (hasFaqQuestionLabel(text)) return false;
   if (/^\d+\.\s+/.test(text)) return false;
   return text.length > 0;
 }
@@ -1295,17 +1397,25 @@ function parseNumberedFaqItemsFromHtml(block: string): FaqItem[] {
   return parseNumberedFaqItemsFromLines(extractFaqLines(block));
 }
 
-/** Payload CMS: h3 question + p answer blocks under "Frequently Asked Questions". */
+/** Payload/Elementor: h3/h4 question + following <p> answer (wrappers allowed between). */
 function parseHeadingQuestionFaqItemsFromHtml(block: string): FaqItem[] {
   const items: FaqItem[] = [];
-  const re = /<h([34])\b[^>]*>([\s\S]*?)<\/h\1>\s*(<p\b[^>]*>[\s\S]*?<\/p>)/gi;
+  // Allow Elementor widget wrappers between heading and answer paragraph.
+  const re =
+    /<h([34])\b[^>]*>([\s\S]*?)<\/h\1>(?:(?!<h[1-4]\b)[\s\S])*?(<p\b[^>]*>[\s\S]*?<\/p>)/gi;
   let m: RegExpExecArray | null;
   while ((m = re.exec(block)) !== null) {
-    const question = stripHtml(m[2]).trim();
-    if (!question || /^frequently\s+asked\s+questions$/i.test(question)) continue;
+    const rawQuestion = stripHtml(m[2]).trim();
+    if (!rawQuestion || /^frequently\s+asked\s+questions\b/i.test(rawQuestion)) continue;
+    const numMatch = rawQuestion.match(/^(?:Ques(?:tion)?|Q)\s*(\d+)/i);
+    const question = stripFaqQuestionNumberPrefix(rawQuestion);
     const answer = cleanAnswerHtml(m[3].replace(/^<p\b[^>]*>|<\/p>$/gi, ''));
     if (question.length >= 8 && answer.length > 0) {
-      items.push({ num: String(items.length + 1), question, answer });
+      items.push({
+        num: numMatch?.[1] ?? String(items.length + 1),
+        question,
+        answer,
+      });
     }
   }
   return items;
@@ -1313,6 +1423,10 @@ function parseHeadingQuestionFaqItemsFromHtml(block: string): FaqItem[] {
 
 const FAQ_SECTION_HEADING =
   '(?:\\bFAQs?\\b|Frequently\\s+Asked\\s+Questions)';
+
+/** Match an h2–h4 whose own text contains FAQs — never span across other headings. */
+const FAQ_HEADING_BLOCK =
+  `(<h([2-4])[^>]*>(?:(?!<\\/h\\2>)[\\s\\S])*?${FAQ_SECTION_HEADING}(?:(?!<\\/h\\2>)[\\s\\S])*?<\\/h\\2>)`;
 
 function parseFaqItemsFromHtml(block: string): FaqItem[] {
   const items: FaqItem[] = [];
@@ -1322,14 +1436,14 @@ function parseFaqItemsFromHtml(block: string): FaqItem[] {
 
   const h2Blocks = [
     ...block.matchAll(
-      /<h([23])[^>]*>([\s\S]*?Q\s*\d+\s*[.:][\s\S]*?)<\/h\1>\s*(<p[^>]*>[\s\S]*?<\/p>)/gi
+      /<h([23])[^>]*>([\s\S]*?(?:Ques(?:tion)?|Q)\s*\d+\s*[-–—:.][\s\S]*?)<\/h\1>\s*(<p[^>]*>[\s\S]*?<\/p>)/gi
     ),
   ];
   if (h2Blocks.length >= 2) {
     for (const m of h2Blocks) {
       const q = parseQuestionParagraph(m[2]) ?? {
-        num: (m[2].match(/Q\s*(\d+)/i) ?? [])[1] ?? String(items.length + 1),
-        question: stripHtml(m[2]).replace(/^Q\s*\d+\s*[.:]\s*/i, '').trim(),
+        num: (m[2].match(/(?:Ques(?:tion)?|Q)\s*(\d+)/i) ?? [])[1] ?? String(items.length + 1),
+        question: stripFaqQuestionNumberPrefix(stripHtml(m[2])),
       };
       const answer = cleanAnswerHtml(m[3].replace(/^<p[^>]*>|<\/p>$/gi, ''));
       if (q.question && answer) {
@@ -1389,11 +1503,12 @@ function parseFaqItemsFromHtml(block: string): FaqItem[] {
 }
 
 function wrapFaqGroup(items: FaqItem[], heading?: string): string {
-  if (!items.length) return heading ?? '';
+  const unique = dedupeFaqItems(items);
+  if (!unique.length) return heading ?? '';
   const titledHeading = heading
     ? heading.replace(/<h([2-4])\b/i, '<h$1 class="wp-faq-section-title"')
     : '<h2 class="wp-faq-section-title">FAQs</h2>';
-  return `${titledHeading}<div class="wp-premium-faq-group wp-premium-faq-group--animated">${buildFaqDetailsHtml(items)}</div>`;
+  return `${titledHeading}<div class="wp-premium-faq-group wp-premium-faq-group--animated">${buildFaqDetailsHtml(unique)}</div>`;
 }
 
 /** Rebuild FAQ items already rendered as premium <details> accordions. */
@@ -1437,7 +1552,12 @@ function parseOrphanFaqFragments(block: string): FaqItem[] {
   while ((m = re.exec(block)) !== null) {
     const question = stripHtml(m[2]).trim();
     if (!question || FAQ_SECTION_HEADING_TEST.test(question)) continue;
-    if (!/^\d+\s*[.)]/.test(question) && !/^Q\s*\d+/i.test(question) && question.length < 12) {
+    if (
+      !/^\d+\s*[.)]/.test(question) &&
+      !hasFaqQuestionLabel(question) &&
+      !/^Q\s*\d+/i.test(question) &&
+      question.length < 12
+    ) {
       continue;
     }
     const answer = m[3] ? cleanAnswerHtml(m[3].replace(/^<p\b[^>]*>|<\/p>$/gi, '')) : '';
@@ -1446,7 +1566,7 @@ function parseOrphanFaqFragments(block: string): FaqItem[] {
   return items;
 }
 
-const FAQ_SECTION_HEADING_TEST = /^(?:FAQs?|Frequently\s+Asked\s+Questions)$/i;
+const FAQ_SECTION_HEADING_TEST = /^(?:FAQs?|Frequently\s+Asked\s+Questions)\b/i;
 
 function renumberFaqItems(items: FaqItem[]): FaqItem[] {
   return items.map((item, i) => ({ ...item, num: String(i + 1) }));
@@ -1458,11 +1578,11 @@ function renumberFaqItems(items: FaqItem[]): FaqItem[] {
  */
 function foldOrphansIntoFaqGroups(html: string): string {
   const sectionRe = new RegExp(
-    `(<h[2-4][^>]*>[\\s\\S]*?${FAQ_SECTION_HEADING}[\\s\\S]*?<\\/h[2-4]>)(\\s*)([\\s\\S]*?)(?=<h2\\b|<div class="xs_social|<\\/section>|<section\\b|$)`,
+    `${FAQ_HEADING_BLOCK}(\\s*)([\\s\\S]*?)(?=<h2\\b|<div class="xs_social|<\\/section>|<section\\b|$)`,
     'gi'
   );
 
-  return html.replace(sectionRe, (full, heading: string, _sp: string, body: string) => {
+  return html.replace(sectionRe, (full, heading: string, _level: string, _sp: string, body: string) => {
     const openMatch = body.match(/<div class="wp-premium-faq-group[^"]*"[^>]*>/i);
     if (!openMatch || openMatch.index == null) return full;
 
@@ -1671,10 +1791,10 @@ export function transformWpsmAccordions(html: string): string {
 export function transformWpFaqParagraphs(html: string): string {
   return html.replace(
     new RegExp(
-      `(<h[2-4][^>]*>[\\s\\S]*?${FAQ_SECTION_HEADING}[\\s\\S]*?<\\/h[2-4]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
+      `${FAQ_HEADING_BLOCK}(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
       'gi'
     ),
-    (full, heading, _sp, body) => {
+    (full, heading, _level, _sp, body) => {
       if (body.includes('wp-premium-faq-group')) return full;
       const items = parseFaqItemsFromHtml(body);
       if (!items.length) return full;
@@ -1687,13 +1807,15 @@ export function transformWpFaqParagraphs(html: string): string {
 function transformRemainingFaqSections(html: string): string {
   return html.replace(
     new RegExp(
-      `(<h[2-4][^>]*>[\\s\\S]*?${FAQ_SECTION_HEADING}[\\s\\S]*?<\\/h[2-4]>)(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
+      `${FAQ_HEADING_BLOCK}(\\s*)([\\s\\S]*?)${FAQ_SECTION_BODY_END}`,
       'gi'
     ),
-    (full, heading, _sp, body) => {
-      const hasQa = /<p[^>]*>[\s\S]*?Q\s*\d+\s*[.:]/i.test(body);
-      const hasNumbered = /<p[^>]*>[\s\S]*?\b\d+\.\s+/i.test(body);
-      const hasHeadingQa = /<h[34]\b[^>]*>[\s\S]*?<\/h[34]>\s*<p\b/i.test(body);
+    (full, heading, _level, _sp, body) => {
+      const hasQa =
+        /<(?:p|h[34])[^>]*>[\s\S]*?(?:Ques(?:tion)?|Q)\s*\d+\s*[-–—:.]/i.test(body);
+      const hasNumbered = /<(?:p|h[34])[^>]*>[\s\S]*?\b\d+\.\s+/i.test(body);
+      const hasHeadingQa =
+        /<h[34]\b[^>]*>[\s\S]*?<\/h[34]>(?:(?!<h[1-4]\b)[\s\S])*?<p\b/i.test(body);
       if ((!hasQa && !hasNumbered && !hasHeadingQa) || body.includes('wp-premium-faq-group')) {
         return full;
       }
@@ -1702,6 +1824,54 @@ function transformRemainingFaqSections(html: string): string {
       return wrapFaqGroup(items, heading);
     }
   );
+}
+
+/**
+ * Pages sometimes ship two FAQ blocks (raw Ques list + EAEL accordion).
+ * Merge questions into the first accordion and drop later duplicate FAQ blocks,
+ * without removing the page content that sits between them.
+ */
+function mergeDuplicateFaqSections(html: string): string {
+  type Section = { headingStart: number; groupEnd: number; headingHtml: string; items: FaqItem[] };
+  const sections: Section[] = [];
+  const headingRe = new RegExp(FAQ_HEADING_BLOCK, 'gi');
+  let hm: RegExpExecArray | null;
+  while ((hm = headingRe.exec(html)) !== null) {
+    const headingStart = hm.index;
+    const headingHtml = hm[1];
+    const afterHeading = headingStart + headingHtml.length;
+    const groupOpenRel = html.slice(afterHeading).search(/<div class="wp-premium-faq-group\b/i);
+    if (groupOpenRel < 0 || groupOpenRel > 1200) continue;
+    const groupOpen = afterHeading + groupOpenRel;
+    const groupEnd = findClosingDiv(html, groupOpen);
+    if (groupEnd < 0) continue;
+    const groupInnerStart = html.indexOf('>', groupOpen) + 1;
+    const items = parseFaqDetailsFromGroupInner(html.slice(groupInnerStart, groupEnd - 6));
+    if (!items.length) continue;
+    sections.push({ headingStart, groupEnd, headingHtml, items });
+  }
+
+  if (sections.length < 2) return html;
+
+  const bestHeading =
+    sections.find((s) => {
+      const t = stripHtml(s.headingHtml).trim();
+      return /^(?:FAQs?|Frequently\s+Asked\s+Questions(?:\s*\(FAQ'?s?\))?)$/i.test(t);
+    })?.headingHtml ?? sections[0].headingHtml;
+
+  const merged = dedupeFaqItems(sections.flatMap((s) => s.items));
+  if (!merged.length) return html;
+
+  const replacement = wrapFaqGroup(merged, bestHeading);
+  let out = html;
+
+  // Drop later FAQ blocks first (indices stay valid for earlier sections).
+  for (let i = sections.length - 1; i >= 1; i -= 1) {
+    out = out.slice(0, sections[i].headingStart) + out.slice(sections[i].groupEnd);
+  }
+
+  const first = sections[0];
+  return out.slice(0, first.headingStart) + replacement + out.slice(first.groupEnd);
 }
 
 /** Remove empty style/p wrappers left after WPSM FAQ conversion. */
@@ -1728,6 +1898,7 @@ export function transformAllFaqs(html: string): string {
   out = transformWpFaqParagraphs(out);
   out = transformRemainingFaqSections(out);
   out = foldOrphansIntoFaqGroups(out);
+  out = mergeDuplicateFaqSections(out);
   out = stripFaqSectionJunk(out);
   return out;
 }
@@ -1794,6 +1965,7 @@ export function prepareWpHtml(
   out = normalizeContentImagesInHtml(out, {
     pageSlug: options?.pageSlug,
     featuredImage: options?.featuredImage,
+    title: options?.title,
   });
   out = injectMbbsIndiaStateImages(out, options?.pageSlug);
   out = injectMbbsAbroadCountryImages(out, options?.pageSlug);

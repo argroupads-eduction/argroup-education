@@ -129,6 +129,20 @@ export async function getWpExportContentBySlug(slug: string): Promise<SiteConten
   }
 }
 
+/** Page-only lookup (ignores blog posts that reused the same WP slug). */
+export async function getWpExportPageBySlug(slug: string): Promise<SiteContent | null> {
+  try {
+    const dir = await resolveWpExportDir();
+    if (!dir) return null;
+    const pagesRaw = await readFile(path.join(dir, 'pages.json'), 'utf8').catch(() => '[]');
+    const pages = JSON.parse(pagesRaw) as WpExportDoc[];
+    const doc = pages.find((p) => p.slug === slug);
+    return doc ? toSiteContent(doc, 'page') : null;
+  } catch {
+    return null;
+  }
+}
+
 function wpExportPostsToBlogList(posts: WpExportDoc[]): BlogListItem[] {
   return [...posts]
     .sort((a, b) => new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime())

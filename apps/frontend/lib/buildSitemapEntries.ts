@@ -7,6 +7,7 @@ import {
 } from '@/lib/payloadCmsUrl';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
 import { PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
+import { resolveInternalPath } from '@/lib/rewriteInternalLinks';
 import { getSupplementalSitemapEntries } from '@/lib/seoCrawlConfig';
 import { withServerTimeout } from '@/lib/serverTimeout';
 import { getAllWpExportBlogPosts } from '@/lib/wpExportContent';
@@ -122,8 +123,12 @@ async function getPayloadCmsSitemapEntries(baseUrl: string): Promise<SitemapEntr
       const slug = doc.slug?.trim();
       if (!slug || SITEMAP_EXCLUDED_SLUGS.has(slug)) continue;
       const lastmod = doc.updatedAt ?? doc.publishedAt ?? doc.createdAt ?? now;
+      const path = resolveInternalPath(slug);
+      if (path === '/' || SITEMAP_EXCLUDED_SLUGS.has(path.replace(/^\/+/, '').split('/')[0] ?? '')) {
+        continue;
+      }
       entries.push({
-        loc: absoluteUrl(baseUrl, `/${slug}`),
+        loc: absoluteUrl(baseUrl, path),
         lastmod: new Date(lastmod).toISOString(),
         changefreq: 'weekly',
         priority: 0.65,
@@ -178,9 +183,12 @@ async function getBundleSitemapEntries(baseUrl: string): Promise<SitemapEntry[]>
       for (const doc of pages) {
         const slug = doc.slug?.trim();
         if (!slug || SITEMAP_EXCLUDED_SLUGS.has(slug)) continue;
+        const path = resolveInternalPath(slug);
+        const firstSeg = path.replace(/^\/+/, '').split('/')[0] ?? '';
+        if (path === '/' || SITEMAP_EXCLUDED_SLUGS.has(firstSeg)) continue;
         const lastmod = doc.modified ?? doc.date ?? now;
         entries.push({
-          loc: absoluteUrl(baseUrl, `/${slug}`),
+          loc: absoluteUrl(baseUrl, path),
           lastmod: new Date(lastmod).toISOString(),
           changefreq: 'monthly',
           priority: 0.65,

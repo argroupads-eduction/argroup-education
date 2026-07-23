@@ -5,7 +5,7 @@ import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { MbbsAbroadCountryGrid } from '@/components/mbbs-abroad/MbbsAbroadCountryGrid';
-import { getContentBySlug } from '@/lib/contentApi';
+import { getPageContentBySlug } from '@/lib/contentApi';
 import {
   MBBS_ABROAD_COUNTRIES,
   getMbbsAbroadCountryById,
@@ -27,10 +27,37 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!country) return { title: 'MBBS Abroad' };
 
   const curated = getCuratedPageSeo(country.href);
+  const title = curated?.metaTitle ?? `MBBS in ${country.name}`;
+  const description =
+    curated?.metaDescription ?? `Explore MBBS universities in ${country.name}.`;
+  const collegeHero =
+    country.colleges?.find((college) => college.image)?.image ??
+    country.universities
+      ?.flatMap((university) => university.colleges ?? [])
+      .find((college) => college.image)?.image ??
+    null;
+  const ogImage =
+    resolveMbbsAbroadFeaturedImage(country.wpSlug, country.featuredImage, collegeHero) ??
+    '/ar-group-logo.png';
+
   return {
-    title: curated?.metaTitle ?? `MBBS in ${country.name}`,
-    description: curated?.metaDescription ?? `Explore MBBS universities in ${country.name}.`,
+    title,
+    description,
     alternates: { canonical: country.href },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
+    openGraph: {
+      title,
+      description,
+      url: country.href,
+      type: 'website',
+      images: [{ url: ogImage, alt: `MBBS in ${country.name}` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
@@ -43,7 +70,7 @@ export default async function MbbsAbroadCountryPage({ params }: PageProps) {
     const university = country.universities?.find((u) => u.id === slug[1]);
     if (!university) notFound();
 
-    const wpContent = university.slug ? await getContentBySlug(university.slug) : null;
+    const wpContent = university.slug ? await getPageContentBySlug(university.slug) : null;
     const title = plainTitle(wpContent?.title || university.name);
     const featuredImage = resolveCollegeFeaturedImage(
       university.slug ?? '',
@@ -93,7 +120,7 @@ export default async function MbbsAbroadCountryPage({ params }: PageProps) {
     );
   }
 
-  const wpContent = country.wpSlug ? await getContentBySlug(country.wpSlug) : null;
+  const wpContent = country.wpSlug ? await getPageContentBySlug(country.wpSlug) : null;
   const title = plainTitle(wpContent?.title || `MBBS in ${country.name}`);
   const collegeHero =
     country.colleges?.find((college) => college.image)?.image ??

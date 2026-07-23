@@ -6,8 +6,12 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-export async function getContentBySlug(slug: string) {
+export async function getContentBySlug(
+  slug: string,
+  opts?: { prefer?: 'post' | 'page' }
+) {
   const decoded = decodeURIComponent(slug);
+  const prefer = opts?.prefer ?? 'post';
 
   if (decoded === WP_HOME_SLUG) {
     return { error: 'not_found' as const, message: 'Home page is served at /' };
@@ -24,10 +28,18 @@ export async function getContentBySlug(slug: string) {
     ])
   );
 
-  const doc = post ?? page;
+  const doc =
+    prefer === 'page' ? (page ?? post) : (post ?? page);
   if (!doc) return { error: 'not_found' as const, message: 'Content not found' };
 
-  const type = post ? ('post' as const) : ('page' as const);
+  const type =
+    prefer === 'page'
+      ? page
+        ? ('page' as const)
+        : ('post' as const)
+      : post
+        ? ('post' as const)
+        : ('page' as const);
 
   return {
     data: {

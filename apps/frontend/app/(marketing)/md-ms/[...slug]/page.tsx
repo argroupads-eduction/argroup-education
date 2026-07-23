@@ -4,7 +4,7 @@ import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
-import { getContentBySlug } from '@/lib/contentApi';
+import { getPageContentBySlug } from '@/lib/contentApi';
 import { getMdMsNavItemById, MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
@@ -19,11 +19,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!item) return { title: 'MD/MS' };
 
   const curated = getCuratedPageSeo(item.href);
+  const title = curated?.metaTitle ?? item.label;
+  const description =
+    curated?.metaDescription ?? `MD/MS admission guidance for ${item.label.replace('MD/MS in ', '')}.`;
+  const ogImage = item.coverImage || '/ar-group-logo.png';
+
   return {
-    title: curated?.metaTitle ?? item.label,
-    description:
-      curated?.metaDescription ?? `MD/MS admission guidance for ${item.label.replace('MD/MS in ', '')}.`,
+    title,
+    description,
     alternates: { canonical: item.href },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
+    openGraph: {
+      title,
+      description,
+      url: item.href,
+      type: 'website',
+      images: [{ url: ogImage, alt: item.label }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
@@ -32,7 +50,7 @@ export default async function MdMsStatePage({ params }: PageProps) {
   const item = getMdMsNavItemById(slug[0]);
   if (!item) notFound();
 
-  const wpContent = await getContentBySlug(item.wpSlug);
+  const wpContent = await getPageContentBySlug(item.wpSlug);
   const title = plainTitle(wpContent?.title || item.label);
   const breadcrumbs = [
     { label: 'MD / MS', href: '/md-ms' },

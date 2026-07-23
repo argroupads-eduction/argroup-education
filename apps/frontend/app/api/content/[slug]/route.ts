@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getContentBySlug } from '@backend/handlers/content';
 
 export const runtime = 'nodejs';
@@ -6,10 +6,12 @@ export const dynamic = 'force-dynamic';
 
 type Params = { params: Promise<{ slug: string }> };
 
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(req: NextRequest, { params }: Params) {
   try {
     const { slug } = await params;
-    const result = await getContentBySlug(slug);
+    const prefer =
+      req.nextUrl.searchParams.get('prefer') === 'page' ? ('page' as const) : ('post' as const);
+    const result = await getContentBySlug(slug, { prefer });
     if ('error' in result) {
       return NextResponse.json(
         { success: false, message: result.message },

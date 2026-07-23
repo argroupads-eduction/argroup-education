@@ -7,13 +7,23 @@ import { SITE_DESCRIPTION, SITE_NAME } from '@/lib/constants';
 /** Google image sitemap (dynamic). */
 export const IMAGE_SITEMAP_PATH = '/sitemap-images.xml';
 
-/** Paths that must never be indexed. */
+/** Paths that must never be indexed (HTML pages / APIs — not public media). */
 export const ROBOTS_DISALLOW_PREFIXES = [
   '/api/',
   '/admin/',
   '/private/',
   '/thank-you',
   '/_next/',
+] as const;
+
+/** Paths Google Image Search must always be allowed to crawl. */
+export const ROBOTS_IMAGE_ALLOW_PREFIXES = [
+  '/',
+  '/wp-content/',
+  '/uploads/',
+  '/api/wp-media/',
+  '/states/',
+  '/mbbs-abroad-scroll/',
 ] as const;
 
 /** High-demand marketing & counselling pages users search for. */
@@ -127,27 +137,41 @@ export function getSupplementalSitemapEntries(baseUrl: string): SitemapEntry[] {
 
 export function buildRobotsTxt(baseUrl: string): string {
   const base = baseUrl.replace(/\/$/, '');
+  const allowLines = [
+    ...ROBOTS_ALLOW_PREFIXES.map((path) => (path === '/' ? 'Allow: /' : `Allow: ${path}`)),
+    ...ROBOTS_IMAGE_ALLOW_PREFIXES.filter((p) => p !== '/').map((path) => `Allow: ${path}`),
+  ];
+  const disallowLines = ROBOTS_DISALLOW_PREFIXES.map((path) => `Disallow: ${path}`);
+
   const lines: string[] = [
     `# ${SITE_NAME}`,
     `# ${SITE_DESCRIPTION}`,
     `# ${base}`,
     '',
     'User-agent: *',
-    ...ROBOTS_ALLOW_PREFIXES.map((path) => (path === '/' ? 'Allow: /' : `Allow: ${path}`)),
-    ...ROBOTS_DISALLOW_PREFIXES.map((path) => `Disallow: ${path}`),
+    ...allowLines,
+    ...disallowLines,
     '',
     'User-agent: Googlebot',
     'Allow: /',
-    ...ROBOTS_DISALLOW_PREFIXES.map((path) => `Disallow: ${path}`),
+    ...ROBOTS_IMAGE_ALLOW_PREFIXES.filter((p) => p !== '/').map((path) => `Allow: ${path}`),
+    ...disallowLines,
+    '',
+    'User-agent: Googlebot-Image',
+    'Allow: /',
+    ...ROBOTS_IMAGE_ALLOW_PREFIXES.filter((p) => p !== '/').map((path) => `Allow: ${path}`),
+    'Disallow: /admin/',
+    'Disallow: /private/',
+    'Disallow: /thank-you',
     '',
     'User-agent: Bingbot',
     'Allow: /',
-    ...ROBOTS_DISALLOW_PREFIXES.map((path) => `Disallow: ${path}`),
+    ...disallowLines,
     '',
   ];
 
   for (const agent of LLM_CRAWLER_AGENTS) {
-    lines.push(`User-agent: ${agent}`, 'Allow: /', ...ROBOTS_DISALLOW_PREFIXES.map((path) => `Disallow: ${path}`), '');
+    lines.push(`User-agent: ${agent}`, 'Allow: /', ...disallowLines, '');
   }
 
   lines.push(

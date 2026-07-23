@@ -5,7 +5,7 @@ import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { ProgramPageHero } from '@/components/content/ProgramPageHero';
 import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { MbbsIndiaStateGrid } from '@/components/mbbs-india/MbbsIndiaStateGrid';
-import { getContentBySlug } from '@/lib/contentApi';
+import { getPageContentBySlug } from '@/lib/contentApi';
 import { MBBS_INDIA_STATES, getMbbsIndiaStateBySlugPart } from '@/lib/mbbsIndiaTree';
 import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { resolveMbbsIndiaFeaturedImage } from '@/lib/mbbsIndiaStateImages';
@@ -21,10 +21,31 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!state) return { title: 'MBBS India' };
 
   const curated = getCuratedPageSeo(state.href);
+  const title = curated?.metaTitle ?? `MBBS in ${state.name}`;
+  const description =
+    curated?.metaDescription ?? `Explore ${state.colleges.length}+ MBBS colleges in ${state.name}.`;
+  const ogImage =
+    resolveMbbsIndiaFeaturedImage(state.wpSlug, null, state.colleges[0]?.image) ??
+    '/ar-group-logo.png';
+
   return {
-    title: curated?.metaTitle ?? `MBBS in ${state.name}`,
-    description: curated?.metaDescription ?? `Explore ${state.colleges.length}+ MBBS colleges in ${state.name}.`,
+    title,
+    description,
     alternates: { canonical: state.href },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
+    openGraph: {
+      title,
+      description,
+      url: state.href,
+      type: 'website',
+      images: [{ url: ogImage, alt: `MBBS colleges in ${state.name}` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
@@ -33,7 +54,7 @@ export default async function MbbsIndiaStatePage({ params }: PageProps) {
   const state = getMbbsIndiaStateBySlugPart(slug[0]);
   if (!state) notFound();
 
-  const wpContent = state.wpSlug ? await getContentBySlug(state.wpSlug) : null;
+  const wpContent = state.wpSlug ? await getPageContentBySlug(state.wpSlug) : null;
   const title = plainTitle(wpContent?.title || `MBBS in ${state.name}`);
   const collegeHero = state.colleges.find((college) => college.image)?.image ?? null;
   const featuredImage = resolveMbbsIndiaFeaturedImage(

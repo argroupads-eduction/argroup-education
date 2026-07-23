@@ -28,7 +28,7 @@ export function CollegeCardImage({ src, alt, variant = 'default' }: CollegeCardI
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
-          alt=""
+          alt={alt || 'College campus'}
           className="h-full w-full object-contain object-center"
           loading="lazy"
           decoding="async"

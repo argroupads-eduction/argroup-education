@@ -30,7 +30,7 @@ const PUBLIC_MARKETING_ASSETS = [
 const nextConfig = {
   reactStrictMode: true,
 
-  serverExternalPackages: ['@prisma/client'],
+  serverExternalPackages: ['@prisma/client', 'web-push'],
 
   // Monorepo tracing only when repo root is in the deployment bundle.
   ...(outputFileTracingRoot ? { outputFileTracingRoot } : {}),
@@ -197,6 +197,25 @@ const nextConfig = {
               "form-action 'self'",
             ].join('; '),
           },
+        ],
+      },
+    ];
+  },
+
+  headers: async () => {
+    return [
+      {
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
+      {
+        source: '/manifest.webmanifest',
+        headers: [
+          { key: 'Content-Type', value: 'application/manifest+json' },
+          { key: 'Cache-Control', value: 'public, max-age=3600' },
         ],
       },
     ];

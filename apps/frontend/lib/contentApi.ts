@@ -589,14 +589,17 @@ async function getSuppressedBlogSlugsFromBackend(): Promise<Set<string>> {
   }
 }
 
-async function fetchBackendContentBySlug(slug: string): Promise<SiteContent | null> {
+async function fetchBackendContentBySlug(
+  slug: string,
+  prefer: 'post' | 'page' = 'post'
+): Promise<SiteContent | null> {
   const load = async (): Promise<SiteContent | null> => {
     if (typeof window === 'undefined' && hasUsableDatabase()) {
       try {
         const { getContentBySlug: getBackendContentBySlug } = await import(
           '@backend/handlers/content'
         );
-        const result = await getBackendContentBySlug(slug);
+        const result = await getBackendContentBySlug(slug, { prefer });
         if ('data' in result && result.data) {
           const doc = result.data;
           return normalizeContent({
@@ -612,7 +615,8 @@ async function fetchBackendContentBySlug(slug: string): Promise<SiteContent | nu
     }
 
     try {
-      const res = await fetch(`${apiBase()}/api/content/${encodeURIComponent(slug)}`, {
+      const qs = prefer === 'page' ? '?prefer=page' : '';
+      const res = await fetch(`${apiBase()}/api/content/${encodeURIComponent(slug)}${qs}`, {
         ...(isBackendPrimaryContent()
           ? { cache: 'no-store' as const }
           : { next: { revalidate: 3600 } }),
@@ -679,15 +683,20 @@ function slugLookupVariants(slug: string): string[] {
   return [...variants];
 }
 
-async function fetchSyncedContentBySlug(slug: string): Promise<SiteContent | null> {
+async function fetchSyncedContentBySlug(
+  slug: string,
+  prefer: 'post' | 'page' = 'post'
+): Promise<SiteContent | null> {
   for (const candidate of slugLookupVariants(slug)) {
-    const fromApi = await fetchBackendContentBySlug(candidate);
+    const fromApi = await fetchBackendContentBySlug(candidate, prefer);
     if (fromApi) return fromApi;
   }
 
   for (const candidate of slugLookupVariants(slug)) {
     const fromPayload = await withServerTimeout(
-      fetchPayloadContentBySlug(candidate),
+      prefer === 'page'
+        ? fetchPayloadPageBySlug(candidate)
+        : fetchPayloadContentBySlug(candidate),
       5000,
       null
     );
@@ -713,6 +722,36 @@ export const getContentBySlug = cache(async function getContentBySlug(
 
   if (synced || bundled) {
     return mergeSiteContent(bundled, synced);
+  }
+
+  return null;
+});
+
+/**
+ * Country / state / program hubs must load WP/CMS *pages*, never a colliding blog post.
+ */
+export const getPageContentBySlug = cache(async function getPageContentBySlug(
+  slug: string
+): Promise<SiteContent | null> {
+  if (BLOG_REMOVED_PUBLIC_SLUGS.has(slug)) {
+    return null;
+  }
+
+  if (await isContentSuppressedInBackend(slug)) {
+    return null;
+  }
+
+  const { getWpExportPageBySlug } = await import('@/lib/wpExportContent');
+  const bundledRaw = await getWpExportPageBySlug(slug);
+  const bundled = bundledRaw ? normalizeContent(bundledRaw) : null;
+  const synced = await fetchSyncedContentBySlug(slug, 'page');
+
+  if (synced || bundled) {
+    const merged = mergeSiteContent(bundled, synced);
+    // If merge still somehow picked a post, prefer page-typed side.
+    if (merged?.type === 'post' && bundled?.type === 'page') return bundled;
+    if (merged?.type === 'post' && synced?.type === 'page') return synced;
+    return merged;
   }
 
   return null;

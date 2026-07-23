@@ -6,13 +6,16 @@ import { hasUsableDatabase } from '@/lib/databaseEnv';
 import { extractHtmlImageUrls } from '@/lib/extractHtmlImageUrls';
 import { getCollegeImageBySlug } from '@/lib/collegeImageIndex';
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
+import { resolveMbbsAbroadFeaturedImage } from '@/lib/mbbsAbroadCountryImages';
 import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaTree';
+import { resolveMbbsIndiaFeaturedImage } from '@/lib/mbbsIndiaStateImages';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 import {
   getPayloadCmsServerFetchUrl,
   isPayloadCmsConfigured,
 } from '@/lib/payloadCmsUrl';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
+import { resolveInternalPath } from '@/lib/rewriteInternalLinks';
 import { withServerTimeout } from '@/lib/serverTimeout';
 import { toAbsoluteMediaUrl } from '@/lib/toAbsoluteMediaUrl';
 import { getAllWpExportBlogPosts } from '@/lib/wpExportContent';
@@ -299,6 +302,13 @@ async function loadPayloadContentDocs(): Promise<{ posts: ContentDoc[]; pages: C
   }
 }
 
+function pageLocForContentSlug(baseUrl: string, slug: string): string {
+  const base = baseUrl.replace(/\/$/, '');
+  const path = resolveInternalPath(slug);
+  if (path === '/') return `${base}/`;
+  return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 function addContentDocImages(
   bucket: Map<string, Map<string, ImageSitemapImage>>,
   baseUrl: string,
@@ -318,6 +328,58 @@ function addContentDocImages(
     }
     for (const src of extractHtmlImageUrls(doc.content)) {
       addImage(bucket, pageLoc, src, doc.title, baseUrl);
+    }
+  }
+}
+
+/** Attach hub + college images so Google can index every campus photo under its page. */
+function addProgramHubImages(
+  bucket: Map<string, Map<string, ImageSitemapImage>>,
+  baseUrl: string
+) {
+  const base = baseUrl.replace(/\/$/, '');
+
+  for (const state of MBBS_INDIA_STATES) {
+    const pageLoc = `${base}${state.href}`;
+    const hero = resolveMbbsIndiaFeaturedImage(state.wpSlug, null, state.colleges[0]?.image);
+    if (hero) addImage(bucket, pageLoc, hero, `MBBS colleges in ${state.name}`, baseUrl);
+    for (const college of state.colleges) {
+      const src = college.image || (college.slug ? getCollegeImageBySlug(college.slug) : null);
+      if (src) addImage(bucket, pageLoc, src, college.name, baseUrl);
+      if (college.slug) {
+        const collegeLoc = `${base}/${college.slug}`;
+        addImage(bucket, collegeLoc, src ?? getCollegeImageBySlug(college.slug), college.name, baseUrl);
+      }
+    }
+  }
+
+  for (const country of MBBS_ABROAD_COUNTRIES) {
+    const pageLoc = `${base}${country.href}`;
+    const collegeHero =
+      country.colleges?.find((c) => c.image)?.image ??
+      country.universities?.flatMap((u) => u.colleges ?? []).find((c) => c.image)?.image ??
+      null;
+    const hero = resolveMbbsAbroadFeaturedImage(country.wpSlug, null, collegeHero);
+    if (hero) addImage(bucket, pageLoc, hero, `MBBS in ${country.name}`, baseUrl);
+
+    const colleges = [
+      ...(country.colleges ?? []),
+      ...(country.universities?.flatMap((u) => u.colleges ?? []) ?? []),
+    ];
+    for (const college of colleges) {
+      const src = college.image || (college.slug ? getCollegeImageBySlug(college.slug) : null);
+      if (src) addImage(bucket, pageLoc, src, college.name, baseUrl);
+      if (college.slug) {
+        addImage(bucket, `${base}/${college.slug}`, src ?? getCollegeImageBySlug(college.slug), college.name, baseUrl);
+      }
+    }
+
+    for (const university of country.universities ?? []) {
+      const uniLoc = `${base}${university.href}`;
+      for (const college of university.colleges ?? []) {
+        const src = college.image || (college.slug ? getCollegeImageBySlug(college.slug) : null);
+        if (src) addImage(bucket, uniLoc, src, college.name, baseUrl);
+      }
     }
   }
 }
@@ -367,10 +429,12 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
     }
   }
 
+  addProgramHubImages(bucket, baseUrl);
+
   for (const doc of wpPages) {
     const slug = doc.slug?.trim();
     if (!slug) continue;
-    const pageLoc = `${baseUrl.replace(/\/$/, '')}/${slug}`;
+    const pageLoc = pageLocForContentSlug(baseUrl, slug);
     if (doc.featuredImage) {
       addImage(bucket, pageLoc, doc.featuredImage, collegeImageTitle(slug, doc.title), baseUrl);
     }
@@ -382,7 +446,7 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
   for (const post of wpPosts) {
     const slug = post.slug?.trim();
     if (!slug) continue;
-    const pageLoc = `${baseUrl.replace(/\/$/, '')}${blogPostPath(slug)}`;
+    const pageLoc = `${base}${blogPostPath(slug)}`;
     const featured = resolveBlogFeaturedImage(slug, post.featuredImage ?? null);
     if (featured) {
       addImage(bucket, pageLoc, featured, post.title, baseUrl);
@@ -404,7 +468,7 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
     bucket,
     baseUrl,
     databaseDocs.pages,
-    (slug) => `${base}/${slug}`,
+    (slug) => pageLocForContentSlug(baseUrl, slug),
   );
   addContentDocImages(
     bucket,
@@ -417,7 +481,7 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
     bucket,
     baseUrl,
     payloadDocs.pages,
-    (slug) => `${base}/${slug}`,
+    (slug) => pageLocForContentSlug(baseUrl, slug),
   );
   addContentDocImages(
     bucket,
@@ -429,7 +493,6 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
 
   for (const [slug, src] of Object.entries(BY_SLUG)) {
     const pageLoc = `${base}/${slug}`;
-    if (!pageLastmod.has(pageLoc)) continue;
     addImage(bucket, pageLoc, src, collegeImageTitle(slug), baseUrl);
   }
 
@@ -439,7 +502,7 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
     if (!images.length) continue;
     pages.push({
       pageLoc,
-      lastmod: pageLastmod.get(pageLoc),
+      lastmod: pageLastmod.get(pageLoc) ?? new Date().toISOString(),
       images,
     });
   }

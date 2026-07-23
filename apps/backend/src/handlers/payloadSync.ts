@@ -50,7 +50,19 @@ export type PayloadSyncBody = {
 };
 
 export type PayloadSyncResult =
-  | { ok: true; status: 200; body: { success: true; type: 'post' | 'page'; slug: string; published: boolean } }
+  | {
+      ok: true;
+      status: 200;
+      body: {
+        success: true;
+        type: 'post' | 'page';
+        slug: string;
+        published: boolean;
+        isNew?: boolean;
+        title?: string;
+        excerpt?: string;
+      };
+    }
   | { ok: false; status: number; body: { success: false; message: string } };
 
 export function verifyPayloadSyncAuth(authHeader: string | null): PayloadSyncResult | null {
@@ -132,6 +144,7 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
       const existing = await withPrismaRetry(() =>
         prisma.blogPost.findUnique({ where: { slug } })
       );
+      const isNew = !existing;
 
       if (existing) {
         await withPrismaRetry(() => prisma.blogPost.update({ where: { slug }, data }));
@@ -139,7 +152,19 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
         await withPrismaRetry(() => prisma.blogPost.create({ data }));
       }
 
-      return { ok: true, status: 200, body: { success: true, type: 'post', slug, published } };
+      return {
+        ok: true,
+        status: 200,
+        body: {
+          success: true,
+          type: 'post',
+          slug,
+          published,
+          isNew,
+          title,
+          excerpt,
+        },
+      };
     }
 
     const wpId = payloadWpId(slug);

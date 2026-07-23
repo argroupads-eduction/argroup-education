@@ -35,7 +35,7 @@ export function PremiumCollegeCard({
         className="group flex items-start justify-between gap-2 rounded-xl px-2.5 py-2 transition hover:bg-slate-50/90"
       >
         {imageSrc ? (
-          <CollegeCardImage src={imageSrc} alt="" variant="compact" />
+          <CollegeCardImage src={imageSrc} alt={college.name} variant="compact" />
         ) : null}
         <span className="min-w-0 flex-1">
           <span className="block text-[13px] font-medium leading-snug text-navy-900 group-hover:text-gold-700">

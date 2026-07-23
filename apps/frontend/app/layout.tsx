@@ -4,6 +4,7 @@ import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { DeferredSitePopups } from '@/components/common/DeferredSitePopups';
 import { LeadSubmissionFeedbackHost } from '@/components/common/LeadSubmissionFeedbackHost';
+import { PwaRegistrar } from '@/components/common/PwaRegistrar';
 import {
   SITE_PROTECTION_INLINE_SCRIPT,
   isSiteProtectionEnabled,
@@ -71,6 +72,12 @@ export const metadata: Metadata = {
     shortcut: ['/ar-browser-icon.png'],
     apple: [{ url: '/ar-browser-icon.png', type: 'image/png' }],
   },
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'AR Group of Education',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
@@ -105,6 +112,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: '#1a365d',
 };
 
 export default async function RootLayout({
@@ -125,6 +133,10 @@ export default async function RootLayout({
         <link rel="icon" href="/ar-browser-icon.png" type="image/png" />
         <link rel="shortcut icon" href="/ar-browser-icon.png" type="image/png" />
         <link rel="apple-touch-icon" href="/ar-browser-icon.png" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="AR Group" />
         <link rel="preload" href="/ar-group-logo.webp" as="image" type="image/webp" />
         <style
           dangerouslySetInnerHTML={{
@@ -150,6 +162,7 @@ export default async function RootLayout({
             <Footer />
             <DeferredSitePopups />
             <LeadSubmissionFeedbackHost />
+            <PwaRegistrar />
             <SiteInteractionGuard />
           </NavPagesProvider>
         </SiteGlobalsProvider>
