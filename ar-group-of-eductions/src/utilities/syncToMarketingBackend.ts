@@ -31,6 +31,8 @@ type SyncPayload = {
   navSortOrder?: number
   published: boolean
   publishedAt?: string | null
+  /** First publish from draft → marketing site should Web Push subscribers. */
+  notifyPush?: boolean
 }
 
 function resolveMarketingSyncBaseUrl(): string {

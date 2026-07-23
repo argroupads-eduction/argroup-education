@@ -3,7 +3,7 @@
  * Keep this file vanilla JS (served from /sw.js).
  */
 
-const CACHE = 'ar-group-shell-v2';
+const CACHE = 'ar-group-shell-v3';
 const PRECACHE = ['/', '/manifest.webmanifest', '/ar-browser-icon.png'];
 
 self.addEventListener('install', (event) => {

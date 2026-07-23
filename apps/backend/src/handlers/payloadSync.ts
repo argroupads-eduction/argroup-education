@@ -47,6 +47,8 @@ export type PayloadSyncBody = {
   navSortOrder?: number;
   published?: boolean;
   publishedAt?: string | null;
+  /** When true, marketing site should send a Web Push (first publish from Payload). */
+  notifyPush?: boolean;
 };
 
 export type PayloadSyncResult =
@@ -59,6 +61,7 @@ export type PayloadSyncResult =
         slug: string;
         published: boolean;
         isNew?: boolean;
+        notifyPush?: boolean;
         title?: string;
         excerpt?: string;
       };
@@ -145,6 +148,8 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
         prisma.blogPost.findUnique({ where: { slug } })
       );
       const isNew = !existing;
+      // Payload first-publish, or brand-new row — both should notify subscribers.
+      const notifyPush = Boolean(body.notifyPush) || isNew;
 
       if (existing) {
         await withPrismaRetry(() => prisma.blogPost.update({ where: { slug }, data }));
@@ -161,6 +166,7 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
           slug,
           published,
           isNew,
+          notifyPush: published && notifyPush,
           title,
           excerpt,
         },

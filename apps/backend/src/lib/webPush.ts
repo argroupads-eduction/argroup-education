@@ -76,13 +76,19 @@ export async function deletePushSubscription(endpoint: string) {
 /** Send a Web Push to all stored subscribers. Removes dead endpoints. */
 export async function sendPushToAllSubscribers(
   payload: PushPayload
-): Promise<{ sent: number; removed: number; skipped: boolean }> {
+): Promise<{ sent: number; removed: number; skipped: boolean; reason?: string }> {
   if (!ensureWebPushConfigured()) {
-    return { sent: 0, removed: 0, skipped: true };
+    console.error(
+      '[web-push] skipped — set NEXT_PUBLIC_VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY (and matching Amplify env)'
+    );
+    return { sent: 0, removed: 0, skipped: true, reason: 'vapid_not_configured' };
   }
 
   const rows = await withPrismaRetry(() => prisma.pushSubscription.findMany());
-  if (rows.length === 0) return { sent: 0, removed: 0, skipped: false };
+  if (rows.length === 0) {
+    console.warn('[web-push] no subscriptions stored — users must Allow alerts after install');
+    return { sent: 0, removed: 0, skipped: false, reason: 'no_subscribers' };
+  }
 
   const body = JSON.stringify({
     title: payload.title,
@@ -103,7 +109,7 @@ export async function sendPushToAllSubscribers(
             keys: { p256dh: row.p256dh, auth: row.auth },
           },
           body,
-          { TTL: 60 * 60 * 12, urgency: 'normal' }
+          { TTL: 60 * 60 * 12, urgency: 'high' }
         );
         sent += 1;
       } catch (err: unknown) {
@@ -124,6 +130,7 @@ export async function sendPushToAllSubscribers(
     })
   );
 
+  console.info('[web-push] done', { sent, removed, total: rows.length });
   return { sent, removed, skipped: false };
 }
 

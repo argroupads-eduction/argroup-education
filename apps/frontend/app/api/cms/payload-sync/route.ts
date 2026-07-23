@@ -23,33 +23,43 @@ export async function POST(req: NextRequest) {
   }
 
   const result = await runPayloadSync(body as Parameters<typeof runPayloadSync>[0]);
-  if (result.ok) {
-    revalidateAfterContentSync({
-      slug: result.body.slug,
-      type: result.body.type,
-    });
+  if (!result.ok) {
+    return NextResponse.json(result.body, { status: result.status });
+  }
 
-    // New published blog from Payload → push to everyone who installed the PWA.
-    if (
-      result.body.type === 'post' &&
-      result.body.published &&
-      result.body.isNew &&
-      result.body.title
-    ) {
-      void notifyNewBlogPush({
+  revalidateAfterContentSync({
+    slug: result.body.slug,
+    type: result.body.type,
+  });
+
+  let push: { sent: number; removed: number; skipped: boolean } | null = null;
+
+  // Await push so Amplify/serverless does not freeze before delivery finishes.
+  if (
+    result.body.type === 'post' &&
+    result.body.published &&
+    result.body.notifyPush &&
+    result.body.title
+  ) {
+    try {
+      push = await notifyNewBlogPush({
         title: result.body.title,
         slug: result.body.slug,
         excerpt: result.body.excerpt,
-      }).catch((err) => console.error('[push] blog notify failed', err));
+      });
+      console.info('[push] blog notify', result.body.slug, push);
+    } catch (err) {
+      console.error('[push] blog notify failed', err);
+      push = { sent: 0, removed: 0, skipped: true };
     }
   }
 
   return NextResponse.json(
     {
       ...result.body,
-      ...(result.ok
-        ? { revalidated: true, message: 'Synced, live site updated without redeploy' }
-        : {}),
+      revalidated: true,
+      message: 'Synced, live site updated without redeploy',
+      ...(push ? { push } : {}),
     },
     { status: result.status }
   );

@@ -42,6 +42,8 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
     schemaJson: fields.schemaJson,
     published: isPublished,
     publishedAt: doc.publishedAt ?? null,
+    // First transition to published → marketing site sends Web Push to PWA subscribers.
+    notifyPush: Boolean(isPublished && !wasPublished),
   })
 
   return doc
