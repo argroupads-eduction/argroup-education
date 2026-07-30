@@ -8,6 +8,7 @@ import { CollegePredictorHomeSection } from '@/sections/home/CollegePredictorHom
 import { NeetRankPredictorHomeSection } from '@/sections/home/NeetRankPredictorHomeSection';
 import { LazySection } from '@/components/common/LazySection';
 import { HomeFaqJsonLd } from '@/components/home/HomeFaqJsonLd';
+import { HomeWebPageJsonLd } from '@/components/seo/HomeWebPageJsonLd';
 
 const HomeSeoContentSections = dynamic(
   () =>
@@ -103,6 +104,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <HomeWebPageJsonLd />
       <HomeFaqJsonLd />
       <HeroSection
         initialForms={{

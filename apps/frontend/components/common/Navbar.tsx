@@ -134,7 +134,12 @@ export const Navbar = () => {
 
   return (
     <>
-      {/* Top Bar, same white as main navbar; highlighted phone & email */}
+      <header
+        className={`sticky top-0 z-50 bg-white transition-shadow duration-200 ${
+          isScrolled ? 'shadow-md' : ''
+        }`}
+      >
+      {/* Top Bar — sticky with main nav; phone CTA high-contrast */}
       <div className="site-topbar hidden xl:block">
         <div className="site-topbar-inner mx-auto max-w-[84rem] px-4 xl:px-6">
           <div className="site-topbar-contacts">
@@ -187,8 +192,8 @@ export const Navbar = () => {
 
       {/* Main Navbar */}
       <nav
-        className={`sticky top-0 z-50 border-b bg-white transition-shadow duration-200 ${
-          isScrolled ? 'border-gray-200 shadow-md' : 'border-gray-100'
+        className={`border-b bg-white transition-colors duration-200 ${
+          isScrolled ? 'border-gray-200' : 'border-gray-100'
         }`}
       >
         <div ref={rootRef} className="nav-mega-root relative">
@@ -450,22 +455,38 @@ export const Navbar = () => {
                               colleges?: { label: string; href: string }[]
                             }) => (
                               <div key={item.href} className="mb-1">
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setOpenMobileState(
-                                      openMobileState === item.href ? null : item.href
-                                    )
-                                  }
-                                  className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm font-medium text-navy-900 hover:bg-gold-50"
-                                >
-                                  MBBS in {item.stateName ?? item.label}
-                                  <ChevronDown
-                                    className={`h-4 w-4 transition-transform ${
-                                      openMobileState === item.href ? 'rotate-180' : ''
-                                    }`}
-                                  />
-                                </button>
+                                <div className="flex items-center gap-0.5 rounded-md hover:bg-gold-50">
+                                  <Link
+                                    href={item.href}
+                                    className="min-w-0 flex-1 px-2 py-2 text-left text-sm font-medium text-navy-900"
+                                    onClick={closeMobileNav}
+                                  >
+                                    MBBS in {item.stateName ?? item.label}
+                                  </Link>
+                                  {item.colleges?.length ? (
+                                    <button
+                                      type="button"
+                                      aria-label={
+                                        openMobileState === item.href
+                                          ? 'Collapse colleges'
+                                          : 'Expand colleges'
+                                      }
+                                      aria-expanded={openMobileState === item.href}
+                                      onClick={() =>
+                                        setOpenMobileState(
+                                          openMobileState === item.href ? null : item.href
+                                        )
+                                      }
+                                      className="shrink-0 rounded-md p-2 text-navy-900"
+                                    >
+                                      <ChevronDown
+                                        className={`h-4 w-4 transition-transform ${
+                                          openMobileState === item.href ? 'rotate-180' : ''
+                                        }`}
+                                      />
+                                    </button>
+                                  ) : null}
+                                </div>
                                 {openMobileState === item.href && item.colleges ? (
                                   <div className="ml-2 border-l border-slate-200 pl-3 pb-2">
                                     {item.colleges.map((college) => (
@@ -473,11 +494,7 @@ export const Navbar = () => {
                                         key={college.href + college.label}
                                         href={college.href}
                                         className="block py-1.5 text-xs text-navy-800 hover:text-gold-600"
-                                        onClick={() => {
-                                          setIsOpen(false)
-                                          setOpenSubmenu(null)
-                                          setOpenMobileState(null)
-                                        }}
+                                        onClick={closeMobileNav}
                                       >
                                         {college.label}
                                       </Link>
@@ -501,49 +518,81 @@ export const Navbar = () => {
                                 }[]
                               }) => (
                                 <div key={item.href} className="mb-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const next =
-                                        openMobileState === item.href ? null : item.href
-                                      setOpenMobileState(next)
-                                      setOpenMobileUniversity(null)
-                                    }}
-                                    className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm font-medium text-navy-900 hover:bg-gold-50"
-                                  >
-                                    MBBS in {item.countryName ?? item.label}
-                                    <ChevronDown
-                                      className={`h-4 w-4 transition-transform ${
-                                        openMobileState === item.href ? 'rotate-180' : ''
-                                      }`}
-                                    />
-                                  </button>
+                                  <div className="flex items-center gap-0.5 rounded-md hover:bg-gold-50">
+                                    <Link
+                                      href={item.href}
+                                      className="min-w-0 flex-1 px-2 py-2 text-left text-sm font-medium text-navy-900"
+                                      onClick={closeMobileNav}
+                                    >
+                                      MBBS in {item.countryName ?? item.label}
+                                    </Link>
+                                    {item.universities?.length || item.colleges?.length ? (
+                                      <button
+                                        type="button"
+                                        aria-label={
+                                          openMobileState === item.href
+                                            ? 'Collapse list'
+                                            : 'Expand list'
+                                        }
+                                        aria-expanded={openMobileState === item.href}
+                                        onClick={() => {
+                                          const next =
+                                            openMobileState === item.href ? null : item.href
+                                          setOpenMobileState(next)
+                                          setOpenMobileUniversity(null)
+                                        }}
+                                        className="shrink-0 rounded-md p-2 text-navy-900"
+                                      >
+                                        <ChevronDown
+                                          className={`h-4 w-4 transition-transform ${
+                                            openMobileState === item.href ? 'rotate-180' : ''
+                                          }`}
+                                        />
+                                      </button>
+                                    ) : null}
+                                  </div>
                                   {openMobileState === item.href && item.universities ? (
                                     <div className="ml-2 border-l border-slate-200 pl-3 pb-2">
                                       {item.universities.map((university) => (
                                         <div key={university.href} className="mb-1">
                                           {university.colleges?.length ? (
                                             <>
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  setOpenMobileUniversity(
+                                              <div className="flex items-center gap-0.5 rounded-md hover:bg-gold-50">
+                                                <Link
+                                                  href={university.href}
+                                                  className="min-w-0 flex-1 px-1 py-1.5 text-left text-xs font-medium text-navy-900"
+                                                  onClick={closeMobileNav}
+                                                >
+                                                  {university.label}
+                                                </Link>
+                                                <button
+                                                  type="button"
+                                                  aria-label={
                                                     openMobileUniversity === university.href
-                                                      ? null
-                                                      : university.href
-                                                  )
-                                                }
-                                                className="flex w-full items-center justify-between rounded-md px-1 py-1.5 text-left text-xs font-medium text-navy-900 hover:bg-gold-50"
-                                              >
-                                                <span className="pr-2">{university.label}</span>
-                                                <ChevronDown
-                                                  className={`h-3.5 w-3.5 shrink-0 transition-transform ${
+                                                      ? 'Collapse colleges'
+                                                      : 'Expand colleges'
+                                                  }
+                                                  aria-expanded={
                                                     openMobileUniversity === university.href
-                                                      ? 'rotate-180'
-                                                      : ''
-                                                  }`}
-                                                />
-                                              </button>
+                                                  }
+                                                  onClick={() =>
+                                                    setOpenMobileUniversity(
+                                                      openMobileUniversity === university.href
+                                                        ? null
+                                                        : university.href
+                                                    )
+                                                  }
+                                                  className="shrink-0 rounded-md p-1.5 text-navy-900"
+                                                >
+                                                  <ChevronDown
+                                                    className={`h-3.5 w-3.5 shrink-0 transition-transform ${
+                                                      openMobileUniversity === university.href
+                                                        ? 'rotate-180'
+                                                        : ''
+                                                    }`}
+                                                  />
+                                                </button>
+                                              </div>
                                               {openMobileUniversity === university.href ? (
                                                 <div className="ml-2 border-l border-slate-100 pl-2">
                                                   {university.colleges.map((college) => (
@@ -551,12 +600,7 @@ export const Navbar = () => {
                                                       key={college.href + college.label}
                                                       href={college.href}
                                                       className="block py-1 text-xs text-navy-800 hover:text-gold-600"
-                                                      onClick={() => {
-                                                        setIsOpen(false)
-                                                        setOpenSubmenu(null)
-                                                        setOpenMobileState(null)
-                                                        setOpenMobileUniversity(null)
-                                                      }}
+                                                      onClick={closeMobileNav}
                                                     >
                                                       {college.label}
                                                     </Link>
@@ -568,12 +612,7 @@ export const Navbar = () => {
                                             <Link
                                               href={university.href}
                                               className="block py-1.5 text-xs text-navy-800 hover:text-gold-600"
-                                              onClick={() => {
-                                                setIsOpen(false)
-                                                setOpenSubmenu(null)
-                                                setOpenMobileState(null)
-                                                setOpenMobileUniversity(null)
-                                              }}
+                                              onClick={closeMobileNav}
                                             >
                                               {university.label}
                                             </Link>
@@ -591,33 +630,11 @@ export const Navbar = () => {
                                           key={college.href + college.label}
                                           href={college.href}
                                           className="block py-1.5 text-xs text-navy-800 hover:text-gold-600"
-                                          onClick={() => {
-                                            setIsOpen(false)
-                                            setOpenSubmenu(null)
-                                            setOpenMobileState(null)
-                                            setOpenMobileUniversity(null)
-                                          }}
+                                          onClick={closeMobileNav}
                                         >
                                           {college.label}
                                         </Link>
                                       ))}
-                                    </div>
-                                  ) : null}
-                                  {openMobileState === item.href &&
-                                  !item.universities &&
-                                  (!item.colleges || item.colleges.length === 0) ? (
-                                    <div className="ml-2 border-l border-slate-200 pl-3 pb-2">
-                                      <Link
-                                        href={item.href}
-                                        className="block py-1.5 text-xs text-navy-800 hover:text-gold-600"
-                                        onClick={() => {
-                                          setIsOpen(false)
-                                          setOpenSubmenu(null)
-                                          setOpenMobileState(null)
-                                        }}
-                                      >
-                                        View {item.countryName ?? item.label}
-                                      </Link>
                                     </div>
                                   ) : null}
                                 </div>
@@ -654,6 +671,7 @@ export const Navbar = () => {
             </div>
         </div>
       </nav>
+      </header>
 
       {/* WhatsApp Floating Button */}
       <a

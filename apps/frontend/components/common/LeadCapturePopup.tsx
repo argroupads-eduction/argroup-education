@@ -621,6 +621,8 @@ export function LeadCapturePopup() {
   const firstFieldRef = useRef<HTMLInputElement>(null);
   const openRef = useRef(false);
 
+  /** Avoid Radix Dialog SSR/client DOM mismatch (hydration). */
+  const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   /** Single open flag for both mobile sheet and desktop dialog. */
   const [open, setOpen] = useState(false);
@@ -635,13 +637,18 @@ export function LeadCapturePopup() {
   const [emailVerificationToken, setEmailVerificationToken] = useState<string | null>(null);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return undefined;
     /** Tablet uses mobile sheet, desktop nav also switches at xl (1280px). */
     const mq = window.matchMedia('(max-width: 1279px)');
     const apply = () => setIsMobile(mq.matches);
     apply();
     mq.addEventListener('change', apply);
     return () => mq.removeEventListener('change', apply);
-  }, []);
+  }, [mounted]);
 
   useEffect(() => {
     loadHeroMbbsFormDefinition('abroad').then((r) => {
@@ -805,6 +812,8 @@ export function LeadCapturePopup() {
           transition: { type: 'spring' as const, stiffness: 380, damping: 32 },
         },
       };
+
+  if (!mounted) return null;
 
   return (
     <div data-lead-capture-popup="">

@@ -2,12 +2,12 @@
 
 .site-topbar {
   background: #fff;
-  border-bottom: 1px solid rgb(241 245 249);
+  border-bottom: 1px solid rgb(226 232 240);
 }
 
 .site-topbar-inner {
   display: flex;
-  height: 2.5rem;
+  height: 2.75rem;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
@@ -17,51 +17,129 @@
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .site-topbar-contact {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
-  height: 1.75rem;
+  height: 2rem;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
+  overflow: hidden;
   white-space: nowrap;
   border-radius: 9999px;
-  padding: 0 0.65rem;
+  padding: 0 0.85rem;
   font-family: var(--font-site);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   line-height: 1;
-  text-decoration: none;
-  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.01em;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1),
+    box-shadow 0.28s ease,
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease;
 }
 
+/* Same shine sweep as site buttons */
+.site-topbar-contact::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.35) 45%,
+    transparent 90%
+  );
+  transform: translateX(-130%) skewX(-14deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.site-topbar-contact:hover::before {
+  opacity: 1;
+  animation: ui-btn-shine 0.7s ease forwards;
+}
+
+.site-topbar-contact > * {
+  position: relative;
+  z-index: 1;
+}
+
+.site-topbar-contact:hover {
+  transform: translateY(-2px);
+}
+
+.site-topbar-contact:active {
+  transform: translateY(0);
+}
+
+/* High-contrast call CTA — brand navy */
 .site-topbar-contact--phone {
-  color: #0f766e;
-  background: linear-gradient(135deg, rgb(204 251 241 / 0.95), rgb(167 243 208 / 0.55));
-  border: 1px solid rgb(94 234 212 / 0.55);
-  box-shadow: 0 1px 6px rgb(13 148 136 / 0.12);
+  color: #ffffff !important;
+  background: #1a365d;
+  border: 1px solid #142d4c;
+  box-shadow: 0 1px 2px rgb(5 18 25 / 0.18);
 }
 
 .site-topbar-contact--phone:hover {
-  background: rgb(153 246 228);
-  color: #115e59;
+  background: #142d4c;
+  color: #ffffff !important;
+  box-shadow: 0 14px 28px -12px rgb(15 23 42 / 0.35);
 }
 
+.site-topbar-contact--phone:hover svg {
+  color: #ffffff !important;
+}
+
+.site-topbar-contact--phone:active {
+  box-shadow: 0 6px 14px -8px rgb(15 23 42 / 0.3);
+}
+
+.site-topbar-contact--phone:focus-visible {
+  outline: 2px solid #1a365d;
+  outline-offset: 2px;
+}
+
+/* Brand gold — matches site palette */
 .site-topbar-contact--email {
-  color: #b45309;
-  background: linear-gradient(135deg, rgb(254 243 199 / 0.95), rgb(253 230 138 / 0.45));
-  border: 1px solid rgb(251 191 36 / 0.55);
-  box-shadow: 0 1px 6px rgb(245 158 11 / 0.12);
+  color: #051219 !important;
+  background: #ffa726;
+  border: 1px solid #ff9800;
+  box-shadow: 0 1px 2px rgb(255 167 38 / 0.28);
 }
 
 .site-topbar-contact--email:hover {
-  background: rgb(253 230 138);
-  color: #92400e;
+  background: #ff9800;
+  color: #051219 !important;
+  border-color: #f57c00;
+  box-shadow: 0 14px 28px -12px rgb(245 158 11 / 0.45);
+}
+
+.site-topbar-contact--email:hover svg {
+  color: #051219 !important;
+}
+
+.site-topbar-contact--email:active {
+  box-shadow: 0 6px 14px -8px rgb(245 158 11 / 0.35);
+}
+
+.site-topbar-contact--email:focus-visible {
+  outline: 2px solid #ffa726;
+  outline-offset: 2px;
 }
 
 .site-topbar-contact svg {
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .site-topbar-social {
@@ -72,22 +150,26 @@
 
 .site-topbar-social-link {
   display: inline-flex;
-  color: #64748b;
-  transition: color 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.15s ease;
 }
 
-.site-topbar-social-link--facebook:hover,
-.site-topbar-social-link--facebook:hover svg {
+.site-topbar-social-link:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.site-topbar-social-link--facebook,
+.site-topbar-social-link--facebook svg {
   color: #1877f2 !important;
 }
 
-.site-topbar-social-link--instagram:hover,
-.site-topbar-social-link--instagram:hover svg {
+.site-topbar-social-link--instagram,
+.site-topbar-social-link--instagram svg {
   color: #e4405f !important;
 }
 
-.site-topbar-social-link--youtube:hover,
-.site-topbar-social-link--youtube:hover svg {
+.site-topbar-social-link--youtube,
+.site-topbar-social-link--youtube svg {
   color: #ff0000 !important;
 }
 

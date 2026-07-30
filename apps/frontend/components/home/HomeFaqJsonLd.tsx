@@ -1,4 +1,5 @@
 import { HOME_PAGE_FAQS } from '@/lib/homePageSeoContent';
+import { getOrganizationSchemaIds } from '@/lib/organizationSchema';
 import { getSiteUrl } from '@/lib/siteUrl';
 
 const SITE = getSiteUrl();
@@ -12,9 +13,11 @@ function faqAnswerText(faq: (typeof HOME_PAGE_FAQS)[number]): string {
 }
 
 export function HomeFaqJsonLd() {
+  const ids = getOrganizationSchemaIds(SITE);
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
+    '@id': ids.faq,
     mainEntity: HOME_PAGE_FAQS.map((faq) => ({
       '@type': 'Question',
       name: faq.question,
@@ -23,7 +26,9 @@ export function HomeFaqJsonLd() {
         text: faqAnswerText(faq),
       },
     })),
-    url: SITE,
+    url: `${SITE}/`,
+    isPartOf: { '@id': ids.website },
+    about: { '@id': ids.organization },
   };
 
   return (

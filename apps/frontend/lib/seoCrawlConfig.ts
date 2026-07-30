@@ -38,6 +38,7 @@ export const ROBOTS_ALLOW_PREFIXES = [
   '/blog',
   '/countries',
   '/neet-rank-predictor',
+  '/college-predictor',
   '/neet-ug-counselling',
   '/neet-pg-counselling',
   '/neet-2026-syllabus',

@@ -1,10 +1,12 @@
 import type { SiteContent } from '@/lib/contentApi';
 import { buildImageObjectSchemaFromUrl } from '@/lib/buildImageObjectSchema';
+import { getOrganizationSchemaIds } from '@/lib/organizationSchema';
 import { getSiteUrl } from '@/lib/siteUrl';
 import { toAbsoluteMediaUrl } from '@/lib/toAbsoluteMediaUrl';
 import { plainTitle, metaDescriptionFromContent } from '@/lib/wpHtmlPrepare';
 
 const SITE_URL = getSiteUrl();
+const ORG_IDS = getOrganizationSchemaIds(SITE_URL);
 
 type ContentJsonLdProps = {
   content: Pick<
@@ -61,10 +63,12 @@ export function ContentJsonLd({ content, breadcrumbs }: ContentJsonLdProps) {
       dateModified: content.updatedAt ?? undefined,
       ...(imageField ? { image: imageField, primaryImageOfPage: imageObject ?? imageField } : {}),
       publisher: {
+        '@id': ORG_IDS.organization,
         '@type': 'Organization',
         name: 'AR Group of Education',
         url: SITE_URL,
       },
+      isPartOf: { '@id': ORG_IDS.website },
       mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     },
   ];

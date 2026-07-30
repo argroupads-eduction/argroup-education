@@ -18,7 +18,10 @@ export function revalidateAfterContentSync(opts: {
 }) {
   revalidatePath('/blog');
   revalidatePath('/sitemap.xml');
+  revalidatePath('/sitemap');
   revalidatePath(IMAGE_SITEMAP_PATH);
+  // App Router sitemap.ts route
+  revalidatePath('/sitemap.xml', 'page');
   if (opts.type === 'post') {
     revalidateBlogSlugPaths(opts.slug);
   } else {

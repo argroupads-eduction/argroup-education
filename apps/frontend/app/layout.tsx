@@ -5,6 +5,8 @@ import { Footer } from '@/components/common/Footer';
 import { DeferredSitePopups } from '@/components/common/DeferredSitePopups';
 import { LeadSubmissionFeedbackHost } from '@/components/common/LeadSubmissionFeedbackHost';
 import { PwaRegistrar } from '@/components/common/PwaRegistrar';
+import { GoogleAnalytics } from '@/components/common/GoogleAnalytics';
+import { SiteOrganizationJsonLd } from '@/components/seo/SiteOrganizationJsonLd';
 import {
   SITE_PROTECTION_INLINE_SCRIPT,
   isSiteProtectionEnabled,
@@ -150,6 +152,8 @@ export default async function RootLayout({
         {isSiteProtectionEnabled() ? (
           <script dangerouslySetInnerHTML={{ __html: SITE_PROTECTION_INLINE_SCRIPT }} />
         ) : null}
+        <SiteOrganizationJsonLd />
+        <GoogleAnalytics />
       </head>
       <body
         className={`${inter.className} min-h-dvh min-w-0 overflow-x-hidden [padding-bottom:env(safe-area-inset-bottom,0px)] [padding-left:env(safe-area-inset-left,0px)] [padding-right:env(safe-area-inset-right,0px)]`}
