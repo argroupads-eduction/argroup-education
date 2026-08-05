@@ -12,7 +12,7 @@ const AUTOPLAY_MS = 4800;
 const SLIDE_MS = 900;
 const TOUCH_RESUME_MS = 6000;
 const SWIPE_PX = 48;
-const EYEBROW = 'DESTINATION ATLAS';
+const EYEBROW = 'MBBS ABROAD DESTINATIONS';
 
 /**
  * Destination Atlas — autoplay loop with desktop hover-pause and
