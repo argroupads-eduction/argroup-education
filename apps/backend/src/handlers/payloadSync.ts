@@ -69,13 +69,26 @@ export type PayloadSyncResult =
   | { ok: false; status: number; body: { success: false; message: string } };
 
 export function verifyPayloadSyncAuth(authHeader: string | null): PayloadSyncResult | null {
-  const secret = process.env.REVALIDATE_SECRET?.trim().replace(/\r$/, '');
-  if (!secret) {
-    return { ok: false, status: 503, body: { success: false, message: 'REVALIDATE_SECRET not configured' } };
+  const candidates = [
+    process.env.REVALIDATE_SECRET?.trim().replace(/\r$/, ''),
+    process.env.PAYLOAD_SYNC_SECRET?.trim().replace(/\r$/, ''),
+  ].filter((s): s is string => Boolean(s));
+
+  if (candidates.length === 0) {
+    return {
+      ok: false,
+      status: 503,
+      body: {
+        success: false,
+        message: 'REVALIDATE_SECRET / PAYLOAD_SYNC_SECRET not configured',
+      },
+    };
   }
+
   const header = authHeader ?? '';
   const token = (header.startsWith('Bearer ') ? header.slice(7) : '').trim().replace(/\r$/, '');
-  if (!bearerTokenMatches(secret, token)) {
+  const matched = candidates.some((secret) => bearerTokenMatches(secret, token));
+  if (!matched) {
     return { ok: false, status: 401, body: { success: false, message: 'Unauthorized' } };
   }
   return null;

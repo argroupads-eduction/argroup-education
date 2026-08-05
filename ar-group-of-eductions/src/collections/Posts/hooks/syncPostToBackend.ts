@@ -5,6 +5,7 @@ import { buildPostSyncPayload } from '../../../utilities/payloadSyncFields'
 import {
   enqueueMarketingContentSync,
   isAutosaveRequest,
+  syncMarketingContentAndWait,
 } from '../../../utilities/enqueueMarketingContentSync'
 import { htmlFromPayloadDoc, syncToMarketingBackend } from '../../../utilities/syncToMarketingBackend'
 
@@ -22,8 +23,8 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
 
   const fields = await buildPostSyncPayload(req.payload, doc)
 
-  enqueueMarketingContentSync(req, {
-    type: 'post',
+  const syncBody = {
+    type: 'post' as const,
     slug: doc.slug ?? '',
     title: doc.title ?? doc.slug ?? 'Untitled',
     content: fields.content,
@@ -44,7 +45,14 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
     publishedAt: doc.publishedAt ?? null,
     // First transition to published → marketing site sends Web Push to PWA subscribers.
     notifyPush: Boolean(isPublished && !wasPublished),
-  })
+  }
+
+  // Await on publish so secret/URL failures surface in admin instead of silent miss.
+  if (isPublished) {
+    await syncMarketingContentAndWait(req, syncBody)
+  } else {
+    enqueueMarketingContentSync(req, syncBody)
+  }
 
   return doc
 }

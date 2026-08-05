@@ -46,6 +46,10 @@ function resolveMarketingSyncBaseUrl(): string {
 
   try {
     const url = new URL(raw.startsWith('http') ? raw : `https://${raw}`)
+    // Apex domain rejects POST /api/cms/payload-sync (405). Always use www for marketing sync.
+    if (url.hostname === 'argroupofeducation.com') {
+      url.hostname = 'www.argroupofeducation.com'
+    }
     return url.toString().replace(/\/$/, '')
   } catch {
     return raw.replace(/\/$/, '')
