@@ -1,5 +1,4 @@
 import { BLOG_SLUG_CANONICAL } from '@/lib/blogUtils';
-import { getCollegeImageBySlug } from '@/lib/collegeImageIndex';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 /** Curated blog hero images when CMS/DB has no featuredImage set. */
@@ -51,10 +50,8 @@ export function resolveBlogFeaturedImage(
     }
   }
 
-  // Last resort only when CMS has no featured image.
-  const fromMediaIndex = getCollegeImageBySlug(slug);
-  if (fromMediaIndex) return fromMediaIndex;
-
+  // Do NOT fuzzy-match college/WP media by slug tokens — that showed UP NEET art on MP posts.
+  // Only curated exact keys above; otherwise no hero until CMS featured image syncs.
   return null;
 }
 

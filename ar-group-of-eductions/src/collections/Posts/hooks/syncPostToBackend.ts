@@ -20,12 +20,31 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
   const wasPublished = previousDoc?._status === 'published'
   if (!isPublished && !wasPublished) return doc
 
-  const fields = await buildPostSyncPayload(req.payload, doc)
+  // Re-load with depth so Lexical body + heroImage media URLs are present for HTML sync.
+  let syncDoc: Post = doc
+  try {
+    if (doc.id != null) {
+      syncDoc = (await req.payload.findByID({
+        collection: 'posts',
+        id: doc.id,
+        depth: 2,
+        draft: false,
+        overrideAccess: true,
+      })) as Post
+    }
+  } catch (err) {
+    req.payload.logger.warn(
+      { err, id: doc.id },
+      '[payload→backend sync] findByID failed — falling back to hook doc',
+    )
+  }
+
+  const fields = await buildPostSyncPayload(req.payload, syncDoc)
 
   const syncBody = {
     type: 'post' as const,
-    slug: doc.slug ?? '',
-    title: doc.title ?? doc.slug ?? 'Untitled',
+    slug: syncDoc.slug ?? doc.slug ?? '',
+    title: syncDoc.title ?? doc.title ?? doc.slug ?? 'Untitled',
     content: fields.content,
     excerpt: fields.excerpt,
     featuredImage: fields.featuredImage,
@@ -41,13 +60,10 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
     twitterDescription: fields.twitterDescription,
     schemaJson: fields.schemaJson,
     published: isPublished,
-    publishedAt: doc.publishedAt ?? null,
-    // First transition to published → marketing site sends Web Push to PWA subscribers.
+    publishedAt: syncDoc.publishedAt ?? doc.publishedAt ?? null,
     notifyPush: Boolean(isPublished && !wasPublished),
   }
 
-  // Await sync so it finishes before the admin response, but never fail Publish
-  // when marketing auth/URL is misconfigured (otherwise Payload shows "Something went wrong").
   try {
     await syncMarketingContentAndWait(req, syncBody)
   } catch (err) {
@@ -55,6 +71,8 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
       {
         err,
         slug: syncBody.slug,
+        contentLen: syncBody.content?.length ?? 0,
+        hasImage: Boolean(syncBody.featuredImage),
         hint: 'Set CMS BACKEND_API_URL=https://www.argroupofeducation.com and match REVALIDATE_SECRET with Amplify/live site.',
       },
       '[payload→backend sync] publish sync failed — post saved in CMS but not on live site yet',

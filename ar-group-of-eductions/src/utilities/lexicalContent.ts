@@ -45,7 +45,8 @@ export function hasSubstantialLexicalContent(
   if (isPlaceholderLexicalContent(content)) return false
 
   const text = plainTextFromLexical(content)
-  return text.length > 120 || children.length > 1
+  // Any real body copy (incl. short posts) counts — do not drop under 120 chars.
+  return text.length > 0 || children.length > 0
 }
 
 /** WordPress HTML still needs converting into Lexical for the visual editor. */
