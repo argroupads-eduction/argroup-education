@@ -15,10 +15,43 @@ export function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return out;
 }
 
+/** Unregister all SWs and wipe Cache Storage (dev / forced refresh). */
+export async function clearServiceWorkerAndCaches(): Promise<void> {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+  try {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map((r) => r.unregister()));
+  } catch {
+    /* ignore */
+  }
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+function isLocalDevHost(): boolean {
+  if (typeof window === 'undefined') return false;
+  const h = window.location.hostname;
+  return h === 'localhost' || h === '127.0.0.1' || h === '[::1]';
+}
+
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return null;
+
+  // Localhost: never keep a SW — it caches `/` and causes stale hero/HMR hydration fights.
+  if (isLocalDevHost() || process.env.NODE_ENV === 'development') {
+    await clearServiceWorkerAndCaches();
+    return null;
+  }
+
   try {
     const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    await reg.update().catch(() => undefined);
     await navigator.serviceWorker.ready;
     return reg;
   } catch (err) {

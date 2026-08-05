@@ -102,7 +102,7 @@ export function AboutPageView() {
             <motion.div className="about-story-visual" {...fadeUp}>
               <div className="about-story-frame">
                 <Image
-                  src="/about-counsellor.png"
+                  src="/about-counsellor.webp"
                   alt="AR Group of Education, medical admission counselling team"
                   width={560}
                   height={700}

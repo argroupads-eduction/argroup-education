@@ -1,9 +1,9 @@
+@import './ui-buttons.css';
+@import './youtube-channel-section.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import './ui-buttons.css';
-@import './youtube-channel-section.css';
 
 @layer base {
   :root {
@@ -82,7 +82,9 @@
       .site-footer-main__social-link
     ):not(.site-topbar-social-link):not(.site-topbar-contact):not(.site-footer-follow__icon):not(.blog-pagination__page):not(
       .blog-pagination__btn
-    ) {
+    ):not(.youtube-channel-section__subscribe):not(.youtube-cinema__watch-btn):not(.youtube-cinema__rail-more):not(
+      .youtube-cinema__screen
+    ):not(.abroad-atlas__cta) {
     @apply text-gold-600;
   }
 
@@ -610,4 +612,41 @@
   .shadow-elevation-3 {
     @apply shadow-lg;
   }
+}
+
+/*
+ * Lead capture popups render via Radix Portal on <body>, outside [data-lead-capture-popup].
+ * Unlayered rules (with !important) beat the global gold scrollbar in @layer base.
+ */
+html:has(.lead-capture-scroll-shell),
+body:has(.lead-capture-scroll-shell) {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html:has(.lead-capture-scroll-shell)::-webkit-scrollbar,
+body:has(.lead-capture-scroll-shell)::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.lead-capture-scroll-shell,
+.lead-capture-scroll-shell * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.lead-capture-scroll-shell::-webkit-scrollbar,
+.lead-capture-scroll-shell::-webkit-scrollbar-thumb,
+.lead-capture-scroll-shell::-webkit-scrollbar-track,
+.lead-capture-scroll-shell *::-webkit-scrollbar,
+.lead-capture-scroll-shell *::-webkit-scrollbar-thumb,
+.lead-capture-scroll-shell *::-webkit-scrollbar-track {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
 }

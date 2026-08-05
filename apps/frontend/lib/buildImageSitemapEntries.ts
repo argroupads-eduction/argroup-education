@@ -62,22 +62,78 @@ function collegeImageTitle(slug: string | null | undefined, fallback?: string): 
   return 'College campus';
 }
 
-/** Marketing images keyed by page path (no UI change — crawl signals only). */
+/** Marketing images keyed by page path (SEO image sitemap + Google index signals). */
 const STATIC_PAGE_IMAGES: Record<string, { src: string; title: string }[]> = {
   '/': [
     { src: '/ar-group-logo.webp', title: 'AR Group of Education logo' },
+    {
+      src: '/hero-banner-aug4.webp',
+      title: 'AR Group of Education — MBBS in India and abroad counselling hero',
+    },
+    {
+      src: '/about-counsellor.webp',
+      title: 'AR Group of Education counsellor — MBBS admission guidance',
+    },
+    {
+      src: '/medical-admission-counselling-hero.webp',
+      title: 'Medical admission counselling for MBBS in India and abroad',
+    },
+    {
+      src: '/lead-mbbs-students.webp',
+      title: 'MBBS students guided by AR Group of Education',
+    },
     { src: '/india-homepage.webp', title: 'MBBS in India counselling' },
     { src: '/abroad-homepage.webp', title: 'MBBS abroad counselling' },
   ],
-  '/about': [{ src: '/about-counsellor.png', title: 'AR Group medical admission counsellor' }],
-  '/contact': [{ src: '/lead-mbbs-doctor.png', title: 'MBBS admission counselling contact' }],
+  '/about': [
+    {
+      src: '/about-counsellor.webp',
+      title: 'AR Group of Education medical admission counsellor',
+    },
+    {
+      src: '/about-counsellor.png',
+      title: 'AR Group of Education medical admission counsellor',
+    },
+  ],
+  '/contact': [
+    { src: '/lead-mbbs-doctor.png', title: 'MBBS admission counselling contact' },
+    {
+      src: '/lead-mbbs-students.webp',
+      title: 'MBBS students — AR Group of Education counselling',
+    },
+  ],
   '/services': [
-    { src: '/medical-admission-counselling-hero.png', title: 'Medical admission counselling services' },
+    {
+      src: '/medical-admission-counselling-hero.webp',
+      title: 'Medical admission counselling services',
+    },
+    {
+      src: '/medical-admission-counselling-hero.png',
+      title: 'Medical admission counselling services',
+    },
   ],
   '/neet-rank-predictor': [
     {
       src: '/wp-content/uploads/2026/04/NEET-College-Predictor-2026-768x768.png',
       title: 'NEET Rank Predictor tool',
+    },
+    {
+      src: '/images/rank-predictor-hero-doctor.png',
+      title: 'NEET Rank Predictor — medical counsellor',
+    },
+    {
+      src: '/images/rank-predictor-student.png',
+      title: 'NEET Rank Predictor — medical student',
+    },
+    {
+      src: '/images/rank-predictor-sidebar-panel.png',
+      title: 'NEET Rank Predictor results panel',
+    },
+  ],
+  '/college-predictor': [
+    {
+      src: '/images/college-predictor-popup-panel.jpg',
+      title: 'NEET College Predictor',
     },
   ],
 };
@@ -463,6 +519,9 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
       addImage(bucket, pageLoc, featured, post.title, baseUrl);
     }
   }
+
+  /* WP export posts already inject featured + inline HTML images above (wpPosts).
+   * DB + Payload docs cover live CMS blogs/pages with featured + body images. */
 
   addContentDocImages(
     bucket,

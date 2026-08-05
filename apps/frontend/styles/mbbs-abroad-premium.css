@@ -1,413 +1,12 @@
-/* MBBS Abroad hub — premium destinations gallery, documents vault, WP overrides */
+﻿/* MBBS Abroad hub â€” premium destinations gallery, documents vault, WP overrides */
 
-/* ── Country picker — atlas grid ── */
-.abroad-atlas {
-  position: relative;
-  overflow: hidden;
-  padding: 4.5rem 0 5rem;
-  background:
-    radial-gradient(ellipse 90% 55% at 50% -5%, rgb(37 99 235 / 0.28), transparent 58%),
-    linear-gradient(165deg, #020617 0%, #0b1f3d 42%, #0c2342 100%);
-  color: #fff;
-}
-
-.abroad-atlas__glow {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.1) 1px, transparent 0);
-  background-size: 32px 32px;
-  mask-image: linear-gradient(180deg, #000 0%, transparent 95%);
-  pointer-events: none;
-}
-
-.abroad-atlas__head {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 1.75rem;
-  margin-bottom: 2.75rem;
-}
-
-@media (min-width: 1024px) {
-  .abroad-atlas__head {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 2.5rem;
-  }
-}
-
-.abroad-atlas__head-copy {
-  max-width: 42rem;
-}
-
-.abroad-atlas__kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgb(253 224 171);
-}
-
-.abroad-atlas__title {
-  margin-top: 0.65rem;
-  font-family: var(--font-site);
-  font-size: clamp(1.9rem, 4.5vw, 2.85rem);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: -0.02em;
-}
-
-.abroad-atlas__title span {
-  background: linear-gradient(92deg, #fde68a 0%, #f59e0b 55%, #fbbf24 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-.abroad-atlas__lead {
-  margin-top: 0.85rem;
-  font-size: 1.02rem;
-  line-height: 1.65;
-  color: rgb(191 219 254 / 0.88);
-}
-
-.abroad-atlas__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-}
-
-.abroad-atlas__stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 5.25rem;
-  padding: 0.7rem 1rem;
-  border-radius: 1rem;
-  border: 1px solid rgb(255 255 255 / 0.1);
-  background: rgb(255 255 255 / 0.04);
-  backdrop-filter: blur(8px);
-}
-
-.abroad-atlas__stat--gold {
-  flex-direction: row;
-  align-items: center;
-  gap: 0.45rem;
-  min-width: auto;
-  border-color: rgb(251 191 36 / 0.35);
-  background: rgb(251 191 36 / 0.1);
-  color: rgb(253 224 171);
-}
-
-.abroad-atlas__stat-value {
-  font-size: 1.35rem;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.abroad-atlas__stat-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgb(148 163 184);
-}
-
-.abroad-atlas__stat--gold .abroad-atlas__stat-label {
-  color: rgb(253 224 171);
-}
-
-.abroad-atlas__section {
-  position: relative;
-  margin-bottom: 2.5rem;
-}
-
-.abroad-atlas__section--more {
-  margin-bottom: 0;
-  padding-top: 0.5rem;
-  border-top: 1px solid rgb(255 255 255 / 0.08);
-}
-
-.abroad-atlas__section-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem 1rem;
-  margin-bottom: 1.15rem;
-}
-
-.abroad-atlas__section-label {
-  font-family: var(--font-site);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.abroad-atlas__section-hint {
-  font-size: 0.78rem;
-  color: rgb(148 163 184);
-}
-
-/* Featured — 2×2 cinematic cards */
-.abroad-atlas__hero-grid {
-  display: grid;
-  gap: 1rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 640px) {
-  .abroad-atlas__hero-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.1rem;
-  }
-}
-
-.abroad-atlas__hero-item {
-  min-width: 0;
-}
-
-.abroad-atlas__hero-card {
-  --country-accent: #fbbf24;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 18.5rem;
-  overflow: hidden;
-  border-radius: 1.25rem;
-  border: 1px solid rgb(255 255 255 / 0.12);
-  background: rgb(8 18 36 / 0.95);
-  box-shadow: 0 16px 40px rgb(0 0 0 / 0.35);
-  transition:
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.35s ease,
-    box-shadow 0.35s ease;
-}
-
-.abroad-atlas__hero-card::after {
-  content: '';
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 4px;
-  background: var(--country-accent);
-  z-index: 2;
-}
-
-.abroad-atlas__hero-card:hover {
-  transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--country-accent) 50%, transparent);
-  box-shadow:
-    0 24px 48px rgb(0 0 0 / 0.45),
-    0 0 0 1px color-mix(in srgb, var(--country-accent) 22%, transparent);
-}
-
-.abroad-atlas__hero-media {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 10.5rem;
-  overflow: hidden;
-  background: #0f172a;
-}
-
-.abroad-atlas__hero-img {
-  object-fit: cover;
-  object-position: center;
-  transition: transform 0.55s ease;
-}
-
-.abroad-atlas__hero-card:hover .abroad-atlas__hero-img {
-  transform: scale(1.05);
-}
-
-.abroad-atlas__hero-shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgb(2 6 23 / 0.35) 45%,
-    rgb(2 6 23 / 0.92) 100%
-  );
-}
-
-.abroad-atlas__hero-body {
-  position: relative;
-  z-index: 1;
-  margin-top: -4.5rem;
-  padding: 0 1.2rem 1.25rem;
-}
-
-.abroad-atlas__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin-bottom: 0.45rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 9999px;
-  border: 1px solid rgb(255 255 255 / 0.15);
-  background: rgb(15 23 42 / 0.65);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgb(253 224 171);
-}
-
-.abroad-atlas__hero-title {
-  font-family: var(--font-site);
-  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.abroad-atlas__hero-meta {
-  margin-top: 0.3rem;
-  font-size: 0.84rem;
-  color: rgb(191 219 254 / 0.82);
-}
-
-.abroad-atlas__hero-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-top: 0.75rem;
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: rgb(253 224 171);
-}
-
-/* More countries — compact tiles */
-.abroad-atlas__tile-grid {
-  display: grid;
-  gap: 0.85rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-@media (min-width: 768px) {
-  .abroad-atlas__tile-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .abroad-atlas__tile-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.abroad-atlas__tile {
-  --country-accent: #fbbf24;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 1rem;
-  border: 1px solid rgb(255 255 255 / 0.1);
-  background: rgb(8 18 36 / 0.88);
-  transition:
-    transform 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.abroad-atlas__tile::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--country-accent);
-  z-index: 1;
-}
-
-.abroad-atlas__tile:hover {
-  transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--country-accent) 45%, transparent);
-  box-shadow: 0 14px 32px rgb(0 0 0 / 0.35);
-}
-
-.abroad-atlas__tile-media {
-  position: relative;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  background: #0f172a;
-}
-
-.abroad-atlas__tile-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.45s ease;
-}
-
-.abroad-atlas__tile:hover .abroad-atlas__tile-img {
-  transform: scale(1.06);
-}
-
-.abroad-atlas__tile-body {
-  flex: 1;
-  padding: 0.75rem 2rem 0.85rem 0.9rem;
-}
-
-.abroad-atlas__tile-title {
-  font-size: 0.92rem;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.abroad-atlas__tile-meta {
-  margin-top: 0.15rem;
-  font-size: 0.72rem;
-  color: rgb(148 163 184);
-}
-
-.abroad-atlas__tile-arrow {
-  position: absolute;
-  right: 0.75rem;
-  bottom: 0.8rem;
-  width: 1rem;
-  height: 1rem;
-  color: rgb(253 224 171);
-  transition: transform 0.25s ease;
-}
-
-.abroad-atlas__tile:hover .abroad-atlas__tile-arrow {
-  transform: translate(2px, -2px);
-}
-
-.abroad-atlas__media-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  min-height: 6rem;
-  background: linear-gradient(145deg, #1e3a5f, #0c1f3f);
-  color: rgb(148 163 184);
-}
-
-/* Legacy class aliases — old atlas grid retired */
+/* Legacy globe/orbit only — home Destination Atlas uses mbbs-abroad-atlas.css */
 .abroad-globe,
-.abroad-orbit,
-.abroad-atlas {
+.abroad-orbit {
   display: none;
 }
 
-/* ── Country picker — destinations showcase (current) ── */
+/* â”€â”€ Country picker â€” destinations showcase (current) â”€â”€ */
 .abroad-destinations {
   position: relative;
   overflow: hidden;
@@ -589,7 +188,7 @@
   outline: none;
 }
 
-/* Image band — full-width cover (top half of card), text panel below */
+/* Image band â€” full-width cover (top half of card), text panel below */
 .abroad-destinations__featured-visual {
   position: relative;
   width: 100%;
@@ -664,7 +263,7 @@
   transform: scaleX(1);
 }
 
-/* Text panel — solid block below image (no overlap glitch) */
+/* Text panel â€” solid block below image (no overlap glitch) */
 .abroad-destinations__featured-body {
   flex: 1 1 auto;
   display: flex;
@@ -751,7 +350,7 @@
   transform: translate(2px, -2px);
 }
 
-/* Legacy showcase classes — retired bento grid */
+/* Legacy showcase classes â€” retired bento grid */
 .abroad-destinations__showcase,
 .abroad-destinations__showcase-item,
 .abroad-destinations__showcase-card {
@@ -945,7 +544,7 @@
   min-height: 0;
 }
 
-/* ── Intake ribbon ── */
+/* â”€â”€ Intake ribbon â”€â”€ */
 .abroad-intake {
   padding: 2rem 0;
   background: linear-gradient(180deg, #faf8f4 0%, #fff 100%);
@@ -997,7 +596,7 @@
   color: #64748b;
 }
 
-/* ── Documents vault ── */
+/* â”€â”€ Documents vault â”€â”€ */
 .abroad-vault {
   position: relative;
   padding: 4rem 0 4.5rem;
@@ -1149,7 +748,7 @@
   filter: brightness(1.06);
 }
 
-/* ── Guide shell (remaining WP content) ── */
+/* â”€â”€ Guide shell (remaining WP content) â”€â”€ */
 .abroad-guide-shell {
   background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
 }
@@ -1174,7 +773,7 @@
   visibility: hidden !important;
 }
 
-/* Benefits list → premium card grid (same WP text) */
+/* Benefits list â†’ premium card grid (same WP text) */
 .wp-content-abroad-hub .abroad-wp-benefits-list .elementor-widget-text-editor ul {
   display: grid !important;
   gap: 1rem;
@@ -1241,7 +840,7 @@
   gap: 0.35rem;
 }
 
-/* Intro paragraph — readable measure */
+/* Intro paragraph â€” readable measure */
 .wp-content-abroad-hub .wp-content-body > .elementor-section:first-child p,
 .wp-content-abroad-hub .abroad-wp-section .elementor-widget-text-editor p {
   max-width: 48rem;
@@ -1319,7 +918,7 @@
   text-align: center;
 }
 
-/* Image-box country links — grid if any remain visible */
+/* Image-box country links â€” grid if any remain visible */
 .wp-content-abroad-hub .wp-content-body .elementor-widget-image-box {
   margin: 0 !important;
 }

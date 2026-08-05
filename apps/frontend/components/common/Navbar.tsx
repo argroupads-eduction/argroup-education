@@ -204,7 +204,7 @@ export const Navbar = () => {
               <BrandLogoLink frameClassName="brand-logo-link__frame--nav-wide">
                 <Image
                   src="/ar-group-logo.webp"
-                  alt="AR Group of Education"
+                  alt="AR Group of Education — MBBS India and abroad counselling"
                   width={140}
                   height={56}
                   sizes="140px"

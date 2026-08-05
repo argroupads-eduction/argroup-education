@@ -81,7 +81,7 @@ export function HomeSeoContentSections() {
             <div className="relative overflow-hidden rounded-[2rem] bg-navy-900 shadow-2xl shadow-navy-900/30 ring-1 ring-white/10 ring-offset-2 ring-offset-[#051219]">
               <div className="absolute inset-0 z-[1] bg-gradient-to-tr from-navy-900/40 via-transparent to-gold-500/20" aria-hidden />
               <Image
-                src="/medical-admission-counselling-hero.png"
+                src="/medical-admission-counselling-hero.webp"
                 alt="Medical admission counsellor guiding a student for MBBS in India and abroad"
                 width={560}
                 height={640}

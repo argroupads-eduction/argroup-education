@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
@@ -31,7 +30,6 @@ import {
   markLeadPopupSubmitted,
   setLeadPopupOpen,
 } from '@/lib/sitePopupCoordination';
-import { armCollegeScheduleFromNow } from '@/lib/collegePredictorPopup';
 import {
   type HeroMbbsFormDoc,
   type HeroMbbsFormFieldBlock,
@@ -43,12 +41,6 @@ const PROMO_BADGES = [
   { icon: GraduationCap, label: 'WHO-listed universities' },
   { icon: Award, label: 'Transparent low fees' },
   { icon: ShieldCheck, label: 'End-to-end support' },
-] as const;
-
-const TRUST_BULLETS = [
-  '4,000+ students guided across India and abroad',
-  'NMC-aligned counselling with honest fee guidance',
-  'Visa, documentation & pre-departure briefing',
 ] as const;
 
 const INDIAN_CITY_SUGGESTIONS = [
@@ -76,6 +68,7 @@ type LeadFormValues = {
   city: string;
   category: string;
   targetCountry: string;
+  budget: string;
 };
 
 const EMPTY_VALUES: LeadFormValues = {
@@ -85,6 +78,7 @@ const EMPTY_VALUES: LeadFormValues = {
   city: '',
   category: '',
   targetCountry: '',
+  budget: '',
 };
 
 const fieldWrapClass = 'min-w-0 w-full';
@@ -140,6 +134,8 @@ function buildSubmissionPayload(
     const countryField =
       findPayloadFieldName(fields, ['country', 'state', 'destination', 'target']) ||
       'country';
+    const budgetField =
+      findPayloadFieldName(fields, ['budget', 'fee', 'fees', 'amount']) || 'budget';
 
     const logical: Record<string, string> = {
       [nameField]: values.fullName,
@@ -148,6 +144,7 @@ function buildSubmissionPayload(
       [cityField]: values.city,
       [categoryField]: values.category,
       [countryField]: values.targetCountry,
+      [budgetField]: values.budget,
     };
 
     const used = new Set<string>();
@@ -174,7 +171,8 @@ function buildSubmissionPayload(
         { field: phoneField, value: values.phone },
         { field: cityField, value: values.city },
         { field: categoryField, value: values.category },
-        { field: countryField, value: values.targetCountry }
+        { field: countryField, value: values.targetCountry },
+        { field: budgetField, value: values.budget }
       );
     }
 
@@ -190,6 +188,7 @@ function buildSubmissionPayload(
       { field: 'city', value: values.city },
       { field: 'category', value: values.category },
       { field: 'targetCountry', value: values.targetCountry },
+      { field: 'budget', value: values.budget },
       { field: 'source', value: 'website-lead-popup' },
     ],
   };
@@ -197,6 +196,7 @@ function buildSubmissionPayload(
 
 import { validatePersonName } from '@/lib/validatePersonName';
 import { validateIndianMobile, validateLeadEmail } from '@/lib/leadSubmissionMessages';
+import { sanitizeBudgetInput, validateBudget } from '@/lib/validateBudget';
 
 function validate(values: LeadFormValues): string | null {
   const nameErr = validatePersonName(values.fullName);
@@ -208,6 +208,8 @@ function validate(values: LeadFormValues): string | null {
   if (!values.city.trim()) return 'City is required.';
   if (!values.category.trim()) return 'Please select a category.';
   if (!values.targetCountry.trim()) return 'Please select a target destination.';
+  const budgetErr = validateBudget(values.budget);
+  if (budgetErr) return budgetErr;
   return null;
 }
 
@@ -217,10 +219,10 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
   return (
     <div
       className={clsx(
-        'relative flex flex-col overflow-hidden bg-navy-900 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white',
-        isMobileSheet && 'px-3.5 pb-2.5 pt-3.5 text-center',
+        'relative flex flex-col overflow-x-hidden bg-navy-900 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white',
+        isMobileSheet && 'px-3.5 pb-2 pt-3.5 pr-11 text-center',
         variant === 'compact' && 'px-5 py-6',
-        variant === 'default' && 'px-6 py-7 md:px-7 md:py-8'
+        variant === 'default' && 'px-5 py-5 md:px-6 md:py-6'
       )}
     >
       <motion.div
@@ -249,19 +251,19 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
           <LeadCapturePromoBanner compact className="mx-auto w-full max-w-full" />
         </div>
       ) : (
-        <h2 className="relative mt-2.5 font-sans text-[1.25rem] font-bold leading-snug text-white md:text-[1.5rem]">
+        <h2 className="relative mt-2 font-sans text-[1.2rem] font-bold leading-snug text-white md:text-[1.35rem]">
           Your MBBS in India and abroad journey starts here
         </h2>
       )}
       {!isMobileSheet && (
-        <p className="relative mt-2.5 max-w-sm text-[13px] leading-relaxed text-navy-100/90 md:text-sm">
+        <p className="relative mt-2 max-w-sm text-[13px] leading-relaxed text-navy-100/90">
           WHO-listed universities, transparent fees, and expert guidance from application to campus.
           Trusted by thousands of Indian medical aspirants.
         </p>
       )}
 
       {isMobileSheet ? null : (
-        <ul className="relative mt-5 flex flex-wrap gap-2">
+        <ul className="relative mt-3.5 flex flex-wrap gap-2">
           {PROMO_BADGES.map(({ icon: Icon, label }) => (
             <li
               key={label}
@@ -275,40 +277,32 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
       )}
 
       {!isMobileSheet && (
-      <motion.div
-        className="relative mt-5 aspect-[650/326] w-full overflow-hidden rounded-xl"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15, duration: 0.4 }}
-      >
-        <Image
-          src="/lead-mbbs-doctor.png"
-          alt="Medical team supporting MBBS admission counselling for universities abroad"
-          fill
-          className="object-contain object-center"
-          sizes="(max-width: 768px) 90vw, 400px"
-        />
-      </motion.div>
+        <motion.div
+          className="relative mt-3 w-full shrink-0 rounded-xl"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.4 }}
+        >
+          {/* Natural aspect — full photo, never cropped by fixed height */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- full undcropped photo in constrained popup column */}
+          <img
+            src="/lead-mbbs-students.webp"
+            alt="MBBS students — AR Group of Education admission counselling"
+            width={1024}
+            height={682}
+            decoding="async"
+            className="block h-auto w-full max-w-full rounded-xl"
+          />
+        </motion.div>
       )}
 
       {!isMobileSheet && (
-        <div className="relative mt-4 flex w-full flex-col items-stretch gap-2 rounded-xl border border-gold-500/25 bg-gradient-to-r from-navy-900/60 via-gold-500/10 to-navy-900/60 px-3 py-2">
+        <div className="relative mt-3 flex w-full flex-col items-stretch gap-1.5 rounded-xl border border-gold-500/25 bg-gradient-to-r from-navy-900/60 via-gold-500/10 to-navy-900/60 px-3 py-2">
           <p className="text-center text-[11px] font-bold uppercase tracking-wider text-gold-200/95">
             Limited seats
           </p>
           <LeadCapturePromoBanner className="w-full shadow-sm" />
         </div>
-      )}
-
-      {!isMobileSheet && (
-        <ul className="relative mt-3 space-y-1.5 pb-0.5">
-          {TRUST_BULLETS.map((text) => (
-            <li key={text} className="flex gap-2 text-xs text-navy-100/95">
-              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-400" aria-hidden />
-              <span>{text}</span>
-            </li>
-          ))}
-        </ul>
       )}
     </div>
   );
@@ -395,7 +389,7 @@ function LeadCaptureFormPanel({
       <motion.div
         className={clsx(
           'grid w-full min-w-0',
-          isMobile ? 'grid-cols-2 gap-2' : 'grid-cols-1 gap-3.5 md:grid-cols-2 md:gap-4'
+          isMobile ? 'grid-cols-2 gap-2' : 'grid-cols-1 gap-3 md:grid-cols-2 md:gap-3'
         )}
         initial={reduceMotion ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -500,7 +494,7 @@ function LeadCaptureFormPanel({
           </select>
         </motion.div>
 
-        <motion.div className={clsx(fieldWrapClass, 'col-span-2')}>
+        <motion.div className={fieldWrapClass}>
           <label htmlFor="lead-country" className={labelClass}>
             Target destination *
           </label>
@@ -521,6 +515,25 @@ function LeadCaptureFormPanel({
               </option>
             ))}
           </select>
+        </motion.div>
+
+        <motion.div className={clsx(fieldWrapClass, 'col-span-2')}>
+          <label htmlFor="lead-budget" className={labelClass}>
+            Budget (₹) *
+          </label>
+          <input
+            id="lead-budget"
+            name="budget"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            autoComplete="off"
+            required
+            placeholder="e.g. 500000"
+            className={fieldInputClass}
+            value={values.budget}
+            onChange={(e) => setField('budget', sanitizeBudgetInput(e.target.value))}
+          />
         </motion.div>
       </motion.div>
 
@@ -679,13 +692,8 @@ export function LeadCapturePopup() {
   }, [openLeadPopup, dismiss]);
 
   useEffect(() => {
-    const wasOpen = openRef.current;
     openRef.current = open;
     setLeadPopupOpen(open);
-    // When lead opens on a page, start the 3‑min College Predictor countdown.
-    if (!wasOpen && open) {
-      armCollegeScheduleFromNow();
-    }
   }, [open]);
 
   useEffect(() => {
@@ -730,6 +738,7 @@ export function LeadCapturePopup() {
       city: values.city.trim(),
       category: values.category,
       targetCountry: values.targetCountry,
+      budget: sanitizeBudgetInput(values.budget),
     };
 
     const payload = buildSubmissionPayload(normalized, payloadForm);
@@ -747,6 +756,7 @@ export function LeadCapturePopup() {
             city: normalized.city,
             category: normalized.category,
             targetCountry: normalized.targetCountry,
+            budget: normalized.budget,
           };
 
       const lead = await submitWebsiteLead({
@@ -788,7 +798,6 @@ export function LeadCapturePopup() {
       );
       setSubmitted(true);
       markLeadPopupSubmitted();
-      armCollegeScheduleFromNow();
     } catch {
       cancelPreparedThankYouTab(thankYouTab);
       setSubmitError('Network error. Please try again.');
@@ -881,7 +890,7 @@ export function LeadCapturePopup() {
 
                     <motion.div
                       role="document"
-                      className="relative flex h-[100dvh] max-h-[100dvh] min-h-0 w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5 sm:h-auto sm:max-h-[min(92vh,54rem)] sm:rounded-2xl md:flex-row"
+                      className="lead-capture-scroll-shell relative flex h-auto max-h-[min(96vh,56rem)] w-full max-w-5xl flex-col overflow-y-auto overflow-x-hidden bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5 sm:rounded-2xl md:flex-row md:items-stretch"
                       layout={!reduceMotion}
                     >
                       <Dialog.Close asChild>
@@ -896,7 +905,7 @@ export function LeadCapturePopup() {
                       </Dialog.Close>
 
                       <motion.div
-                        className="flex max-h-[38vh] w-full shrink-0 flex-col overflow-y-auto overflow-x-hidden bg-navy-900 sm:max-h-none md:max-h-[min(92vh,54rem)] md:w-[42%]"
+                        className="flex w-full shrink-0 flex-col overflow-visible bg-navy-900 md:w-[42%]"
                         initial={reduceMotion ? false : { opacity: 0, x: -12 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.05, duration: 0.35 }}
@@ -904,9 +913,9 @@ export function LeadCapturePopup() {
                         <PromoPanel />
                       </motion.div>
 
-                      <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-white md:w-[58%]">
+                      <div className="flex w-full flex-1 flex-col overflow-visible bg-white md:w-[58%]">
                         <motion.div
-                          className="min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-14 sm:px-7 sm:py-7 sm:pb-7 sm:pt-7"
+                          className="min-w-0 w-full px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-14 sm:px-7 sm:py-6 sm:pb-6 sm:pt-6"
                           initial={reduceMotion ? false : { opacity: 0, x: 12 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.08, duration: 0.35 }}

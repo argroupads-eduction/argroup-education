@@ -28,6 +28,7 @@ import '@/styles/nav-latest-updates.css';
 import '@/styles/navbar-premium.css';
 import '@/styles/program-hub.css';
 import '@/styles/mbbs-abroad-premium.css';
+import '@/styles/mbbs-abroad-atlas.css';
 import '@/styles/mbbs-abroad-hub-guide.css';
 import '@/styles/brand-logo.css';
 import '@/styles/footer-main.css';

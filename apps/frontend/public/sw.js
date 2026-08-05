@@ -3,8 +3,9 @@
  * Keep this file vanilla JS (served from /sw.js).
  */
 
-const CACHE = 'ar-group-shell-v3';
-const PRECACHE = ['/', '/manifest.webmanifest', '/ar-browser-icon.png'];
+const CACHE = 'ar-group-shell-v4';
+/** Do not precache `/` — homepage changes often; stale HTML causes hydration mismatches. */
+const PRECACHE = ['/manifest.webmanifest', '/ar-browser-icon.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -19,9 +20,8 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) =>
-        Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-      )
+      .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+      .then(() => caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)))
       .then(() => self.clients.claim())
   );
 });

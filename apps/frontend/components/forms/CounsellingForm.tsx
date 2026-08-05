@@ -21,6 +21,7 @@ import { COUNSELLING_PROGRAM_SELECT_OPTIONS } from '@/lib/counsellingProgramOpti
 import { LEAD_CATEGORY_OPTIONS } from '@/lib/leadCategoryOptions';
 import { personNameZodString } from '@/lib/validatePersonName';
 import { INVALID_INDIAN_PHONE_MESSAGE } from '@/lib/leadSubmissionMessages';
+import { sanitizeBudgetInput, BUDGET_MIN_DIGITS } from '@/lib/validateBudget';
 import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
 import { emailOtpInitiallyVerified, isEmailOtpEnabled } from '@/lib/emailOtp/isEmailOtpEnabled';
 
@@ -33,6 +34,9 @@ const CounsellingFormSchema = z.object({
   category: z.string().min(1, 'Please select a category'),
   counsellingInterest: z.enum(['mbbs-india', 'mbbs-abroad', 'md-ms', 'bams'], {
     errorMap: () => ({ message: 'Please select a programme' }),
+  }),
+  budget: z.string().refine((v) => sanitizeBudgetInput(v).length >= BUDGET_MIN_DIGITS, {
+    message: `Budget must be at least ${BUDGET_MIN_DIGITS} digits.`,
   }),
   examScore: z.string().optional(),
   preferredDate: z.string().optional(),
@@ -85,6 +89,8 @@ export const CounsellingForm = ({
     resolver: zodResolver(CounsellingFormSchema),
   });
 
+  const budgetField = register('budget');
+
   const onSubmit = async (data: CounsellingFormData) => {
     setSubmitError(null);
 
@@ -113,6 +119,7 @@ export const CounsellingForm = ({
           phone: data.phone,
           category: data.category,
           counsellingInterest: data.counsellingInterest,
+          budget: sanitizeBudgetInput(data.budget),
           examScore: data.examScore ?? '',
           preferredDate: data.preferredDate ?? '',
           message: data.message ?? '',
@@ -302,6 +309,29 @@ export const CounsellingForm = ({
               {errors.counsellingInterest && (
                 <p className={errorClass}>{errors.counsellingInterest.message}</p>
               )}
+            </Field>
+
+            <Field animate={animate}>
+              <label className={labelClass}>Budget (₹) *</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="off"
+                placeholder="e.g. 500000"
+                className={inputClass(!!errors.budget)}
+                name={budgetField.name}
+                ref={budgetField.ref}
+                onBlur={budgetField.onBlur}
+                onChange={(e) => {
+                  const next = sanitizeBudgetInput(e.target.value);
+                  e.target.value = next;
+                  void budgetField.onChange(e);
+                }}
+              />
+              {errors.budget ? (
+                <p className={errorClass}>{errors.budget.message}</p>
+              ) : null}
             </Field>
           </div>
 

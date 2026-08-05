@@ -1,11 +1,9 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { getSiteUrl } from '@/lib/siteUrl';
-import { getMbbsHeroFallbackForm } from '@/lib/mbbsHeroFormFallback';
-import { loadMbbsHeroFormDefinitionsServer } from '@/lib/mbbsHeroFormDefinitionServer';
-import { HeroSection } from '@/sections/home/HeroSection';
+import { HomeHeroClient } from '@/sections/home/HomeHeroClient';
 import { CollegePredictorHomeSection } from '@/sections/home/CollegePredictorHomeSection';
-import { NeetRankPredictorHomeSection } from '@/sections/home/NeetRankPredictorHomeSection';
+import { MbbsAbroadScrollSection } from '@/sections/home/MbbsAbroadScrollSection';
 import { LazySection } from '@/components/common/LazySection';
 import { HomeFaqJsonLd } from '@/components/home/HomeFaqJsonLd';
 import { HomeWebPageJsonLd } from '@/components/seo/HomeWebPageJsonLd';
@@ -22,9 +20,6 @@ const MBBSIndiaStateSection = dynamic(
 );
 const AboutSection = dynamic(() =>
   import('@/sections/home/AboutSection').then((m) => ({ default: m.AboutSection }))
-);
-const MbbsAbroadScrollSection = dynamic(() =>
-  import('@/sections/home/MbbsAbroadScrollSection').then((m) => ({ default: m.MbbsAbroadScrollSection }))
 );
 const YoutubeChannelSection = dynamic(() =>
   import('@/sections/home/YoutubeChannelSection').then((m) => ({ default: m.YoutubeChannelSection }))
@@ -88,30 +83,16 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Homepage section order matches production https://www.argroupofeducation.com/
+ * Hero stays without Quick Enquiry forms (local product change).
+ */
 export default async function HomePage() {
-  let forms: Awaited<ReturnType<typeof loadMbbsHeroFormDefinitionsServer>>;
-  try {
-    forms = await loadMbbsHeroFormDefinitionsServer();
-  } catch (e) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('[home] Hero form prefetch failed; client will retry.', e);
-    }
-    forms = {
-      india: { ok: false, message: 'Prefetch skipped', status: 503 },
-      abroad: { ok: false, message: 'Prefetch skipped', status: 503 },
-    };
-  }
-
   return (
     <>
       <HomeWebPageJsonLd />
       <HomeFaqJsonLd />
-      <HeroSection
-        initialForms={{
-          india: forms.india.ok ? forms.india.doc : getMbbsHeroFallbackForm('india'),
-          abroad: forms.abroad.ok ? forms.abroad.doc : getMbbsHeroFallbackForm('abroad'),
-        }}
-      />
+      <HomeHeroClient />
       <CollegePredictorHomeSection />
       <LazySection minHeight="22rem">
         <MBBSIndiaStateSection />
@@ -119,21 +100,17 @@ export default async function HomePage() {
       <LazySection minHeight="24rem">
         <AboutSection />
       </LazySection>
-      {/* Unique mid-page tool moment — dark band, after brand story */}
-      <NeetRankPredictorHomeSection />
       <LazySection minHeight="26rem">
         <YoutubeChannelSection />
       </LazySection>
-      <LazySection minHeight="28rem">
-        <MbbsAbroadScrollSection />
-      </LazySection>
+      <MbbsAbroadScrollSection />
       <LazySection minHeight="20rem">
         <CounsellingFormSection />
       </LazySection>
       <LazySection minHeight="22rem">
         <AchievementsSection />
       </LazySection>
-      <LazySection minHeight="24rem">
+      <LazySection minHeight="28rem">
         <HomeSeoContentSections />
       </LazySection>
       <LazySection minHeight="18rem">

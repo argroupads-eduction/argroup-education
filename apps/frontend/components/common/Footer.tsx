@@ -20,6 +20,7 @@ const COMPANY_LINKS = [
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms & Conditions', href: '/terms' },
   { label: 'Disclaimer', href: '/disclaimer' },
+  { label: 'Sitemap', href: '/sitemap' },
 ] as const;
 
 const PROGRAM_LINKS = [
@@ -77,7 +78,7 @@ export const Footer = () => {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/ar-group-logo.webp"
-                  alt="AR Group of Education"
+                  alt="AR Group of Education — MBBS India and abroad counselling"
                   width={84}
                   height={84}
                   className="brand-logo-link__img"

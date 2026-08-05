@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Bell, Download, X } from 'lucide-react';
-import { registerServiceWorker, subscribeUserToPush } from '@/lib/pwaClient';
+import { registerServiceWorker, subscribeUserToPush, clearServiceWorkerAndCaches } from '@/lib/pwaClient';
 import '@/styles/pwa-install.css';
 
 const DISMISS_KEY = 'ar-pwa-install-dismissed';
+const LOCAL_SW_RELOAD_KEY = 'ar-local-sw-cleared';
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -102,6 +103,22 @@ export function PwaRegistrar() {
     let cancelled = false;
 
     void (async () => {
+      // Localhost: drop any controlling SW once, then hard-reload so chunks aren't stuck.
+      if (isLocalhost()) {
+        try {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          const hadSw = regs.length > 0 || Boolean(navigator.serviceWorker.controller);
+          await clearServiceWorkerAndCaches();
+          if (hadSw && !sessionStorage.getItem(LOCAL_SW_RELOAD_KEY)) {
+            sessionStorage.setItem(LOCAL_SW_RELOAD_KEY, '1');
+            window.location.reload();
+            return;
+          }
+        } catch {
+          /* ignore */
+        }
+      }
+
       const reg = await registerServiceWorker();
       if (cancelled || !reg) return;
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
