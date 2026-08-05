@@ -3,7 +3,6 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 import type { Post } from '../../../payload-types'
 import { buildPostSyncPayload } from '../../../utilities/payloadSyncFields'
 import {
-  enqueueMarketingContentSync,
   isAutosaveRequest,
   syncMarketingContentAndWait,
 } from '../../../utilities/enqueueMarketingContentSync'
@@ -47,11 +46,19 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
     notifyPush: Boolean(isPublished && !wasPublished),
   }
 
-  // Await on publish so secret/URL failures surface in admin instead of silent miss.
-  if (isPublished) {
+  // Await sync so it finishes before the admin response, but never fail Publish
+  // when marketing auth/URL is misconfigured (otherwise Payload shows "Something went wrong").
+  try {
     await syncMarketingContentAndWait(req, syncBody)
-  } else {
-    enqueueMarketingContentSync(req, syncBody)
+  } catch (err) {
+    req.payload.logger.error(
+      {
+        err,
+        slug: syncBody.slug,
+        hint: 'Set CMS BACKEND_API_URL=https://www.argroupofeducation.com and match REVALIDATE_SECRET with Amplify/live site.',
+      },
+      '[payload→backend sync] publish sync failed — post saved in CMS but not on live site yet',
+    )
   }
 
   return doc
