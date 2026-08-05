@@ -17,6 +17,7 @@ export type WebsiteLeadSheetPayload = {
   state?: string;
   country?: string;
   course?: string;
+  budget?: string;
   sheetKey?: string;
   source?: string;
   sourcePage?: string;
@@ -268,6 +269,7 @@ export async function submitWebsiteLeadToGoogleSheets(
       state: sanitizeLeadText(payload.state, 80),
       country: sanitizeLeadText(payload.country, 80),
       course: sanitizeLeadText(payload.course, 120),
+      budget: sanitizeLeadText(payload.budget, 40),
       sheetKey: sanitizeLeadText(payload.sheetKey, 40),
       source: sanitizeLeadText(payload.source, 120),
       sourcePage: sanitizeLeadText(payload.sourcePage, 300),

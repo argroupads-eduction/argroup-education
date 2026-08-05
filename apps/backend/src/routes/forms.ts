@@ -39,6 +39,7 @@ router.post(
         course,
         neetScore,
         countryPreference,
+        budget,
       } = req.body;
 
       const result = await submitWebsiteLead({
@@ -51,6 +52,7 @@ router.post(
           course,
           neetScore: neetScore ?? '',
           countryPreference,
+          budget: budget ?? '',
         },
         pageUrl: typeof req.body.pageUrl === 'string' ? req.body.pageUrl : undefined,
         userAgent: req.get('user-agent') ?? undefined,

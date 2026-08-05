@@ -529,7 +529,7 @@ function LeadCaptureFormPanel({
             pattern="[0-9]*"
             autoComplete="off"
             required
-            placeholder="e.g. 500000"
+            placeholder="7000000"
             className={fieldInputClass}
             value={values.budget}
             onChange={(e) => setField('budget', sanitizeBudgetInput(e.target.value))}

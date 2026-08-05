@@ -25,7 +25,7 @@ var SHEET_BAMS = 'BAMS';
 var SHEET_RANK = 'Rank Predictor Leads';
 var SHEET_COLLEGE = 'College Predictor';
 var TZ = 'Asia/Kolkata';
-var SCRIPT_VERSION = '2026-07-20-v3';
+var SCRIPT_VERSION = '2026-08-05-v4';
 
 var COURSE_SHEETS = [SHEET_MBBS_INDIA, SHEET_MBBS_ABROAD, SHEET_MD_MS, SHEET_BAMS];
 
@@ -40,6 +40,7 @@ var COURSE_HEADERS = [
   'State',
   'Country',
   'Course',
+  'Budget',
   'Source Page',
   'Form Type',
   'Message',
@@ -263,24 +264,33 @@ function ensureSheet_(ss, name, headers) {
 
 function ensureSheetHeaders_(sheet, headers) {
   if (!sheet) return;
-  var existing = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
-  var needsUpdate = false;
-  for (var i = 0; i < headers.length; i++) {
-    if (String(existing[i] || '').trim() !== headers[i]) {
-      needsUpdate = true;
-      break;
-    }
-  }
-  if (needsUpdate) {
+  var lastCol = sheet.getLastColumn();
+  if (lastCol < 1) {
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
     sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
     sheet.setFrozenRows(1);
+    return;
   }
+  var existing = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  var existingNames = {};
+  for (var e = 0; e < existing.length; e++) {
+    var name = String(existing[e] || '').trim();
+    if (name) existingNames[name] = true;
+  }
+  // Append only missing headers — never rewrite existing column order (protects old rows).
+  for (var i = 0; i < headers.length; i++) {
+    if (!existingNames[headers[i]]) {
+      var nextCol = sheet.getLastColumn() + 1;
+      sheet.getRange(1, nextCol).setValue(headers[i]).setFontWeight('bold');
+      existingNames[headers[i]] = true;
+    }
+  }
+  sheet.setFrozenRows(1);
 }
 
 function getHeaderColumnIndex_(sheet, headerName, fallbackCol) {
   if (!sheet) return fallbackCol;
-  var lastCol = Math.max(sheet.getLastColumn(), fallbackCol);
+  var lastCol = Math.max(sheet.getLastColumn(), fallbackCol || 1);
   var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
   for (var i = 0; i < headers.length; i++) {
     if (String(headers[i] || '').trim() === headerName) return i + 1;
@@ -297,10 +307,15 @@ function getColumnValues_(sheet, col) {
 }
 
 function appendRowFromHeaders_(sheet, headers, rowMap) {
-  var row = [];
-  for (var i = 0; i < headers.length; i++) {
-    var key = headers[i];
-    row.push(Object.prototype.hasOwnProperty.call(rowMap, key) ? rowMap[key] : '');
+  var lastCol = Math.max(sheet.getLastColumn(), headers.length);
+  var row = new Array(lastCol);
+  for (var i = 0; i < lastCol; i++) row[i] = '';
+  for (var h = 0; h < headers.length; h++) {
+    var key = headers[h];
+    var col = getHeaderColumnIndex_(sheet, key, h + 1);
+    if (col < 1) continue;
+    while (row.length < col) row.push('');
+    row[col - 1] = Object.prototype.hasOwnProperty.call(rowMap, key) ? rowMap[key] : '';
   }
   sheet.appendRow(row);
 }
@@ -434,6 +449,7 @@ function appendCourseLeadRow_(ss, sheetName, payload, phone, email, parts) {
     'State': sanitize_(payload.state, 80),
     'Country': country,
     'Course': sanitize_(payload.course, 120),
+    'Budget': sanitize_(payload.budget, 40),
     'Source Page': sanitize_(payload.sourcePage, 300),
     'Form Type': sanitize_(payload.formType, 120),
     'Message': sanitize_(payload.message, 2000),

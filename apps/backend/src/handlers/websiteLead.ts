@@ -183,6 +183,7 @@ function buildSheetPayloadFromLead(
     state: pickLeadField(fields, ['state']),
     country: routing.country,
     course: routing.courseLabel,
+    budget: pickLeadField(fields, ['budget', 'fee', 'fees', 'amount']),
     sheetKey: routing.sheetName,
     source: input.source,
     sourcePage: input.pageUrl ?? '',
