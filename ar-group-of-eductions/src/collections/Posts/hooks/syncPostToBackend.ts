@@ -115,19 +115,10 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
         slug: doc.slug,
         contentLen: fields.content?.length ?? 0,
         hasImage: Boolean(fields.featuredImage),
-        hint: 'Could not resolve full article HTML/image for marketing sync.',
+        hint: 'Local snapshot thin — marketing will pullFromCms to load Lexical + heroImage.',
       },
-      '[payload→backend sync] thin content or missing featured image after merge',
+      '[payload→backend sync] thin local payload; still notifying marketing with pullFromCms',
     )
-  }
-
-  // Do not push title-only rows to live — keeps Neon from storing empty shells.
-  if (contentLooksThin && !fields.featuredImage) {
-    req.payload.logger.error(
-      { slug: doc.slug },
-      '[payload→backend sync] skipped thin publish sync (no body + no image)',
-    )
-    return doc
   }
 
   const syncBody = {
@@ -151,6 +142,8 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
     published: isPublished,
     publishedAt: doc.publishedAt ?? null,
     notifyPush: Boolean(isPublished && !wasPublished),
+    // Marketing site always re-pulls Lexical + hero from CMS REST (fixes thin sync).
+    pullFromCms: true,
   }
 
   try {
