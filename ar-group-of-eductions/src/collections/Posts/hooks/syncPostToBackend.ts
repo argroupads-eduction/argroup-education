@@ -8,6 +8,67 @@ import {
 } from '../../../utilities/enqueueMarketingContentSync'
 import { htmlFromPayloadDoc, syncToMarketingBackend } from '../../../utilities/syncToMarketingBackend'
 
+type SyncFields = Awaited<ReturnType<typeof buildPostSyncPayload>>
+
+function contentScore(fields: SyncFields, title: string): number {
+  const c = (fields.content || '').trim()
+  if (!c) return 0
+  if (c === title.trim()) return 1
+  return c.length
+}
+
+function pickRicherFields(a: SyncFields, b: SyncFields, title: string): SyncFields {
+  const useB = contentScore(b, title) > contentScore(a, title)
+  const base = useB ? b : a
+  const other = useB ? a : b
+  return {
+    ...base,
+    featuredImage: base.featuredImage || other.featuredImage || null,
+    ogImage: base.ogImage || other.ogImage || base.featuredImage || other.featuredImage || null,
+    excerpt: base.excerpt?.trim() || other.excerpt || base.excerpt,
+  }
+}
+
+async function loadPostForSync(
+  req: Parameters<CollectionAfterChangeHook<Post>>[0]['req'],
+  id: string | number,
+  draft: boolean,
+): Promise<Post | null> {
+  try {
+    return (await req.payload.findByID({
+      collection: 'posts',
+      id,
+      depth: 2,
+      draft,
+      overrideAccess: true,
+    })) as Post
+  } catch {
+    return null
+  }
+}
+
+/** Last resort: CMS HTTP API often has fully populated Lexical + Blob media URLs. */
+async function loadPostViaLocalRest(id: string | number): Promise<Post | null> {
+  const base = (
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+    ''
+  ).replace(/\/$/, '')
+  if (!base || base.includes('localhost')) return null
+
+  try {
+    const res = await fetch(`${base}/api/posts/${id}?depth=2`, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(15_000),
+    })
+    if (!res.ok) return null
+    const json = (await res.json()) as Post
+    return json?.id != null ? json : null
+  } catch {
+    return null
+  }
+}
+
 export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
   doc,
   previousDoc,
@@ -20,47 +81,58 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
   const wasPublished = previousDoc?._status === 'published'
   if (!isPublished && !wasPublished) return doc
 
-  // Re-load with depth so Lexical body + heroImage media URLs are present for HTML sync.
-  let syncDoc: Post = doc
-  try {
-    if (doc.id != null) {
-      syncDoc = (await req.payload.findByID({
-        collection: 'posts',
-        id: doc.id,
-        depth: 2,
-        draft: false,
-        overrideAccess: true,
-      })) as Post
+  const title = doc.title ?? doc.slug ?? 'Untitled'
+  let fields = await buildPostSyncPayload(req.payload, doc)
+
+  // Drafts + autosave: hook doc or draft:false snapshot can miss Lexical/media.
+  // Merge hook + draft + published (+ REST) and keep the richest payload.
+  if (doc.id != null) {
+    const draftDoc = await loadPostForSync(req, doc.id, true)
+    if (draftDoc) {
+      fields = pickRicherFields(fields, await buildPostSyncPayload(req.payload, draftDoc), title)
     }
-  } catch (err) {
-    req.payload.logger.warn(
-      { err, id: doc.id },
-      '[payload→backend sync] findByID failed — falling back to hook doc',
-    )
+
+    const publishedDoc = await loadPostForSync(req, doc.id, false)
+    if (publishedDoc) {
+      fields = pickRicherFields(fields, await buildPostSyncPayload(req.payload, publishedDoc), title)
+    }
+
+    const stillThin =
+      contentScore(fields, title) < 200 || !fields.featuredImage
+    if (stillThin) {
+      const restDoc = await loadPostViaLocalRest(doc.id)
+      if (restDoc) {
+        fields = pickRicherFields(fields, await buildPostSyncPayload(req.payload, restDoc), title)
+      }
+    }
   }
 
-  const fields = await buildPostSyncPayload(req.payload, syncDoc)
-  const title = syncDoc.title ?? doc.title ?? doc.slug ?? 'Untitled'
-  const contentLooksThin =
-    !fields.content?.trim() ||
-    fields.content.trim() === title.trim() ||
-    fields.content.trim().length < 200
+  const contentLooksThin = contentScore(fields, title) < 200
 
   if (contentLooksThin || !fields.featuredImage) {
     req.payload.logger.warn(
       {
-        slug: syncDoc.slug ?? doc.slug,
+        slug: doc.slug,
         contentLen: fields.content?.length ?? 0,
         hasImage: Boolean(fields.featuredImage),
-        hint: 'Publish may sync incomplete post — check Content tab heroImage + Article content, then Publish again.',
+        hint: 'Could not resolve full article HTML/image for marketing sync.',
       },
-      '[payload→backend sync] thin content or missing featured image',
+      '[payload→backend sync] thin content or missing featured image after merge',
     )
+  }
+
+  // Do not push title-only rows to live — keeps Neon from storing empty shells.
+  if (contentLooksThin && !fields.featuredImage) {
+    req.payload.logger.error(
+      { slug: doc.slug },
+      '[payload→backend sync] skipped thin publish sync (no body + no image)',
+    )
+    return doc
   }
 
   const syncBody = {
     type: 'post' as const,
-    slug: syncDoc.slug ?? doc.slug ?? '',
+    slug: doc.slug ?? '',
     title,
     content: fields.content,
     excerpt: fields.excerpt,
@@ -77,7 +149,7 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
     twitterDescription: fields.twitterDescription,
     schemaJson: fields.schemaJson,
     published: isPublished,
-    publishedAt: syncDoc.publishedAt ?? doc.publishedAt ?? null,
+    publishedAt: doc.publishedAt ?? null,
     notifyPush: Boolean(isPublished && !wasPublished),
   }
 
