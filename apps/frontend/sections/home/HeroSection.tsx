@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { CTA_GET_EXPERT_COUNSELLING } from '@/lib/brandCopy';
@@ -118,9 +118,11 @@ function HeroCopy({
 export const HeroSection = () => {
   const [mounted, setMounted] = useState(false);
   const [variant, setVariant] = useState<HeroVariant>('india');
-  const [text, setText] = useState('');
+  // Seed first college so SSR + first paint reserve stable copy height (no blank→type jump).
+  const [text, setText] = useState(COLLEGES_INDIA[0]);
   const [collegeIndex, setCollegeIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const skipVariantReset = useRef(true);
 
   const colleges = useMemo(
     () => (variant === 'india' ? COLLEGES_INDIA : COLLEGES_ABROAD),
@@ -142,6 +144,11 @@ export const HeroSection = () => {
 
   useEffect(() => {
     if (!mounted) return;
+    // Do not wipe the seeded first college on hydrate — only when India ↔ Abroad flips.
+    if (skipVariantReset.current) {
+      skipVariantReset.current = false;
+      return;
+    }
     setText('');
     setCollegeIndex(0);
     setIsDeleting(false);
@@ -175,7 +182,7 @@ export const HeroSection = () => {
     'absolute z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-navy-950/55 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:border-gold-400/60 hover:bg-navy-900/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-400 sm:h-11 sm:w-11 md:h-12 md:w-12';
 
   return (
-    <section className="relative flex min-h-[28rem] items-start overflow-hidden bg-navy-900 sm:min-h-[34rem] sm:items-center md:min-h-[42rem] lg:min-h-[48rem] xl:min-h-[52rem]">
+    <section className="relative flex min-h-[32rem] items-start overflow-hidden bg-navy-900 sm:min-h-[36rem] sm:items-center md:min-h-[42rem] lg:min-h-[48rem] xl:min-h-[52rem]">
       {/* Mobile: bias toward blue studio side so ECG/globe + blue wash stay in frame.
           Desktop: left-pin keeps the subject on the left; copy sits on the blue. */}
       <Image
