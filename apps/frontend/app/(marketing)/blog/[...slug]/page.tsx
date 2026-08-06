@@ -11,7 +11,7 @@ import {
 } from '@/lib/blogUtils';
 import { getBlogPosts, getContentBySlug } from '@/lib/contentApi';
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 type PageProps = {
   params: Promise<{ slug: string[] }>;

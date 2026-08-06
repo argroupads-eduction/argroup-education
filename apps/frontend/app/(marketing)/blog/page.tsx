@@ -7,8 +7,9 @@ const POSTS_PER_PAGE = 12;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
 
-/** ISR + on-demand revalidate after Payload sync */
-export const revalidate = 300;
+/** Always fresh — Payload publishes must show on /blog without waiting for ISR. */
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: 'Education News And Updates | Medical Admission Blogs',
@@ -37,6 +38,21 @@ type BlogPageProps = {
 };
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
+  // Pull any CMS publishes that never reached Neon, then render list from DB.
+  try {
+    const { reconcileRecentCmsPosts } = await import(
+      '@backend/lib/reconcileRecentCmsPosts'
+    );
+    const { revalidatePath } = await import('next/cache');
+    const recon = await reconcileRecentCmsPosts();
+    if (recon.upserted > 0) {
+      revalidatePath('/blog');
+      revalidatePath('/blog', 'page');
+    }
+  } catch (err) {
+    console.error('[blog page] cms reconcile', err);
+  }
+
   const { page: pageParam } = await searchParams;
   const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
   const { data: blogs, total, pages } = await getBlogPosts(currentPage, POSTS_PER_PAGE);

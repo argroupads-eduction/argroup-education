@@ -211,7 +211,6 @@ export const BLOG_EXCLUDED_LIST_SLUGS = new Set([
   'neet-ug-results',
   'neet-ug-scorecards-schedules-re-exam',
   'nepal-is-the-best-place-to-pursue-mbbs',
-  'nmc-approved-medical-colleges-abroad',
   'nmc-approved-medical-colleges-in-georgia',
   'nmc-approved-medical-colleges-in-kazakhstan',
   'nmc-regulations-for-transfer-of-indian-students-pursuing-mbbs-abroad',
