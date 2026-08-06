@@ -40,11 +40,28 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
   }
 
   const fields = await buildPostSyncPayload(req.payload, syncDoc)
+  const title = syncDoc.title ?? doc.title ?? doc.slug ?? 'Untitled'
+  const contentLooksThin =
+    !fields.content?.trim() ||
+    fields.content.trim() === title.trim() ||
+    fields.content.trim().length < 200
+
+  if (contentLooksThin || !fields.featuredImage) {
+    req.payload.logger.warn(
+      {
+        slug: syncDoc.slug ?? doc.slug,
+        contentLen: fields.content?.length ?? 0,
+        hasImage: Boolean(fields.featuredImage),
+        hint: 'Publish may sync incomplete post — check Content tab heroImage + Article content, then Publish again.',
+      },
+      '[payload→backend sync] thin content or missing featured image',
+    )
+  }
 
   const syncBody = {
     type: 'post' as const,
     slug: syncDoc.slug ?? doc.slug ?? '',
-    title: syncDoc.title ?? doc.title ?? doc.slug ?? 'Untitled',
+    title,
     content: fields.content,
     excerpt: fields.excerpt,
     featuredImage: fields.featuredImage,
@@ -82,16 +99,27 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
   return doc
 }
 
-export const syncPostDeleteToBackend: CollectionAfterDeleteHook<Post> = ({ doc }) => {
+export const syncPostDeleteToBackend: CollectionAfterDeleteHook<Post> = async ({ doc, req }) => {
   if (!doc?.slug) return doc
 
-  void syncToMarketingBackend({
-    type: 'post',
-    slug: doc.slug,
-    title: doc.title ?? doc.slug,
-    content: htmlFromPayloadDoc(doc),
-    published: false,
-  })
+  try {
+    await syncToMarketingBackend({
+      type: 'post',
+      slug: doc.slug,
+      title: doc.title ?? doc.slug,
+      content: htmlFromPayloadDoc(doc),
+      published: false,
+    })
+  } catch (err) {
+    req.payload.logger.error(
+      {
+        err,
+        slug: doc.slug,
+        hint: 'Post deleted in CMS but still on live DB — delete BlogPost row in Supabase or fix BACKEND_API_URL / REVALIDATE_SECRET.',
+      },
+      '[payload→backend sync] delete sync failed',
+    )
+  }
 
   return doc
 }

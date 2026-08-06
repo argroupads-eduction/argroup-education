@@ -111,7 +111,6 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
     stripHtml(content).slice(0, 500);
   const metaTitle = body.metaTitle ?? title;
   const metaDescription = body.metaDescription ?? excerpt.slice(0, 160);
-  const ogImage = body.ogImage ?? body.featuredImage ?? null;
 
   try {
     if (type === 'post') {
@@ -125,28 +124,6 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
         );
         return { ok: true, status: 200, body: { success: true, type: 'post', slug, published: false } };
       }
-
-      const data = {
-        title,
-        slug,
-        content: content || excerpt || title,
-        excerpt,
-        featuredImage: body.featuredImage ?? null,
-        category: body.category || 'Blog',
-        metaTitle,
-        metaDescription,
-        canonicalUrl: body.canonicalUrl ?? null,
-        focusKeyword: body.focusKeyword ?? null,
-        keywords: Array.isArray(body.keywords) ? body.keywords : [],
-        ogTitle: body.ogTitle ?? metaTitle,
-        ogDescription: body.ogDescription ?? metaDescription,
-        ogImage,
-        twitterTitle: body.twitterTitle ?? body.ogTitle ?? metaTitle,
-        twitterDescription: body.twitterDescription ?? body.ogDescription ?? metaDescription,
-        schemaJson: body.schemaJson ?? undefined,
-        published,
-        publishedAt,
-      };
 
       await withPrismaRetry(() =>
         prisma.blogPost.deleteMany({
@@ -163,6 +140,49 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
       const isNew = !existing;
       // Payload first-publish, or brand-new row — both should notify subscribers.
       const notifyPush = Boolean(body.notifyPush) || isNew;
+
+      // Guard: Payload sometimes syncs title-only (empty Lexical / unresolved media).
+      // Never wipe a richer live row with a thin payload.
+      const incomingContent = (content || excerpt || title).trim();
+      const existingContent = (existing?.content || '').trim();
+      const incomingLooksThin =
+        incomingContent.length < 200 ||
+        incomingContent === title ||
+        incomingContent === title.trim();
+      const existingLooksRich = existingContent.length > Math.max(incomingContent.length, 200);
+
+      const resolvedContent =
+        incomingLooksThin && existingLooksRich ? existingContent : incomingContent;
+      const resolvedExcerpt =
+        incomingLooksThin && existingLooksRich && existing?.excerpt
+          ? existing.excerpt
+          : excerpt;
+      const resolvedFeaturedImage =
+        body.featuredImage ?? existing?.featuredImage ?? null;
+      const resolvedOgImage =
+        body.ogImage ?? body.featuredImage ?? existing?.ogImage ?? resolvedFeaturedImage ?? null;
+
+      const data = {
+        title,
+        slug,
+        content: resolvedContent,
+        excerpt: resolvedExcerpt,
+        featuredImage: resolvedFeaturedImage,
+        category: body.category || 'Blog',
+        metaTitle,
+        metaDescription,
+        canonicalUrl: body.canonicalUrl ?? null,
+        focusKeyword: body.focusKeyword ?? null,
+        keywords: Array.isArray(body.keywords) ? body.keywords : [],
+        ogTitle: body.ogTitle ?? metaTitle,
+        ogDescription: body.ogDescription ?? metaDescription,
+        ogImage: resolvedOgImage,
+        twitterTitle: body.twitterTitle ?? body.ogTitle ?? metaTitle,
+        twitterDescription: body.twitterDescription ?? body.ogDescription ?? metaDescription,
+        schemaJson: body.schemaJson ?? undefined,
+        published,
+        publishedAt,
+      };
 
       if (existing) {
         await withPrismaRetry(() => prisma.blogPost.update({ where: { slug }, data }));
