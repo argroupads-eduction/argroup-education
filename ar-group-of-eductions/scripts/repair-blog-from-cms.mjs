@@ -205,7 +205,18 @@ for (const slug of slugs) {
     )
     console.log('UPDATED', r.rows[0])
   } else {
-    console.error('NO ROW for', slug, '- create via Payload publish first, then re-run repair')
+    const id = `cm${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`
+    const publishedAt = doc.publishedAt ? new Date(doc.publishedAt) : new Date()
+    const r = await client.query(
+      `INSERT INTO public."BlogPost"
+         (id, title, slug, content, excerpt, "featuredImage", "ogImage", category,
+          published, "publishedAt", "createdAt", "updatedAt", tags, keywords, author, views)
+       VALUES
+         ($1, $2, $3, $4, $5, $6, $6, 'Blog', true, $7, NOW(), NOW(), '{}', '{}', 'AR Group', 0)
+       RETURNING slug, length(content) AS content_len, ("featuredImage" IS NOT NULL) AS has_img`,
+      [id, title, slug, html, excerpt, image, publishedAt],
+    )
+    console.log('INSERTED', r.rows[0])
   }
 }
 
