@@ -26,10 +26,9 @@ export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLa
     pageSlug: content.slug,
     dedupeFeaturedInBody: false,
   });
-  const { html: structuredHtml, headings, quickFacts } = parseContentStructure(
-    sanitizeCmsHtml(prepared),
-    { extractQuickFacts: false },
-  );
+  const { html: structuredHtml, headings, quickFacts } = parseContentStructure(prepared, {
+    extractQuickFacts: false,
+  });
   const safeHtml = sanitizeCmsHtml(structuredHtml);
   const published = content.publishedAt ? formatBlogDate(content.publishedAt) : null;
   const readMin = readingTimeMinutes(content.content);

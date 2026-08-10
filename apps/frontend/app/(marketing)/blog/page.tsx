@@ -1,15 +1,17 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { getBlogPosts } from '@/lib/contentApi';
+import { getBlogIndexListing } from '@backend/handlers/blogs';
 import { BlogIndexLayout } from '@/components/blog/BlogIndexLayout';
 
 const POSTS_PER_PAGE = 12;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
 
-/** Always fresh — Payload publishes must show on /blog without waiting for ISR. */
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+/**
+ * Cached shell so /blog opens fast. CMS sync still runs in the background via
+ * getBlogIndexListing — it must never block first paint.
+ */
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Education News And Updates | Medical Admission Blogs',
@@ -38,29 +40,14 @@ type BlogPageProps = {
 };
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
-  // Pull any CMS publishes that never reached Neon, then render list from DB.
-  try {
-    const { reconcileRecentCmsPosts } = await import(
-      '@backend/lib/reconcileRecentCmsPosts'
-    );
-    const { revalidatePath } = await import('next/cache');
-    const recon = await reconcileRecentCmsPosts();
-    if (recon.upserted > 0) {
-      revalidatePath('/blog');
-      revalidatePath('/blog', 'page');
-    }
-  } catch (err) {
-    console.error('[blog page] cms reconcile', err);
-  }
-
   const { page: pageParam } = await searchParams;
   const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
-  const { data: blogs, total, pages } = await getBlogPosts(currentPage, POSTS_PER_PAGE);
 
-  // Sidebar catalog: newest list + searchable title/slug across posts.
-  const latestPosts =
-    currentPage === 1 ? blogs : (await getBlogPosts(1, POSTS_PER_PAGE)).data;
-  const { data: searchCatalog } = await getBlogPosts(1, 500);
+  const { blogs, catalog, total, pages } = await getBlogIndexListing({
+    page: currentPage,
+    pageSize: POSTS_PER_PAGE,
+    catalogSize: 200,
+  });
 
   if (currentPage > 1 && blogs.length === 0) {
     redirect('/blog');
@@ -83,7 +70,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   return (
     <BlogIndexLayout
       blogs={blogs}
-      latestPosts={searchCatalog.length ? searchCatalog : latestPosts}
+      latestPosts={catalog}
       currentPage={currentPage}
       totalPages={pages}
       totalPosts={total}

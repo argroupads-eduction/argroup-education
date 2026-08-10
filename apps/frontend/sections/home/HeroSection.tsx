@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
@@ -181,21 +180,23 @@ export const HeroSection = () => {
   const navBtnClass =
     'absolute z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-navy-950/55 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:border-gold-400/60 hover:bg-navy-900/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-400 sm:h-11 sm:w-11 md:h-12 md:w-12';
 
+  const bannerAlt =
+    variant === 'india'
+      ? 'AR Group of Education - Study MBBS in India top medical colleges counselling'
+      : 'AR Group of Education - Studying MBBS at top universities abroad counselling';
+
   return (
     <section className="relative flex min-h-[32rem] items-start overflow-hidden bg-navy-900 sm:min-h-[36rem] sm:items-center md:min-h-[42rem] lg:min-h-[48rem] xl:min-h-[52rem]">
-      {/* Mobile: bias toward blue studio side so ECG/globe + blue wash stay in frame.
-          Desktop: left-pin keeps the subject on the left; copy sits on the blue. */}
-      <Image
+      {/* Native img avoids next/image SSR vs client attr mismatches that trigger hydration errors. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src={BANNER}
-        alt={
-          variant === 'india'
-            ? 'AR Group of Education — Study MBBS in India top medical colleges counselling'
-            : 'AR Group of Education — Studying MBBS at top universities abroad counselling'
-        }
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover max-md:object-[62%_center] md:object-[28%_center] lg:object-left"
+        alt={bannerAlt}
+        width={1920}
+        height={1080}
+        decoding="async"
+        fetchPriority="high"
+        className="absolute inset-0 h-full w-full object-cover max-md:object-[62%_center] md:object-[28%_center] lg:object-left"
       />
 
       {/* Soft wash — keep banner blue readable under copy (avoid crushing the right studio side) */}

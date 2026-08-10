@@ -2,58 +2,43 @@ import { Metadata } from 'next';
 import { AboutPageView } from '@/components/about/AboutPageView';
 import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { ABOUT_SEO, ABOUT_WP_SLUG } from '@/lib/aboutContent';
-import { getContentBySlug, type SiteContent } from '@/lib/contentApi';
-import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
-import { plainTitle } from '@/lib/wpHtmlPrepare';
+import type { SiteContent } from '@/lib/contentApi';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const wp = await getContentBySlug(ABOUT_WP_SLUG);
-  if (wp) {
-    return buildSiteMetadata(wp, {
-      canonicalPath: '/about',
-      fallbackTitle: ABOUT_SEO.title,
-    });
-  }
+export const revalidate = 300;
 
-  return {
+export const metadata: Metadata = {
+  title: ABOUT_SEO.title,
+  description: ABOUT_SEO.description,
+  keywords: [...ABOUT_SEO.keywords],
+  alternates: { canonical: '/about' },
+  openGraph: {
     title: ABOUT_SEO.title,
     description: ABOUT_SEO.description,
-    keywords: [...ABOUT_SEO.keywords],
-    alternates: { canonical: '/about' },
-    openGraph: {
-      title: ABOUT_SEO.title,
-      description: ABOUT_SEO.description,
-      url: '/about',
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary',
-      title: ABOUT_SEO.title,
-      description: ABOUT_SEO.description,
-    },
-  };
-}
+    url: '/about',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: ABOUT_SEO.title,
+    description: ABOUT_SEO.description,
+  },
+};
 
-export default async function AboutPage() {
-  const wpContent = await getContentBySlug(ABOUT_WP_SLUG);
-  const title = plainTitle(wpContent?.title || 'About AR Group of Education');
-
-  const jsonLdContent: SiteContent =
-    wpContent ??
-    ({
-      id: 'about-ar-group',
-      type: 'page',
-      title,
-      slug: ABOUT_WP_SLUG,
-      content: '',
-      excerpt: ABOUT_SEO.description,
-      featuredImage: '/about-counsellor.png',
-      metaTitle: ABOUT_SEO.title,
-      metaDescription: ABOUT_SEO.description,
-      canonicalUrl: null,
-      publishedAt: null,
-      updatedAt: new Date().toISOString(),
-    } satisfies SiteContent);
+export default function AboutPage() {
+  const jsonLdContent = {
+    id: 'about-ar-group',
+    type: 'page',
+    title: 'About AR Group of Education',
+    slug: ABOUT_WP_SLUG,
+    content: '',
+    excerpt: ABOUT_SEO.description,
+    featuredImage: '/about-counsellor.png',
+    metaTitle: ABOUT_SEO.title,
+    metaDescription: ABOUT_SEO.description,
+    canonicalUrl: null,
+    publishedAt: null,
+    updatedAt: '2026-01-01T00:00:00.000Z',
+  } satisfies SiteContent;
 
   return (
     <>

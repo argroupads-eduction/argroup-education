@@ -80,10 +80,3 @@ export function isDatabaseUnavailableError(err: unknown): boolean {
   );
 }
 
-/** Background pool noise when Neon closes idle TCP connections — not a user-facing failure. */
-export function isBenignPrismaConnectionLog(message: string): boolean {
-  return (
-    /Error in PostgreSQL connection/i.test(message) &&
-    (/kind: Closed/i.test(message) || /cause: None/i.test(message))
-  );
-}

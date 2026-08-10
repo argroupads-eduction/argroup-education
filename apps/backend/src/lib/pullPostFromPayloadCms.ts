@@ -56,10 +56,9 @@ async function fetchCmsPostBySlug(slug: string): Promise<CmsPostDoc | null> {
   const url = `${base}/api/posts?where[slug][equals]=${encodeURIComponent(slug)}&depth=2&limit=1`;
   const res = await fetch(url, {
     headers: { Accept: 'application/json' },
-    signal: AbortSignal.timeout(20_000),
+    signal: AbortSignal.timeout(2_500),
   });
   if (!res.ok) {
-    console.error('[payload-pull] CMS fetch failed', res.status, slug);
     return null;
   }
   const json = (await res.json()) as { docs?: CmsPostDoc[] };

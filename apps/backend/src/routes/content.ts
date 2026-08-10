@@ -1,8 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { getContentBySlug } from '../handlers/content';
 
-export { WP_HOME_SLUG } from '../handlers/content';
-
 const router = Router();
 
 router.get('/:slug', async (req: Request, res: Response) => {

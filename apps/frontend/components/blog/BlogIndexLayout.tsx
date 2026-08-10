@@ -1,9 +1,10 @@
 'use client';
 
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { BlogListItem } from '@/lib/contentApi';
-import { sortBlogPostsByNewest } from '@/lib/blogUtils';
+import { blogPostPath, sortBlogPostsByNewest } from '@/lib/blogUtils';
 import { blogPostMatchesQuery, normalizeBlogSearchText } from '@/lib/blogSearch';
 import { BlogListingCard } from './BlogListingCard';
 import { BlogLatestSidebar } from './BlogLatestSidebar';
@@ -28,6 +29,7 @@ export function BlogIndexLayout({
   totalPosts = 0,
   postsPerPage = 12,
 }: BlogIndexLayoutProps) {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const deferredQuery = useDeferredValue(query);
   const normalizedQuery = normalizeBlogSearchText(deferredQuery);
@@ -47,6 +49,19 @@ export function BlogIndexLayout({
   const showFeatured = !isSearching && currentPage === 1;
   const featured = showFeatured ? pageSorted[0] : null;
   const rest = showFeatured ? pageSorted.slice(1) : pageSorted;
+
+  // Prefetch first page of posts on mount — mobile has no hover warmup.
+  useEffect(() => {
+    const targets = [featured, ...rest].filter(Boolean).slice(0, 10) as BlogListItem[];
+    for (const post of targets) {
+      if (!post.slug) continue;
+      try {
+        router.prefetch(blogPostPath(post.slug));
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [featured, rest, router]);
 
   return (
     <div className="blog-root">

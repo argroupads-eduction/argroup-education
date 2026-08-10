@@ -4,8 +4,8 @@ import { HeroSection } from '@/sections/home/HeroSection';
 
 /**
  * Client boundary for the homepage hero.
- * Rendered with SSR (no `dynamic(..., { ssr: false })`) so reload does not
- * flash an empty banner shell then jump when JS hydrates.
+ * Keep as a direct import (no `dynamic(..., { ssr: false })`) so SSR HTML
+ * matches the first client paint and avoids loadable/Suspense hydration errors.
  */
 export function HomeHeroClient() {
   return <HeroSection />;

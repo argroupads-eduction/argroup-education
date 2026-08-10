@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { BlogListItem } from '@/lib/contentApi';
 import { blogCardExcerpt, blogPostPath, formatBlogDate } from '@/lib/blogUtils';
 import { BlogImage } from './BlogImage';
@@ -9,13 +12,24 @@ type BlogListingCardProps = {
 };
 
 export function BlogListingCard({ blog, variant = 'compact' }: BlogListingCardProps) {
+  const router = useRouter();
   const excerpt = blogCardExcerpt(blog.excerpt);
   const date = formatBlogDate(blog.publishedAt);
+  const href = blogPostPath(blog.slug);
+  const warm = () => {
+    router.prefetch(href);
+  };
 
   if (variant === 'featured') {
     return (
       <article className="blog-card blog-card--featured">
-        <Link href={blogPostPath(blog.slug)} className="blog-card__link">
+        <Link
+          href={href}
+          prefetch
+          onMouseEnter={warm}
+          onFocus={warm}
+          className="blog-card__link"
+        >
           <div className="blog-card__media">
             {blog.featuredImage ? (
               <BlogImage
@@ -48,7 +62,13 @@ export function BlogListingCard({ blog, variant = 'compact' }: BlogListingCardPr
 
   return (
     <article className="blog-card blog-card--compact">
-      <Link href={blogPostPath(blog.slug)} className="blog-card__link blog-card__link--row">
+      <Link
+        href={href}
+        prefetch
+        onMouseEnter={warm}
+        onFocus={warm}
+        className="blog-card__link blog-card__link--row"
+      >
         <div className="blog-card__media blog-card__media--sm">
           {blog.featuredImage ? (
             <BlogImage src={blog.featuredImage} alt={blog.title} variant="compact" sizes="200px" />

@@ -706,6 +706,15 @@ async function fetchSyncedContentBySlug(
   return null;
 }
 
+function hasRenderableBody(doc: SiteContent | null): boolean {
+  if (!doc) return false;
+  const text = (doc.content || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return text.length >= 120 || Boolean(doc.title?.trim());
+}
+
 export const getContentBySlug = cache(async function getContentBySlug(
   slug: string
 ): Promise<SiteContent | null> {
@@ -713,13 +722,24 @@ export const getContentBySlug = cache(async function getContentBySlug(
     return null;
   }
 
-  if (await isContentSuppressedInBackend(slug)) {
+  const suppressedPromise = withServerTimeout(
+    isContentSuppressedInBackend(slug),
+    400,
+    false
+  );
+
+  const bundled = await loadBundledContent(slug);
+  if (await suppressedPromise) {
     return null;
   }
 
-  const bundled = await loadBundledContent(slug);
-  const synced = await fetchSyncedContentBySlug(slug);
+  // Bundle-first: skip Neon/Payload entirely when local WP export is enough.
+  // Starting a timed-out fetch still holds the Next request open until it settles.
+  if (hasRenderableBody(bundled)) {
+    return bundled;
+  }
 
+  const synced = await fetchSyncedContentBySlug(slug);
   if (synced || bundled) {
     return mergeSiteContent(bundled, synced);
   }
@@ -737,18 +757,27 @@ export const getPageContentBySlug = cache(async function getPageContentBySlug(
     return null;
   }
 
-  if (await isContentSuppressedInBackend(slug)) {
-    return null;
-  }
+  const suppressedPromise = withServerTimeout(
+    isContentSuppressedInBackend(slug),
+    400,
+    false
+  );
 
   const { getWpExportPageBySlug } = await import('@/lib/wpExportContent');
   const bundledRaw = await getWpExportPageBySlug(slug);
   const bundled = bundledRaw ? normalizeContent(bundledRaw) : null;
-  const synced = await fetchSyncedContentBySlug(slug, 'page');
 
+  if (await suppressedPromise) {
+    return null;
+  }
+
+  if (hasRenderableBody(bundled)) {
+    return bundled;
+  }
+
+  const synced = await fetchSyncedContentBySlug(slug, 'page');
   if (synced || bundled) {
     const merged = mergeSiteContent(bundled, synced);
-    // If merge still somehow picked a post, prefer page-typed side.
     if (merged?.type === 'post' && bundled?.type === 'page') return bundled;
     if (merged?.type === 'post' && synced?.type === 'page') return synced;
     return merged;

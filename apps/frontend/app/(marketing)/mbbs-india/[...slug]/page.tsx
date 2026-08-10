@@ -11,6 +11,8 @@ import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { resolveMbbsIndiaFeaturedImage } from '@/lib/mbbsIndiaStateImages';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
+export const revalidate = 300;
+
 type PageProps = {
   params: Promise<{ slug: string[] }>;
 };

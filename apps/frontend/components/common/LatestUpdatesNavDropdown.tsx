@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { LATEST_UPDATES_NAV_ITEMS } from '@/lib/latestUpdatesNav';
 
@@ -13,6 +15,13 @@ export function LatestUpdatesNavDropdown({
   onCloseMega,
   onNavigate,
 }: LatestUpdatesNavDropdownProps) {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Warm /blog so first click feels instant.
+    router.prefetch('/blog');
+  }, [router]);
+
   return (
     <div className="relative group/latest-updates">
       <button
@@ -20,7 +29,10 @@ export function LatestUpdatesNavDropdown({
         className="nav-latest-updates-trigger"
         aria-haspopup="true"
         aria-expanded={false}
-        onMouseEnter={onCloseMega}
+        onMouseEnter={() => {
+          onCloseMega?.();
+          router.prefetch('/blog');
+        }}
       >
         Latest Updates
         <ChevronDown className="nav-latest-updates-chevron" aria-hidden />
@@ -57,11 +69,15 @@ export function LatestUpdatesNavDropdown({
             <Link
               key={item.href}
               href={item.href}
+              prefetch={item.href === '/blog' ? true : undefined}
               role="menuitem"
               className={`nav-latest-updates-item${
                 item.href === '/blog' ? ' nav-latest-updates-item--featured' : ''
               }`}
               onClick={onNavigate}
+              onMouseEnter={
+                item.href === '/blog' ? () => router.prefetch('/blog') : undefined
+              }
             >
               {item.label}
             </Link>

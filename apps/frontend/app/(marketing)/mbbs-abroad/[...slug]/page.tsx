@@ -17,6 +17,8 @@ import { resolveMbbsAbroadFeaturedImage } from '@/lib/mbbsAbroadCountryImages';
 import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
+export const revalidate = 300;
+
 type PageProps = {
   params: Promise<{ slug: string[] }>;
 };

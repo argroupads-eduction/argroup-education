@@ -9,7 +9,8 @@ import {
   BLOG_SLUG_CANONICAL,
   slugFromBlogRouteSegments,
 } from '@/lib/blogUtils';
-import { getBlogPosts, getContentBySlug } from '@/lib/contentApi';
+import { getBlogPostPageDataCached as getBlogPostPageData } from '@/lib/blogPost.server';
+import type { SiteContent } from '@/lib/contentApi';
 
 export const revalidate = 60;
 
@@ -17,17 +18,48 @@ type PageProps = {
   params: Promise<{ slug: string[] }>;
 };
 
+function toSiteContent(post: NonNullable<
+  Awaited<ReturnType<typeof getBlogPostPageData>>['post']
+>): SiteContent {
+  const publishedAt =
+    post.publishedAt instanceof Date
+      ? post.publishedAt.toISOString()
+      : post.publishedAt
+        ? String(post.publishedAt)
+        : null;
+  const updatedAt =
+    post.updatedAt instanceof Date
+      ? post.updatedAt.toISOString()
+      : String(post.updatedAt ?? new Date().toISOString());
+
+  return {
+    id: post.id,
+    type: 'post',
+    title: post.title,
+    slug: post.slug,
+    content: post.content,
+    excerpt: post.excerpt,
+    featuredImage: post.featuredImage,
+    metaTitle: post.metaTitle,
+    metaDescription: post.metaDescription,
+    canonicalUrl: post.canonicalUrl,
+    keywords: post.keywords,
+    publishedAt,
+    updatedAt,
+  };
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug: segments } = await params;
   const decoded = slugFromBlogRouteSegments(segments ?? []);
   if (!decoded || BLOG_REMOVED_PUBLIC_SLUGS.has(decoded)) {
     return { title: 'Not Found' };
   }
-  const content = await getContentBySlug(decoded);
-  if (!content || content.type !== 'post') {
-    return { title: 'Not Found' };
-  }
-  return buildSiteMetadata(content, { canonicalPath: blogPostPath(content.slug) });
+  const { post } = await getBlogPostPageData(decoded);
+  if (!post) return { title: 'Not Found' };
+  return buildSiteMetadata(toSiteContent(post), {
+    canonicalPath: blogPostPath(post.slug),
+  });
 }
 
 export default async function BlogSlugPage({ params }: PageProps) {
@@ -44,12 +76,10 @@ export default async function BlogSlugPage({ params }: PageProps) {
     redirect(blogPostPath(canonical));
   }
 
-  const content = await getContentBySlug(decoded);
-  if (!content || content.type !== 'post') {
-    notFound();
-  }
+  const { post, latestPosts } = await getBlogPostPageData(decoded);
+  if (!post) notFound();
 
-  const { data: latestPosts } = await getBlogPosts(1, 500);
+  const content = toSiteContent(post);
   const breadcrumbs = [{ label: 'Blog', href: '/blog' }, { label: content.title }];
 
   return (

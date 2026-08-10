@@ -22,5 +22,3 @@ export const seoKeywordFields: Field[] = [
   },
 ]
 
-/** @deprecated Use seoKeywordFields on the collection root, not inside meta. */
-export const seoContentFields = seoKeywordFields

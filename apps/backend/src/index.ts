@@ -5,8 +5,6 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import blogsRouter from './routes/blogs';
 import contentRouter from './routes/content';
-import countriesRouter from './routes/countries';
-import universitiesRouter from './routes/universities';
 import formsRouter from './routes/forms';
 import newsletterRouter from './routes/newsletter';
 import payloadSyncRouter from './routes/payloadSync';
@@ -68,8 +66,6 @@ app.get('/health', async (_req: Request, res: Response) => {
 // Routes
 app.use('/api/blogs', blogsRouter);
 app.use('/api/content', contentRouter);
-app.use('/api/countries', countriesRouter);
-app.use('/api/universities', universitiesRouter);
 app.use('/api/forms', formsRouter);
 app.use('/api/leads', leadsRouter);
 app.use('/api/neet', neetRouter);

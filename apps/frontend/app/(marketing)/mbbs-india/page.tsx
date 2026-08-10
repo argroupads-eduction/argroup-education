@@ -1,8 +1,7 @@
 import { Metadata } from 'next';
 import { MbbsIndiaHub } from '@/components/program-hub/MbbsIndiaHub';
-import { getContentBySlug } from '@/lib/contentApi';
 import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
-import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
+import { PROGRAM_HUB_SEO } from '@/lib/programHubContent';
 
 export const revalidate = 300;
 
@@ -17,8 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** Hub index — explicit route avoids optional catch-all conflicts on Vercel. */
-export default async function MbbsIndiaHubPage() {
-  const wpContent = await getContentBySlug(PROGRAM_HUB_WP_SLUG.india);
-  return <MbbsIndiaHub wpContent={wpContent} />;
+/** Hub index — native React UI; skip blocking CMS/WP body for fast opens. */
+export default function MbbsIndiaHubPage() {
+  return <MbbsIndiaHub wpContent={null} />;
 }

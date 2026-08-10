@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
   Menu,
   X,
@@ -42,7 +43,7 @@ function NavCollegePredictorCta({ onClick }: { onClick?: () => void }) {
         onClick={onClick}
         className="nav-neet-cta-btn"
         suppressHydrationWarning
-        prefetch={false}
+        prefetch
       >
         College Predictor
         <span className="nav-neet-cta-btn__badge">NEW</span>
@@ -59,7 +60,21 @@ type NavBarLink = {
   submenu?: ReadonlyArray<{ href: string; label: string } & Record<string, unknown>>;
 };
 
+const PRIMARY_NAV_PREFETCH = [
+  '/',
+  '/about',
+  '/mbbs-india',
+  '/mbbs-abroad',
+  '/md-ms',
+  '/blog',
+  '/contact',
+  '/college-predictor',
+  '/countries',
+  '/sitemap',
+] as const;
+
 export const Navbar = () => {
+  const router = useRouter();
   const dynamicPages = useDynamicNavPages();
   const navLinks = useMemo((): NavBarLink[] => {
     const extras = navPagesForSection(dynamicPages, 'main').map((p) => ({
@@ -83,6 +98,33 @@ export const Navbar = () => {
   const [openMobileLatestNeet, setOpenMobileLatestNeet] = useState(false);
   const scrollPosition = useScrollPosition();
   const isScrolled = scrollPosition > 50;
+
+  // Warm primary destinations so navbar clicks feel instant (esp. mobile).
+  useEffect(() => {
+    for (const href of PRIMARY_NAV_PREFETCH) {
+      try {
+        router.prefetch(href);
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [router]);
+
+  // When a mega opens, warm that hub + first few child routes.
+  useEffect(() => {
+    if (!megaOpen) return;
+    const link = navLinks.find((l) => l.megaMenu === megaOpen);
+    if (!link) return;
+    try {
+      router.prefetch(link.href);
+      const children = (link.submenu ?? []).slice(0, 8);
+      for (const child of children) {
+        if (child.href) router.prefetch(child.href);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [megaOpen, navLinks, router]);
 
   useEffect(() => {
     if (!isOpen) {
