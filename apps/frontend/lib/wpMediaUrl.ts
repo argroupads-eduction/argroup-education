@@ -3,8 +3,19 @@ const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
 /** CDN that still hosts legacy WP uploads when the Next deploy omits public/wp-content. */
 function wpMediaCdnOrigin(): string {
   const fromEnv = process.env.WP_MEDIA_ORIGIN?.trim().replace(/\/$/, '');
-  if (fromEnv) return fromEnv;
-  return 'https://argroupofeducation.com';
+  if (fromEnv) {
+    // Keep apex → www so sitemap-images / OG never emit mixed hosts.
+    try {
+      const u = new URL(fromEnv);
+      if (u.hostname === 'argroupofeducation.com') {
+        u.hostname = 'www.argroupofeducation.com';
+      }
+      return u.origin;
+    } catch {
+      return fromEnv;
+    }
+  }
+  return 'https://www.argroupofeducation.com';
 }
 
 /** Bundled uploads in public/wp-content — static path for Next.js. */
@@ -39,7 +50,13 @@ function toCdnWpContentUrl(pathname: string): string {
 
 function absolutizeIfNeeded(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl) || pathOrUrl.startsWith('//')) {
-    return pathOrUrl.startsWith('//') ? `https:${pathOrUrl}` : pathOrUrl.replace(/^http:\/\//i, 'https://');
+    const absolute = pathOrUrl.startsWith('//')
+      ? `https:${pathOrUrl}`
+      : pathOrUrl.replace(/^http:\/\//i, 'https://');
+    return absolute.replace(
+      /^https:\/\/argroupofeducation\.com/i,
+      'https://www.argroupofeducation.com'
+    );
   }
   if (isBundledCollegeUpload(pathOrUrl)) return pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
   if (pathOrUrl.startsWith('/wp-content/')) return toCdnWpContentUrl(pathOrUrl);
@@ -83,7 +100,10 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
         host.endsWith('vercel-storage.com') ||
         host.endsWith('public.blob.vercel-storage.com')
       ) {
-        return trimmed.replace(/^http:\/\//i, 'https://');
+        return trimmed.replace(/^http:\/\//i, 'https://').replace(
+          /^https:\/\/argroupofeducation\.com/i,
+          'https://www.argroupofeducation.com'
+        );
       }
     } catch {
       return null;

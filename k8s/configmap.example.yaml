@@ -7,7 +7,7 @@ data:
   NODE_ENV: production
   CONTENT_SOURCE: api
   PAYLOAD_CMS_ENABLED: 'false'
-  NEXT_PUBLIC_SITE_URL: https://argroupofeducation.com
+  NEXT_PUBLIC_SITE_URL: https://www.argroupofeducation.com
   RATE_LIMIT_API_MAX: '120'
   RATE_LIMIT_API_WINDOW_MS: '60000'
 ---

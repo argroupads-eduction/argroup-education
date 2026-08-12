@@ -1424,12 +1424,50 @@ function parseHeadingQuestionFaqItemsFromHtml(block: string): FaqItem[] {
 const FAQ_SECTION_HEADING =
   '(?:\\bFAQs?\\b|Frequently\\s+Asked\\s+Questions)';
 
-/** Match an h2–h4 whose own text contains FAQs — never span across other headings. */
+/** Match FAQ title in <p> or h2–h4 — never span across other headings. */
 const FAQ_HEADING_BLOCK =
-  `(<h([2-4])[^>]*>(?:(?!<\\/h\\2>)[\\s\\S])*?${FAQ_SECTION_HEADING}(?:(?!<\\/h\\2>)[\\s\\S])*?<\\/h\\2>)`;
+  `(<p[^>]*>(?:(?!<\\/p>)[\\s\\S])*?${FAQ_SECTION_HEADING}(?:(?!<\\/p>)[\\s\\S])*?<\\/p>|<h([2-4])[^>]*>(?:(?!<\\/h\\2>)[\\s\\S])*?${FAQ_SECTION_HEADING}(?:(?!<\\/h\\2>)[\\s\\S])*?<\\/h\\2>)`;
+
+function parseOrderedListFaqItems(block: string): FaqItem[] {
+  const items: FaqItem[] = [];
+  const re = /<ol[^>]*>([\s\S]*?)<\/ol>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(block)) !== null) {
+    const lis = [...m[1].matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)];
+    for (const li of lis) {
+      const inner = li[1].trim();
+      const parts = inner.split(/<br\s*\/?>/i);
+      let question = '';
+      let answer = '';
+      if (parts.length >= 2) {
+        question = stripHtml(parts[0]).trim();
+        answer = cleanAnswerHtml(parts.slice(1).join(' '));
+      } else {
+        const strongQ = inner.match(/<strong[^>]*>([\s\S]*?)<\/strong>/i);
+        if (strongQ) {
+          question = stripHtml(strongQ[1]).trim();
+          answer = cleanAnswerHtml(inner.replace(/<strong[^>]*>[\s\S]*?<\/strong>/i, '').trim());
+        }
+      }
+      if (question.length >= 8 && answer.length > 0) {
+        items.push({
+          num: String(items.length + 1),
+          question: stripFaqQuestionNumberPrefix(question),
+          answer,
+        });
+      }
+    }
+    if (items.length >= 2) return items;
+    items.length = 0;
+  }
+  return items;
+}
 
 function parseFaqItemsFromHtml(block: string): FaqItem[] {
   const items: FaqItem[] = [];
+
+  const olItems = parseOrderedListFaqItems(block);
+  if (olItems.length >= 2) return olItems;
 
   const headingQa = parseHeadingQuestionFaqItemsFromHtml(block);
   if (headingQa.length >= 2) return headingQa;
@@ -1506,7 +1544,11 @@ function wrapFaqGroup(items: FaqItem[], heading?: string): string {
   const unique = dedupeFaqItems(items);
   if (!unique.length) return heading ?? '';
   const titledHeading = heading
-    ? heading.replace(/<h([2-4])\b/i, '<h$1 class="wp-faq-section-title"')
+    ? /^<p\b/i.test(heading)
+      ? heading
+          .replace(/^<p\b/i, '<h2 class="wp-faq-section-title"')
+          .replace(/<\/p>$/i, '</h2>')
+      : heading.replace(/<h([2-4])\b/i, '<h$1 class="wp-faq-section-title"')
     : '<h2 class="wp-faq-section-title">FAQs</h2>';
   return `${titledHeading}<div class="wp-premium-faq-group wp-premium-faq-group--animated">${buildFaqDetailsHtml(unique)}</div>`;
 }

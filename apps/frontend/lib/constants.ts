@@ -7,7 +7,7 @@ import { LATEST_UPDATES_NAV } from '@/lib/latestUpdatesNav';
 export const SITE_NAME = 'AR Group of Education';
 export const SITE_DESCRIPTION =
   'AR Group of Education is your trusted partner for MBBS India & MBBS Abroad admissions, NEET counselling and end-to-end visa support.';
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.argroupofeducation.com';
 import { getApiBaseUrl } from '@/lib/apiBase';
 
 export const API_URL = getApiBaseUrl();

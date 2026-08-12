@@ -139,7 +139,7 @@ export async function notifyNewBlogPush(opts: {
   slug: string;
   excerpt?: string;
 }) {
-  const site = (process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com').replace(
+  const site = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.argroupofeducation.com').replace(
     /\/$/,
     ''
   );

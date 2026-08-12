@@ -218,6 +218,13 @@ const nextConfig = {
 
   redirects: async () => {
     return [
+      // Apex → www (301). Amplify Console should mirror this for edge coverage.
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'argroupofeducation.com' }],
+        destination: 'https://www.argroupofeducation.com/:path*',
+        permanent: true,
+      },
       {
         source: '/index',
         destination: '/',

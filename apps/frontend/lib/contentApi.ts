@@ -238,6 +238,29 @@ function lexicalNodeToText(node: unknown): string {
   return '';
 }
 
+function lexicalTableCellToHtml(cell: Record<string, unknown>): string {
+  const children = Array.isArray(cell.children) ? cell.children : [];
+  const inner = children
+    .map((child) => {
+      if (!child || typeof child !== 'object') return '';
+      const c = child as Record<string, unknown>;
+      const text = escapeHtml(lexicalNodeToText(c).trim());
+      return text;
+    })
+    .filter(Boolean)
+    .join(' ');
+  const headerState = cell.headerState;
+  const isHeader =
+    headerState === 'row' ||
+    headerState === 'both' ||
+    headerState === 'column' ||
+    headerState === 1 ||
+    headerState === 2 ||
+    headerState === 3;
+  const tag = isHeader ? 'th' : 'td';
+  return `<${tag}>${inner || '&nbsp;'}</${tag}>`;
+}
+
 function lexicalTableToHtml(node: Record<string, unknown>): string {
   const rows = Array.isArray(node.children) ? node.children : [];
   if (!rows.length) return '';
@@ -253,12 +276,7 @@ function lexicalTableToHtml(node: Record<string, unknown>): string {
       const cellHtml = cells
         .map((cell) => {
           if (!cell || typeof cell !== 'object') return '';
-          const c = cell as Record<string, unknown>;
-          const text = escapeHtml(lexicalNodeToText(c).trim());
-          if (!text) return '';
-          const isHeader = c.headerState === 'row' || c.headerState === 'both';
-          const tag = isHeader ? 'th' : 'td';
-          return `<${tag}>${text}</${tag}>`;
+          return lexicalTableCellToHtml(cell as Record<string, unknown>);
         })
         .join('');
 
@@ -267,7 +285,9 @@ function lexicalTableToHtml(node: Record<string, unknown>): string {
     .filter(Boolean)
     .join('');
 
-  return rowHtml ? `<table>${rowHtml}</table>` : '';
+  return rowHtml
+    ? `<figure class="wp-block-table"><table><tbody>${rowHtml}</tbody></table></figure>`
+    : '';
 }
 
 function lexicalToHtml(value: unknown): string {
@@ -284,6 +304,13 @@ function lexicalToHtml(value: unknown): string {
 
     const n = child as Record<string, unknown>;
     const type = typeof n.type === 'string' ? n.type : '';
+
+    if (type === 'table') {
+      const tableHtml = lexicalTableToHtml(n);
+      if (tableHtml) blocks.push(tableHtml);
+      continue;
+    }
+
     const rawText = lexicalNodeToText(child).trim();
     const text = escapeHtml(rawText);
     if (!text) continue;
@@ -419,14 +446,6 @@ function lexicalToHtml(value: unknown): string {
         .join('');
       const listTag = n.listType === 'number' ? 'ol' : 'ul';
       blocks.push(`<${listTag}>${items}</${listTag}>`);
-      continue;
-    }
-
-    if (type === 'table') {
-      const tableHtml = lexicalTableToHtml(n);
-      if (tableHtml) {
-        blocks.push(tableHtml);
-      }
       continue;
     }
 

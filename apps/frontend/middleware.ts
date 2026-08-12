@@ -88,6 +88,19 @@ function legacyWpRedirect(req: NextRequest): NextResponse | null {
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // Apex → www (301). Prefer Amplify Console rule too so CloudFront never serves mixed hosts.
+  const host = (req.headers.get('x-forwarded-host') || req.headers.get('host') || '')
+    .split(',')[0]
+    ?.trim()
+    .split(':')[0]
+    ?.toLowerCase();
+  if (host === 'argroupofeducation.com') {
+    const dest = new URL(req.url);
+    dest.protocol = 'https:';
+    dest.host = 'www.argroupofeducation.com';
+    return NextResponse.redirect(dest, 301);
+  }
+
   const legacy = legacyWpRedirect(req);
   if (legacy) return legacy;
 

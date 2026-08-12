@@ -149,7 +149,7 @@ export default async function RootLayout({
         />
         {/* Single LCP preload — homepage India hero only (abroad loads lazily on carousel). */}
         <link rel="preload" href="/india-homepage.webp" as="image" type="image/webp" />
-        <link rel="dns-prefetch" href="https://argroupofeducation.com" />
+        <link rel="dns-prefetch" href="https://www.argroupofeducation.com" />
         {isSiteProtectionEnabled() ? (
           <script dangerouslySetInnerHTML={{ __html: SITE_PROTECTION_INLINE_SCRIPT }} />
         ) : null}

@@ -100,9 +100,57 @@ function inlineNodesToHtml(nodes, baseUrl) {
     .join('')
 }
 
+function tableCellToHtml(cell, baseUrl) {
+  const children = Array.isArray(cell.children) ? cell.children : []
+  const inner = children
+    .map((child) => {
+      if (!child || typeof child !== 'object') return ''
+      if (child.type === 'paragraph') {
+        const paras = Array.isArray(child.children) ? child.children : []
+        return inlineNodesToHtml(paras, baseUrl)
+      }
+      return inlineNodesToHtml([child], baseUrl)
+    })
+    .join('')
+  const headerState = cell.headerState
+  const isHeader =
+    headerState === 'row' ||
+    headerState === 'both' ||
+    headerState === 'column' ||
+    headerState === 1 ||
+    headerState === 2 ||
+    headerState === 3
+  const tag = isHeader ? 'th' : 'td'
+  return `<${tag}>${inner || '&nbsp;'}</${tag}>`
+}
+
+function tableToHtml(node, baseUrl) {
+  const rows = Array.isArray(node.children) ? node.children : []
+  if (!rows.length) return ''
+  const rowHtml = rows
+    .map((row) => {
+      if (!row || typeof row !== 'object') return ''
+      const cells = Array.isArray(row.children) ? row.children : []
+      const cellHtml = cells
+        .map((cell) => {
+          if (!cell || typeof cell !== 'object') return ''
+          return tableCellToHtml(cell, baseUrl)
+        })
+        .join('')
+      return cellHtml ? `<tr>${cellHtml}</tr>` : ''
+    })
+    .filter(Boolean)
+    .join('')
+  if (!rowHtml) return ''
+  return `<figure class="wp-block-table"><table><tbody>${rowHtml}</tbody></table></figure>`
+}
+
 function blockToHtml(node, baseUrl) {
   const type = node.type || ''
   const children = Array.isArray(node.children) ? node.children : []
+  if (type === 'table') {
+    return tableToHtml(node, baseUrl)
+  }
   if (type === 'paragraph') {
     const inner = inlineNodesToHtml(children, baseUrl)
     return inner.trim() ? `<p>${inner}</p>` : ''
