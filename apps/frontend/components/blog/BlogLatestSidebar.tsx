@@ -3,6 +3,7 @@
 import { useDeferredValue, useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { BlogListItem } from '@/lib/contentApi';
+import { resolveBlogFeaturedImage } from '@/lib/blogFeaturedImages';
 import { BlogImage } from './BlogImage';
 import { BlogSearchField } from './BlogSearchField';
 import {
@@ -72,16 +73,18 @@ export function BlogLatestSidebar({
 
         {items.length ? (
           <ul className="blog-sidebar__list">
-            {items.map((post, index) => (
+            {items.map((post, index) => {
+              const featuredImage = resolveBlogFeaturedImage(post.slug, post.featuredImage);
+              return (
               <li key={post.slug || post.id || `latest-${index}`}>
                 <Link href={blogPostPath(post.slug)} className="blog-sidebar__item">
                   <span className="blog-sidebar__index" aria-hidden>
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <span className="blog-sidebar__thumb">
-                    {post.featuredImage ? (
+                    {featuredImage ? (
                       <BlogImage
-                        src={post.featuredImage}
+                        src={featuredImage}
                         alt=""
                         variant="thumb"
                         sizes="80px"
@@ -91,7 +94,7 @@ export function BlogLatestSidebar({
                     )}
                   </span>
                   <span className="blog-sidebar__meta">
-                    <span className="blog-sidebar__item-title">{post.title}</span>
+                    <span className="blog-sidebar__item-title">{post.title.replace(/&amp;/g, '&')}</span>
                     <span className="blog-sidebar__date">{formatBlogDate(post.publishedAt)}</span>
                     <span className="blog-sidebar__excerpt line-clamp-2">
                       {blogCardExcerpt(post.excerpt)}
@@ -99,7 +102,8 @@ export function BlogLatestSidebar({
                   </span>
                 </Link>
               </li>
-            ))}
+              );
+            })}
           </ul>
         ) : (
           <div className="blog-sidebar__empty">

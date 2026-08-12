@@ -18,6 +18,23 @@ export const BLOG_FEATURED_IMAGES: Record<string, string> = {
   'study-low-cost-mbbs-in-india': '/images/blog/study-low-cost-mbbs-in-india.png',
   'NEET PG Exam 2026': '/images/blog/neet-pg-exam-2026.png',
   'neet-pg-exam-2026': '/images/blog/neet-pg-exam-2026.png',
+  'affordable-medical-universities-abroad':
+    '/images/blog/affordable-medical-universities-abroad.png',
+  'score-is-needed-in-neet':
+    '/images/blog/how-much-score-needed-neet-2026-full-cut-off-analysis.png',
+  'medical-colleges-accepting-low-neet-score-2026':
+    '/images/blog/medical-colleges-accepting-low-neet-score-2026.png',
+  'how-to-get-mbbs-with-a-low-neet-score-in-2026':
+    '/images/blog/how-to-get-mbbs-with-a-low-neet-score-in-2026.png',
+  'mbbs-admission-through-management-quota':
+    '/images/blog/mbbs-admission-through-management-quota-2026.png',
+  'mbbs-admission-2026-without-donation':
+    '/images/blog/mbbs-admission-2026-without-donation.png',
+  'mbbs-drop-year-strategy-neet-2026':
+    '/images/blog/mbbs-drop-year-strategy-neet-2026.png',
+  'marks-are-required-in-neet-for-mbbs':
+    '/images/blog/how-many-marks-are-required-in-neet-for-mbbs-v2.png',
+  'mbbs-with-300-marks-in-neet': '/images/blog/mbbs-with-300-marks-in-neet-v2.png',
 };
 
 /** Editorial publish dates for bundle-managed posts (overrides stale CMS/API copies). */
@@ -29,14 +46,7 @@ function normalizeBlogSlugKey(slug: string): string {
   return slug.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
-export function resolveBlogFeaturedImage(
-  slug: string,
-  fallback: string | null | undefined
-): string | null {
-  // Payload / CMS featured image always wins over curated or college backfills.
-  const resolvedFallback = resolveWpMediaUrl(fallback);
-  if (resolvedFallback) return resolvedFallback;
-
+function curatedFeaturedImage(slug: string): string | null {
   if (BLOG_FEATURED_IMAGES[slug]) return BLOG_FEATURED_IMAGES[slug];
 
   const normalized = normalizeBlogSlugKey(slug);
@@ -50,8 +60,21 @@ export function resolveBlogFeaturedImage(
     }
   }
 
+  return null;
+}
+
+export function resolveBlogFeaturedImage(
+  slug: string,
+  fallback: string | null | undefined
+): string | null {
+  // Local curated heroes win over broken/stale Payload blob URLs.
+  const curated = curatedFeaturedImage(slug);
+  if (curated) return curated;
+
+  const resolvedFallback = resolveWpMediaUrl(fallback);
+  if (resolvedFallback) return resolvedFallback;
+
   // Do NOT fuzzy-match college/WP media by slug tokens — that showed UP NEET art on MP posts.
-  // Only curated exact keys above; otherwise no hero until CMS featured image syncs.
   return null;
 }
 

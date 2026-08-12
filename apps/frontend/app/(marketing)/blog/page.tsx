@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getBlogIndexListing } from '@backend/handlers/blogs';
 import { BlogIndexLayout } from '@/components/blog/BlogIndexLayout';
+import { dedupeBlogPosts, sortBlogPostsByNewest } from '@/lib/blogUtils';
 
 const POSTS_PER_PAGE = 12;
 
@@ -49,11 +50,14 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     catalogSize: 200,
   });
 
-  if (currentPage > 1 && blogs.length === 0) {
+  const uniqueCatalog = sortBlogPostsByNewest(dedupeBlogPosts(catalog));
+  const uniqueBlogs = sortBlogPostsByNewest(dedupeBlogPosts(blogs));
+
+  if (currentPage > 1 && uniqueBlogs.length === 0) {
     redirect('/blog');
   }
 
-  if (blogs.length === 0 && currentPage === 1) {
+  if (uniqueBlogs.length === 0 && currentPage === 1) {
     return (
       <div className="blog-root mx-auto max-w-3xl px-4 py-20 text-center">
         <h1 className="font-serif text-3xl font-bold text-navy-900">Blog</h1>
@@ -69,8 +73,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   return (
     <BlogIndexLayout
-      blogs={blogs}
-      latestPosts={catalog}
+      blogs={uniqueBlogs}
+      latestPosts={uniqueCatalog}
       currentPage={currentPage}
       totalPages={pages}
       totalPosts={total}

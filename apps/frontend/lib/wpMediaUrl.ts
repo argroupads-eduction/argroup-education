@@ -100,10 +100,16 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
         host.endsWith('vercel-storage.com') ||
         host.endsWith('public.blob.vercel-storage.com')
       ) {
-        return trimmed.replace(/^http:\/\//i, 'https://').replace(
+        let next = trimmed.replace(/^http:\/\//i, 'https://').replace(
           /^https:\/\/argroupofeducation\.com/i,
           'https://www.argroupofeducation.com'
         );
+        // Payload imageSizes append -WIDTHxHEIGHT-hash before ext (e.g. -300x169-abc.webp).
+        // Featured cards need the original upload, not the tiny admin thumbnail.
+        if (host.endsWith('vercel-storage.com') || host.endsWith('public.blob.vercel-storage.com')) {
+          next = preferFullSizeVercelBlobUrl(next);
+        }
+        return next;
       }
     } catch {
       return null;
@@ -112,6 +118,14 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
   }
 
   return trimmed;
+}
+
+/**
+ * Upgrade Payload/Vercel Blob resized variants to the original file URL.
+ * Example: `…-uuid-300x169-sizeHash.webp` → `…-uuid.webp`
+ */
+export function preferFullSizeVercelBlobUrl(url: string): string {
+  return url.replace(/-\d+x\d+-[A-Za-z0-9]+(\.(?:webp|jpe?g|png|gif))$/i, '$1');
 }
 
 export function rewriteSingleWpMediaUrl(url: string): string {

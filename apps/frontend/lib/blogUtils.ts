@@ -190,6 +190,7 @@ export const BLOG_EXCLUDED_LIST_SLUGS = new Set([
   'neet-pg-exam',
   'neet-pg-exam-2024',
   'neet-pg-exam-timings-marking-scheme-and-things-to-carry',
+  'neet-marks-for-mbbs-private-mbbs',
   'neet-pg-result',
   'neet-pg-result-declared',
   'neet-pg-result-expected-to-release-soon',
@@ -282,6 +283,7 @@ export const BLOG_SLUG_CANONICAL: Record<string, string> = {
   'NEET PG Exam 2026': 'neet-pg-exam-2026',
   'mata-gujri-memorial-medical-college,kishanganj':
     'mata-gujri-memorial-medical-college-kishanganj',
+  'neet-marks-for-mbbs-private-mbbs': 'neet-marks-for-private-mbbs',
 };
 
 function normalizeBlogTitleKey(title: string): string {
