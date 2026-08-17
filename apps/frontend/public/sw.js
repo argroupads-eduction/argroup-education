@@ -5,7 +5,13 @@
 
 const CACHE = 'ar-group-shell-v4';
 /** Do not precache `/` — homepage changes often; stale HTML causes hydration mismatches. */
-const PRECACHE = ['/manifest.webmanifest', '/ar-browser-icon.png'];
+const PRECACHE = [
+  '/manifest.webmanifest',
+  '/favicon.ico',
+  '/favicon-96x96.png',
+  '/apple-touch-icon.png',
+  '/ar-browser-icon.png',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

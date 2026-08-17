@@ -71,9 +71,14 @@ export const metadata: Metadata = {
   authors: [{ name: 'AR Group of Education' }],
   creator: 'AR Group of Education',
   icons: {
-    icon: [{ url: '/ar-browser-icon.png', type: 'image/png' }],
-    shortcut: ['/ar-browser-icon.png'],
-    apple: [{ url: '/ar-browser-icon.png', type: 'image/png' }],
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/favicon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    shortcut: ['/favicon.ico'],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   manifest: '/manifest.webmanifest',
   appleWebApp: {
@@ -133,9 +138,12 @@ export default async function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <meta name="theme-color" content="#1a365d" />
-        <link rel="icon" href="/ar-browser-icon.png" type="image/png" />
-        <link rel="shortcut icon" href="/ar-browser-icon.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/ar-browser-icon.png" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48" />
+        <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96" />
+        <link rel="icon" href="/favicon-192x192.png" type="image/png" sizes="192x192" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
         <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
