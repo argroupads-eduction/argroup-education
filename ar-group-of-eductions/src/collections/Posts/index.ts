@@ -22,6 +22,9 @@ import { seoExtendedFields } from '@/fields/seoExtendedFields'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
+  // Disable locks — preview deploys + multiple tabs leave stale locks that block Publish
+  // ("Editing taken over" / "locked by another user") for a single-editor CMS.
+  lockDocuments: false,
   access: {
     create: authenticated,
     delete: authenticated,

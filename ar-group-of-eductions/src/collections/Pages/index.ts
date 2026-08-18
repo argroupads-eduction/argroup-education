@@ -28,6 +28,8 @@ import {
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
+  // Disable locks — same stale-session issue as Posts on Vercel preview/production.
+  lockDocuments: false,
   access: {
     create: authenticated,
     delete: authenticated,
