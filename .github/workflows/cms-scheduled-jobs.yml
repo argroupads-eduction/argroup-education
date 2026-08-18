@@ -1,0 +1,25 @@
+# Runs Payload schedulePublish jobs (Vercel Hobby only allows 1 cron/day).
+# Requires GitHub secrets: CMS_CRON_URL, CMS_CRON_SECRET
+name: CMS scheduled publish jobs
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  run-jobs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Payload jobs
+        env:
+          CMS_CRON_URL: ${{ secrets.CMS_CRON_URL }}
+          CMS_CRON_SECRET: ${{ secrets.CMS_CRON_SECRET }}
+        run: |
+          if [ -z "$CMS_CRON_URL" ] || [ -z "$CMS_CRON_SECRET" ]; then
+            echo "Skip: set CMS_CRON_URL (e.g. https://argroup-education-cms-livid.vercel.app/api/cron/run-jobs) and CMS_CRON_SECRET"
+            exit 0
+          fi
+          curl -fsS -X GET "$CMS_CRON_URL" \
+            -H "Authorization: Bearer $CMS_CRON_SECRET" \
+            -H "Accept: application/json"

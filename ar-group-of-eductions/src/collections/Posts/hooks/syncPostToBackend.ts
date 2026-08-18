@@ -2,10 +2,8 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 
 import type { Post } from '../../../payload-types'
 import { buildPostSyncPayload } from '../../../utilities/payloadSyncFields'
-import {
-  isAutosaveRequest,
-  syncMarketingContentAndWait,
-} from '../../../utilities/enqueueMarketingContentSync'
+import { isAutosaveRequest } from '../../../utilities/enqueueMarketingContentSync'
+import { deferAfterResponse } from '../../../utilities/deferAfterResponse'
 import { htmlFromPayloadDoc, syncToMarketingBackend } from '../../../utilities/syncToMarketingBackend'
 
 type SyncFields = Awaited<ReturnType<typeof buildPostSyncPayload>>
@@ -29,25 +27,6 @@ function pickRicherFields(a: SyncFields, b: SyncFields, title: string): SyncFiel
   }
 }
 
-async function loadPostForSync(
-  req: Parameters<CollectionAfterChangeHook<Post>>[0]['req'],
-  id: string | number,
-  draft: boolean,
-): Promise<Post | null> {
-  try {
-    return (await req.payload.findByID({
-      collection: 'posts',
-      id,
-      depth: 2,
-      draft,
-      overrideAccess: true,
-    })) as Post
-  } catch {
-    return null
-  }
-}
-
-/** Last resort: CMS HTTP API often has fully populated Lexical + Blob media URLs. */
 async function loadPostViaLocalRest(id: string | number): Promise<Post | null> {
   const base = (
     process.env.NEXT_PUBLIC_SERVER_URL ||
@@ -59,7 +38,7 @@ async function loadPostViaLocalRest(id: string | number): Promise<Post | null> {
   try {
     const res = await fetch(`${base}/api/posts/${id}?depth=2`, {
       headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(12_000),
     })
     if (!res.ok) return null
     const json = (await res.json()) as Post
@@ -69,6 +48,10 @@ async function loadPostViaLocalRest(id: string | number): Promise<Post | null> {
   }
 }
 
+/**
+ * Publish must return immediately. Heavy enrichment + marketing HTTP used to run
+ * inside afterChange and left the admin stuck on "Submitting...".
+ */
 export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
   doc,
   previousDoc,
@@ -81,85 +64,87 @@ export const syncPostToBackend: CollectionAfterChangeHook<Post> = async ({
   const wasPublished = previousDoc?._status === 'published'
   if (!isPublished && !wasPublished) return doc
 
-  const title = doc.title ?? doc.slug ?? 'Untitled'
-  let fields = await buildPostSyncPayload(req.payload, doc)
+  const title =
+    (typeof doc.title === 'string' && doc.title.trim()) ||
+    (typeof previousDoc?.title === 'string' && previousDoc.title.trim()) ||
+    doc.slug ||
+    previousDoc?.slug ||
+    'Untitled'
+  const resolvedSlug =
+    (typeof doc.slug === 'string' && doc.slug.trim()) ||
+    (typeof previousDoc?.slug === 'string' && previousDoc.slug.trim()) ||
+    ''
 
-  // Drafts + autosave: hook doc or draft:false snapshot can miss Lexical/media.
-  // Merge hook + draft + published (+ REST) and keep the richest payload.
-  if (doc.id != null) {
-    const draftDoc = await loadPostForSync(req, doc.id, true)
-    if (draftDoc) {
-      fields = pickRicherFields(fields, await buildPostSyncPayload(req.payload, draftDoc), title)
-    }
+  if (!resolvedSlug) {
+    req.payload.logger.error(
+      { id: doc.id, status: doc._status },
+      '[payload→backend sync] missing slug on publish — skipping live sync',
+    )
+    return doc
+  }
 
-    const publishedDoc = await loadPostForSync(req, doc.id, false)
-    if (publishedDoc) {
-      fields = pickRicherFields(fields, await buildPostSyncPayload(req.payload, publishedDoc), title)
-    }
+  const prevSlug = typeof previousDoc?.slug === 'string' ? previousDoc.slug.trim() : ''
+  const nextSlug = resolvedSlug
+  const onVercel = process.env.VERCEL === '1'
+  const payload = req.payload
+  const docId = doc.id
+  const publishedAt = doc.publishedAt ?? null
+  const previousTitle = previousDoc?.title
+  const previousPublishedAt = previousDoc?.publishedAt ?? null
 
-    const stillThin =
-      contentScore(fields, title) < 200 || !fields.featuredImage
-    if (stillThin) {
-      const restDoc = await loadPostViaLocalRest(doc.id)
+  deferAfterResponse(async () => {
+    // Prefer a fast snapshot. On Vercel, marketing pullFromCms reloads Lexical + hero
+    // so we avoid extra Cockroach findByID calls that used to hang Publish.
+    let fields = await buildPostSyncPayload(payload, doc)
+
+    if (!onVercel && docId != null && contentScore(fields, title) < 200) {
+      const restDoc = await loadPostViaLocalRest(docId)
       if (restDoc) {
-        fields = pickRicherFields(fields, await buildPostSyncPayload(req.payload, restDoc), title)
+        fields = pickRicherFields(fields, await buildPostSyncPayload(payload, restDoc), title)
       }
     }
-  }
 
-  const contentLooksThin = contentScore(fields, title) < 200
+    const syncBody = {
+      type: 'post' as const,
+      slug: resolvedSlug,
+      title,
+      content: fields.content,
+      excerpt: fields.excerpt,
+      featuredImage: fields.featuredImage,
+      category: 'Blog',
+      metaTitle: fields.metaTitle,
+      metaDescription: fields.metaDescription,
+      canonicalUrl: fields.canonicalUrl,
+      focusKeyword: fields.focusKeyword,
+      ogTitle: fields.ogTitle,
+      ogDescription: fields.ogDescription,
+      ogImage: fields.ogImage,
+      twitterTitle: fields.twitterTitle,
+      twitterDescription: fields.twitterDescription,
+      schemaJson: fields.schemaJson,
+      published: isPublished,
+      publishedAt,
+      notifyPush: Boolean(isPublished && !wasPublished),
+      pullFromCms: onVercel,
+    }
 
-  if (contentLooksThin || !fields.featuredImage) {
-    req.payload.logger.warn(
-      {
-        slug: doc.slug,
-        contentLen: fields.content?.length ?? 0,
-        hasImage: Boolean(fields.featuredImage),
-        hint: 'Local snapshot thin — marketing will pullFromCms to load Lexical + heroImage.',
-      },
-      '[payload→backend sync] thin local payload; still notifying marketing with pullFromCms',
+    if (prevSlug && nextSlug && prevSlug !== nextSlug) {
+      await syncToMarketingBackend({
+        type: 'post',
+        slug: prevSlug,
+        title: previousTitle ?? prevSlug,
+        content: '',
+        published: false,
+        publishedAt: previousPublishedAt,
+      })
+    }
+
+    await syncToMarketingBackend(syncBody)
+    payload.logger.info(
+      { slug: resolvedSlug, published: isPublished },
+      '[payload→backend sync] background publish sync ok',
     )
-  }
-
-  const syncBody = {
-    type: 'post' as const,
-    slug: doc.slug ?? '',
-    title,
-    content: fields.content,
-    excerpt: fields.excerpt,
-    featuredImage: fields.featuredImage,
-    category: 'Blog',
-    metaTitle: fields.metaTitle,
-    metaDescription: fields.metaDescription,
-    canonicalUrl: fields.canonicalUrl,
-    focusKeyword: fields.focusKeyword,
-    ogTitle: fields.ogTitle,
-    ogDescription: fields.ogDescription,
-    ogImage: fields.ogImage,
-    twitterTitle: fields.twitterTitle,
-    twitterDescription: fields.twitterDescription,
-    schemaJson: fields.schemaJson,
-    published: isPublished,
-    publishedAt: doc.publishedAt ?? null,
-    notifyPush: Boolean(isPublished && !wasPublished),
-    // Marketing site always re-pulls Lexical + hero from CMS REST (fixes thin sync).
-    pullFromCms: true,
-  }
-
-  try {
-    await syncMarketingContentAndWait(req, syncBody)
-  } catch (err) {
-    req.payload.logger.error(
-      {
-        err,
-        slug: syncBody.slug,
-        contentLen: syncBody.content?.length ?? 0,
-        hasImage: Boolean(syncBody.featuredImage),
-        hint: 'Set CMS BACKEND_API_URL=https://www.argroupofeducation.com and match REVALIDATE_SECRET with Amplify/live site.',
-      },
-      '[payload→backend sync] publish sync failed — post saved in CMS but not on live site yet',
-    )
-  }
+  })
 
   return doc
 }
@@ -180,7 +165,7 @@ export const syncPostDeleteToBackend: CollectionAfterDeleteHook<Post> = async ({
       {
         err,
         slug: doc.slug,
-        hint: 'Post deleted in CMS but still on live DB — delete BlogPost row in Supabase or fix BACKEND_API_URL / REVALIDATE_SECRET.',
+        hint: 'Post deleted in CMS but still on live DB — fix BACKEND_API_URL / REVALIDATE_SECRET.',
       },
       '[payload→backend sync] delete sync failed',
     )
