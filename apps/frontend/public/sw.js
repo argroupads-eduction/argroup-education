@@ -8,6 +8,8 @@ const CACHE = 'ar-group-shell-v4';
 const PRECACHE = [
   '/manifest.webmanifest',
   '/favicon.ico',
+  '/favicon.png',
+  '/favicon-48x48.png',
   '/favicon-96x96.png',
   '/apple-touch-icon.png',
   '/ar-browser-icon.png',

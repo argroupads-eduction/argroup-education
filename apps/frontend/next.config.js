@@ -15,6 +15,7 @@ const outputFileTracingRoot = resolveOutputFileTracingRoot();
 /** Marketing images referenced as plain /filename paths in components. */
 const PUBLIC_MARKETING_ASSETS = [
   'favicon.ico',
+  'favicon.png',
   'favicon-48x48.png',
   'favicon-96x96.png',
   'favicon-192x192.png',
