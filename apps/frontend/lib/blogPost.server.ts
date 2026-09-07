@@ -7,7 +7,7 @@ import {
 
 const cachedPostBySlug = unstable_cache(
   async (slug: string) => loadPostBySlug(slug),
-  ['blog-post-by-slug-v1'],
+  ['blog-post-by-slug-v2'],
   { revalidate: 60 }
 );
 

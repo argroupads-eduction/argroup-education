@@ -44,6 +44,7 @@ function toSiteContent(post: NonNullable<
     metaDescription: post.metaDescription,
     canonicalUrl: post.canonicalUrl,
     keywords: post.keywords,
+    schemaJson: 'schemaJson' in post ? (post.schemaJson ?? null) : null,
     publishedAt,
     updatedAt,
   };

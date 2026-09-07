@@ -32,3 +32,16 @@ apps/frontend/data/wp-export-bundle/reports/payload-import-*.json
 # Local agent / debug output
 SUBAGENT-RESULTS.txt
 frontend-dev.err.log
+.vercel
+
+# Local DB/media migration backups
+backups/
+
+
+.env.supabase.bak
+**/.env.supabase.bak
+
+
+.env.*.pull.tmp
+.env.vercel*.tmp
+

@@ -1,4 +1,3 @@
-import webpush from 'web-push';
 import { prisma, withPrismaRetry } from './prisma';
 
 export type PushPayload = {
@@ -6,7 +5,25 @@ export type PushPayload = {
   body: string;
   url?: string;
   tag?: string;
+  /** Absolute HTTPS URL preferred (Android Chrome). */
+  icon?: string;
+  image?: string;
 };
+
+type WebPushModule = typeof import('web-push');
+
+let webpushModule: WebPushModule | null | undefined;
+
+async function loadWebPush(): Promise<WebPushModule | null> {
+  if (webpushModule !== undefined) return webpushModule;
+  try {
+    webpushModule = await import('web-push');
+    return webpushModule;
+  } catch {
+    webpushModule = null;
+    return null;
+  }
+}
 
 function getVapidConfig():
   | { publicKey: string; privateKey: string; subject: string }
@@ -27,9 +44,11 @@ export function getVapidPublicKey(): string | null {
   return getVapidConfig()?.publicKey ?? null;
 }
 
-function ensureWebPushConfigured(): ReturnType<typeof getVapidConfig> {
+async function ensureWebPushConfigured(): Promise<ReturnType<typeof getVapidConfig>> {
   const cfg = getVapidConfig();
   if (!cfg) return null;
+  const webpush = await loadWebPush();
+  if (!webpush) return null;
   webpush.setVapidDetails(cfg.subject, cfg.publicKey, cfg.privateKey);
   return cfg;
 }
@@ -77,9 +96,11 @@ export async function deletePushSubscription(endpoint: string) {
 export async function sendPushToAllSubscribers(
   payload: PushPayload
 ): Promise<{ sent: number; removed: number; skipped: boolean; reason?: string }> {
-  if (!ensureWebPushConfigured()) {
+  const cfg = await ensureWebPushConfigured();
+  const webpush = await loadWebPush();
+  if (!cfg || !webpush) {
     console.error(
-      '[web-push] skipped — set NEXT_PUBLIC_VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY (and matching Amplify env)'
+      '[web-push] skipped — set NEXT_PUBLIC_VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY (and matching Amplify env), or install web-push'
     );
     return { sent: 0, removed: 0, skipped: true, reason: 'vapid_not_configured' };
   }
@@ -90,11 +111,19 @@ export async function sendPushToAllSubscribers(
     return { sent: 0, removed: 0, skipped: false, reason: 'no_subscribers' };
   }
 
+  const site = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.argroupofeducation.com').replace(
+    /\/$/,
+    ''
+  );
+  const defaultIcon = `${site}/icons/ar-notification-192.png`;
+
   const body = JSON.stringify({
     title: payload.title,
     body: payload.body,
     url: payload.url || '/',
     tag: payload.tag || 'ar-group',
+    icon: payload.icon || defaultIcon,
+    image: payload.image || undefined,
   });
 
   let sent = 0;
@@ -153,6 +182,7 @@ export async function notifyNewBlogPush(opts: {
     body,
     url,
     tag: `blog-${opts.slug}`,
+    icon: `${site}/icons/ar-notification-192.png`,
   });
 }
 

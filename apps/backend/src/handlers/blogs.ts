@@ -220,6 +220,7 @@ function formatBlogPostDetail(post: {
   metaDescription: string | null;
   canonicalUrl: string | null;
   keywords: string[];
+  schemaJson?: unknown | null;
   publishedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -239,6 +240,7 @@ function formatBlogPostDetail(post: {
     metaDescription: post.metaDescription,
     canonicalUrl: post.canonicalUrl,
     keywords: post.keywords,
+    schemaJson: post.schemaJson ?? null,
     publishedAt: post.publishedAt,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,

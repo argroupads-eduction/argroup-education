@@ -3,6 +3,7 @@ dist / media
 node_modules
 .DS_Store
 .env
+.env.cockroachdb
 .next
 .turbo
 next-env.d.ts
@@ -21,3 +22,7 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+.env.*.pull.tmp
+.env.vercel*.tmp
+

@@ -11,19 +11,31 @@
   "lang": "en-IN",
   "icons": [
     {
-      "src": "/favicon-192x192.png",
+      "src": "/icons/ar-notification-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/favicon-192x192.png",
-      "sizes": "192x192",
+      "src": "/icons/ar-notification-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/ar-notification-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
       "src": "/ar-browser-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ar-group-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

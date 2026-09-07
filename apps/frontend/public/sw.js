@@ -3,7 +3,7 @@
  * Keep this file vanilla JS (served from /sw.js).
  */
 
-const CACHE = 'ar-group-shell-v4';
+const CACHE = 'ar-group-shell-v5';
 /** Do not precache `/` — homepage changes often; stale HTML causes hydration mismatches. */
 const PRECACHE = [
   '/manifest.webmanifest',
@@ -13,7 +13,21 @@ const PRECACHE = [
   '/favicon-96x96.png',
   '/apple-touch-icon.png',
   '/ar-browser-icon.png',
+  '/ar-notification-icon.png',
+  '/icons/ar-notification-192.png',
+  '/icons/ar-notification-512.png',
 ];
+
+function absoluteUrl(path) {
+  try {
+    const base = self.registration && self.registration.scope
+      ? self.registration.scope
+      : self.location.origin + '/';
+    return new URL(path, base).href;
+  } catch {
+    return path;
+  }
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -28,7 +42,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.map((k) => (k === CACHE ? undefined : caches.delete(k)))))
       .then(() => caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)))
       .then(() => self.clients.claim())
   );
@@ -71,6 +85,8 @@ self.addEventListener('push', (event) => {
     body: 'You have a new update.',
     url: '/',
     tag: 'ar-group',
+    icon: '',
+    image: '',
   };
   try {
     if (event.data) {
@@ -86,11 +102,19 @@ self.addEventListener('push', (event) => {
     }
   }
 
+  // Android Chrome needs absolute HTTPS icon URLs — relative paths often fall back to "W".
+  const defaultIcon = absoluteUrl('/icons/ar-notification-192.png');
+  const icon = data.icon && /^https?:\/\//i.test(data.icon) ? data.icon : defaultIcon;
+  const badge = absoluteUrl('/icons/ar-notification-192.png');
+  const image =
+    data.image && /^https?:\/\//i.test(data.image) ? data.image : undefined;
+
   event.waitUntil(
     self.registration.showNotification(data.title || 'AR Group of Education', {
       body: data.body || '',
-      icon: '/ar-browser-icon.png',
-      badge: '/ar-browser-icon.png',
+      icon,
+      badge,
+      ...(image ? { image } : {}),
       tag: data.tag || 'ar-group',
       data: { url: data.url || '/' },
       renotify: true,
