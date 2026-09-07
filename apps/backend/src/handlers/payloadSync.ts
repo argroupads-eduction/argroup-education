@@ -211,10 +211,22 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
         stillThinAfterPull && existingLooksRich && existing?.excerpt
           ? existing.excerpt
           : excerpt;
+      // Never wipe a stored image when sync sends null/empty (CMS often has
+      // hero media but featured_image_url column empty).
+      const incomingImage =
+        typeof featuredImage === 'string' && featuredImage.trim()
+          ? featuredImage.trim()
+          : null;
+      const incomingOg =
+        typeof ogImage === 'string' && ogImage.trim() ? ogImage.trim() : null;
       const resolvedFeaturedImage =
-        featuredImage ?? existing?.featuredImage ?? null;
+        incomingImage || existing?.featuredImage || null;
       const resolvedOgImage =
-        ogImage ?? featuredImage ?? existing?.ogImage ?? resolvedFeaturedImage ?? null;
+        incomingOg ||
+        incomingImage ||
+        existing?.ogImage ||
+        resolvedFeaturedImage ||
+        null;
 
       const data = {
         title,

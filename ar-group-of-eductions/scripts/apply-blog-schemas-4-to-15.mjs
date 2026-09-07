@@ -112,8 +112,12 @@ for (const slug of SLUGS) {
   // Sync schema to marketing backend so live SEO picks it up
   if (secret) {
     const meta = await c.query(
-      `SELECT title, slug, html_content, featured_image_url, meta_title, meta_description, published_at, _status
-       FROM cms.posts WHERE id = $1`,
+      `SELECT p.title, p.slug, p.html_content, p.meta_title, p.meta_description, p.published_at, p._status,
+              COALESCE(NULLIF(TRIM(p.featured_image_url), ''), m_hero.url, m_meta.url) AS image_url
+       FROM cms.posts p
+       LEFT JOIN cms.media m_hero ON m_hero.id = p.hero_image_id
+       LEFT JOIN cms.media m_meta ON m_meta.id = p.meta_image_id
+       WHERE p.id = $1`,
       [id],
     )
     const p = meta.rows[0]
@@ -122,7 +126,7 @@ for (const slug of SLUGS) {
       slug: p.slug,
       title: p.title || p.slug,
       content: p.html_content || p.title || '',
-      featuredImage: p.featured_image_url || null,
+      ...(p.image_url ? { featuredImage: p.image_url, ogImage: p.image_url } : {}),
       metaTitle: p.meta_title,
       metaDescription: p.meta_description,
       schemaJson: schema,

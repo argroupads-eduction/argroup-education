@@ -41,8 +41,13 @@ const base = 'https://www.argroupofeducation.com'
 
 for (const slug of slugs) {
   const r = await c.query(
-    `SELECT id, title, slug, html_content, featured_image_url, meta_title, meta_description, published_at, _status, schema_json
-     FROM cms.posts AS OF SYSTEM TIME '-1s' WHERE slug = $1`,
+    `SELECT p.id, p.title, p.slug, p.html_content, p.meta_title, p.meta_description,
+            p.published_at, p._status, p.schema_json,
+            COALESCE(NULLIF(TRIM(p.featured_image_url), ''), m_hero.url, m_meta.url) AS image_url
+     FROM cms.posts AS OF SYSTEM TIME '-1s' p
+     LEFT JOIN cms.media AS OF SYSTEM TIME '-1s' m_hero ON m_hero.id = p.hero_image_id
+     LEFT JOIN cms.media AS OF SYSTEM TIME '-1s' m_meta ON m_meta.id = p.meta_image_id
+     WHERE p.slug = $1`,
     [slug],
   )
   const p = r.rows[0]
@@ -55,7 +60,7 @@ for (const slug of slugs) {
     slug: p.slug,
     title: p.title || p.slug,
     content: p.html_content || p.title || '',
-    featuredImage: p.featured_image_url || null,
+    ...(p.image_url ? { featuredImage: p.image_url, ogImage: p.image_url } : {}),
     metaTitle: p.meta_title,
     metaDescription: p.meta_description,
     schemaJson: p.schema_json,
