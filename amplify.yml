@@ -36,3 +36,15 @@ applications:
         paths:
           - node_modules/**/*
           - apps/frontend/.next/cache/**/*
+    # Long-cache marketing images — Amplify was overriding Next headers with max-age=5.
+    customHeaders:
+      - pattern: '**/*.{webp,png,jpg,jpeg,svg,ico,woff,woff2,gif}'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, no-store, must-revalidate'
+          - key: 'Service-Worker-Allowed'
+            value: '/'

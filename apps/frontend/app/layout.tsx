@@ -21,25 +21,19 @@ import {
   fetchSiteGlobalsBundle,
 } from '@/lib/siteGlobals.server';
 import '@/styles/globals.css';
-import '@/styles/wp-content.css';
-import '@/styles/blog.css';
 import '@/styles/nav-mega.css';
 import '@/styles/nav-latest-updates.css';
 import '@/styles/navbar-premium.css';
-import '@/styles/program-hub.css';
-import '@/styles/mbbs-abroad-premium.css';
-import '@/styles/mbbs-abroad-atlas.css';
-import '@/styles/mbbs-abroad-hub-guide.css';
 import '@/styles/brand-logo.css';
 import '@/styles/footer-main.css';
 import { getSiteUrl } from '@/lib/siteUrl';
 
-// Font imports — only weights used on-site (Inter for UI; Lora for disclaimer headings)
+// Font imports — lean weights for faster FCP (extra weights load via CSS when needed)
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '600', '700'],
 });
 
 /** Serif headings, Lora uses a standard “&” (Playfair’s default & has decorative swashes). */
@@ -149,14 +143,19 @@ export default async function RootLayout({
               '.brand-logo-link__frame--nav-wide{width:8.75rem;height:3.25rem;max-width:8.75rem;min-height:3.25rem;overflow:hidden;display:inline-flex;flex-shrink:0}.brand-logo-link__frame--nav-wide img{width:100%;height:100%;object-fit:contain}',
           }}
         />
-        {/* Single LCP preload — homepage India hero only (abroad loads lazily on carousel). */}
-        <link rel="preload" href="/india-homepage.webp" as="image" type="image/webp" />
-        <link rel="dns-prefetch" href="https://www.argroupofeducation.com" />
+        {/* Only the real homepage LCP banner — do not preload carousel/abroad PNGs here. */}
+        <link
+          rel="preload"
+          href="/hero-banner-aug4.webp"
+          as="image"
+          type="image/webp"
+          fetchPriority="high"
+        />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         {isSiteProtectionEnabled() ? (
           <script dangerouslySetInnerHTML={{ __html: SITE_PROTECTION_INLINE_SCRIPT }} />
         ) : null}
         <SiteOrganizationJsonLd />
-        <GoogleAnalytics />
       </head>
       <body
         className={`${inter.className} min-h-dvh min-w-0 overflow-x-hidden [padding-bottom:env(safe-area-inset-bottom,0px)] [padding-left:env(safe-area-inset-left,0px)] [padding-right:env(safe-area-inset-right,0px)]`}
@@ -167,11 +166,12 @@ export default async function RootLayout({
             <PwaRegistrar />
             <CollegePredictorPromoStrip />
             <Navbar />
-            <main className="min-w-0">{children}</main>
+            <main className="relative z-[1] min-w-0">{children}</main>
             <Footer />
             <DeferredSitePopups />
             <LeadSubmissionFeedbackHost />
             <SiteInteractionGuard />
+            <GoogleAnalytics />
           </NavPagesProvider>
         </SiteGlobalsProvider>
       </body>

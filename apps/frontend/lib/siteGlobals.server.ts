@@ -30,7 +30,7 @@ const loadSiteGlobalsBundle = unstable_cache(
     }
   },
   ['site-globals-bundle'],
-  { revalidate: 300 }
+  { revalidate: 3600 }
 );
 
 /** Footer + site-settings from CMS globals (direct DB — no layout self-fetch). */

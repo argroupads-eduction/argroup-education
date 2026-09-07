@@ -61,16 +61,11 @@ type NavBarLink = {
 };
 
 const PRIMARY_NAV_PREFETCH = [
-  '/',
-  '/about',
   '/mbbs-india',
   '/mbbs-abroad',
   '/md-ms',
   '/blog',
-  '/contact',
   '/college-predictor',
-  '/countries',
-  '/sitemap',
 ] as const;
 
 export const Navbar = () => {

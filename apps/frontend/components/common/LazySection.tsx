@@ -41,8 +41,8 @@ export function LazySection({
 
     observer.observe(el);
 
-    // Safety net: some mobile browsers skip IO callbacks after soft reload / bfcache.
-    const fallback = window.setTimeout(() => setVisible(true), 3500);
+    // Safety net only — do not pull below-fold JS/images during LCP window.
+    const fallback = window.setTimeout(() => setVisible(true), 12_000);
 
     return () => {
       observer.disconnect();

@@ -17,6 +17,8 @@ import { findProgramContextBySlug } from '@/lib/programBreadcrumbs';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 import { resolveSlugAlias } from '@/lib/wpSlugAliases';
+import '@/styles/wp-content.css';
+import '@/styles/program-hub.css';
 
 const HOME_WP_SLUG = 'mbbs-admission-in-top-colleges';
 

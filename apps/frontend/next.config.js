@@ -30,6 +30,7 @@ const PUBLIC_MARKETING_ASSETS = [
   'about-counsellor.png',
   'lead-mbbs-doctor.png',
   'medical-admission-counselling-hero.png',
+  'hero-banner-aug4.webp',
 ];
 
 /** @type {import('next').NextConfig} */

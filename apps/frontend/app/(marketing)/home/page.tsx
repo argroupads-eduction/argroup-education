@@ -7,6 +7,7 @@ import { MbbsAbroadScrollSection } from '@/sections/home/MbbsAbroadScrollSection
 import { LazySection } from '@/components/common/LazySection';
 import { HomeFaqJsonLd } from '@/components/home/HomeFaqJsonLd';
 import { HomeWebPageJsonLd } from '@/components/seo/HomeWebPageJsonLd';
+import '@/styles/mbbs-abroad-atlas.css';
 
 const HomeSeoContentSections = dynamic(
   () =>
@@ -103,7 +104,9 @@ export default async function HomePage() {
       <LazySection minHeight="26rem">
         <YoutubeChannelSection />
       </LazySection>
-      <MbbsAbroadScrollSection />
+      <LazySection minHeight="26rem">
+        <MbbsAbroadScrollSection />
+      </LazySection>
       <LazySection minHeight="20rem">
         <CounsellingFormSection />
       </LazySection>

@@ -17,7 +17,7 @@ const loadDynamicNavPages = unstable_cache(
     }
   },
   ['dynamic-nav-pages-v1'],
-  { revalidate: 300 }
+  { revalidate: 3600 }
 );
 
 /** Cached nav CMS pages — must not block every navigation on a cold Prisma round-trip. */

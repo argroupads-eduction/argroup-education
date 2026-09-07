@@ -119,10 +119,21 @@ export function PwaRegistrar() {
         }
       }
 
-      const reg = await registerServiceWorker();
-      if (cancelled || !reg) return;
-      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        void subscribeUserToPush(reg);
+      const runSw = () => {
+        void (async () => {
+          const reg = await registerServiceWorker();
+          if (cancelled || !reg) return;
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            void subscribeUserToPush(reg);
+          }
+        })();
+      };
+
+      // Defer SW off the LCP/INP window (still registers soon for install/push).
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(runSw, { timeout: 5000 });
+      } else {
+        window.setTimeout(runSw, 3000);
       }
     })();
 

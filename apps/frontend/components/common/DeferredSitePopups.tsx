@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
-import { LeadCapturePopup } from '@/components/common/LeadCapturePopup';
 import { openLeadCapturePopup } from '@/lib/openLeadCapture';
 import {
   clearLegacyLeadPopupBlocks,
@@ -11,12 +11,18 @@ import {
   LEAD_POPUP_AUTO_DELAY_MS,
 } from '@/lib/sitePopupCoordination';
 
+const LeadCapturePopup = dynamic(
+  () =>
+    import('@/components/common/LeadCapturePopup').then((m) => m.LeadCapturePopup),
+  { ssr: false },
+);
+
 /**
- * Site-wide lead enquiry popup (~4s after each page opens).
- * Mount only after hydration so dialog trees cannot mismatch SSR HTML.
+ * Deferred lead capture popup (auto-open after delay).
+ * Heavy form/dialog code loads only after mount — keeps homepage INP cleaner.
  */
 export function DeferredSitePopups() {
-  const pathname = usePathname();
+  const pathname = usePathname() || '/';
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

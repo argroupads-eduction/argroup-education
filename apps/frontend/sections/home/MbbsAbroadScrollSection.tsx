@@ -237,6 +237,8 @@ export function MbbsAbroadScrollSection() {
                         alt={active ? `MBBS in ${c.name}` : ''}
                         className="abroad-atlas__visual-img"
                         decoding="async"
+                        loading={active || leaving ? 'eager' : 'lazy'}
+                        fetchPriority={active ? 'low' : undefined}
                         draggable={false}
                       />
                     ) : (
