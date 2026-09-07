@@ -26,36 +26,23 @@ const MIME: Record<string, string> = {
   '.ico': 'image/x-icon',
 }
 
-/** Explicit paths so @vercel/nft traces only these files, not all of public/. */
-function assetPath(fileName: string): string | null {
-  const root = process.cwd()
-  switch (fileName) {
-    case 'ar-group-logo.png':
-      return path.join(root, 'public', 'ar-group-logo.png')
-    case 'ar-group-logo.webp':
-      return path.join(root, 'public', 'ar-group-logo.webp')
-    case 'india-homepage.jpg':
-      return path.join(root, 'public', 'india-homepage.jpg')
-    case 'india-homepage.webp':
-      return path.join(root, 'public', 'india-homepage.webp')
-    case 'abroad-homepage.jpg':
-      return path.join(root, 'public', 'abroad-homepage.jpg')
-    case 'abroad-homepage.webp':
-      return path.join(root, 'public', 'abroad-homepage.webp')
-    case 'about-counsellor.png':
-      return path.join(root, 'public', 'about-counsellor.png')
-    case 'lead-mbbs-doctor.png':
-      return path.join(root, 'public', 'lead-mbbs-doctor.png')
-    case 'medical-admission-counselling-hero.png':
-      return path.join(root, 'public', 'medical-admission-counselling-hero.png')
-    case 'hero-banner-aug4.webp':
-      return path.join(root, 'public', 'hero-banner-aug4.webp')
-    default:
-      return null
+/** Try cwd + common Amplify/Next traced locations for bundled public files. */
+function candidatePaths(fileName: string): string[] {
+  const roots = [
+    process.cwd(),
+    path.join(process.cwd(), 'apps', 'frontend'),
+    path.join(process.cwd(), '..'),
+    path.join(process.cwd(), '../..'),
+  ]
+  const out: string[] = []
+  for (const root of roots) {
+    out.push(path.join(root, 'public', fileName))
+    out.push(path.join(root, '.next', 'server', 'app', 'api', 'public-asset', fileName))
   }
+  return out
 }
 
-/** Serve /public files when Vercel static layer omits public/ (wrong Output Directory). */
+/** Serve /public files when static layer omits public/ (wrong Output Directory / cold miss). */
 export async function GET(
   _request: Request,
   context: { params: Promise<{ path: string[] }> }
@@ -70,23 +57,23 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const filePath = assetPath(fileName)
-  if (!filePath) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const ext = path.extname(fileName).toLowerCase()
+  const contentType = MIME[ext] ?? 'application/octet-stream'
+
+  for (const filePath of candidatePaths(fileName)) {
+    try {
+      const data = await readFile(filePath)
+      return new NextResponse(data, {
+        status: 200,
+        headers: {
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=31536000, immutable',
+        },
+      })
+    } catch {
+      /* try next path */
+    }
   }
 
-  try {
-    const data = await readFile(filePath)
-    const ext = path.extname(fileName).toLowerCase()
-    const contentType = MIME[ext] ?? 'application/octet-stream'
-    return new NextResponse(data, {
-      status: 200,
-      headers: {
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000, immutable',
-      },
-    })
-  } catch {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  }
+  return NextResponse.json({ error: 'Not found' }, { status: 404 })
 }

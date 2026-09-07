@@ -50,7 +50,6 @@ const nextConfig = {
       './public/**',
       '../../public/wp-content/**',
     ],
-    '/api/public-asset/[...path]': ['./public/**'],
     // wp-media must NOT bundle public/wp-content (~763MB). Static files deploy via public/; API proxies on miss.
     '/api/wp-media/[...path]': ['./public/**', '../../_uploads/**'],
   },
