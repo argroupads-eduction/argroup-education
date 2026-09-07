@@ -13,6 +13,7 @@ const ALLOWED_FILES = new Set([
   'about-counsellor.png',
   'lead-mbbs-doctor.png',
   'medical-admission-counselling-hero.png',
+  'hero-banner-aug4.webp',
 ])
 
 const MIME: Record<string, string> = {
@@ -47,6 +48,8 @@ function assetPath(fileName: string): string | null {
       return path.join(root, 'public', 'lead-mbbs-doctor.png')
     case 'medical-admission-counselling-hero.png':
       return path.join(root, 'public', 'medical-admission-counselling-hero.png')
+    case 'hero-banner-aug4.webp':
+      return path.join(root, 'public', 'hero-banner-aug4.webp')
     default:
       return null
   }

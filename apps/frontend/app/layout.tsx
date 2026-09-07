@@ -143,14 +143,7 @@ export default async function RootLayout({
               '.brand-logo-link__frame--nav-wide{width:8.75rem;height:3.25rem;max-width:8.75rem;min-height:3.25rem;overflow:hidden;display:inline-flex;flex-shrink:0}.brand-logo-link__frame--nav-wide img{width:100%;height:100%;object-fit:contain}',
           }}
         />
-        {/* Only the real homepage LCP banner — do not preload carousel/abroad PNGs here. */}
-        <link
-          rel="preload"
-          href="/hero-banner-aug4.webp"
-          as="image"
-          type="image/webp"
-          fetchPriority="high"
-        />
+        {/* Hero LCP preload is emitted by the homepage <img fetchPriority="high"> — avoid a second preload (can cancel the load on reload). */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         {isSiteProtectionEnabled() ? (
           <script dangerouslySetInnerHTML={{ __html: SITE_PROTECTION_INLINE_SCRIPT }} />

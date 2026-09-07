@@ -181,22 +181,26 @@ export const HeroSection = () => {
     'absolute z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-navy-950/55 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:border-gold-400/60 hover:bg-navy-900/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-400 sm:h-11 sm:w-11 md:h-12 md:w-12';
 
   const bannerAlt =
-    variant === 'india'
-      ? 'AR Group of Education - Study MBBS in India top medical colleges counselling'
-      : 'AR Group of Education - Studying MBBS at top universities abroad counselling';
+    'AR Group of Education - MBBS India and Abroad admission counselling';
 
   return (
     <section className="relative flex min-h-[32rem] items-start overflow-hidden bg-navy-900 sm:min-h-[36rem] sm:items-center md:min-h-[42rem] lg:min-h-[48rem] xl:min-h-[52rem]">
-      {/* Native img avoids next/image SSR vs client attr mismatches that trigger hydration errors. */}
+      {/* Native img — stable alt/src so variant flips never remount/abort the LCP image. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={BANNER}
         alt={bannerAlt}
         width={1920}
         height={1080}
-        decoding="async"
+        decoding="sync"
         fetchPriority="high"
-        className="absolute inset-0 h-full w-full object-cover max-md:object-[62%_center] md:object-[28%_center] lg:object-left"
+        className="absolute inset-0 z-0 h-full w-full object-cover max-md:object-[62%_center] md:object-[28%_center] lg:object-left"
+        onError={(e) => {
+          const img = e.currentTarget;
+          if (img.dataset.retried === '1') return;
+          img.dataset.retried = '1';
+          img.src = `${BANNER}?v=2`;
+        }}
       />
 
       {/* Soft wash — keep banner blue readable under copy (avoid crushing the right studio side) */}
