@@ -42,8 +42,6 @@ export const BLOG_FEATURED_IMAGES: Record<string, string> = {
     '/images/blog/how-many-marks-are-required-in-neet-for-mbbs-v2.png',
   'mbbs-with-300-marks-in-neet': '/images/blog/mbbs-with-300-marks-in-neet-v2.png',
   'mbbs-with-300-marks-in-neet-2026': '/images/blog/mbbs-with-300-marks-in-neet-v2.png',
-  'score-is-needed-in-neet':
-    '/images/blog/how-much-score-needed-neet-2026-full-cut-off-analysis.png',
   'score-needed-in-neet-2026':
     '/images/blog/how-much-score-needed-neet-2026-full-cut-off-analysis.png',
 };
