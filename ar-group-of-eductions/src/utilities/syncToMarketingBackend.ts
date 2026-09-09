@@ -56,6 +56,40 @@ function resolveMarketingSyncBaseUrl(): string {
   }
 }
 
+function isLocalMarketingHost(base: string): boolean {
+  try {
+    const host = new URL(base).hostname
+    return host === 'localhost' || host === '127.0.0.1' || host === '::1'
+  } catch {
+    return /localhost|127\.0\.0\.1/i.test(base)
+  }
+}
+
+async function postMarketingSync(
+  endpoint: string,
+  secret: string,
+  payload: SyncPayload,
+): Promise<void> {
+  const onVercel = process.env.VERCEL === '1'
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${secret}`,
+    },
+    body: JSON.stringify(payload),
+    // Local CMS: fail fast. Vercel: keep under Hobby 60s.
+    signal: AbortSignal.timeout(onVercel ? 18_000 : 12_000),
+  })
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new Error(
+      `[payload→backend sync] ${res.status} from ${endpoint}: ${text.slice(0, 300)}`,
+    )
+  }
+}
+
 export async function syncToMarketingBackend(payload: SyncPayload): Promise<void> {
   const base = resolveMarketingSyncBaseUrl()
   const secret = (
@@ -71,32 +105,42 @@ export async function syncToMarketingBackend(payload: SyncPayload): Promise<void
     throw new Error(msg)
   }
 
-  const endpoint = `${base}/api/cms/payload-sync`
-
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${secret}`,
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(30_000),
-    })
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => '')
-      const msg = `[payload→backend sync] ${res.status} from ${endpoint}: ${text.slice(0, 300)}`
-      console.error(msg)
-      throw new Error(msg)
-    }
-    console.info('[payload→backend sync] ok', payload.type, payload.slug, '→', endpoint)
-  } catch (err) {
-    if (err instanceof Error && err.message.startsWith('[payload→backend sync]')) {
-      throw err
-    }
-    const msg = `[payload→backend sync] Failed to reach ${endpoint}: ${err instanceof Error ? err.message : String(err)}`
+  if (process.env.VERCEL === '1' && isLocalMarketingHost(base)) {
+    const msg =
+      `[payload→backend sync] BACKEND_API_URL/FRONTEND_APP_URL points at ${base} — Vercel CMS cannot reach localhost. ` +
+      'Set BACKEND_API_URL=https://www.argroupofeducation.com'
     console.error(msg)
     throw new Error(msg)
   }
+
+  const endpoint = `${base}/api/cms/payload-sync`
+  // One quick retry only — never burn the whole serverless timeout.
+  const attempts = process.env.VERCEL === '1' ? 2 : 3
+  let lastErr: unknown
+
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      await postMarketingSync(endpoint, secret, payload)
+      console.info('[payload→backend sync] ok', payload.type, payload.slug, '→', endpoint, `attempt=${i}`)
+      return
+    } catch (err) {
+      lastErr = err
+      console.error(
+        '[payload→backend sync] attempt failed',
+        { attempt: i, slug: payload.slug, err: err instanceof Error ? err.message : String(err) },
+      )
+      if (i < attempts) {
+        await new Promise((r) => setTimeout(r, 400 * i))
+      }
+    }
+  }
+
+  if (lastErr instanceof Error && lastErr.message.startsWith('[payload→backend sync]')) {
+    throw lastErr
+  }
+  throw new Error(
+    `[payload→backend sync] Failed to reach ${endpoint}: ${
+      lastErr instanceof Error ? lastErr.message : String(lastErr)
+    }`,
+  )
 }

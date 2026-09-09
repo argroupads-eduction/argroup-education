@@ -68,7 +68,6 @@ type LeadFormValues = {
   city: string;
   category: string;
   targetCountry: string;
-  budget: string;
 };
 
 const EMPTY_VALUES: LeadFormValues = {
@@ -78,7 +77,6 @@ const EMPTY_VALUES: LeadFormValues = {
   city: '',
   category: '',
   targetCountry: '',
-  budget: '',
 };
 
 const fieldWrapClass = 'min-w-0 w-full';
@@ -134,8 +132,6 @@ function buildSubmissionPayload(
     const countryField =
       findPayloadFieldName(fields, ['country', 'state', 'destination', 'target']) ||
       'country';
-    const budgetField =
-      findPayloadFieldName(fields, ['budget', 'fee', 'fees', 'amount']) || 'budget';
 
     const logical: Record<string, string> = {
       [nameField]: values.fullName,
@@ -144,13 +140,22 @@ function buildSubmissionPayload(
       [cityField]: values.city,
       [categoryField]: values.category,
       [countryField]: values.targetCountry,
-      [budgetField]: values.budget,
     };
 
     const used = new Set<string>();
     const submissionData: { field: string; value: string }[] = [];
 
     for (const f of fields) {
+      const name = f.name.toLowerCase();
+      const label = (f.label || '').toLowerCase();
+      if (
+        name.includes('budget') ||
+        name.includes('fee') ||
+        label.includes('budget') ||
+        label.includes('fee')
+      ) {
+        continue;
+      }
       const value = logical[f.name] ?? '';
       if (value || f.required) {
         submissionData.push({ field: f.name, value });
@@ -171,8 +176,7 @@ function buildSubmissionPayload(
         { field: phoneField, value: values.phone },
         { field: cityField, value: values.city },
         { field: categoryField, value: values.category },
-        { field: countryField, value: values.targetCountry },
-        { field: budgetField, value: values.budget }
+        { field: countryField, value: values.targetCountry }
       );
     }
 
@@ -188,7 +192,6 @@ function buildSubmissionPayload(
       { field: 'city', value: values.city },
       { field: 'category', value: values.category },
       { field: 'targetCountry', value: values.targetCountry },
-      { field: 'budget', value: values.budget },
       { field: 'source', value: 'website-lead-popup' },
     ],
   };
@@ -196,7 +199,6 @@ function buildSubmissionPayload(
 
 import { validatePersonName } from '@/lib/validatePersonName';
 import { validateIndianMobile, validateLeadEmail } from '@/lib/leadSubmissionMessages';
-import { sanitizeBudgetInput, validateBudget } from '@/lib/validateBudget';
 
 function validate(values: LeadFormValues): string | null {
   const nameErr = validatePersonName(values.fullName);
@@ -208,8 +210,6 @@ function validate(values: LeadFormValues): string | null {
   if (!values.city.trim()) return 'City is required.';
   if (!values.category.trim()) return 'Please select a category.';
   if (!values.targetCountry.trim()) return 'Please select a target destination.';
-  const budgetErr = validateBudget(values.budget);
-  if (budgetErr) return budgetErr;
   return null;
 }
 
@@ -252,7 +252,16 @@ function PromoPanel({ variant = 'default' }: { variant?: 'default' | 'compact' |
         </div>
       ) : (
         <h2 className="relative mt-2 font-sans text-[1.2rem] font-bold leading-snug text-white md:text-[1.35rem]">
-          Your MBBS in India and abroad journey starts here
+          Your Medical Journey{' '}
+          <span className="relative inline-block align-baseline">
+            <span className="bg-gradient-to-r from-amber-200 via-gold-400 to-amber-300 bg-clip-text text-[1.28rem] font-extrabold tracking-tight text-transparent drop-shadow-[0_0_20px_rgba(251,191,36,0.55)] md:text-[1.5rem]">
+              Starts Here
+            </span>
+            <span
+              className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-amber-400 via-gold-400 to-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.85)]"
+              aria-hidden
+            />
+          </span>
         </h2>
       )}
       {!isMobileSheet && (
@@ -516,25 +525,6 @@ function LeadCaptureFormPanel({
             ))}
           </select>
         </motion.div>
-
-        <motion.div className={clsx(fieldWrapClass, 'col-span-2')}>
-          <label htmlFor="lead-budget" className={labelClass}>
-            Budget (₹) *
-          </label>
-          <input
-            id="lead-budget"
-            name="budget"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            autoComplete="off"
-            required
-            placeholder="7000000"
-            className={fieldInputClass}
-            value={values.budget}
-            onChange={(e) => setField('budget', sanitizeBudgetInput(e.target.value))}
-          />
-        </motion.div>
       </motion.div>
 
       {isEmailOtpEnabled() ? (
@@ -613,7 +603,7 @@ function LeadCaptureFormPanel({
   return (
     <>
       <h2 className="pr-10 font-sans text-[1.25rem] font-bold leading-snug text-navy-900 md:pr-0 md:text-[1.55rem]">
-        Looking for MBBS in India or Abroad?
+        Looking for Medical Colleges in India or Abroad?
       </h2>
       <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600 md:text-sm">
         Share your details, AR Group counsellors will call you with tailored options for India and international
@@ -738,7 +728,6 @@ export function LeadCapturePopup() {
       city: values.city.trim(),
       category: values.category,
       targetCountry: values.targetCountry,
-      budget: sanitizeBudgetInput(values.budget),
     };
 
     const payload = buildSubmissionPayload(normalized, payloadForm);
@@ -756,7 +745,6 @@ export function LeadCapturePopup() {
             city: normalized.city,
             category: normalized.category,
             targetCountry: normalized.targetCountry,
-            budget: normalized.budget,
           };
 
       const lead = await submitWebsiteLead({
@@ -831,7 +819,7 @@ export function LeadCapturePopup() {
           open={open}
           onOpenChange={handleOpenChange}
           reduceMotion={!!reduceMotion}
-          title="Looking for MBBS in India or Abroad?"
+          title="Looking for Medical Colleges in India or Abroad?"
           header={<PromoPanel variant="mobileSheet" />}
         >
           <LeadCaptureFormPanel
@@ -882,10 +870,12 @@ export function LeadCapturePopup() {
                     exit="hidden"
                     variants={contentVariants}
                   >
-                    <Dialog.Title className="sr-only">Looking for MBBS in India or Abroad?</Dialog.Title>
+                    <Dialog.Title className="sr-only">
+                      Looking for Medical Colleges in India or Abroad?
+                    </Dialog.Title>
                     <Dialog.Description id="lead-capture-desc" className="sr-only">
-                      Share your details for MBBS in India or abroad, AR Group counsellors will call you with tailored
-                      university options.
+                      Share your details for medical colleges in India or abroad, AR Group counsellors will call you
+                      with tailored university options.
                     </Dialog.Description>
 
                     <motion.div

@@ -26,15 +26,26 @@ export const BLOG_FEATURED_IMAGES: Record<string, string> = {
     '/images/blog/medical-colleges-accepting-low-neet-score-2026.png',
   'how-to-get-mbbs-with-a-low-neet-score-in-2026':
     '/images/blog/how-to-get-mbbs-with-a-low-neet-score-in-2026.png',
+  'mbbs-with-low-neet-score-2026':
+    '/images/blog/how-to-get-mbbs-with-a-low-neet-score-in-2026.png',
   'mbbs-admission-through-management-quota':
     '/images/blog/mbbs-admission-through-management-quota-2026.png',
   'mbbs-admission-2026-without-donation':
+    '/images/blog/mbbs-admission-2026-without-donation.png',
+  'mbbs-admission-without-donation-2026':
     '/images/blog/mbbs-admission-2026-without-donation.png',
   'mbbs-drop-year-strategy-neet-2026':
     '/images/blog/mbbs-drop-year-strategy-neet-2026.png',
   'marks-are-required-in-neet-for-mbbs':
     '/images/blog/how-many-marks-are-required-in-neet-for-mbbs-v2.png',
+  'marks-required-in-neet-for-mbbs-2026':
+    '/images/blog/how-many-marks-are-required-in-neet-for-mbbs-v2.png',
   'mbbs-with-300-marks-in-neet': '/images/blog/mbbs-with-300-marks-in-neet-v2.png',
+  'mbbs-with-300-marks-in-neet-2026': '/images/blog/mbbs-with-300-marks-in-neet-v2.png',
+  'score-is-needed-in-neet':
+    '/images/blog/how-much-score-needed-neet-2026-full-cut-off-analysis.png',
+  'score-needed-in-neet-2026':
+    '/images/blog/how-much-score-needed-neet-2026-full-cut-off-analysis.png',
 };
 
 /** Editorial publish dates for bundle-managed posts (overrides stale CMS/API copies). */

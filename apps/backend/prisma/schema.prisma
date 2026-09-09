@@ -5,10 +5,11 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  // Pooled URL (Neon "Connect" with connection pooling ON) — use in app runtime
+  // Local/cutover target: CockroachDB Serverless (Postgres wire).
+  // Keep Vercel backend on Supabase until cutover; then set DATABASE_URL there too.
+  provider  = "cockroachdb"
   url       = env("DATABASE_URL")
-  // Direct URL (Neon "Connect" with pooling OFF) — required for Prisma migrations
+  // Same CRDB URL locally (no separate pooler). On Supabase era this was the direct URL.
   directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
@@ -18,8 +19,8 @@ model BlogPost {
   wpId             Int?      @unique
   title            String
   slug             String    @unique
-  content          String    @db.Text
-  excerpt          String    @db.Text
+  content          String   
+  excerpt          String   
   featuredImage    String?
   category         String    @default("Blog")
   tags             String[]
@@ -52,8 +53,8 @@ model SitePage {
   wpId             Int       @unique
   title            String
   slug             String    @unique
-  content          String    @db.Text
-  excerpt          String?   @db.Text
+  content          String   
+  excerpt          String?  
   featuredImage    String?
   metaTitle          String?
   metaDescription    String?
@@ -85,7 +86,7 @@ model Country {
   id               String   @id @default(cuid())
   name             String   @unique
   slug             String   @unique
-  description      String   @db.Text
+  description      String  
   image            String?
   flag             String?
   medicalSchools   Int      @default(0)
@@ -109,7 +110,7 @@ model University {
   slug             String   @unique
   countryId        String
   country          Country  @relation(fields: [countryId], references: [id])
-  description      String   @db.Text
+  description      String  
   image            String?
   rating           Float    @default(0)
   fees             String?
@@ -139,7 +140,7 @@ model NeetRankPredictorSubmission {
   expectedRank    Int
   worstRank       Int
   percentile      Float
-  collegeChances  String   @db.Text
+  collegeChances  String  
   createdAt       DateTime @default(now())
 
   @@index([phone])
@@ -157,10 +158,10 @@ model WebsiteFormLead {
   emailKey   String?
   phoneKey   String?
   pageUrl    String?
-  userAgent  String?  @db.Text
+  userAgent  String? 
   fields     Json
   emailSent  Boolean  @default(false)
-  emailError String?  @db.Text
+  emailError String? 
   createdAt  DateTime @default(now())
 
   @@index([source])
@@ -180,7 +181,7 @@ model Lead {
   countryPreference String
   status           String   @default("new")
   source           String   @default("website")
-  notes            String?  @db.Text
+  notes            String? 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   
@@ -207,7 +208,7 @@ model ContactSubmission {
   email            String
   phone            String?
   subject          String
-  message          String   @db.Text
+  message          String  
   read             Boolean  @default(false)
   createdAt        DateTime @default(now())
   
@@ -220,7 +221,7 @@ model Testimonial {
   id               String   @id @default(cuid())
   name             String
   image            String?
-  review           String   @db.Text
+  review           String  
   university       String
   country          String
   rating           Int      @default(5)
@@ -240,7 +241,7 @@ model GalleryImage {
   title            String
   image            String
   category         String
-  description      String?  @db.Text
+  description      String? 
   featured         Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -287,3 +288,4 @@ model PushSubscription {
 
   @@index([createdAt])
 }
+

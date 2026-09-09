@@ -69,10 +69,12 @@ export function ProgramPageHero({
   heroImageFit = 'default',
 }: ProgramPageHeroProps) {
   return (
-    <section className={`relative overflow-hidden py-8 sm:py-10 md:py-14 ${THEME_STYLES[theme]}`}>
+    <section
+      className={`relative overflow-hidden py-8 sm:py-10 md:py-14 ${THEME_STYLES[theme]}`}
+    >
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(251,191,36,0.16),transparent_55%)]"
-        aria-hidden
+        aria-hidden="true"
       />
       <div className="relative mx-auto max-w-7xl px-3 sm:px-4">
         <div className={featuredImage ? 'grid items-center gap-6 sm:gap-8 lg:grid-cols-[1.1fr_0.9fr]' : ''}>

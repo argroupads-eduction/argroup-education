@@ -425,6 +425,16 @@
   cursor: pointer;
 }
 
+.neet-select--placeholder {
+  color: rgb(148 163 184);
+  font-weight: 500;
+}
+
+.neet-select--placeholder option {
+  color: rgb(15 23 42);
+  font-weight: 600;
+}
+
 .neet-select:focus,
 .neet-select:focus-visible {
   outline: none !important;

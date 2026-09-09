@@ -4,16 +4,16 @@ import { ArrowRight, GraduationCap, MapPin, Sparkles, Trophy } from 'lucide-reac
 /** Home teaser for /college-predictor — server component (no client bundle). */
 export function CollegePredictorHomeSection() {
   const bullets = [
-    'Personalized MBBS college list based on your rank',
+    'Personalized Medical college list based on your rank',
     'Compare fees, cut-offs, and state-wise options',
     'Get a free counselling session from AR Group of Education',
-    'Explore MBBS, BDS, BAMS, AYUSH, and Study Abroad opportunities',
+    'Explore MBBS, MD/MS, BDS, BAMS, AYUSH, and Study Abroad opportunities',
   ] as const;
 
   const previewStats = [
     { label: 'States', value: '6+' },
     { label: 'Safe', value: 'High' },
-    { label: 'Path', value: 'MBBS' },
+    { label: 'Path', value: 'Medical' },
   ] as const;
 
   return (
@@ -42,7 +42,7 @@ export function CollegePredictorHomeSection() {
             </span>
 
             <h2 className="mt-5 font-serif text-3xl font-bold leading-tight text-navy-900 md:text-4xl">
-              Find Your Best MBBS College in{' '}
+              Find Your Best Medical College in{' '}
               <span className="text-gold-800">60 Seconds</span>
             </h2>
 

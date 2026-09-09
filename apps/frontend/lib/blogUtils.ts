@@ -62,6 +62,14 @@ export const BLOG_EXCLUDED_LIST_SLUGS = new Set([
   'bukkhara-state-medical-institute-eligibility',
   'can-i-get-mbbs-with-250-marks-in-neet-complete-admission-guide-2026',
   'career-options-after-mbbs-in-india',
+  // Renamed by Blog Meta Changes sheet — keep old slugs off the index.
+  'how-to-get-mbbs-with-a-low-neet-score-in-2026',
+  'mbbs-admission-2026-without-donation',
+  'marks-are-required-in-neet-for-mbbs',
+  'mbbs-with-300-marks-in-neet',
+  '400-marks-in-neet-rank',
+  'score-is-needed-in-neet',
+  'neet-paper-analysis',
   'cat-2023-results-declared',
   'cheapest-mbbs-colleges-in-india-2024-25',
   'cheapest-mbbs-country',
@@ -284,6 +292,16 @@ export const BLOG_SLUG_CANONICAL: Record<string, string> = {
   'mata-gujri-memorial-medical-college,kishanganj':
     'mata-gujri-memorial-medical-college-kishanganj',
   'neet-marks-for-mbbs-private-mbbs': 'neet-marks-for-private-mbbs',
+  // CMS renamed slug; keep old URLs pointing at the live post.
+  'neet-counselling-2026-choices-filling-10-times': 'neet-ug-counselling-choice-filling',
+  // Blog Meta Changes sheet (Google Doc) — old URLs → new SEO slugs.
+  'how-to-get-mbbs-with-a-low-neet-score-in-2026': 'mbbs-with-low-neet-score-2026',
+  'mbbs-admission-2026-without-donation': 'mbbs-admission-without-donation-2026',
+  'marks-are-required-in-neet-for-mbbs': 'marks-required-in-neet-for-mbbs-2026',
+  'mbbs-with-300-marks-in-neet': 'mbbs-with-300-marks-in-neet-2026',
+  '400-marks-in-neet-rank': '400-marks-in-neet-2026',
+  'score-is-needed-in-neet': 'score-needed-in-neet-2026',
+  'neet-paper-analysis': 'neet-2026-paper-analysis',
 };
 
 function normalizeBlogTitleKey(title: string): string {

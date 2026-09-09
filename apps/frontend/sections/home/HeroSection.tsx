@@ -64,12 +64,16 @@ function HeroCopy({
         <span className="truncate">{badge}</span>
       </span>
 
-      <h1
+      {/* Use div (not h1/h2): homepage H1 lives in SEO section; avoids stale-chunk h1↔h2 hydration fights. */}
+      <div
+        role="heading"
+        aria-level={2}
+        data-hero-title="v3"
         className={`mt-3 text-[clamp(1.4rem,5.8vw,1.85rem)] font-black leading-[1.15] text-white sm:mt-4 sm:text-4xl md:text-5xl md:[text-shadow:none] lg:text-[3.25rem] xl:text-6xl ${readable}`}
       >
         {titleLine}
         <span className="mt-1 block text-gold-400 sm:mt-2">{titleAccent}</span>
-      </h1>
+      </div>
 
       {/* Mobile: plain copy (no glass). md+: light glass card */}
       <div className="mt-3 sm:mt-4 md:mt-6 md:rounded-xl md:border md:border-white/25 md:bg-white/10 md:px-5 md:py-4 md:backdrop-blur-sm">

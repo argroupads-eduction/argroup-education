@@ -109,7 +109,7 @@ export function YoutubeChannelSection() {
             <div className="youtube-channel-section__kicker">
               <span className="youtube-channel-section__live-pill">
                 <Radio className="h-3.5 w-3.5" aria-hidden />
-                Expert talks · MBBS guidance
+                Expert talks · Medical guidance
               </span>
             </div>
 

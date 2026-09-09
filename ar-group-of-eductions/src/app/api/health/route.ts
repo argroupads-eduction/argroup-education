@@ -15,6 +15,20 @@ function databaseHost(): string {
   return 'unknown'
 }
 
+function databaseMeta(): { port: string; pooler: boolean; pgbouncer: boolean } {
+  const raw = process.env.DATABASE_URL?.trim() ?? ''
+  try {
+    const u = new URL(raw)
+    return {
+      port: u.port || 'default',
+      pooler: /pooler/i.test(u.hostname),
+      pgbouncer: /pgbouncer=true/i.test(u.search) || /pgbouncer=true/i.test(raw),
+    }
+  } catch {
+    return { port: 'unknown', pooler: false, pgbouncer: false }
+  }
+}
+
 async function testBlobWrite(): Promise<{ ok: boolean; message?: string }> {
   const token = process.env.BLOB_READ_WRITE_TOKEN?.trim()
   if (!token) return { ok: false, message: 'BLOB_READ_WRITE_TOKEN not set' }
@@ -39,9 +53,14 @@ async function testBlobWrite(): Promise<{ ok: boolean; message?: string }> {
 export async function GET(req: Request) {
   const testBlob = new URL(req.url).searchParams.get('testBlob') === '1'
   const dbHost = databaseHost()
+  const dbMeta = databaseMeta()
   const checks = {
     databaseUrl: envSet('DATABASE_URL'),
     databaseHost: dbHost,
+    databasePort: dbMeta.port,
+    databasePooler: dbMeta.pooler,
+    databasePgbouncer: dbMeta.pgbouncer,
+    payloadDatabasePush: process.env.PAYLOAD_DATABASE_PUSH === 'true',
     payloadSecret: envSet('PAYLOAD_SECRET'),
     serverUrl:
       process.env.NEXT_PUBLIC_SERVER_URL?.trim() ||

@@ -43,7 +43,7 @@ export function MbbsIndiaHubExplorer() {
                   </div>
                   <div className="program-hub-card-body">
                     <h3 className="program-hub-card-title">{state.name}</h3>
-                    <p className="program-hub-card-meta">{state.colleges.length} MBBS colleges</p>
+                    <p className="program-hub-card-meta">{state.colleges.length} Medical colleges</p>
                     <span className="program-hub-card-link inline-flex items-center gap-1">
                       View state hub
                       <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />

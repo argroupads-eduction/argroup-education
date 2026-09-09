@@ -24,8 +24,8 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
 const TRACK_LABELS: Record<string, string> = {
-  india: 'MBBS India',
-  abroad: 'MBBS Abroad',
+  india: 'MBBS INDIA',
+  abroad: 'MBBS ABROAD',
   'md-ms': 'MD/MS',
   bams: 'BAMS',
 };

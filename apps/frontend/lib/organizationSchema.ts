@@ -1,4 +1,5 @@
 import { CONTACT_INFO, SOCIAL_LINKS } from '@/lib/constants';
+import { HOME_PAGE_H1, HOME_PAGE_META_DESCRIPTION } from '@/lib/homePageSeoContent';
 import { getSiteUrl } from '@/lib/siteUrl';
 
 /** Canonical IDs for cross-referencing JSON-LD graphs. */
@@ -213,9 +214,8 @@ export function buildHomeWebPageSchema(siteUrl = getSiteUrl()) {
         '@type': 'WebPage',
         '@id': ids.webpage,
         url: `${base}/`,
-        name: 'AR Group of Education | MBBS Admission in India & Abroad',
-        description:
-          'AR Group of Education is a trusted medical education consultancy providing expert guidance for MBBS Admission in India, MBBS Abroad, NEET UG Counselling, NEET PG Counselling, and MD/MS Admission.',
+        name: HOME_PAGE_H1,
+        description: HOME_PAGE_META_DESCRIPTION,
         isPartOf: { '@id': ids.website },
         about: { '@id': ids.organization },
         publisher: { '@id': ids.organization },

@@ -13,10 +13,11 @@ router.post('/payload-sync', async (req: Request, res: Response) => {
   }
 
   const result = await runPayloadSync(req.body);
-  if (result.ok && result.body.published) {
+  // Always bust /blog cache — publish, unpublish, and delete all change the article count.
+  if (result.ok && typeof result.body.slug === 'string') {
     void revalidateFrontend({
       slug: result.body.slug,
-      type: result.body.type,
+      type: result.body.type === 'page' ? 'page' : 'post',
     });
   }
   res.status(result.status).json(result.body);

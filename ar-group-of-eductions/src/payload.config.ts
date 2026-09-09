@@ -97,11 +97,26 @@ export default buildConfig({
         return authHeader === `Bearer ${secret}`
       },
     },
+    // Local/long-running Node: run scheduled Publish jobs every minute.
+    // Vercel serverless must use Cron → GET /api/payload-jobs/run (see vercel.json).
+    autoRun:
+      process.env.VERCEL === '1'
+        ? undefined
+        : [
+            {
+              cron: '* * * * *',
+              limit: 20,
+              queue: 'default',
+            },
+          ],
+    shouldAutoRun: async () => process.env.DISABLE_PAYLOAD_JOBS_AUTORUN !== 'true',
     tasks: [],
   },
   onInit: async (payload) => {
     // Skip during Vercel `next build` — DB is only required at runtime (admin + API).
     if (process.env.NEXT_PHASE === 'phase-production-build') return
-    await ensureMarketingPages(payload)
+    // Skip on Vercel — competes for the tiny serverless pool and worsens cold-start 504s.
+    if (process.env.VERCEL === '1') return
+    void ensureMarketingPages(payload)
   },
 })

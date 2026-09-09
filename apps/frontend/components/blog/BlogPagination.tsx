@@ -25,11 +25,12 @@ export function BlogPagination({
   totalPosts,
   perPage = 12,
 }: BlogPaginationProps) {
-  if (totalPages <= 1) return null;
+  if (totalPosts <= 0) return null;
 
-  const pages = visiblePages(currentPage, totalPages);
+  const pages = visiblePages(currentPage, Math.max(1, totalPages));
   const from = (currentPage - 1) * perPage + 1;
   const to = Math.min(currentPage * perPage, totalPosts);
+  const showControls = totalPages > 1;
 
   return (
     <nav className="blog-pagination" aria-label="Blog pages">
@@ -37,6 +38,7 @@ export function BlogPagination({
         Showing {from}–{to} of {totalPosts} articles
       </p>
 
+      {showControls ? (
       <div className="blog-pagination__controls">
         {currentPage > 1 ? (
           <Link href={pageHref(currentPage - 1)} className="blog-pagination__btn">
@@ -83,6 +85,7 @@ export function BlogPagination({
           </span>
         )}
       </div>
+      ) : null}
     </nav>
   );
 }

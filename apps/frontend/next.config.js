@@ -135,10 +135,26 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=3600' },
         ],
       },
-      {
-        source: '/_next/static/:path*',
-        headers: longCache,
-      },
+      // Prod: hashed assets are immutable. Dev: same URL (`app/page.js`) must NOT be
+      // cached for a year — that left browsers on old Hero h1 while SSR sent h2/div.
+      ...(process.env.NODE_ENV === 'production'
+        ? [
+            {
+              source: '/_next/static/:path*',
+              headers: longCache,
+            },
+          ]
+        : [
+            {
+              source: '/_next/static/:path*',
+              headers: [
+                {
+                  key: 'Cache-Control',
+                  value: 'no-store, no-cache, must-revalidate, max-age=0',
+                },
+              ],
+            },
+          ]),
       {
         source: '/:path*.jpg',
         headers: longCache,

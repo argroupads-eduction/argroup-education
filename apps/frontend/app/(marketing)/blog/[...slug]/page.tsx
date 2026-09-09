@@ -10,6 +10,7 @@ import {
   slugFromBlogRouteSegments,
 } from '@/lib/blogUtils';
 import { getBlogPostPageDataCached as getBlogPostPageData } from '@/lib/blogPost.server';
+import { resolveBlogFeaturedImage } from '@/lib/blogFeaturedImages';
 import type { SiteContent } from '@/lib/contentApi';
 
 export const revalidate = 60;
@@ -32,6 +33,9 @@ function toSiteContent(post: NonNullable<
       ? post.updatedAt.toISOString()
       : String(post.updatedAt ?? new Date().toISOString());
 
+  // Same resolver as listing cards — curated heroes must match on the post page.
+  const featuredImage = resolveBlogFeaturedImage(post.slug, post.featuredImage);
+
   return {
     id: post.id,
     type: 'post',
@@ -39,7 +43,7 @@ function toSiteContent(post: NonNullable<
     slug: post.slug,
     content: post.content,
     excerpt: post.excerpt,
-    featuredImage: post.featuredImage,
+    featuredImage,
     metaTitle: post.metaTitle,
     metaDescription: post.metaDescription,
     canonicalUrl: post.canonicalUrl,

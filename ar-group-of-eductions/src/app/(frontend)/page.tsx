@@ -1,5 +1,6 @@
-import PageTemplate, { generateMetadata } from './[slug]/page'
+import { redirect } from 'next/navigation'
 
-export default PageTemplate
-
-export { generateMetadata }
+/** CMS project is admin/API only — marketing site lives on apps/frontend. */
+export default function RootPage() {
+  redirect('/admin')
+}

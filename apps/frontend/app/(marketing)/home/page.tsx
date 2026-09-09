@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { getSiteUrl } from '@/lib/siteUrl';
+import { HOME_PAGE_META_DESCRIPTION } from '@/lib/homePageSeoContent';
 import { HomeHeroClient } from '@/sections/home/HomeHeroClient';
 import { CollegePredictorHomeSection } from '@/sections/home/CollegePredictorHomeSection';
+import { MBBSIndiaStateSection } from '@/sections/home/MBBSIndiaStateSection';
 import { MbbsAbroadScrollSection } from '@/sections/home/MbbsAbroadScrollSection';
 import { LazySection } from '@/components/common/LazySection';
 import { HomeFaqJsonLd } from '@/components/home/HomeFaqJsonLd';
@@ -16,9 +18,6 @@ const HomeSeoContentSections = dynamic(
     }))
 );
 
-const MBBSIndiaStateSection = dynamic(
-  () => import('@/sections/home/MBBSIndiaStateSection').then((m) => ({ default: m.MBBSIndiaStateSection }))
-);
 const AboutSection = dynamic(() =>
   import('@/sections/home/AboutSection').then((m) => ({ default: m.AboutSection }))
 );
@@ -44,8 +43,7 @@ const SITE = getSiteUrl();
 export const revalidate = 300;
 
 const HOME_SEO_TITLE = 'Medical Admission Guidance | MBBS Admission Consultancy';
-const HOME_SEO_DESCRIPTION =
-  "Secure your seat with India's trusted MBBS admission consultancy. Get expert medical admission guidance for top colleges in India and abroad. Call today!";
+const HOME_SEO_DESCRIPTION = HOME_PAGE_META_DESCRIPTION;
 
 export const metadata: Metadata = {
   title: HOME_SEO_TITLE,
@@ -95,30 +93,25 @@ export default async function HomePage() {
       <HomeFaqJsonLd />
       <HomeHeroClient />
       <CollegePredictorHomeSection />
-      <LazySection minHeight="22rem">
-        <MBBSIndiaStateSection />
-      </LazySection>
+      <MBBSIndiaStateSection />
       <LazySection minHeight="24rem">
         <AboutSection />
       </LazySection>
       <LazySection minHeight="26rem">
         <YoutubeChannelSection />
       </LazySection>
-      <LazySection minHeight="26rem">
-        <MbbsAbroadScrollSection />
-      </LazySection>
+      {/* SSR: country links must stay in HTML for crawl/indexing */}
+      <MbbsAbroadScrollSection />
       <LazySection minHeight="20rem">
         <CounsellingFormSection />
       </LazySection>
       <LazySection minHeight="22rem">
         <AchievementsSection />
       </LazySection>
-      <LazySection minHeight="28rem">
-        <HomeSeoContentSections />
-      </LazySection>
-      <LazySection minHeight="18rem">
-        <FAQSection />
-      </LazySection>
+      {/* SSR: primary H1 + editorial SEO body + internal links */}
+      <HomeSeoContentSections />
+      {/* SSR: FAQ visible text (JSON-LD already present) */}
+      <FAQSection />
       <LazySection minHeight="20rem">
         <TestimonialsSection />
       </LazySection>

@@ -1,9 +1,4 @@
-/**
- * Service worker — PWA install + Web Push notifications.
- * Keep this file vanilla JS (served from /sw.js).
- */
-
-const CACHE = 'ar-group-shell-v5';
+const CACHE = 'ar-group-shell-v12';
 /** Do not precache `/` — homepage changes often; stale HTML causes hydration mismatches. */
 const PRECACHE = [
   '/manifest.webmanifest',
@@ -18,6 +13,11 @@ const PRECACHE = [
   '/icons/ar-notification-512.png',
 ];
 
+function isLocalHost() {
+  const h = self.location.hostname;
+  return h === 'localhost' || h === '127.0.0.1' || h === '[::1]';
+}
+
 function absoluteUrl(path) {
   try {
     const base = self.registration && self.registration.scope
@@ -30,6 +30,10 @@ function absoluteUrl(path) {
 }
 
 self.addEventListener('install', (event) => {
+  if (isLocalHost()) {
+    event.waitUntil(self.skipWaiting().then(() => self.registration.unregister()));
+    return;
+  }
   event.waitUntil(
     caches
       .open(CACHE)
@@ -39,6 +43,15 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
+  if (isLocalHost()) {
+    event.waitUntil(
+      caches
+        .keys()
+        .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+        .then(() => self.registration.unregister())
+    );
+    return;
+  }
   event.waitUntil(
     caches
       .keys()
@@ -49,6 +62,9 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Dev: never intercept — stale documents cause hydration mismatches.
+  if (isLocalHost()) return;
+
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
@@ -65,17 +81,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first for navigations; cache fallback for offline shell.
+  // Never cache HTML navigations — stale document + fresh/old JS causes hydration errors.
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-          return res;
-        })
-        .catch(() => caches.match(req).then((r) => r || caches.match('/')))
+      fetch(req).catch(() => caches.match(req).then((r) => r || caches.match('/')))
     );
+    return;
+  }
+
+  // Dev/HMR bundles must always hit the network.
+  if (url.pathname.startsWith('/_next/')) {
+    return;
   }
 });
 
@@ -102,7 +118,6 @@ self.addEventListener('push', (event) => {
     }
   }
 
-  // Android Chrome needs absolute HTTPS icon URLs — relative paths often fall back to "W".
   const defaultIcon = absoluteUrl('/icons/ar-notification-192.png');
   const icon = data.icon && /^https?:\/\//i.test(data.icon) ? data.icon : defaultIcon;
   const badge = absoluteUrl('/icons/ar-notification-192.png');

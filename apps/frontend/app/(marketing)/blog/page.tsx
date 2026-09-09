@@ -2,17 +2,17 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getBlogIndexListing } from '@backend/handlers/blogs';
 import { BlogIndexLayout } from '@/components/blog/BlogIndexLayout';
-import { dedupeBlogPosts, sortBlogPostsByNewest } from '@/lib/blogUtils';
+import { BLOG_EXCLUDED_LIST_SLUGS, dedupeBlogPosts, sortBlogPostsByNewest } from '@/lib/blogUtils';
 
 const POSTS_PER_PAGE = 12;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://argroupofeducation.com';
 
 /**
- * Cached shell so /blog opens fast. CMS sync still runs in the background via
- * getBlogIndexListing — it must never block first paint.
+ * Short ISR window so article counts refresh quickly after Payload publish/delete.
+ * On-demand /api/revalidate still busts cache immediately after CMS sync.
  */
-export const revalidate = 60;
+export const revalidate = 30;
 
 export const metadata: Metadata = {
   title: 'Education News And Updates | Medical Admission Blogs',
@@ -38,11 +38,13 @@ type BlogPageProps = {
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const { page: pageParam } = await searchParams;
   const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
+  const excludeSlugs = [...BLOG_EXCLUDED_LIST_SLUGS];
 
   const { blogs, catalog, total, pages } = await getBlogIndexListing({
     page: currentPage,
     pageSize: POSTS_PER_PAGE,
-    catalogSize: 200,
+    catalogSize: 500,
+    excludeSlugs,
   });
 
   const uniqueCatalog = sortBlogPostsByNewest(dedupeBlogPosts(catalog));

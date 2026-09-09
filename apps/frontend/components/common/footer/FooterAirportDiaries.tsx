@@ -26,7 +26,7 @@ function OrbitRing({
   const radius = 11.5;
 
   return (
-    <div className="airport-diaries__orbit-scene" aria-hidden>
+    <div className="airport-diaries__orbit-scene" aria-hidden="true">
       <div className="airport-diaries__orbit-ring">
         {images.map((img, i) => {
           const angle = (360 / count) * i;
@@ -128,15 +128,15 @@ export function FooterAirportDiaries() {
 
   return (
     <section className="airport-diaries" aria-labelledby="airport-diaries-heading">
-      <div className="airport-diaries__runway" aria-hidden />
-      <div className="airport-diaries__glow" aria-hidden />
+      <div className="airport-diaries__runway" aria-hidden="true" />
+      <div className="airport-diaries__glow" aria-hidden="true" />
 
       <div className="airport-diaries__inner">
         <div className="airport-diaries__ticker-wrap">
           <div className="airport-diaries__ticker">
             {tickerItems.map((route, i) => (
               <span key={`${route}-${i}`} className="airport-diaries__ticker-item">
-                <span className="airport-diaries__ticker-dot" aria-hidden />
+                <span className="airport-diaries__ticker-dot" aria-hidden="true" />
                 {route}
                 <span className="text-emerald-400/90"> · BOARDING</span>
               </span>
@@ -147,7 +147,7 @@ export function FooterAirportDiaries() {
         <div className="airport-diaries__grid">
           <div className="relative">
             <span className="airport-diaries__copy-kicker">
-              <Sparkles className="h-3.5 w-3.5" aria-hidden />
+              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
               MBBS Abroad · Live moments
             </span>
             <h2 id="airport-diaries-heading" className="airport-diaries__title">
@@ -186,7 +186,7 @@ export function FooterAirportDiaries() {
             <OrbitRing images={images} activeId={activeId} onSelect={selectById} />
 
             <div className="airport-diaries__spotlight">
-              <div className="airport-diaries__spotlight-scan" aria-hidden />
+              <div className="airport-diaries__spotlight-scan" aria-hidden="true" />
               <AnimatePresence mode="wait">
                 <motion.div
                   key={active.id}

@@ -23,7 +23,7 @@ export function LeadCapturePromoBanner({
         className
       )}
       role="status"
-      aria-label="Start your MBBS abroad journey, expert counselling session included"
+      aria-label="Start your medical journey, expert counselling session included"
     >
       <p
         className={clsx(
@@ -31,7 +31,7 @@ export function LeadCapturePromoBanner({
           compact ? 'text-[13px] leading-tight' : 'text-[15px] leading-snug md:text-base'
         )}
       >
-        Start Your MBBS Abroad Journey Today!
+        Start your Medical Journey Today
       </p>
       <p
         className={clsx(

@@ -49,7 +49,9 @@ export function BlogPostStickySearch({
 
       <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 md:pb-24 md:pt-8">
         <div className="blog-post-grid">
-          <div className="blog-post-main min-w-0">{children}</div>
+          <div className="blog-post-main min-w-0">
+            {children}
+          </div>
           <aside className="blog-post-aside space-y-5 lg:sticky lg:top-[7.5rem] lg:self-start">
             {toc ? <div className="blog-post-aside__toc">{toc}</div> : null}
             <BlogLatestSidebar

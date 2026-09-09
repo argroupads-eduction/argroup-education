@@ -143,6 +143,12 @@ export default async function RootLayout({
               '.brand-logo-link__frame--nav-wide{width:8.75rem;height:3.25rem;max-width:8.75rem;min-height:3.25rem;overflow:hidden;display:inline-flex;flex-shrink:0}.brand-logo-link__frame--nav-wide img{width:100%;height:100%;object-fit:contain}',
           }}
         />
+        {/* Kill leftover SWs + force one cache-bypass reload on localhost (dev chunk URLs are stable). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var h=location.hostname;if(h!=='localhost'&&h!=='127.0.0.1'&&h!=='[::1]')return;var k='ar-dev-bust-v7';if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');if('serviceWorker'in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()});});}if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(c){caches.delete(c)});});}var u=new URL(location.href);u.searchParams.set('_devbust','7');location.replace(u.toString());}catch(e){}})();`,
+          }}
+        />
         {/* Hero LCP preload is emitted by the homepage <img fetchPriority="high"> — avoid a second preload (can cancel the load on reload). */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         {isSiteProtectionEnabled() ? (

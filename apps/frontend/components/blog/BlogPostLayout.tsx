@@ -9,6 +9,7 @@ import { WpFaqEnhancer } from '@/components/content/WpFaqEnhancer';
 import { WpLazyReveal } from '@/components/content/WpLazyReveal';
 import { BlogImage } from './BlogImage';
 import { BlogPostStickySearch } from './BlogPostStickySearch';
+import { resolveBlogFeaturedImage } from '@/lib/blogFeaturedImages';
 import { formatBlogDate, readingTimeMinutes } from '@/lib/blogUtils';
 import { CONTACT_INFO } from '@/lib/constants';
 import { sanitizeCmsHtml } from '@/lib/sanitizeCmsHtml';
@@ -20,8 +21,10 @@ type BlogPostLayoutProps = {
 };
 
 export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLayoutProps) {
+  const heroImage =
+    resolveBlogFeaturedImage(content.slug, content.featuredImage) || content.featuredImage;
   const prepared = prepareWpHtml(content.content, {
-    featuredImage: content.featuredImage,
+    featuredImage: heroImage,
     title: content.title,
     pageSlug: content.slug,
     dedupeFeaturedInBody: false,
@@ -70,9 +73,9 @@ export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLa
                 </span>
               </div>
             </div>
-            {content.featuredImage ? (
+            {heroImage ? (
               <BlogImage
-                src={content.featuredImage}
+                src={heroImage}
                 alt={content.title}
                 variant="hero"
                 priority

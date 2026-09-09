@@ -74,6 +74,8 @@ export async function getBlogIndexListing(opts?: {
   page?: number;
   pageSize?: number;
   catalogSize?: number;
+  /** Slugs hidden from the public blog index (duplicates / takedowns). */
+  excludeSlugs?: string[];
 }) {
   void reconcileRecentCmsPosts().catch(() => undefined);
 
@@ -81,8 +83,12 @@ export async function getBlogIndexListing(opts?: {
   const pageSize = Math.min(50, Math.max(1, opts?.pageSize ?? 12));
   const catalogSize = Math.min(500, Math.max(pageSize, opts?.catalogSize ?? 200));
   const skip = (page - 1) * pageSize;
+  const excludeSlugs = (opts?.excludeSlugs ?? []).filter(Boolean);
 
-  const where = { published: true };
+  const where = {
+    published: true,
+    ...(excludeSlugs.length > 0 ? { slug: { notIn: excludeSlugs } } : {}),
+  };
 
   const [pageItems, total, catalogItems] = await withPrismaRetry(() =>
     Promise.all([

@@ -59,8 +59,8 @@ const INDIAN_CITIES = [
 ];
 
 const TRACK_OPTIONS: { id: Track; label: string }[] = [
-  { id: 'india', label: 'MBBS India' },
-  { id: 'abroad', label: 'MBBS Abroad' },
+  { id: 'india', label: 'MBBS INDIA' },
+  { id: 'abroad', label: 'MBBS ABROAD' },
   { id: 'md-ms', label: 'MD/MS' },
   { id: 'bams', label: 'BAMS' },
 ];

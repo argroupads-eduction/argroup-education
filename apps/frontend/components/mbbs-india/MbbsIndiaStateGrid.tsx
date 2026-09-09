@@ -14,7 +14,7 @@ export function MbbsIndiaStateGrid({ state }: MbbsIndiaStateGridProps) {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.28em] text-gold-600">Medical colleges</p>
           <h2 className="mt-2 text-2xl font-bold text-navy-900 md:text-3xl">
-            {state.colleges.length} MBBS colleges in {state.name}
+            {state.colleges.length} Medical colleges in {state.name}
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-slate-600 md:text-base">
             Select a college for fees, eligibility, cut-offs, and admission guidance.

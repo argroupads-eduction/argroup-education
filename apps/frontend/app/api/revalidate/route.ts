@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
   if (slug) {
     if (body.type === 'post') {
       paths.add(blogPostPath(slug));
-    } else {
+    } else if (slug !== 'globals') {
       paths.add(`/${slug}`);
     }
   }
@@ -50,6 +50,8 @@ export async function POST(req: NextRequest) {
   for (const path of paths) {
     revalidatePath(path);
   }
+  // Ensure paginated /blog?page=N and shared blog layout refresh too.
+  revalidatePath('/blog', 'layout');
 
   return NextResponse.json({ success: true, revalidated: [...paths] });
 }

@@ -15,6 +15,9 @@ type Args = {
 
 export const dynamic = 'force-dynamic'
 
+/** Vercel Pro: allow Payload admin cold start enough time (Hobby caps lower). */
+export const maxDuration = 60
+
 const serverFunction: ServerFunctionClient = async function (args) {
   'use server'
   return handleServerFunctions({

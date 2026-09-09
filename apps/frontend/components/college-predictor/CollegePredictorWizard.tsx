@@ -55,8 +55,8 @@ const INDIAN_CITIES = [
 ];
 
 const TRACK_OPTIONS: { id: Track; label: string }[] = [
-  { id: 'india', label: 'MBBS India' },
-  { id: 'abroad', label: 'MBBS Abroad' },
+  { id: 'india', label: 'MBBS INDIA' },
+  { id: 'abroad', label: 'MBBS ABROAD' },
   { id: 'md-ms', label: 'MD/MS' },
   { id: 'bams', label: 'BAMS' },
 ];
@@ -91,7 +91,7 @@ function SelectField({
       <div className="neet-select-wrap">
         <select
           id={id}
-          className="neet-select"
+          className={['neet-select', !value ? 'neet-select--placeholder' : ''].filter(Boolean).join(' ')}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           required
@@ -106,7 +106,7 @@ function SelectField({
 
 export function CollegePredictorWizard() {
   const [step, setStep] = useState<Step>('form');
-  const [track, setTrack] = useState<Track>('india');
+  const [track, setTrack] = useState<Track | ''>('');
   const [category, setCategory] = useState<NeetCategory>('general_ews');
   const [scoreInput, setScoreInput] = useState('');
   const [name, setName] = useState('');
@@ -133,6 +133,11 @@ export function CollegePredictorWizard() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (!track) {
+      setError('Please select where you want to study.');
+      return;
+    }
 
     const score = parseInt(scoreInput, 10);
     if (!scoreInput || Number.isNaN(score) || score < 0) {
@@ -277,6 +282,9 @@ export function CollegePredictorWizard() {
                       setScoreInput('');
                     }}
                   >
+                    <option value="" disabled>
+                      Select Option
+                    </option>
                     {TRACK_OPTIONS.map((o) => (
                       <option key={o.id} value={o.id}>
                         {o.label}
@@ -461,7 +469,7 @@ export function CollegePredictorWizard() {
                 <NeetRankCollegeResults
                   india={colleges.india}
                   abroad={colleges.abroad}
-                  track={track}
+                  track={track || 'india'}
                   title={track === 'md-ms' ? 'MD/MS colleges for your rank' : 'Colleges for your rank'}
                   subtitle={`Matched for ${categoryLabel || 'your category'} and ${
                     track === 'md-ms' ? 'NEET PG ' : ''

@@ -6,7 +6,7 @@ import { registerServiceWorker, subscribeUserToPush, clearServiceWorkerAndCaches
 import '@/styles/pwa-install.css';
 
 const DISMISS_KEY = 'ar-pwa-install-dismissed';
-const LOCAL_SW_RELOAD_KEY = 'ar-local-sw-cleared';
+const LOCAL_SW_RELOAD_KEY = 'ar-local-sw-cleared-v5';
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -103,7 +103,7 @@ export function PwaRegistrar() {
     let cancelled = false;
 
     void (async () => {
-      // Localhost: drop any controlling SW once, then hard-reload so chunks aren't stuck.
+      // Localhost: never register SW. Clear leftovers + one reload so stale HTML/JS cannot fight.
       if (isLocalhost()) {
         try {
           const regs = await navigator.serviceWorker.getRegistrations();
@@ -112,11 +112,11 @@ export function PwaRegistrar() {
           if (hadSw && !sessionStorage.getItem(LOCAL_SW_RELOAD_KEY)) {
             sessionStorage.setItem(LOCAL_SW_RELOAD_KEY, '1');
             window.location.reload();
-            return;
           }
         } catch {
           /* ignore */
         }
+        return;
       }
 
       const runSw = () => {
