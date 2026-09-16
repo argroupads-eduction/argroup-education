@@ -6,27 +6,12 @@ export type AirportDiaryImage = {
   alt: string;
 };
 
-const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
-
-/** Static /wp-content/uploads paths — Vercel CDN. Avoid /api/wp-media (serverless cannot read public/). */
-function toBundledWpUploadPath(src: string): string {
-  const trimmed = src.trim();
-  if (trimmed.startsWith('/wp-content/uploads/')) return trimmed;
-
-  const withoutHost = trimmed.replace(WP_MEDIA_HOST, '').replace(/^\/+/, '');
-  if (withoutHost.startsWith('wp-content/uploads/')) return `/${withoutHost}`;
-
-  const match = trimmed.match(/wp-content\/(uploads\/.+)$/i);
-  if (match) return `/wp-content/${match[1]}`;
-
-  return trimmed;
-}
-
+/** Prefer bundled /images/airport-diaries/* — wp-content is not in Amplify/Hostinger deploys. */
 const VALID_IMAGES = airportDiariesData.images
-  .filter((img) => img.src.includes('wp-content/uploads') && !img.src.endsWith('.svg'))
+  .filter((img) => Boolean(img.src?.trim()) && !img.src.endsWith('.svg'))
   .map((img) => ({
     ...img,
-    src: toBundledWpUploadPath(img.src),
+    src: img.src.trim(),
   })) satisfies AirportDiaryImage[];
 
 export const AIRPORT_DIARIES = {
