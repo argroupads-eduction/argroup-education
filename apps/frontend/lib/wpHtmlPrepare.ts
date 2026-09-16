@@ -1299,16 +1299,31 @@ function cleanAnswerHtml(inner: string): string {
 }
 
 function parseSameParagraphQa(inner: string): FaqItem | null {
-  if (!/(?:Ques(?:tion)?|Q)\s*\d+\s*[-–—:.]/i.test(inner)) return null;
   const parts = inner.split(/<br\s*\/?>/i);
   if (parts.length < 2) return null;
   const qPart = parts[0];
   const aPart = parts.slice(1).join(' ');
-  const num = (qPart.match(/(?:Ques(?:tion)?|Q)\s*(\d+)/i) ?? [])[1];
-  const question = stripFaqQuestionNumberPrefix(stripHtml(qPart));
   const answer = cleanAnswerHtml(aPart);
-  if (!num || !question || !answer) return null;
-  return { num, question, answer };
+  if (!answer) return null;
+
+  // "Ques 1." / "Q1." style (legacy WP exports)
+  if (/(?:Ques(?:tion)?|Q)\s*\d+\s*[-–—:.]/i.test(qPart)) {
+    const num = (qPart.match(/(?:Ques(?:tion)?|Q)\s*(\d+)/i) ?? [])[1];
+    const question = stripFaqQuestionNumberPrefix(stripHtml(qPart));
+    if (!num || !question) return null;
+    return { num, question, answer };
+  }
+
+  // Payload Lexical: "<strong>1. Question?</strong><br /> Answer…"
+  const numbered = stripHtml(qPart).match(/^(\d+)\.\s+(.+)$/);
+  if (numbered) {
+    const question = numbered[2].trim();
+    if (question.length >= 8) {
+      return { num: numbered[1], question, answer };
+    }
+  }
+
+  return null;
 }
 
 function parseQuestionParagraph(inner: string): { num: string; question: string; inlineAnswer?: string } | null {

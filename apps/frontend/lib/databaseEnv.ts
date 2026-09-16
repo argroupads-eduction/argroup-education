@@ -1,7 +1,7 @@
 import { loadMonorepoEnv } from '@backend/lib/loadMonorepoEnv';
 
-/** Local build/CI placeholder — Prisma would hang on 127.0.0.1:5432. */
-const PLACEHOLDER_DB_RE = /@127\.0\.0\.1:5432\//i;
+/** Local build/CI placeholder — Prisma would hang on unreachable DB. */
+const PLACEHOLDER_DB_RE = /@(?:127\.0\.0\.1|localhost):(?:5432|3306)\//i;
 
 /** True when a real Neon/Postgres URL is configured (not dev build placeholder). */
 export function hasUsableDatabase(): boolean {

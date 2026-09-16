@@ -1,4 +1,5 @@
 import { prisma, withPrismaRetry } from '../lib/prisma';
+import { asStringArray } from '../lib/jsonArray';
 
 export const WP_HOME_SLUG = 'mbbs-admission-in-top-colleges';
 
@@ -54,7 +55,7 @@ export async function getContentBySlug(
       metaDescription: doc.metaDescription,
       canonicalUrl: doc.canonicalUrl,
       focusKeyword: doc.focusKeyword,
-      keywords: doc.keywords,
+      keywords: asStringArray(doc.keywords),
       ogTitle: doc.ogTitle,
       ogDescription: doc.ogDescription,
       ogImage: doc.ogImage,

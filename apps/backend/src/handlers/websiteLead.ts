@@ -122,7 +122,7 @@ export async function isDuplicateWebsiteLead(
     if (emailKey) {
       const legacyEmail = await withPrismaRetry(() =>
         prisma.websiteFormLead.findFirst({
-          where: { email: { equals: emailKey, mode: 'insensitive' } },
+          where: { email: { equals: emailKey } },
           select: { id: true },
         })
       );

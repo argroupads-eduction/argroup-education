@@ -1,4 +1,5 @@
 import { prisma, withPrismaRetry } from '../lib/prisma';
+import { asStringArray } from '../lib/jsonArray';
 import { reconcileRecentCmsPosts } from '../lib/reconcileRecentCmsPosts';
 
 function formatBlogListItem(post: {
@@ -220,12 +221,12 @@ function formatBlogPostDetail(post: {
   excerpt: string;
   featuredImage: string | null;
   category: string;
-  tags: string[];
+  tags: unknown;
   author: string;
   metaTitle: string | null;
   metaDescription: string | null;
   canonicalUrl: string | null;
-  keywords: string[];
+  keywords: unknown;
   schemaJson?: unknown | null;
   publishedAt: Date | null;
   createdAt: Date;
@@ -240,12 +241,12 @@ function formatBlogPostDetail(post: {
     excerpt: post.excerpt,
     featuredImage: post.featuredImage,
     category: post.category,
-    tags: post.tags,
+    tags: asStringArray(post.tags),
     author: post.author,
     metaTitle: post.metaTitle,
     metaDescription: post.metaDescription,
     canonicalUrl: post.canonicalUrl,
-    keywords: post.keywords,
+    keywords: asStringArray(post.keywords),
     schemaJson: post.schemaJson ?? null,
     publishedAt: post.publishedAt,
     createdAt: post.createdAt,

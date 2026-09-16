@@ -91,7 +91,16 @@ async function resolveMediaId(
   }
 }
 
-/** Featured image URL safe for Vercel (embeds local Payload uploads as data URLs). */
+function preferPublicFeaturedUrl(url: string | null | undefined): string | null {
+  if (!url?.trim()) return null
+  const trimmed = url.trim()
+  if (trimmed.startsWith('data:')) return trimmed
+  if (!isPublicHttpsUrl(trimmed)) return null
+  // Prefer original Blob upload over Payload admin size variants (-1200x630-hash).
+  return trimmed.replace(/-\d+x\d+-[A-Za-z0-9]+(\.(?:webp|jpe?g|png|gif))$/i, '$1')
+}
+
+/** Featured image URL safe for marketing sync — never localhost / private hosts. */
 export async function resolveFeaturedImageForSync(
   payload: Payload,
   doc: {
@@ -102,27 +111,25 @@ export async function resolveFeaturedImageForSync(
     meta?: { image?: unknown } | null
   }
 ): Promise<string | null> {
+  const fromFeaturedField = preferPublicFeaturedUrl(
+    typeof doc.featuredImageUrl === 'string' ? doc.featuredImageUrl : null,
+  )
+
   for (const ref of [doc.featuredImage, doc.heroImage, doc.hero?.media, doc.meta?.image]) {
     const media = await resolveMediaId(payload, ref)
     if (!media) continue
 
-    const url = mediaUrlFromDoc(media)
-    if (url && isPublicHttpsUrl(url)) return url
+    const url = preferPublicFeaturedUrl(mediaUrlFromDoc(media))
+    if (url) return url
 
     const embedded = await mediaDocToDataUrl(media)
-    if (embedded) {
-      if (embedded.startsWith('data:')) return embedded
-      if (embedded.startsWith('https://')) return embedded
-    }
-
-    if (url) return url
+    if (embedded?.startsWith('data:')) return embedded
+    const embeddedPublic = preferPublicFeaturedUrl(embedded)
+    if (embeddedPublic) return embeddedPublic
   }
 
-  if (typeof doc.featuredImageUrl === 'string' && doc.featuredImageUrl.trim()) {
-    return doc.featuredImageUrl.trim()
-  }
-
-  return null
+  // Fall back to explicit featuredImageUrl (Blob) when media.url is only a local Payload path.
+  return fromFeaturedField
 }
 
 export async function buildPostSyncPayload(

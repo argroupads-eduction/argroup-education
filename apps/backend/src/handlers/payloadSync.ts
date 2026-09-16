@@ -172,7 +172,7 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
         await withPrismaRetry(() =>
           prisma.blogPost.deleteMany({
             where: {
-              OR: [{ slug }, { title: { equals: title, mode: 'insensitive' } }],
+              OR: [{ slug }, { title: { equals: title } }],
             },
           })
         );
@@ -182,7 +182,7 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
       await withPrismaRetry(() =>
         prisma.blogPost.deleteMany({
           where: {
-            title: { equals: title, mode: 'insensitive' },
+            title: { equals: title },
             slug: { not: slug },
           },
         })
@@ -235,6 +235,7 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
         excerpt: resolvedExcerpt,
         featuredImage: resolvedFeaturedImage,
         category: body.category || 'Blog',
+        tags: Array.isArray(body.tags) ? body.tags : [],
         metaTitle: resolvedMetaTitle,
         metaDescription: resolvedMetaDescription,
         canonicalUrl: body.canonicalUrl ?? null,
@@ -306,7 +307,7 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
       await withPrismaRetry(() =>
         prisma.sitePage.deleteMany({
           where: {
-            OR: [{ slug }, { title: { equals: title, mode: 'insensitive' } }],
+            OR: [{ slug }, { title: { equals: title } }],
           },
         })
       );
@@ -316,7 +317,7 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
     await withPrismaRetry(() =>
       prisma.sitePage.deleteMany({
         where: {
-          title: { equals: title, mode: 'insensitive' },
+          title: { equals: title },
           slug: { not: slug },
         },
       })

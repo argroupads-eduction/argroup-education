@@ -16,8 +16,7 @@ type PrismaGlobal = typeof globalThis & {
 const globalForPrisma = globalThis as PrismaGlobal;
 
 /** Placeholder for `next build` / CI when routes are imported but no DB is reachable. */
-const BUILD_TIME_DATABASE_URL =
-  'postgresql://build:build@127.0.0.1:5432/build?schema=public';
+const BUILD_TIME_DATABASE_URL = 'mysql://build:build@127.0.0.1:3306/build';
 
 const KEEPALIVE_MS = 4 * 60 * 1000;
 
@@ -32,13 +31,13 @@ function resolveDatabaseUrl(): string {
 
   if (isCompileOnly) return BUILD_TIME_DATABASE_URL;
 
-  // Local dev / ts-node-dev without Neon: avoid crashing imports; CMS routes return empty data.
+  // Local dev without DB: avoid crashing imports; CMS routes return empty data.
   if (process.env.NODE_ENV !== 'production') {
     return BUILD_TIME_DATABASE_URL;
   }
 
   throw new Error(
-    'DATABASE_URL is missing. Copy apps/backend/.env.example to .env and set Neon credentials.'
+    'DATABASE_URL is missing. Set Hostinger MySQL URL in env (mysql://USER:PASS@HOST:3306/DB).'
   );
 }
 

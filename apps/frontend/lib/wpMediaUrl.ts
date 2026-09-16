@@ -91,10 +91,13 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
     }
   }
 
-  // Keep known CDN hosts (Payload / Vercel Blob); drop other third-party hotlinks.
+  // Keep known CDN hosts (Payload / Vercel Blob); drop localhost + other hotlinks.
   if (/^https?:\/\//i.test(trimmed)) {
     try {
       const host = new URL(trimmed).hostname.replace(/^www\./, '').toLowerCase();
+      if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
+        return null;
+      }
       if (
         host.endsWith('argroupofeducation.com') ||
         host.endsWith('vercel-storage.com') ||

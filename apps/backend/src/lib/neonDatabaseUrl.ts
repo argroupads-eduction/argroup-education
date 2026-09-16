@@ -1,22 +1,35 @@
 /**
- * Neon pooled URLs require `pgbouncer=true` for Prisma (disables prepared statements).
- * @see https://www.prisma.io/docs/guides/database/neon
+ * Neon / Supabase / Hostinger MySQL URL helpers for Prisma.
  */
 export function getDatabaseProviderLabel(raw?: string): string {
   const url = raw?.trim() ?? process.env.DATABASE_URL?.trim() ?? '';
+  if (/^mysql:\/\//i.test(url) || url.includes('hstgr.io') || url.includes('hostinger')) {
+    return 'Hostinger MySQL';
+  }
   if (url.includes('supabase.com')) return 'Supabase';
   if (url.includes('.neon.tech')) return 'Neon';
+  if (url.includes('cockroachlabs.cloud') || url.includes('cockroachdb')) return 'Cockroach';
   return 'Postgres';
+}
+
+function isMysqlUrl(url: string): boolean {
+  return /^mysql:\/\//i.test(url);
 }
 
 export function neonDatabaseUrl(raw?: string): string {
   if (!raw?.trim()) {
     throw new Error(
-      'DATABASE_URL is missing. Copy apps/backend/.env.example to .env and set Neon credentials.'
+      'DATABASE_URL is missing. Set Hostinger MySQL URL, e.g. mysql://USER:PASS@HOST:3306/DB'
     );
   }
 
   let url = raw.trim().replace(/^["']|["']$/g, '');
+
+  // Hostinger MySQL — do not append Postgres/Neon query params.
+  if (isMysqlUrl(url)) {
+    return url;
+  }
+
   const isNeonPooler = url.includes('-pooler.');
   const isSupabasePooler = url.includes('supabase.com') && /:6543\b/.test(url);
 
@@ -33,11 +46,10 @@ export function neonDatabaseUrl(raw?: string): string {
 
   if (isNeonPooler || isSupabasePooler) {
     ensureParam('pgbouncer', 'true');
-    // Limit connections per Node process (backend + frontend each get their own pool).
     ensureParam('connection_limit', process.env.PRISMA_CONNECTION_LIMIT ?? '5');
   } else if (process.env.NODE_ENV === 'development' && !url.includes('supabase.com')) {
     console.warn(
-      '[database] DATABASE_URL is not a Neon pooler URL (-pooler.). Use the pooled URL from Neon Console to avoid idle disconnect errors.'
+      '[database] Prefer Hostinger MySQL (mysql://…) for production. Legacy Postgres URLs still work locally.'
     );
   }
 
@@ -53,12 +65,13 @@ export function isPrismaConnectionError(err: unknown): boolean {
     e.code === 'P1017' ||
     /connection.*closed/i.test(msg) ||
     /Error in PostgreSQL connection/i.test(msg) ||
+    /Error in MySQL connection/i.test(msg) ||
     /kind: Closed/i.test(msg) ||
     /Server has closed the connection/i.test(msg)
   );
 }
 
-/** Neon quota / plan expired / pool unavailable — skip DB and email lead directly. */
+/** Quota / plan expired / pool unavailable — skip DB and email lead directly. */
 export function isDatabaseUnavailableError(err: unknown): boolean {
   if (!err || typeof err !== 'object') return false;
   const e = err as { code?: string; message?: string; name?: string };
@@ -79,4 +92,3 @@ export function isDatabaseUnavailableError(err: unknown): boolean {
     /ECONNREFUSED|ETIMEDOUT|ENOTFOUND/i.test(msg)
   );
 }
-

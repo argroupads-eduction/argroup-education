@@ -24,9 +24,9 @@ export async function searchSiteContent(query: string, limit = 20): Promise<Sear
         where: {
           published: true,
           OR: [
-            { title: { contains: q, mode: 'insensitive' } },
-            { excerpt: { contains: q, mode: 'insensitive' } },
-            { content: { contains: q, mode: 'insensitive' } },
+            { title: { contains: q } },
+            { excerpt: { contains: q } },
+            { content: { contains: q } },
           ],
         },
         select: { slug: true, title: true, excerpt: true, content: true },
@@ -37,9 +37,9 @@ export async function searchSiteContent(query: string, limit = 20): Promise<Sear
         where: {
           published: true,
           OR: [
-            { title: { contains: q, mode: 'insensitive' } },
-            { excerpt: { contains: q, mode: 'insensitive' } },
-            { content: { contains: q, mode: 'insensitive' } },
+            { title: { contains: q } },
+            { excerpt: { contains: q } },
+            { content: { contains: q } },
           ],
         },
         select: { slug: true, title: true, excerpt: true, content: true },
