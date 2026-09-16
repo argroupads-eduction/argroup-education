@@ -31,14 +31,13 @@ function resolveDatabaseUrl(): string {
 
   if (isCompileOnly) return BUILD_TIME_DATABASE_URL;
 
-  // Local dev without DB: avoid crashing imports; CMS routes return empty data.
-  if (process.env.NODE_ENV !== 'production') {
-    return BUILD_TIME_DATABASE_URL;
+  // Prefer soft-fail: handlers catch connection errors and serve blog-index-fallback.json.
+  if (process.env.NODE_ENV === 'production') {
+    console.warn(
+      '[prisma] DATABASE_URL missing at runtime — using placeholder; blog list falls back to JSON'
+    );
   }
-
-  throw new Error(
-    'DATABASE_URL is missing. Set Hostinger MySQL URL in env (mysql://USER:PASS@HOST:3306/DB).'
-  );
+  return BUILD_TIME_DATABASE_URL;
 }
 
 function createPrismaClient(): PrismaClient {

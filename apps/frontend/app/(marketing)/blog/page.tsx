@@ -40,12 +40,26 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
   const excludeSlugs = [...BLOG_EXCLUDED_LIST_SLUGS];
 
-  const { blogs, catalog, total, pages } = await getBlogIndexListing({
-    page: currentPage,
-    pageSize: POSTS_PER_PAGE,
-    catalogSize: 500,
-    excludeSlugs,
-  });
+  let blogs: Awaited<ReturnType<typeof getBlogIndexListing>>['blogs'] = [];
+  let catalog: Awaited<ReturnType<typeof getBlogIndexListing>>['catalog'] = [];
+  let total = 0;
+  let pages = 1;
+
+  try {
+    const listing = await getBlogIndexListing({
+      page: currentPage,
+      pageSize: POSTS_PER_PAGE,
+      catalogSize: 500,
+      excludeSlugs,
+    });
+    blogs = listing.blogs;
+    catalog = listing.catalog;
+    total = listing.total;
+    pages = listing.pages;
+  } catch {
+    blogs = [];
+    catalog = [];
+  }
 
   const uniqueCatalog = sortBlogPostsByNewest(dedupeBlogPosts(catalog));
   const uniqueBlogs = sortBlogPostsByNewest(dedupeBlogPosts(blogs));
@@ -59,11 +73,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       <div className="blog-root mx-auto max-w-3xl px-4 py-20 text-center">
         <h1 className="font-serif text-3xl font-bold text-navy-900">Blog</h1>
         <p className="mt-4 text-slate-600">
-          No posts yet. Run WordPress export and import, or check the content bundle.
+          Blog database is reconnecting. Set Amplify DATABASE_URL to Hostinger MySQL and redeploy.
         </p>
-        <code className="mt-4 block text-sm text-navy-800">
-          npm run wp:export && npm run wp:import
-        </code>
       </div>
     );
   }

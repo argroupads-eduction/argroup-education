@@ -1,6 +1,50 @@
 import { prisma, withPrismaRetry } from '../lib/prisma';
 import { asStringArray } from '../lib/jsonArray';
 import { reconcileRecentCmsPosts } from '../lib/reconcileRecentCmsPosts';
+import { isDatabaseUnavailableError } from '../lib/neonDatabaseUrl';
+import { readFileSync, existsSync } from 'node:fs';
+import path from 'node:path';
+
+type BlogListItem = ReturnType<typeof formatBlogListItem>;
+
+function loadBlogIndexFallback(): BlogListItem[] {
+  const candidates = [
+    path.join(process.cwd(), 'data', 'blog-index-fallback.json'),
+    path.join(process.cwd(), 'apps', 'frontend', 'data', 'blog-index-fallback.json'),
+    path.join(__dirname, '../../../frontend/data/blog-index-fallback.json'),
+  ];
+  for (const file of candidates) {
+    if (!existsSync(file)) continue;
+    try {
+      const raw = JSON.parse(readFileSync(file, 'utf8')) as {
+        posts?: BlogListItem[];
+      };
+      if (Array.isArray(raw.posts) && raw.posts.length > 0) return raw.posts;
+    } catch {
+      /* try next */
+    }
+  }
+  return [];
+}
+
+function paginateFallback(
+  all: BlogListItem[],
+  opts: { page: number; pageSize: number; catalogSize: number; excludeSlugs: string[] }
+) {
+  const filtered = opts.excludeSlugs.length
+    ? all.filter((p) => !opts.excludeSlugs.includes(p.slug))
+    : all;
+  const total = filtered.length;
+  const skip = (opts.page - 1) * opts.pageSize;
+  return {
+    blogs: filtered.slice(skip, skip + opts.pageSize),
+    catalog: filtered.slice(0, opts.catalogSize),
+    total,
+    page: opts.page,
+    pageSize: opts.pageSize,
+    pages: Math.max(1, Math.ceil(total / opts.pageSize) || 1),
+  };
+}
 
 function formatBlogListItem(post: {
   id: string;
@@ -39,35 +83,51 @@ export async function listBlogPosts(page = 1, limit = 10, category?: string) {
     ...(category ? { category } : {}),
   };
 
-  const [items, total] = await withPrismaRetry(() =>
-    Promise.all([
-      prisma.blogPost.findMany({
-        where,
-        orderBy: { publishedAt: 'desc' },
-        skip,
-        take: safeLimit,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          featuredImage: true,
-          category: true,
-          publishedAt: true,
-          createdAt: true,
-        },
-      }),
-      prisma.blogPost.count({ where }),
-    ])
-  );
+  try {
+    const [items, total] = await withPrismaRetry(() =>
+      Promise.all([
+        prisma.blogPost.findMany({
+          where,
+          orderBy: { publishedAt: 'desc' },
+          skip,
+          take: safeLimit,
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            featuredImage: true,
+            category: true,
+            publishedAt: true,
+            createdAt: true,
+          },
+        }),
+        prisma.blogPost.count({ where }),
+      ])
+    );
 
-  return {
-    data: items.map(formatBlogListItem),
-    total,
-    page: safePage,
-    limit: safeLimit,
-    pages: Math.ceil(total / safeLimit),
-  };
+    return {
+      data: items.map(formatBlogListItem),
+      total,
+      page: safePage,
+      limit: safeLimit,
+      pages: Math.ceil(total / safeLimit),
+    };
+  } catch (err) {
+    if (!isDatabaseUnavailableError(err) && process.env.NODE_ENV === 'production') {
+      // Still fall back — Amplify often surfaces provider mismatch as generic errors.
+    }
+    let all = loadBlogIndexFallback();
+    if (category) all = all.filter((p) => p.category === category);
+    const total = all.length;
+    return {
+      data: all.slice(skip, skip + safeLimit),
+      total,
+      page: safePage,
+      limit: safeLimit,
+      pages: Math.max(1, Math.ceil(total / safeLimit) || 1),
+    };
+  }
 }
 
 /** Fast /blog index: one Neon round-trip for page + sidebar catalog (no CMS wait). */
@@ -91,51 +151,60 @@ export async function getBlogIndexListing(opts?: {
     ...(excludeSlugs.length > 0 ? { slug: { notIn: excludeSlugs } } : {}),
   };
 
-  const [pageItems, total, catalogItems] = await withPrismaRetry(() =>
-    Promise.all([
-      prisma.blogPost.findMany({
-        where,
-        orderBy: { publishedAt: 'desc' },
-        skip,
-        take: pageSize,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          featuredImage: true,
-          category: true,
-          publishedAt: true,
-          createdAt: true,
-        },
-      }),
-      prisma.blogPost.count({ where }),
-      prisma.blogPost.findMany({
-        where,
-        orderBy: { publishedAt: 'desc' },
-        take: catalogSize,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          featuredImage: true,
-          category: true,
-          publishedAt: true,
-          createdAt: true,
-        },
-      }),
-    ])
-  );
+  try {
+    const [pageItems, total, catalogItems] = await withPrismaRetry(() =>
+      Promise.all([
+        prisma.blogPost.findMany({
+          where,
+          orderBy: { publishedAt: 'desc' },
+          skip,
+          take: pageSize,
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            featuredImage: true,
+            category: true,
+            publishedAt: true,
+            createdAt: true,
+          },
+        }),
+        prisma.blogPost.count({ where }),
+        prisma.blogPost.findMany({
+          where,
+          orderBy: { publishedAt: 'desc' },
+          take: catalogSize,
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            featuredImage: true,
+            category: true,
+            publishedAt: true,
+            createdAt: true,
+          },
+        }),
+      ])
+    );
 
-  return {
-    blogs: pageItems.map(formatBlogListItem),
-    catalog: catalogItems.map(formatBlogListItem),
-    total,
-    page,
-    pageSize,
-    pages: Math.max(1, Math.ceil(total / pageSize)),
-  };
+    return {
+      blogs: pageItems.map(formatBlogListItem),
+      catalog: catalogItems.map(formatBlogListItem),
+      total,
+      page,
+      pageSize,
+      pages: Math.max(1, Math.ceil(total / pageSize)),
+    };
+  } catch {
+    return paginateFallback(loadBlogIndexFallback(), {
+      page,
+      pageSize,
+      catalogSize,
+      excludeSlugs,
+    });
+  }
 }
 
 export async function getBlogPostBySlug(slug: string) {
@@ -260,24 +329,28 @@ function formatBlogPostDetail(post: {
 /** Tiny sidebar query — one findMany, no count/reconcile. */
 export async function getLatestBlogSidebar(limit = 8) {
   const take = Math.min(24, Math.max(1, limit));
-  const items = await withPrismaRetry(() =>
-    prisma.blogPost.findMany({
-      where: { published: true },
-      orderBy: { publishedAt: 'desc' },
-      take,
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        excerpt: true,
-        featuredImage: true,
-        category: true,
-        publishedAt: true,
-        createdAt: true,
-      },
-    })
-  );
-  return items.map(formatBlogListItem);
+  try {
+    const items = await withPrismaRetry(() =>
+      prisma.blogPost.findMany({
+        where: { published: true },
+        orderBy: { publishedAt: 'desc' },
+        take,
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          featuredImage: true,
+          category: true,
+          publishedAt: true,
+          createdAt: true,
+        },
+      })
+    );
+    return items.map(formatBlogListItem);
+  } catch {
+    return loadBlogIndexFallback().slice(0, take);
+  }
 }
 
 /** Neon-only post + lean sidebar for fast /blog/[slug] opens. */

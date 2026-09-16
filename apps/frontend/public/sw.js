@@ -1,4 +1,4 @@
-const CACHE = 'ar-group-shell-v12';
+const CACHE = 'ar-group-shell-v13';
 /** Do not precache `/` — homepage changes often; stale HTML causes hydration mismatches. */
 const PRECACHE = [
   '/manifest.webmanifest',
@@ -74,6 +74,7 @@ self.addEventListener('fetch', (event) => {
   if (
     /\.(?:png|jpe?g|webp|gif|svg|avif|ico|mp4|webm)(?:$|\?)/i.test(url.pathname) ||
     url.pathname.startsWith('/wp-content/') ||
+    url.pathname.startsWith('/images/') ||
     url.pathname.startsWith('/api/wp-media/') ||
     url.pathname.startsWith('/uploads/') ||
     url.pathname.startsWith('/states/')
