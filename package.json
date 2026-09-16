@@ -18,7 +18,7 @@
     "build": "turbo run build",
     "build:frontend": "npm run build --workspace=ar-education-frontend",
     "hostinger:build": "node scripts/hostinger-build.mjs",
-    "hostinger:start": "npm run start --workspace=ar-education-frontend",
+    "hostinger:start": "node scripts/hostinger-start.mjs",
     "start": "turbo run start",
     "lint": "npx turbo run lint",
     "type-check": "npx turbo run type-check",

@@ -25,7 +25,9 @@ Amplify is **paused for live traffic** — use Hostinger temp URL until you poin
 | Root directory | `./` |
 | **Build command** | **`npm run hostinger:build`** |
 | Output directory | `apps/frontend/.next` |
-| Start command | `npm run start --workspace=ar-education-frontend` |
+| **Start command** | **`npm run hostinger:start`** |
+
+Build enables Next.js `output: 'standalone'` (Hostinger requires `.next/standalone`).
 
 If `main` still shows **Lines: 0**, Hostinger is doing a **full clone of old history**. Switch branch to **`hostinger-live`** (orphan, ~80MB tree only).
 
