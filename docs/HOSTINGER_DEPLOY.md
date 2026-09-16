@@ -24,10 +24,10 @@ Amplify is **paused for live traffic** — use Hostinger temp URL until you poin
 | Node | 22.x |
 | Root directory | `./` |
 | **Build command** | **`npm run hostinger:build`** |
-| Output directory | `apps/frontend/.next` |
-| **Start command** | **`npm run hostinger:start`** |
+| Output directory | `apps/frontend/.next` **or leave blank / `./`** |
+| **Start command** | **`npm run hostinger:start`** (fallback: `node hostinger-server.cjs`) |
 
-Build enables Next.js `output: 'standalone'` (Hostinger requires `.next/standalone`).
+Build enables Next.js `output: 'standalone'`. Start **forces `HOSTNAME=0.0.0.0`** — without that Hostinger returns **503 Service Unavailable**.
 
 If `main` still shows **Lines: 0**, Hostinger is doing a **full clone of old history**. Switch branch to **`hostinger-live`** (orphan, ~80MB tree only).
 
