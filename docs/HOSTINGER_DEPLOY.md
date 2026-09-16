@@ -1,56 +1,48 @@
-﻿# Hostinger deploy (marketing frontend → temporary *.hostingersite.com)
+﻿# Hostinger deploy — temporary live: https://khaki-mole-176670.hostingersite.com
 
-## Why every build failed (base cause)
+## Why you see 503
 
-Hostinger clones GitHub **`main`**. That tree used to include **`apps/frontend/public/wp-content` (~700MB+, 8k files)**.
+Hostinger proxy reaches the Node process only if it listens on **`0.0.0.0:$PORT`**.
 
-Clone/prepare dies around **5 minutes** with **Build logs Lines: 0** and analysis “logs null / no files in `apps/frontend/.next`”. Not a Next.js compile error.
+Common mistakes that cause **503 Service Unavailable**:
 
-## What we changed on `main`
+1. **Output directory** set to `apps/frontend/.next` → runtime loses `server.js` / monorepo → process never starts
+2. **Start** using `next start` without `-H 0.0.0.0` while `HOSTNAME` is the container name
+3. Branch still `main` with huge history (clone dies) — use **`hostinger-live`**
 
-- Dropped bulk WP uploads from git (CDN via `WP_MEDIA_ORIGIN`)
-- Kept `public/wp-content/uploads/colleges` (~48MB card images)
-- `npm run hostinger:build` forces `HOSTINGER=1` + skips media bundling
-- Live DB = **Hostinger MySQL** (269 blogs already imported)
-
-Amplify is **paused for live traffic** — use Hostinger temp URL until you point the domain.
-
-## Hostinger panel settings
+## Panel settings (copy exactly)
 
 | Setting | Value |
 |--------|--------|
-| **Branch** | **`hostinger-live`** (preferred — no heavy git history) or `main` |
+| **Branch** | **`hostinger-live`** |
 | Framework | Next.js or Other |
-| Node | 22.x |
-| Root directory | `./` |
+| Node | 20.x or 22.x |
+| Root directory | `./` (blank / repo root) |
 | **Build command** | **`npm run hostinger:build`** |
-| Output directory | `apps/frontend/.next` **or leave blank / `./`** |
-| **Start command** | **`npm run hostinger:start`** (fallback: `node hostinger-server.cjs`) |
+| **Output directory** | **LEAVE EMPTY** (delete `apps/frontend/.next` if set) |
+| **Start command** | **`node server.js`** |
 
-Build enables Next.js `output: 'standalone'`. Start **forces `HOSTNAME=0.0.0.0`** — without that Hostinger returns **503 Service Unavailable**.
-
-If `main` still shows **Lines: 0**, Hostinger is doing a **full clone of old history**. Switch branch to **`hostinger-live`** (orphan, ~80MB tree only).
-
-### Required ENV
+### ENV (minimum)
 
 ```env
 HOSTINGER=1
 SKIP_WP_MEDIA_BUNDLE=1
 NODE_ENV=production
+HOSTNAME=0.0.0.0
 DATABASE_URL=mysql://u559193891_Argroup2026:ARgroup%402026%23Db@srv1192.hstgr.io:3306/u559193891_argroup
 NEXT_PUBLIC_SITE_URL=https://khaki-mole-176670.hostingersite.com
 NEXT_PUBLIC_SITE_NAME=AR Group of Education
 WP_MEDIA_ORIGIN=https://www.argroupofeducation.com
-REVALIDATE_SECRET=<same as before>
-PAYLOAD_SYNC_SECRET=<same as before>
 ```
 
-After ENV + build command update → **Deploy** (or push to `main`).
+Full file: `apps/frontend/.env.hostinger` → Import .env
+
+After changing Output/Start → **Redeploy**.
+
+## Check Runtime logs
+
+If still 503: Websites → Runtime logs. Look for `hostinger-server` or Prisma/MySQL errors.
 
 ## Domain later
 
-When ready: Hostinger → Domains → point `www.argroupofeducation.com` → this app, then set `NEXT_PUBLIC_SITE_URL` to the real domain.
-
-## Vercel CMS `/admin` (separate)
-
-Payload still needs **Postgres** (Cockroach Finalize or Neon). Hostinger MySQL does **not** power `/admin`.
+Point `www.argroupofeducation.com` here, then update `NEXT_PUBLIC_SITE_URL`.
