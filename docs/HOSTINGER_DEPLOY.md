@@ -1,30 +1,27 @@
-# Hostinger deploy (marketing frontend only)
+﻿# Hostinger deploy (marketing frontend only)
 
-Payload CMS stays on **Vercel** (Postgres/Cockroach).  
-Marketing Next.js + **Hostinger MySQL** = this app.
+## Why builds failed (base cause)
 
-## Fix: “Build failed” + empty logs / null package.json
+Hostinger clones the **whole GitHub repo**. This monorepo includes:
 
-That Hostinger analysis usually means **Git clone never finished** (not a Next.js bug).
+- `apps/frontend/public/wp-content` (~700MB+, 8k+ files)
+- `ar-group-of-eductions` (Payload CMS, not needed on Hostinger)
 
-1. Deployments → reconnect GitHub (Hostinger GitHub App → grant `argroup-education`)
-2. **Delete** the broken Web App and create a **new** Node.js Web App from Git
-3. Use settings below exactly
-4. Do **not** set Root directory to `apps/frontend` alone — monorepo needs **repo root** (`./`)
+That often dies at **Preparing build environment** with **Lines: 0** (5 min timeout). Not a Next.js compile error.
 
-## Build settings (must use)
+## Fix: deploy the slim branch
 
 | Setting | Value |
 |--------|--------|
-| Framework | Next.js |
-| Branch | `main` |
-| Node | **22.x** |
-| **Root directory** | **`./`** (repo root — NOT `apps/frontend`) |
+| **Branch** | **`hostinger-deploy`** (not `main`) |
+| Framework | Next.js **or** Other |
+| Node | 22.x |
+| Root directory | `./` |
 | Build command | `npm run build:frontend` |
 | Output directory | `apps/frontend/.next` |
-| Start / entry | `npm run start --workspace=ar-education-frontend` |
+| Start command | `npm run start --workspace=ar-education-frontend` |
 
-## Environment variables (required)
+### Required ENV
 
 ```env
 HOSTINGER=1
@@ -33,26 +30,28 @@ NODE_ENV=production
 DATABASE_URL=mysql://u559193891_Argroup2026:ARgroup%402026%23Db@srv1192.hstgr.io:3306/u559193891_argroup
 NEXT_PUBLIC_SITE_URL=https://khaki-mole-176670.hostingersite.com
 NEXT_PUBLIC_SITE_NAME=AR Group of Education
-REVALIDATE_SECRET=your-secret
-PAYLOAD_SYNC_SECRET=your-secret
+REVALIDATE_SECRET=<same as before>
+PAYLOAD_SYNC_SECRET=<same as before>
 ```
 
-`HOSTINGER=1` skips the huge wp-media copy that OOMs Hostinger builds.
+## Amplify live site (www) — fastest blog fix
 
-Also set your real secrets (SMTP, GA, VAPID, etc.) from `apps/frontend/.env.hostinger.example`.
+Amplify still shows `database: disconnected` because ENV points at **dead Cockroach**.
 
-## MySQL
+AWS Amplify → Environment variables → set the **same** `DATABASE_URL` MySQL line above → **Redeploy**.
 
-Already created: `u559193891_argroup` @ `srv1192.hstgr.io`  
-Remote MySQL → Any Host (or app IP) allowed.
+Code on `main` already uses Prisma MySQL. Hostinger MySQL already has **269 blogs**.
 
-## After first successful deploy
+## Vercel CMS admin — separate problem
 
-Point custom domain later. Update Vercel CMS:
+`/admin` fails because Payload uses **Cockroach Postgres** (port 26257) and the cluster hit **RU / trial limit**.
 
-```env
-BACKEND_API_URL=https://khaki-mole-176670.hostingersite.com
-FRONTEND_APP_URL=https://khaki-mole-176670.hostingersite.com
-```
+- Hostinger MySQL **cannot** power Payload CMS.
+- Fix CMS: Cockroach → Edit cluster → Capacity → **Finalize** (paid), **or** move CMS `DATABASE_URL` to Neon Postgres later.
 
-CMS still needs its **own Postgres** (Cockroach revive / Neon) — not this MySQL URL.
+## Architecture (base)
+
+| App | Host | Database |
+|-----|------|----------|
+| Marketing www | Amplify (now) / Hostinger (next) | Hostinger MySQL |
+| Payload CMS | Vercel | Cockroach/Neon Postgres (not MySQL) |
