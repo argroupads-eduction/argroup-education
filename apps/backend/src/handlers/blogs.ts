@@ -7,6 +7,10 @@ import path from 'node:path';
 
 type BlogListItem = ReturnType<typeof formatBlogListItem>;
 
+type BlogDetailFallback = ReturnType<typeof formatBlogPostDetail>;
+
+let blogDetailFallbackCache: BlogDetailFallback[] | null = null;
+
 function loadBlogIndexFallback(): BlogListItem[] {
   const candidates = [
     path.join(process.cwd(), 'data', 'blog-index-fallback.json'),
@@ -25,6 +29,61 @@ function loadBlogIndexFallback(): BlogListItem[] {
     }
   }
   return [];
+}
+
+function loadBlogDetailFallback(): BlogDetailFallback[] {
+  if (blogDetailFallbackCache) return blogDetailFallbackCache;
+  const candidates = [
+    path.join(process.cwd(), 'data', 'blog-detail-fallback.json'),
+    path.join(process.cwd(), 'apps', 'frontend', 'data', 'blog-detail-fallback.json'),
+    path.join(__dirname, '../../../frontend/data/blog-detail-fallback.json'),
+  ];
+  for (const file of candidates) {
+    if (!existsSync(file)) continue;
+    try {
+      const raw = JSON.parse(readFileSync(file, 'utf8')) as {
+        posts?: Array<{
+          id: string;
+          title: string;
+          slug: string;
+          content: string;
+          excerpt: string;
+          featuredImage: string | null;
+          category: string;
+          tags: unknown;
+          author: string;
+          metaTitle: string | null;
+          metaDescription: string | null;
+          canonicalUrl: string | null;
+          keywords: unknown;
+          schemaJson?: unknown | null;
+          publishedAt: string;
+          createdAt: string;
+          updatedAt: string;
+          published: boolean;
+        }>;
+      };
+      if (!Array.isArray(raw.posts) || raw.posts.length === 0) continue;
+      blogDetailFallbackCache = raw.posts.map((post) =>
+        formatBlogPostDetail({
+          ...post,
+          publishedAt: post.publishedAt ? new Date(post.publishedAt) : null,
+          createdAt: new Date(post.createdAt),
+          updatedAt: new Date(post.updatedAt),
+        })
+      );
+      return blogDetailFallbackCache;
+    } catch {
+      /* try next */
+    }
+  }
+  blogDetailFallbackCache = [];
+  return blogDetailFallbackCache;
+}
+
+function getFallbackPostBySlug(slug: string): BlogDetailFallback | null {
+  const found = loadBlogDetailFallback().find((p) => p.slug === slug);
+  return found ?? null;
 }
 
 function paginateFallback(
@@ -209,20 +268,29 @@ export async function getBlogIndexListing(opts?: {
 
 export async function getBlogPostBySlug(slug: string) {
   const decoded = decodeURIComponent(slug);
-  const post = await withPrismaRetry(() =>
-    prisma.blogPost.findFirst({
-      where: { slug: decoded, published: true },
-    })
-  );
+
+  let post: Awaited<ReturnType<typeof prisma.blogPost.findFirst>> = null;
+  let dbUnavailable = false;
+  try {
+    post = await withPrismaRetry(() =>
+      prisma.blogPost.findFirst({
+        where: { slug: decoded, published: true },
+      })
+    );
+  } catch {
+    dbUnavailable = true;
+  }
 
   const contentLen = (post?.content || '').trim().length;
 
   // Neon-first: never block opens on CMS. Only await pull when the row is missing.
-  if (!post) {
+  if (!post && !dbUnavailable) {
     try {
       const { pullPostFromPayloadCms } = await import('../lib/pullPostFromPayloadCms');
       const pulled = await pullPostFromPayloadCms(decoded);
-      if (!pulled || pulled.content.length < 200) return null;
+      if (!pulled || pulled.content.length < 200) {
+        return getFallbackPostBySlug(decoded);
+      }
       const publishedAt = pulled.publishedAt ? new Date(pulled.publishedAt) : new Date();
       const data = {
         title: pulled.title,
@@ -245,14 +313,44 @@ export async function getBlogPostBySlug(slug: string) {
           where: { slug: decoded, published: true },
         })
       );
-      return created ? formatBlogPostDetail(created) : null;
+      return created ? formatBlogPostDetail(created) : getFallbackPostBySlug(decoded);
     } catch {
-      return null;
+      return getFallbackPostBySlug(decoded);
     }
+  }
+
+  if (!post) {
+    return getFallbackPostBySlug(decoded);
   }
 
   // Thin rows: repair after response; do not slow the click.
   if (contentLen < 200) {
+    const fallback = getFallbackPostBySlug(decoded);
+    if (fallback && (fallback.content || '').trim().length >= 200) {
+      void (async () => {
+        try {
+          await withPrismaRetry(() =>
+            prisma.blogPost.update({
+              where: { slug: decoded },
+              data: {
+                title: fallback.title,
+                content: fallback.content,
+                excerpt: fallback.excerpt,
+                featuredImage: fallback.featuredImage,
+                ogImage: fallback.featuredImage,
+                metaTitle: fallback.metaTitle ?? fallback.title,
+                metaDescription: fallback.metaDescription ?? fallback.excerpt.slice(0, 160),
+                published: true,
+              },
+            })
+          );
+        } catch {
+          /* quiet */
+        }
+      })();
+      return fallback;
+    }
+
     void (async () => {
       try {
         const { pullPostFromPayloadCms } = await import('../lib/pullPostFromPayloadCms');
