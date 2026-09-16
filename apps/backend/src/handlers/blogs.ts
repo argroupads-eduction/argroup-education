@@ -163,6 +163,8 @@ export async function getBlogPostBySlug(slug: string) {
         featuredImage: pulled.featuredImage,
         ogImage: pulled.featuredImage,
         category: 'Blog' as const,
+        tags: [] as string[],
+        keywords: [] as string[],
         metaTitle: pulled.metaTitle ?? pulled.title,
         metaDescription: pulled.metaDescription ?? pulled.excerpt.slice(0, 160),
         published: true,

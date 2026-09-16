@@ -88,6 +88,8 @@ async function upsertPulledPost(slug: string): Promise<boolean> {
     featuredImage: pulled.featuredImage,
     ogImage: pulled.featuredImage,
     category: 'Blog',
+    tags: [] as string[],
+    keywords: [] as string[],
     metaTitle: pulled.metaTitle ?? pulled.title,
     metaDescription: pulled.metaDescription ?? pulled.excerpt.slice(0, 160),
     published: true,

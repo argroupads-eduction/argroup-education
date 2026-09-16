@@ -34,6 +34,7 @@ export type PayloadSyncBody = {
   canonicalUrl?: string | null;
   ogImage?: string | null;
   focusKeyword?: string | null;
+  tags?: string[];
   keywords?: string[];
   ogTitle?: string | null;
   ogDescription?: string | null;
