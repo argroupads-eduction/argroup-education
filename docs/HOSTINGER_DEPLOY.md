@@ -15,17 +15,19 @@ Clone/prepare dies around **5 minutes** with **Build logs Lines: 0** and analysi
 
 Amplify is **paused for live traffic** — use Hostinger temp URL until you point the domain.
 
-## Hostinger panel settings (use `main`)
+## Hostinger panel settings
 
 | Setting | Value |
 |--------|--------|
-| **Branch** | **`main`** |
+| **Branch** | **`hostinger-live`** (preferred — no heavy git history) or `main` |
 | Framework | Next.js or Other |
 | Node | 22.x |
 | Root directory | `./` |
 | **Build command** | **`npm run hostinger:build`** |
 | Output directory | `apps/frontend/.next` |
 | Start command | `npm run start --workspace=ar-education-frontend` |
+
+If `main` still shows **Lines: 0**, Hostinger is doing a **full clone of old history**. Switch branch to **`hostinger-live`** (orphan, ~80MB tree only).
 
 ### Required ENV
 
