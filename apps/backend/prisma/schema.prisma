@@ -1,0 +1,287 @@
+// Prisma Schema for AR Group of Education — Hostinger MySQL (marketing frontend DB).
+// Payload CMS stays on Vercel and syncs blogs via POST /api/cms/payload-sync.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Blog Models (WordPress posts + Payload sync)
+model BlogPost {
+  id                 String    @id @default(cuid())
+  wpId               Int?      @unique
+  title              String    @db.VarChar(500)
+  slug               String    @unique @db.VarChar(255)
+  content            String    @db.LongText
+  excerpt            String    @db.Text
+  featuredImage      String?   @db.Text
+  category           String    @default("Blog") @db.VarChar(120)
+  tags               Json
+  metaTitle          String?   @db.VarChar(500)
+  metaDescription    String?   @db.Text
+  canonicalUrl       String?   @db.Text
+  focusKeyword       String?   @db.VarChar(255)
+  keywords           Json
+  ogTitle            String?   @db.VarChar(500)
+  ogDescription      String?   @db.Text
+  ogImage            String?   @db.Text
+  twitterTitle       String?   @db.VarChar(500)
+  twitterDescription String?   @db.Text
+  schemaJson         Json?
+  author             String    @default("AR Group") @db.VarChar(120)
+  published          Boolean   @default(false)
+  publishedAt        DateTime?
+  views              Int       @default(0)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([category])
+  @@index([published])
+}
+
+// WordPress pages (colleges, countries, static pages)
+model SitePage {
+  id                 String    @id @default(cuid())
+  wpId               Int       @unique
+  title              String    @db.VarChar(500)
+  slug               String    @unique @db.VarChar(255)
+  content            String    @db.LongText
+  excerpt            String?   @db.Text
+  featuredImage      String?   @db.Text
+  metaTitle          String?   @db.VarChar(500)
+  metaDescription    String?   @db.Text
+  canonicalUrl       String?   @db.Text
+  focusKeyword       String?   @db.VarChar(255)
+  keywords           Json
+  ogTitle            String?   @db.VarChar(500)
+  ogDescription      String?   @db.Text
+  ogImage            String?   @db.Text
+  twitterTitle       String?   @db.VarChar(500)
+  twitterDescription String?   @db.Text
+  schemaJson         Json?
+  navEnabled         Boolean   @default(false)
+  navSection         String?   @db.VarChar(120)
+  navParent          String?   @db.VarChar(255)
+  navLabel           String?   @db.VarChar(255)
+  navSortOrder       Int       @default(0)
+  published          Boolean   @default(true)
+  publishedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([published])
+}
+
+// Country Models
+model Country {
+  id             String   @id @default(cuid())
+  name           String   @unique @db.VarChar(255)
+  slug           String   @unique @db.VarChar(255)
+  description    String   @db.LongText
+  image          String?  @db.Text
+  flag           String?  @db.Text
+  medicalSchools Int      @default(0)
+  fees           String?  @db.VarChar(255)
+  duration       String?  @db.VarChar(120)
+  neetScore      String?  @db.VarChar(120)
+  benefits       Json
+  featured       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  universities University[]
+
+  @@index([featured])
+}
+
+// University Models
+model University {
+  id           String   @id @default(cuid())
+  name         String   @unique @db.VarChar(255)
+  slug         String   @unique @db.VarChar(255)
+  countryId    String
+  country      Country  @relation(fields: [countryId], references: [id])
+  description  String   @db.LongText
+  image        String?  @db.Text
+  rating       Float    @default(0)
+  fees         String?  @db.VarChar(255)
+  duration     String?  @db.VarChar(120)
+  neetScore    String?  @db.VarChar(120)
+  admission    String?  @db.LongText
+  affiliations Json
+  placement    Int      @default(0)
+  featured     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([featured])
+  @@index([countryId])
+}
+
+// NEET Rank Predictor submissions
+model NeetRankPredictorSubmission {
+  id             String   @id @default(cuid())
+  name           String   @db.VarChar(255)
+  email          String   @db.VarChar(255)
+  phone          String   @db.VarChar(40)
+  city           String   @db.VarChar(120)
+  category       String   @db.VarChar(40)
+  score          Int
+  bestRank       Int
+  expectedRank   Int
+  worstRank      Int
+  percentile     Float
+  collegeChances String   @db.Text
+  createdAt      DateTime @default(now())
+
+  @@index([phone])
+  @@index([createdAt])
+}
+
+// Leads Models
+model WebsiteFormLead {
+  id         String   @id @default(cuid())
+  source     String   @db.VarChar(120)
+  formName   String?  @db.VarChar(255)
+  name       String?  @db.VarChar(255)
+  email      String?  @db.VarChar(255)
+  phone      String?  @db.VarChar(40)
+  emailKey   String?  @db.VarChar(255)
+  phoneKey   String?  @db.VarChar(40)
+  pageUrl    String?  @db.Text
+  userAgent  String?  @db.Text
+  fields     Json
+  emailSent  Boolean  @default(false)
+  emailError String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([source])
+  @@index([email])
+  @@index([phone])
+  @@index([emailKey, phoneKey])
+  @@index([createdAt])
+}
+
+model Lead {
+  id                String   @id @default(cuid())
+  name              String   @db.VarChar(255)
+  email             String   @db.VarChar(255)
+  phone             String   @db.VarChar(40)
+  course            String   @db.VarChar(255)
+  neetScore         String?  @db.VarChar(40)
+  countryPreference String   @db.VarChar(255)
+  status            String   @default("new") @db.VarChar(40)
+  source            String   @default("website") @db.VarChar(120)
+  notes             String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([status])
+  @@index([source])
+  @@index([createdAt])
+}
+
+// Newsletter Subscription
+model Subscriber {
+  id             String    @id @default(cuid())
+  email          String    @unique @db.VarChar(255)
+  subscribedAt   DateTime  @default(now())
+  unsubscribedAt DateTime?
+  active         Boolean   @default(true)
+
+  @@index([active])
+}
+
+// Contact Form Submissions
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(255)
+  email     String   @db.VarChar(255)
+  phone     String?  @db.VarChar(40)
+  subject   String   @db.VarChar(500)
+  message   String   @db.LongText
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([read])
+  @@index([createdAt])
+}
+
+// Testimonials
+model Testimonial {
+  id         String   @id @default(cuid())
+  name       String   @db.VarChar(255)
+  image      String?  @db.Text
+  review     String   @db.LongText
+  university String   @db.VarChar(255)
+  country    String   @db.VarChar(120)
+  rating     Int      @default(5)
+  course     String   @db.VarChar(255)
+  featured   Boolean  @default(false)
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([featured])
+  @@index([approved])
+}
+
+// Gallery
+model GalleryImage {
+  id          String   @id @default(cuid())
+  title       String   @db.VarChar(255)
+  image       String   @db.Text
+  category    String   @db.VarChar(120)
+  description String?  @db.Text
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([featured])
+}
+
+// Admin Users
+model AdminUser {
+  id        String    @id @default(cuid())
+  email     String    @unique @db.VarChar(255)
+  password  String    @db.VarChar(255)
+  name      String    @db.VarChar(255)
+  role      String    @default("admin") @db.VarChar(40)
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  lastLogin DateTime?
+
+  @@index([active])
+}
+
+// Payload CMS globals synced to marketing DB (header, footer, site-settings)
+model SiteGlobal {
+  id        String   @id @default(cuid())
+  slug      String   @unique @db.VarChar(120)
+  data      Json
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([slug])
+}
+
+/// Browser Web Push subscriptions (PWA / installed app notifications).
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique @db.VarChar(767)
+  p256dh    String   @db.Text
+  auth      String   @db.VarChar(255)
+  userAgent String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}

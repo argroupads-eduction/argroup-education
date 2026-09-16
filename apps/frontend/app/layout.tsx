@@ -1,0 +1,179 @@
+import type { Metadata, Viewport } from 'next';
+import { Inter, Lora } from 'next/font/google';
+import { Navbar } from '@/components/common/Navbar';
+import { Footer } from '@/components/common/Footer';
+import { DeferredSitePopups } from '@/components/common/DeferredSitePopups';
+import { LeadSubmissionFeedbackHost } from '@/components/common/LeadSubmissionFeedbackHost';
+import { PwaRegistrar } from '@/components/common/PwaRegistrar';
+import { GoogleAnalytics } from '@/components/common/GoogleAnalytics';
+import { SiteOrganizationJsonLd } from '@/components/seo/SiteOrganizationJsonLd';
+import {
+  SITE_PROTECTION_INLINE_SCRIPT,
+  isSiteProtectionEnabled,
+} from '@/lib/siteProtection';
+import { SiteInteractionGuard } from '@/components/common/SiteInteractionGuard';
+import CollegePredictorPromoStrip from '@/components/common/CollegePredictorPromoStrip';
+import { NavPagesProvider } from '@/components/common/NavPagesProvider';
+import { SiteGlobalsProvider } from '@/components/common/SiteGlobalsProvider';
+import { fetchDynamicNavPages } from '@/lib/dynamicNav.server';
+import {
+  EMPTY_SITE_GLOBALS,
+  fetchSiteGlobalsBundle,
+} from '@/lib/siteGlobals.server';
+import '@/styles/globals.css';
+import '@/styles/nav-mega.css';
+import '@/styles/nav-latest-updates.css';
+import '@/styles/navbar-premium.css';
+import '@/styles/brand-logo.css';
+import '@/styles/footer-main.css';
+import { getSiteUrl } from '@/lib/siteUrl';
+
+// Font imports — lean weights for faster FCP (extra weights load via CSS when needed)
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+  weight: ['400', '600', '700'],
+});
+
+/** Serif headings, Lora uses a standard “&” (Playfair’s default & has decorative swashes). */
+const playfair = Lora({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-playfair',
+  weight: ['600', '700'],
+});
+
+export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: 'AR Group of Education | MBBS India & Abroad Admission Consultant',
+    template: '%s | AR Group of Education',
+  },
+  description:
+    'Trusted medical education consultants for MBBS in India & abroad, NEET UG/PG counselling, college shortlisting & visa support. 4000+ students guided since 2010.',
+  keywords: [
+    'MBBS admission consultant',
+    'MBBS in India',
+    'MBBS abroad',
+    'NEET counselling',
+    'medical education consultancy Delhi NCR',
+    'NEET rank predictor',
+    'study MBBS abroad',
+    'AR Group of Education',
+  ],
+  authors: [{ name: 'AR Group of Education' }],
+  creator: 'AR Group of Education',
+  // One stable Google-facing icon URL — do not rotate paths (hurts favicon recrawl).
+  icons: {
+    icon: [
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'AR Group of Education',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    url: getSiteUrl(),
+    siteName: 'AR Group of Education',
+    title: 'AR Group of Education | MBBS India & Abroad Admission Consultant',
+    description:
+      'Expert MBBS admission guidance for India & 15+ countries. NEET counselling, college selection & visa support. 4000+ students placed.',
+    images: [{ url: '/ar-group-logo.png', width: 512, height: 512, alt: 'AR Group of Education logo' }],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'AR Group of Education | MBBS Admission Consultant',
+    description:
+      'MBBS India & abroad admission experts. NEET counselling, college shortlisting & visa guidance.',
+    images: ['/ar-group-logo.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#1a365d',
+};
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [navPages, siteGlobals] = await Promise.all([
+    fetchDynamicNavPages().catch(() => []),
+    fetchSiteGlobalsBundle().catch(() => EMPTY_SITE_GLOBALS),
+  ]);
+
+  return (
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="theme-color" content="#1a365d" />
+        {/* Icons come only from metadata.icons — avoid duplicate <link rel="icon"> tags. */}
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="AR Group" />
+        <link rel="preload" href="/ar-group-logo.webp" as="image" type="image/webp" />
+        <style
+          dangerouslySetInnerHTML={{
+            __html:
+              '.brand-logo-link__frame--nav-wide{width:8.75rem;height:3.25rem;max-width:8.75rem;min-height:3.25rem;overflow:hidden;display:inline-flex;flex-shrink:0}.brand-logo-link__frame--nav-wide img{width:100%;height:100%;object-fit:contain}',
+          }}
+        />
+        {/* Kill leftover SWs + force one cache-bypass reload on localhost (dev chunk URLs are stable). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var h=location.hostname;if(h!=='localhost'&&h!=='127.0.0.1'&&h!=='[::1]')return;var k='ar-dev-bust-v7';if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');if('serviceWorker'in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()});});}if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(c){caches.delete(c)});});}var u=new URL(location.href);u.searchParams.set('_devbust','7');location.replace(u.toString());}catch(e){}})();`,
+          }}
+        />
+        {/* Hero LCP preload is emitted by the homepage <img fetchPriority="high"> — avoid a second preload (can cancel the load on reload). */}
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        {isSiteProtectionEnabled() ? (
+          <script dangerouslySetInnerHTML={{ __html: SITE_PROTECTION_INLINE_SCRIPT }} />
+        ) : null}
+        <SiteOrganizationJsonLd />
+      </head>
+      <body
+        className={`${inter.className} min-h-dvh min-w-0 overflow-x-hidden [padding-bottom:env(safe-area-inset-bottom,0px)] [padding-left:env(safe-area-inset-left,0px)] [padding-right:env(safe-area-inset-right,0px)]`}
+      >
+        <SiteGlobalsProvider globals={siteGlobals}>
+          <NavPagesProvider pages={navPages}>
+            {/* Mobile slim top alert + desktop floating install chip (one instance). */}
+            <PwaRegistrar />
+            <CollegePredictorPromoStrip />
+            <Navbar />
+            <main className="relative z-[1] min-w-0">{children}</main>
+            <Footer />
+            <DeferredSitePopups />
+            <LeadSubmissionFeedbackHost />
+            <SiteInteractionGuard />
+            <GoogleAnalytics />
+          </NavPagesProvider>
+        </SiteGlobalsProvider>
+      </body>
+    </html>
+  );
+}

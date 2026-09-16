@@ -1,0 +1,15 @@
+# Monorepo root — CMS deploy Root Directory = ar-group-of-eductions
+# Do NOT ignore ar-group-of-eductions/scripts (needed by vercel.json install/build).
+/node_modules
+/apps
+/backups
+/data
+/docs
+/k8s
+/scripts
+**/.next
+**/node_modules
+**/.turbo
+**/.env
+**/.env.*
+!**/.env.example

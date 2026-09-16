@@ -1,0 +1,4010 @@
+/* WordPress / Elementor migrated HTML — premium layout */
+
+.wp-content-root {
+  --wp-accent: #d97706;
+  --wp-navy: #1a365d;
+  --wp-muted: #64748b;
+  --wp-border: #e2e8f0;
+  --wp-radius: 0.875rem;
+}
+
+/* ── Global SVG safety net (fixes giant Elementor icons) ── */
+.wp-content-root svg[viewBox] {
+  width: 1.125rem !important;
+  height: 1.125rem !important;
+  max-width: 1.125rem !important;
+  max-height: 1.125rem !important;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.wp-content-root svg.wp-inline-svg,
+.wp-content-root .elementor-icon-list-icon svg,
+.wp-content-root .elementor-icon svg {
+  width: 1.125rem !important;
+  height: 1.125rem !important;
+  max-width: 1.125rem !important;
+  max-height: 1.125rem !important;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.wp-content-root svg:not(.wp-inline-svg) {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Hide broken font icons & decorative accordion junk */
+.wp-content-root .elementor-icon-box-icon,
+.wp-content-root i[class*='fa-']:not(svg),
+.wp-content-root i[class*='eicon'],
+.wp-content-root i[class*='icon icon-'],
+.wp-content-root .eael-advanced-accordion-icon-closed,
+.wp-content-root .eael-advanced-accordion-icon-opened,
+.wp-content-root svg.fa-toggle,
+.wp-content-root .elementor-widget-spacer,
+.wp-content-root .elementor-empty-space {
+  display: none !important;
+}
+
+/* ── Elementor layout reset ── */
+.wp-content-root .wp-content-body .elementor-section,
+.wp-content-root .wp-content-body .elementor-container,
+.wp-content-root .wp-content-body .elementor-column,
+.wp-content-root .wp-content-body .elementor-widget-wrap,
+.wp-content-root .wp-content-body .elementor-element {
+  max-width: 100% !important;
+  width: 100% !important;
+  float: none !important;
+  position: static !important;
+}
+
+.wp-content-root .wp-content-body .elementor-section {
+  padding: 0 !important;
+  margin: 0 0 2rem !important;
+}
+
+.wp-content-root .wp-content-body .elementor-column-wrap,
+.wp-content-root .wp-content-body .elementor-widget-container {
+  padding: 0 !important;
+}
+
+/* Inner sections use .elementor-container for columns — not grid on the section node */
+.wp-content-root .wp-content-body .elementor-inner-section {
+  display: block !important;
+  margin: 1rem 0 0;
+  padding: 0 !important;
+}
+
+@media (min-width: 768px) {
+  .wp-content-root .wp-content-body .elementor-inner-section .elementor-column {
+    width: auto !important;
+  }
+}
+
+/* Local state landmark heroes — never crop, container follows image */
+.wp-content-root img[src^='/states/'],
+.wp-content-root .elementor-widget-image img[src^='/states/'] {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  aspect-ratio: auto !important;
+  display: block;
+}
+
+/* ── State / college image card grids (tile grids only — not 50/50 editorial splits) ── */
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2)):has(
+    .elementor-widget-image,
+    .jkit-image-box
+  ):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66)) {
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+@media (min-width: 640px) {
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column:nth-child(2)):has(
+      .elementor-widget-image,
+      .jkit-image-box
+    ):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column:nth-child(3)):has(
+      .elementor-widget-image,
+      .jkit-image-box
+    ) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2)):has(
+    .elementor-widget-image,
+    .jkit-image-box
+  ):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66))
+  > .elementor-column {
+  width: auto !important;
+  max-width: none !important;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.85rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2)):has(
+    .elementor-widget-image,
+    .jkit-image-box
+  ):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66))
+  > .elementor-column:hover {
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+  transform: translateY(-2px);
+}
+
+/* 50/50 editorial split (image + CTA | copy or data table) — top + inner sections */
+.wp-content-root .elementor-container.wp-editorial-split,
+.wp-content-root .elementor-container.wp-split-collapsed,
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column.elementor-col-50) {
+  display: grid !important;
+  gap: 1.25rem 1.75rem;
+  align-items: start !important;
+}
+
+/* Empty spacer column removed — content uses full width */
+.wp-content-root .elementor-container.wp-split-collapsed {
+  grid-template-columns: 1fr !important;
+}
+
+.wp-content-root .elementor-container.wp-split-collapsed > .elementor-column:first-child:has(.elementor-widget-spacer) {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .wp-content-root:not(.wp-content-mbbs-india) .elementor-container.wp-editorial-split:not(.wp-university-profile-grid),
+  .wp-content-root:not(.wp-content-mbbs-india)
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-50):not(.wp-university-profile-grid) {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  }
+}
+
+.wp-content-root .elementor-container.wp-editorial-split > .elementor-column,
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column.elementor-col-50)
+  > .elementor-column {
+  width: auto !important;
+  max-width: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: start !important;
+}
+
+.wp-content-root .elementor-container.wp-editorial-split > .elementor-column .elementor-widget-wrap,
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column.elementor-col-50)
+  > .elementor-column
+  .elementor-widget-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  height: auto !important;
+  min-height: 0 !important;
+  gap: 0.75rem;
+}
+
+.wp-content-root .elementor-col-50 .elementor-widget-text-editor,
+.wp-content-root .elementor-col-50 .elementor-widget-text-editor p,
+.wp-content-root .elementor-col-50 .elementor-heading-title {
+  text-align: left !important;
+}
+
+.wp-content-root .elementor-col-50 .elementor-widget-image {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+
+.wp-content-root .elementor-col-50 .elementor-widget-image img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  display: block;
+}
+
+.wp-content-root .elementor-col-50 .elementor-widget-button {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  align-self: flex-start;
+}
+
+/* Image then CTA — tight stack, never overlap (all layouts) */
+.wp-content-root .elementor-widget-image + .elementor-widget-button {
+  margin-top: 0.75rem !important;
+  padding: 0 !important;
+  position: relative !important;
+  z-index: 1;
+}
+
+.wp-content-root .elementor-widget-image + .elementor-widget-button .elementor-button,
+.wp-content-root .elementor-col-50 .elementor-widget-button .elementor-button {
+  position: static !important;
+  margin: 0 !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+}
+
+/* Data table column in 50/50 university blocks */
+.wp-content-root
+  .elementor-col-50
+  .elementor-widget-eael-data-table,
+.wp-content-root
+  .elementor-col-50
+  .eael-data-table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+/* ── University profile (image + CTA | facts table) — full-width premium layout ── */
+.wp-content-root .elementor-col-100 .elementor-widget-wrap > .wp-university-profile,
+.wp-content-root .wp-university-profile {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 1.75rem 0 2rem !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container,
+.wp-content-root .wp-university-profile-grid.elementor-container {
+  display: grid !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  /* Image card on top, facts table full width below (all breakpoints) */
+  grid-template-columns: 1fr !important;
+  gap: 1.25rem !important;
+  align-items: stretch !important;
+  box-sizing: border-box !important;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column,
+.wp-content-root .wp-university-profile-grid > .elementor-column {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  flex: none !important;
+  align-self: stretch !important;
+}
+
+.wp-content-root .wp-university-profile .elementor-column .elementor-widget-wrap,
+.wp-content-root .wp-university-profile .elementor-widget-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Media + CTA column */
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:first-child .elementor-widget-wrap {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 10px 28px rgba(15, 23, 42, 0.07);
+  gap: 1rem !important;
+}
+
+.wp-content-root .wp-university-profile .elementor-widget-image img {
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+}
+
+.wp-content-root .wp-university-profile .elementor-widget-button {
+  align-self: stretch !important;
+  width: 100% !important;
+}
+
+.wp-content-root .wp-university-profile .elementor-widget-button .elementor-button {
+  width: 100%;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.25rem;
+  border-radius: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  box-shadow: 0 4px 14px rgba(26, 54, 93, 0.25);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.wp-content-root .wp-university-profile .elementor-widget-button .elementor-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(26, 54, 93, 0.32);
+}
+
+/* Facts table column — full width, never clip */
+.wp-content-root .wp-university-profile .elementor-widget-eael-data-table,
+.wp-content-root .wp-university-profile .eael-data-table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap {
+  margin: 0 !important;
+  border-radius: 1rem;
+  border: 1px solid #dbeafe;
+  box-shadow:
+    0 1px 2px rgba(26, 54, 93, 0.06),
+    0 10px 28px rgba(26, 54, 93, 0.08);
+}
+
+.wp-content-root .wp-university-profile .elementor-widget-eael-data-table,
+.wp-content-root .wp-university-profile .elementor-widget-eael-data-table .elementor-widget-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  text-align: left !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table {
+  width: 100% !important;
+  table-layout: auto;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap thead th,
+.wp-content-root .wp-university-profile .eael-data-table-wrap tbody td {
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap thead th {
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap tbody td {
+  padding: 0.7rem 1rem;
+  font-size: 0.9375rem;
+  vertical-align: top;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap tbody td:first-child {
+  width: 42%;
+  min-width: 9.5rem;
+  max-width: 48%;
+  font-weight: 600;
+  color: #0f172a !important;
+  background: rgba(26, 54, 93, 0.04);
+  border-left: 3px solid #d97706;
+  text-align: left !important;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.eael-data-table.center th,
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.eael-data-table.center td {
+  text-align: left !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap thead:empty {
+  display: none;
+}
+
+.wp-content-root .elementor-inner-section.wp-university-profile {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:first-child .elementor-widget-heading {
+  margin: 0 0 0.65rem !important;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:first-child .elementor-widget-heading .elementor-heading-title {
+  font-size: 1.05rem !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
+}
+
+/* 2-column key-value EAEL tables (college highlights) — readable label | value split */
+.wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) {
+  overflow: visible !important;
+}
+
+.wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) table {
+  table-layout: auto !important;
+  width: 100% !important;
+}
+
+.wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) tbody td {
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+  vertical-align: middle;
+}
+
+.wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) tbody td:first-child {
+  width: auto !important;
+  min-width: 9rem;
+  max-width: none;
+  font-weight: 600;
+  color: #0f172a !important;
+  background: rgba(26, 54, 93, 0.04);
+  border-left: 3px solid #d97706;
+  text-align: left !important;
+}
+
+.wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) tbody td:last-child {
+  width: auto !important;
+  min-width: 4.5rem !important;
+  color: #334155 !important;
+  text-align: left !important;
+  text-transform: none !important;
+}
+
+.wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) table.eael-data-table.center th,
+.wp-content-root .eael-data-table-wrap:has(table.wp-facts-kv-table) table.eael-data-table.center td {
+  text-align: left !important;
+}
+
+.wp-content-root .elementor-container.wp-editorial-split:has(table.wp-facts-kv-table) > .elementor-column:last-child,
+.wp-content-root .wp-university-profile-grid > .elementor-column:last-child {
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:last-child,
+.wp-content-root .wp-university-profile-grid > .elementor-column:last-child {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  margin-top: 0.15rem;
+}
+
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:last-child .elementor-widget-wrap,
+.wp-content-root .wp-university-profile > .elementor-container > .elementor-column:last-child .eael-data-table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Mobile: stack media then table; rows stay readable (no clipped Details column) */
+@media (max-width: 1023px) {
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-50):has(.eael-data-table-wrap) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-50):has(.eael-data-table-wrap)
+    > .elementor-column {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .wp-content-root .elementor-col-50 .eael-data-table-wrap thead th,
+  .wp-content-root .elementor-col-50 .eael-data-table-wrap tbody td {
+    white-space: normal !important;
+    word-break: break-word;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap table {
+    table-layout: auto;
+    min-width: 0;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table:not(:has(thead)) thead {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .wp-content-root .wp-university-profile .eael-data-table-wrap table.eael-data-table tbody tr {
+    display: table-row !important;
+  }
+
+  .wp-content-root .wp-university-profile .eael-data-table-wrap table.eael-data-table tbody td,
+  .wp-content-root .wp-university-profile .eael-data-table-wrap table.eael-data-table thead th {
+    display: table-cell !important;
+  }
+}
+
+/* 66/33 editorial splits — same treatment as 50/50 */
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column.elementor-col-66) {
+  display: grid !important;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-66) {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column.elementor-col-66)
+  > .elementor-column {
+  width: auto !important;
+  max-width: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+.wp-content-root .elementor-col-66 .elementor-widget-text-editor,
+.wp-content-root .elementor-col-66 .elementor-widget-text-editor p,
+.wp-content-root .elementor-col-66 .elementor-heading-title,
+.wp-content-root .elementor-col-33 .elementor-widget-text-editor,
+.wp-content-root .elementor-col-33 .elementor-widget-text-editor p,
+.wp-content-root .elementor-col-33 .elementor-heading-title {
+  text-align: left !important;
+}
+
+.wp-content-root .elementor-col-66 .elementor-widget-image img,
+.wp-content-root .elementor-col-33 .elementor-widget-image img {
+  border-radius: 0.85rem;
+  aspect-ratio: auto !important;
+  max-height: 22rem;
+  object-fit: cover;
+}
+
+/* MBBS India state landmark tiles — full image, no crop, no empty band below */
+.wp-content-root img.wp-state-landmark-img {
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  height: auto !important;
+  object-fit: contain !important;
+  aspect-ratio: auto !important;
+  display: block;
+  background: rgb(241 245 249);
+}
+
+.wp-content-root .elementor-widget-image:has(img.wp-state-landmark-img) {
+  overflow: visible;
+}
+
+.wp-content-root .elementor-col-33 .elementor-widget-image img.wp-state-landmark-img {
+  object-fit: contain !important;
+  max-height: none !important;
+}
+
+.wp-content-root .elementor-col-66 .elementor-widget-image + .elementor-widget-button,
+.wp-content-root .elementor-col-33 .elementor-widget-image + .elementor-widget-button {
+  margin-top: 1rem !important;
+  padding: 0 !important;
+}
+
+.wp-content-root .elementor-col-66 .elementor-widget-button .elementor-button,
+.wp-content-root .elementor-col-33 .elementor-widget-button .elementor-button {
+  position: static !important;
+  margin: 0 !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+}
+
+/* ── MBBS India state tile grid (Top States section) ── */
+.wp-content-root .wp-mbbs-state-grid {
+  margin: 0.5rem 0 1.25rem !important;
+  padding: 0 !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid + .wp-mbbs-state-grid {
+  margin-top: 0 !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid > .elementor-container {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 1.25rem !important;
+  align-items: stretch !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid > .elementor-container:not(:has(> .elementor-column.elementor-col-33)),
+.wp-content-root .wp-mbbs-state-grid > .elementor-container:has(> .elementor-column.elementor-col-100:only-child) {
+  display: block !important;
+  grid-template-columns: none !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid > .elementor-container > .elementor-column {
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.05),
+    0 8px 24px rgba(15, 23, 42, 0.06);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.wp-content-root .wp-mbbs-state-grid > .elementor-container > .elementor-column:hover {
+  transform: translateY(-3px);
+  border-color: #cbd5e1;
+  box-shadow:
+    0 4px 12px rgba(15, 23, 42, 0.08),
+    0 16px 36px rgba(15, 23, 42, 0.1);
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-widget-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  gap: 0 !important;
+  padding: 0 !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-widget-image {
+  margin: 0 !important;
+  flex: 0 0 auto;
+  background: #f1f5f9;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-widget-image a {
+  display: block;
+  line-height: 0;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-widget-image img.wp-state-landmark-img {
+  border-radius: 0 !important;
+  background: #f1f5f9;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-widget-heading {
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #f1f5f9;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-heading-title {
+  text-align: center !important;
+  width: 100%;
+  margin: 0 !important;
+  padding: 0.85rem 0.75rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.35 !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-heading-title a {
+  color: #1a365d !important;
+  text-decoration: none !important;
+  background: none !important;
+  font-weight: 700 !important;
+}
+
+.wp-content-root .wp-mbbs-state-grid .elementor-heading-title a:hover {
+  color: #d97706 !important;
+}
+
+/* ── Top medical college cards (jkit image boxes) — unified premium grid ── */
+.wp-content-root .wp-college-card-grid-section {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.wp-content-root .wp-college-card-grid-section + .wp-college-card-grid-section {
+  margin-top: 0 !important;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 1.25rem !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+@media (min-width: 640px) {
+  .wp-content-root .elementor-container.wp-college-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1.35rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-content-root .elementor-container.wp-college-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 1.5rem !important;
+  }
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid > .elementor-column {
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.05),
+    0 10px 28px rgba(15, 23, 42, 0.07);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid > .elementor-column:hover {
+  transform: translateY(-4px);
+  border-color: #cbd5e1;
+  box-shadow:
+    0 8px 20px rgba(15, 23, 42, 0.1),
+    0 20px 44px rgba(26, 54, 93, 0.12);
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .elementor-widget-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box {
+  height: 100% !important;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .image-box-header {
+  aspect-ratio: 16 / 10;
+  flex: 0 0 auto;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .image-box-header img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  aspect-ratio: 16 / 10 !important;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .image-box-body {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.1rem 1.15rem !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-top: 1px solid #f1f5f9;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .body-title {
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  line-height: 1.45 !important;
+  color: #1a365d !important;
+  text-align: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .body-title a {
+  color: #1a365d !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
+}
+
+.wp-content-root .elementor-container.wp-college-card-grid .jkit-image-box .body-title a:hover {
+  color: #d97706 !important;
+}
+
+/* ── Private college state blocks (image + facts sheet) ── */
+.wp-content-root .elementor-col-100 > .elementor-widget-wrap:has(.wp-university-profile) > .elementor-widget-heading .elementor-heading-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 2rem 0 1.25rem !important;
+  padding: 0.55rem 1.15rem !important;
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1a365d !important;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid #fed7aa;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.12);
+}
+
+.wp-content-root .wp-university-profile {
+  position: relative;
+  border-radius: 1.15rem;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  padding: 1rem !important;
+  border: 1px solid #e2e8f0;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 12px 32px rgba(15, 23, 42, 0.06);
+}
+
+.wp-content-root .wp-university-profile + .elementor-widget-divider {
+  margin: 1.5rem 0 !important;
+}
+
+/* MBBS India pages — image/heading card on top, highlights table below (all screen sizes) */
+.wp-content-mbbs-india .wp-content-body .wp-university-profile > .elementor-container,
+.wp-content-mbbs-india .wp-content-body .wp-university-profile-grid.elementor-container,
+.wp-content-mbbs-india .wp-content-body .elementor-inner-section.wp-university-profile > .elementor-container,
+.wp-content-mbbs-india
+  .wp-content-body
+  .elementor-section
+  > .elementor-container:has(> .elementor-column.elementor-col-50):has(.eael-data-table-wrap),
+.wp-content-mbbs-india
+  .wp-content-body
+  .elementor-container:has(> .elementor-column.elementor-col-50):has(.eael-data-table-wrap) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-auto-flow: row !important;
+  gap: 1.25rem !important;
+  align-items: stretch !important;
+}
+
+/* Hub / India guide banners — fill the content column (no letterbox gutters) */
+.wp-content-mbbs-india .wp-content-body > .elementor-section:first-of-type .elementor-widget-image,
+.wp-content-mbbs-india .wp-content-body > .elementor-section:first-of-type .elementor-widget-image .elementor-widget-container {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.wp-content-mbbs-india .wp-content-body > .elementor-section:first-of-type .elementor-widget-image img {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  border-radius: 1rem;
+}
+
+/* Collapse empty 50/50 spacer columns so content uses the full article width */
+.wp-content-mbbs-india
+  .wp-content-body
+  .elementor-container:has(> .elementor-column.elementor-col-50):not(:has(.eael-data-table-wrap)):not(:has(.wp-university-profile)) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 1rem !important;
+}
+
+.wp-content-mbbs-india
+  .wp-content-body
+  .elementor-container:has(> .elementor-column.elementor-col-50):not(:has(.eael-data-table-wrap)):not(:has(.wp-university-profile))
+  > .elementor-column {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.wp-content-mbbs-india
+  .wp-content-body
+  .elementor-container:has(> .elementor-column.elementor-col-50):not(:has(.eael-data-table-wrap)):not(:has(.wp-university-profile))
+  > .elementor-column:not(:has(img, table, .elementor-heading-title, p, li, .elementor-button)) {
+  display: none !important;
+}
+
+.wp-content-mbbs-india .wp-content-body .wp-university-profile > .elementor-container > .elementor-column,
+.wp-content-mbbs-india .wp-content-body .wp-university-profile-grid > .elementor-column,
+.wp-content-mbbs-india
+  .wp-content-body
+  .elementor-container:has(> .elementor-column.elementor-col-50):has(.eael-data-table-wrap)
+  > .elementor-column {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  flex: none !important;
+  grid-column: 1 / -1 !important;
+}
+
+.wp-content-mbbs-india
+  .wp-content-body
+  .wp-university-profile
+  > .elementor-container
+  > .elementor-column:first-child,
+.wp-content-mbbs-india .wp-content-body .wp-university-profile-grid > .elementor-column:first-child {
+  order: 1;
+}
+
+.wp-content-mbbs-india
+  .wp-content-body
+  .wp-university-profile
+  > .elementor-container
+  > .elementor-column:last-child,
+.wp-content-mbbs-india .wp-content-body .wp-university-profile-grid > .elementor-column:last-child {
+  order: 2;
+  margin-top: 0 !important;
+}
+
+@media (min-width: 768px) {
+  .wp-content-mbbs-india .wp-content-body .elementor-container.wp-editorial-split,
+  .wp-content-mbbs-india
+    .wp-content-body
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-50):has(.eael-data-table-wrap),
+  .wp-content-mbbs-india
+    .wp-content-body
+    .elementor-container:has(> .elementor-column.elementor-col-50):has(.eael-data-table-wrap) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* Key-value fact sheet — native table rows (label | value), full width */
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table {
+  table-layout: auto !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody tr,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody tr {
+  display: table-row !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody td,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody td {
+  display: table-cell !important;
+  padding: 0.85rem 1rem !important;
+  font-size: 0.9375rem !important;
+  line-height: 1.55 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  vertical-align: middle !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  box-sizing: border-box !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody tr:last-child td,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child {
+  width: 10.5rem !important;
+  min-width: 10.5rem !important;
+  max-width: 40% !important;
+  font-weight: 800 !important;
+  font-size: 0.8125rem !important;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #92400e !important;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+  border-left: 4px solid #d97706 !important;
+  overflow: visible !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+  hyphens: none !important;
+  white-space: nowrap !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child {
+  width: auto !important;
+  min-width: 0 !important;
+  color: #0f172a !important;
+  font-weight: 500 !important;
+  background: #ffffff !important;
+  text-align: left !important;
+  text-transform: none !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table:not(:has(thead)) tbody tr:first-child td {
+  background: inherit !important;
+  color: inherit !important;
+  border-bottom: none !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table:not(:has(thead)) tbody tr:first-child td:first-child {
+  color: #92400e !important;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+  border-left: 4px solid #d97706 !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table:not(:has(thead)) tbody tr:first-child td:last-child {
+  color: #0f172a !important;
+  background: #ffffff !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table tbody tr:hover td:last-child,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table tbody tr:hover td:last-child {
+  background: #f8fafc !important;
+}
+
+.wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table .td-content,
+.wp-content-root .eael-data-table-wrap table.wp-facts-kv-table .td-content {
+  color: inherit !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table.center th,
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table.center td,
+.wp-content-root .wp-table-scroll table.eael-data-table.center.wp-facts-kv-table th,
+.wp-content-root .wp-table-scroll table.eael-data-table.center.wp-facts-kv-table td {
+  text-align: left !important;
+}
+
+@media (max-width: 767px) {
+  .wp-content-root .elementor-container.wp-college-card-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wp-content-root .wp-university-profile > .elementor-container,
+  .wp-content-root .wp-university-profile-grid.elementor-container {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 2-col course/details tables stack at 767px — see block at end of file */
+}
+
+@media (max-width: 767px) {
+  .wp-content-root .wp-mbbs-state-grid > .elementor-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+
+  .wp-content-root .wp-mbbs-state-grid > .elementor-container > .elementor-column:nth-child(3):last-child {
+    grid-column: 1 / -1;
+    max-width: 22rem;
+    justify-self: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 479px) {
+  .wp-content-root .wp-mbbs-state-grid > .elementor-container {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wp-content-root .wp-mbbs-state-grid > .elementor-container > .elementor-column:nth-child(3):last-child {
+    grid-column: auto;
+    max-width: none;
+  }
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2)):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66))
+  .elementor-widget-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2)):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66))
+  .elementor-widget-image
+  img,
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2)):not(:has(> .elementor-column.elementor-col-50)):not(:has(> .elementor-column.elementor-col-66))
+  .jkit-image-box
+  img {
+  width: 100% !important;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+  margin: 0 !important;
+}
+
+.wp-content-root .jkit-image-box,
+.wp-content-root .jeg-elementor-kit.jkit-image-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: transparent !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.wp-content-root .jkit-image-box::before,
+.wp-content-root .jkit-image-box::after,
+.wp-content-root .jkit-image-box .image-box-header::before,
+.wp-content-root .jkit-image-box .image-box-header::after {
+  display: none !important;
+  content: none !important;
+}
+
+.wp-content-root .jkit-image-box .image-box-header {
+  position: relative !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.wp-content-root .jkit-image-box .image-box-body {
+  padding: 0.85rem 1rem 1rem;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2))
+  .elementor-heading-title,
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2))
+  .jkit-image-box
+  .body-title,
+.wp-content-root .jkit-image-box .body-title,
+.wp-content-root .jkit-image-box p.body-title {
+  display: block !important;
+  visibility: visible !important;
+  padding: 0.75rem 1rem 1rem;
+  margin: 0 !important;
+  color: #1a365d !important;
+  font-size: 0.9375rem !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  text-align: center;
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2))
+  .elementor-heading-title
+  a,
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2))
+  .jkit-image-box
+  .body-title
+  a,
+.wp-content-root .jkit-image-box .body-title a {
+  text-decoration: none !important;
+  color: #1a365d !important;
+  background: none !important;
+  font-weight: 700 !important;
+}
+
+.wp-content-root .jkit-image-box .body-description:empty,
+.wp-content-root .jkit-image-box .body-button:empty {
+  display: none !important;
+}
+
+.wp-content-root .elementor-section.elementor-hidden-desktop.elementor-hidden-tablet.elementor-hidden-mobile {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+.wp-content-root .eael-data-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 1rem 0 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--wp-radius);
+  border: 1px solid #dbeafe;
+  box-shadow:
+    0 1px 2px rgba(26, 54, 93, 0.06),
+    0 8px 24px rgba(26, 54, 93, 0.06);
+  background: #fff;
+}
+
+.wp-content-root .elementor-widget-eael-data-table,
+.wp-content-root .elementor-widget-eael-data-table .elementor-widget-container {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+/* Avoid double borders when EAEL wrapper + wp-table-scroll both exist */
+.wp-content-root .eael-data-table-wrap:has(> .wp-table-scroll) {
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.wp-content-root .eael-data-table-wrap:has(> .wp-table-scroll) > .wp-table-scroll {
+  margin: 1.5rem 0;
+}
+
+.wp-content-root .eael-data-table-wrap.wp-table-scroll {
+  margin: 1.5rem 0;
+}
+
+/* Tables inside Elementor widgets — single border, no stacked card chrome */
+.wp-content-root .elementor-widget-container:has(.wp-table-scroll),
+.wp-content-root .elementor-widget-container:has(.eael-data-table-wrap) {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.wp-content-root
+  .elementor-section
+  > .elementor-container:has(> .elementor-column:nth-child(2)):has(
+    .elementor-widget-image,
+    .jkit-image-box
+  )
+  > .elementor-column:has(.wp-table-scroll, .eael-data-table-wrap) {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+.wp-content-root .eael-data-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 !important;
+  font-family: var(--font-site);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.wp-content-root .eael-data-table-wrap thead th {
+  background: #1a365d !important;
+  color: #fff !important;
+  font-weight: 700;
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.wp-content-root .eael-data-table-wrap tbody td {
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+  color: #111827 !important;
+}
+
+.wp-content-root .eael-data-table-wrap tbody tr:nth-child(odd) {
+  background: #fffbeb;
+}
+
+.wp-content-root .eael-data-table-wrap tbody tr:nth-child(even) {
+  background: #fff;
+}
+
+/* ── Typography — unified Inter, consistent sizes for posts/tables ── */
+.wp-content-root .wp-content-body {
+  color: #111827;
+  font-family: var(--font-site);
+  font-size: 1rem;
+  line-height: 1.65;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* CMS inline styles must not override site font stack */
+.wp-content-root .wp-content-body [style] {
+  font-family: inherit !important;
+}
+
+.wp-content-root .wp-content-body h1,
+.wp-content-root .wp-content-body h2,
+.wp-content-root .wp-content-body h3,
+.wp-content-root .wp-content-body h4,
+.wp-content-root .wp-content-body h5,
+.wp-content-root .wp-content-body h6,
+.wp-content-root .wp-content-body .elementor-heading-title {
+  font-family: var(--font-site);
+  color: #000 !important;
+  font-weight: 700 !important;
+  scroll-margin-top: 6rem;
+  line-height: 1.35;
+  letter-spacing: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: none;
+  max-width: 100%;
+}
+
+.wp-content-root .wp-content-body h2 {
+  font-size: 1.5rem;
+  margin: 2.25rem 0 0.85rem;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.wp-content-root .wp-content-body h3 {
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.65rem;
+}
+
+.wp-content-root .wp-content-body h4 {
+  font-size: 1.125rem;
+  margin: 1.25rem 0 0.55rem;
+}
+
+.wp-content-root .wp-content-body h5 {
+  font-size: 1.0625rem;
+  margin: 1rem 0 0.45rem;
+  color: #000 !important;
+}
+
+.wp-content-root .wp-content-body h6 {
+  font-size: 1rem;
+  margin: 0.85rem 0 0.4rem;
+  color: #000 !important;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.wp-content-root .wp-faq-heading {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 700 !important;
+  color: #000 !important;
+  display: inline;
+  scroll-margin-top: 6rem;
+}
+
+.wp-content-root .wp-content-body p,
+.wp-content-root .wp-content-body li,
+.wp-content-root .wp-content-body td,
+.wp-content-root .wp-content-body .elementor-text-editor,
+.wp-content-root .wp-content-body .elementor-widget-container,
+.wp-content-root .wp-content-body .elementor-icon-box-description {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: #111827 !important;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.wp-content-root .wp-content-body p {
+  margin-bottom: 1.1rem;
+}
+
+.wp-content-root .wp-content-body ul,
+.wp-content-root .wp-content-body ol {
+  margin: 1rem 0 1.25rem;
+  padding-left: 1.35rem;
+}
+
+.wp-content-root .wp-content-body li {
+  margin-bottom: 0.5rem;
+}
+
+/* ── Elementor icon rows (documents, contact, features) ── */
+.wp-content-root ul.elementor-icon-list-items,
+.wp-content-root ul.elementor-icon-list-items.wp-icon-list-premium {
+  list-style: none !important;
+  padding: 0;
+  margin: 1.25rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.wp-content-root ul.elementor-icon-list-items > li.elementor-icon-list-item,
+.wp-content-root .elementor-icon-list-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 0.875rem;
+  list-style: none !important;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: var(--wp-radius);
+  border: 1px solid var(--wp-border);
+  background: linear-gradient(135deg, #f8fafc, #fff);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* Never let admission step-list typography break icon rows */
+.wp-content-root ul.elementor-icon-list-items.wp-premium-steps-list > li,
+.wp-content-root ul.elementor-icon-list-items.wp-icon-list-premium > li {
+  display: flex !important;
+  border: 1px solid var(--wp-border);
+  background: linear-gradient(135deg, #f8fafc, #fff);
+  padding: 0.85rem 1rem;
+}
+
+.wp-content-root ul.elementor-icon-list-items > li::before,
+.wp-content-root ul.elementor-icon-list-items.wp-premium-steps-list > li::before {
+  display: none !important;
+  content: none !important;
+}
+
+.wp-content-root ul.elementor-icon-list-items > li > span.elementor-icon-list-icon {
+  display: flex !important;
+  flex-shrink: 0;
+}
+
+.wp-content-root ul.elementor-icon-list-items > li > span.elementor-icon-list-text,
+.wp-content-root ul.elementor-icon-list-items > li > a.elementor-icon-list-text {
+  display: block !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+  font-weight: 600;
+}
+
+.wp-content-root .elementor-icon-list-icon {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.65rem;
+  background: var(--wp-navy);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.wp-content-root .elementor-icon-list-icon svg {
+  width: 1rem !important;
+  height: 1rem !important;
+  max-width: 1rem !important;
+  max-height: 1rem !important;
+  fill: currentColor;
+}
+
+.wp-content-root .elementor-icon-list-icon svg path {
+  fill: #fff;
+}
+
+/* Broken JKit font icons → simple checkmark glyph */
+.wp-content-root .elementor-icon-list-icon i.jki {
+  display: none !important;
+}
+
+.wp-content-root .elementor-icon-list-icon:has(i.jki)::after {
+  content: '✓';
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.wp-content-root .elementor-icon-list-text,
+.wp-content-root .wp-contact-card-link {
+  font-weight: 600;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  font-size: 0.975rem;
+  line-height: 1.5;
+  padding-top: 0.15rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.wp-content-root .wp-contact-card-link {
+  display: block;
+  text-decoration: none !important;
+  padding: 0.1rem 0 0;
+  background: none !important;
+  background-image: none !important;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.wp-content-root .wp-contact-card-link:hover {
+  color: #b45309 !important;
+  -webkit-text-fill-color: #b45309 !important;
+  background: none !important;
+  text-decoration: none !important;
+}
+
+.wp-content-root .wp-contact-strip .elementor-icon-list-item {
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.95rem 1.1rem;
+  border-left: 3px solid var(--wp-navy);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.wp-content-root .wp-contact-strip .elementor-icon-list-item:hover {
+  border-left-color: var(--wp-accent);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+}
+
+.wp-content-root .wp-contact-strip .elementor-icon-list-icon {
+  margin-top: 0.1rem;
+}
+
+.wp-content-root .elementor-widget-heading:has(+ .elementor-widget-icon-list .wp-contact-strip) .elementor-heading-title {
+  text-align: left !important;
+}
+
+/* Address card — highlighted, premium */
+.wp-content-root .wp-contact-card.wp-contact-address-card {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 42%, #f8fafc 100%) !important;
+  border: 1px solid #fcd34d !important;
+  border-left: 4px solid #d97706 !important;
+  box-shadow:
+    0 2px 8px rgba(217, 119, 6, 0.1),
+    0 12px 32px rgba(26, 54, 93, 0.08) !important;
+  padding: 1.15rem 1.25rem !important;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.wp-content-root .wp-contact-card.wp-contact-address-card:hover {
+  border-color: #f59e0b !important;
+  box-shadow:
+    0 4px 14px rgba(217, 119, 6, 0.16),
+    0 16px 36px rgba(26, 54, 93, 0.1) !important;
+}
+
+.wp-content-root .wp-contact-address-card .elementor-icon-list-icon {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+}
+
+.wp-content-root .wp-contact-address-card .wp-contact-card-link {
+  font-size: 1.02rem !important;
+  line-height: 1.65 !important;
+  color: #1a365d !important;
+  -webkit-text-fill-color: #1a365d !important;
+  font-weight: 600 !important;
+}
+
+.wp-content-root .wp-contact-address-card .wp-contact-card-link:hover {
+  color: #b45309 !important;
+  -webkit-text-fill-color: #b45309 !important;
+}
+
+.wp-content-root .wp-address-highlight {
+  margin: 1.25rem 0;
+  padding: 1.15rem 1.25rem;
+  border-radius: 0.9rem;
+  border: 1px solid #fcd34d;
+  border-left: 4px solid #d97706;
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #f8fafc 100%);
+  box-shadow:
+    0 2px 8px rgba(217, 119, 6, 0.1),
+    0 12px 32px rgba(26, 54, 93, 0.08);
+}
+
+.wp-content-root .wp-address-highlight p {
+  margin: 0 !important;
+  font-size: 1.02rem !important;
+  line-height: 1.65 !important;
+  font-weight: 600 !important;
+  color: #1a365d !important;
+}
+
+/* Document / curriculum chip cards — never inherit white text from icon styles */
+.wp-content-root ul.wp-premium-chip-grid .elementor-icon-list-text,
+.wp-content-root ul.wp-premium-chip-grid > li > span:not(.elementor-icon-list-icon),
+.wp-content-root ol.wp-premium-chip-grid .elementor-icon-list-text,
+.wp-content-root ol.wp-premium-chip-grid > li > span:not(.elementor-icon-list-icon) {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li::before,
+.wp-content-root ol.wp-premium-chip-grid > li::before {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* ── Icon boxes ── */
+.wp-content-root .elementor-icon-box-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid var(--wp-border);
+  border-left: 3px solid var(--wp-accent);
+  border-radius: var(--wp-radius);
+  background: #fff;
+}
+
+.wp-content-root .elementor-icon-box-title {
+  font-family: inherit;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #000 !important;
+  margin: 0 0 0.35rem;
+}
+
+.wp-content-root .elementor-icon-box-description {
+  color: #111827 !important;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+/* ── FAQ accordion (collapsible — answers hidden until open) ── */
+.wp-content-root .wp-faq-section-title {
+  font-family: var(--font-site);
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  color: var(--wp-navy) !important;
+  margin: 2.5rem 0 1.25rem !important;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid var(--wp-accent);
+  display: inline-block;
+}
+
+.wp-content-root .wp-premium-faq-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0 0 2.5rem;
+}
+
+.wp-content-root .wp-premium-faq-group--animated .wp-premium-faq {
+  animation: wp-faq-enter 0.45s ease backwards;
+  animation-delay: calc(var(--faq-i, 0) * 0.06s);
+}
+
+@keyframes wp-faq-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wp-content-root .wp-premium-faq {
+  border: 1px solid rgba(12, 31, 63, 0.1);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #fff 0%, #fafbfc 100%);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(12, 31, 63, 0.05);
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.25s ease;
+}
+
+.wp-content-root .wp-premium-faq:hover {
+  border-color: rgba(212, 160, 18, 0.35);
+}
+
+.wp-content-root .wp-premium-faq[open] {
+  border-color: rgba(212, 160, 18, 0.55);
+  box-shadow:
+    0 8px 28px rgba(12, 31, 63, 0.1),
+    inset 4px 0 0 var(--wp-accent);
+  transform: translateY(-1px);
+}
+
+.wp-content-root .wp-premium-faq-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1rem 1.15rem 1rem 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.85rem 1rem;
+  user-select: none;
+}
+
+.wp-content-root .wp-premium-faq-summary::-webkit-details-marker {
+  display: none;
+}
+
+.wp-content-root .wp-premium-faq-qnum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.65rem;
+  background: linear-gradient(145deg, var(--wp-navy), #1e3a5f);
+  color: var(--wp-accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.wp-content-root .wp-premium-faq[open] .wp-premium-faq-qnum {
+  background: linear-gradient(145deg, var(--wp-accent), #e8b84a);
+  color: var(--wp-navy);
+  transform: scale(1.05);
+}
+
+.wp-content-root .wp-premium-faq-qtext {
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #0f172a !important;
+  text-align: left;
+}
+
+.wp-content-root .wp-premium-faq-summary::after {
+  content: '';
+  width: 0.65rem;
+  height: 0.65rem;
+  border-right: 2.5px solid var(--wp-navy);
+  border-bottom: 2.5px solid var(--wp-navy);
+  transform: rotate(45deg);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  margin-right: 0.15rem;
+}
+
+.wp-content-root .wp-premium-faq[open] .wp-premium-faq-summary::after {
+  transform: rotate(-135deg);
+  border-color: var(--wp-accent);
+}
+
+.wp-content-root .wp-premium-faq-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-top: 1px solid transparent;
+}
+
+.wp-content-root .wp-premium-faq[open] .wp-premium-faq-body {
+  grid-template-rows: 1fr;
+  border-top-color: #f1f5f9;
+}
+
+.wp-content-root .wp-premium-faq-body-inner {
+  overflow: hidden;
+  padding: 0 1.15rem 0;
+  color: #1e293b !important;
+  font-size: 0.975rem;
+  line-height: 1.75;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity 0.35s ease 0.05s,
+    transform 0.35s ease 0.05s,
+    padding 0.35s ease;
+}
+
+.wp-content-root .wp-premium-faq[open] .wp-premium-faq-body-inner {
+  padding: 0.85rem 1.15rem 1.15rem;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wp-content-root .wp-premium-faq-body-inner p {
+  font-size: 0.975rem;
+  margin-bottom: 0.75rem;
+  color: #1e293b !important;
+}
+
+.wp-content-root .wp-premium-faq-body-inner p:last-child {
+  margin-bottom: 0;
+}
+
+.wp-content-root .wp-premium-faq-answer {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #e8f4fc;
+  color: #1e293b !important;
+}
+
+.wp-content-root .wp-premium-faq-answer-label {
+  font-weight: 700;
+  color: #111827;
+}
+
+.wp-content-root .eael-adv-accordion:not(:has(.wp-premium-faq)) .eael-accordion-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+.wp-content-root .eael-adv-accordion .eael-accordion-tab-title {
+  flex: 1;
+  font-weight: 600;
+  color: var(--wp-navy);
+}
+
+/* ── Premium enquiry CTA (replaces broken WPForms) ── */
+.wp-content-root .wp-premium-enquiry {
+  margin: 2rem 0;
+  padding: 1.75rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  background: linear-gradient(135deg, #fffbeb 0%, #fff 50%, #f8fafc 100%);
+  box-shadow: 0 8px 30px rgba(26, 54, 93, 0.08);
+}
+
+.wp-content-root .wp-premium-enquiry-text {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #111827 !important;
+  margin: 0 0 1.25rem;
+}
+
+.wp-content-root .wp-premium-enquiry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.wp-content-root .wp-premium-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.35rem;
+  border-radius: 9999px;
+  font-size: 0.925rem;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.wp-content-root .wp-premium-btn:hover {
+  transform: translateY(-1px);
+}
+
+.wp-content-root .wp-premium-btn-primary {
+  background: var(--wp-navy) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(26, 54, 93, 0.25);
+  text-decoration: none !important;
+}
+
+.wp-content-root .wp-premium-btn-outline {
+  border: 2px solid var(--wp-navy) !important;
+  color: var(--wp-navy) !important;
+  background: #fff !important;
+  text-decoration: none !important;
+}
+
+/* Hide any leftover embedded forms (WPForms, Formidable, etc.) */
+.wp-content-root .wpforms-container,
+.wp-content-root .wpforms-form,
+.wp-content-root .frm_forms,
+.wp-content-root .frm-show-form,
+.wp-content-root .frm_form_fields,
+.wp-content-root form#form_genralform {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* ── Images ── */
+.wp-content-root .wp-content-body img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+  border-radius: var(--wp-radius);
+  margin: 1.25rem auto;
+  display: block;
+}
+
+/* Hide duplicate Elementor thumb copies in flowing body copy only — not card/profile grids */
+.wp-content-root .wp-content-body img[src*='elementor/thumbs'] {
+  display: none;
+}
+
+.wp-content-root .wp-university-profile img[src*='elementor/thumbs'],
+.wp-content-root .wp-college-card-grid img[src*='elementor/thumbs'],
+.wp-content-root .wp-mbbs-state-grid img[src*='elementor/thumbs'],
+.wp-content-root .jkit-image-box img[src*='elementor/thumbs'] {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: cover;
+  margin: 0 auto;
+}
+
+/* ── Premium tables — aligned, zebra rows, AR Group palette ── */
+
+/* Global: every EAEL table uses real rows/columns on desktop (colleges, states, countries) */
+.wp-content-root .wp-table-scroll table.eael-data-table,
+.wp-content-root .eael-data-table-wrap table.eael-data-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+}
+
+@media (min-width: 768px) {
+  .wp-content-root .wp-table-scroll table.eael-data-table thead,
+  .wp-content-root .wp-table-scroll table.eael-data-table tbody,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table thead,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table tbody {
+    display: table-row-group !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.eael-data-table tbody tr,
+  .wp-content-root .wp-table-scroll table.eael-data-table thead tr,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table tbody tr,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table thead tr {
+    display: table-row !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.eael-data-table tbody td,
+  .wp-content-root .wp-table-scroll table.eael-data-table thead th,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table tbody td,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table thead th {
+    display: table-cell !important;
+  }
+}
+
+.wp-content-root .wp-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--wp-radius);
+  border: 1px solid #dbeafe;
+  box-shadow:
+    0 1px 2px rgba(26, 54, 93, 0.06),
+    0 8px 24px rgba(26, 54, 93, 0.06);
+  background: #fff;
+}
+
+.wp-content-root .wp-table-scroll table {
+  width: 100%;
+  min-width: 280px;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  display: table;
+  table-layout: auto;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-family: var(--font-site);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.wp-content-root .wp-table-scroll thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.wp-content-root .wp-table-scroll thead th {
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%);
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  padding: 0.85rem 1.1rem;
+  border: none;
+  border-bottom: 2px solid #d97706;
+  vertical-align: middle;
+  text-align: left;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.wp-content-root .wp-table-scroll thead th,
+.wp-content-root .eael-data-table-wrap thead th {
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.wp-content-root .wp-table-scroll thead th .data-table-header-text:empty {
+  display: none;
+}
+
+/* Labelled data tables (fee structure, syllabus, eligibility, multi-col lists) */
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table thead th,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table tbody td {
+  display: table-cell !important;
+  max-width: none !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table tbody tr {
+  display: table-row !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.center th,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.center td {
+  text-align: left !important;
+}
+
+.wp-content-root .wp-table-scroll thead th :is(p, b, strong, span, a) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  margin: 0 !important;
+}
+
+/* eael / generic multi-column tables — keep every header cell readable */
+.wp-content-root .wp-table-scroll table.eael-data-table thead th,
+.wp-content-root .eael-data-table-wrap table.eael-data-table thead th {
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.wp-content-root .wp-table-scroll table.eael-data-table thead th :is(p, b, strong, span, a, div, .data-table-header-text),
+.wp-content-root .eael-data-table-wrap table.eael-data-table thead th :is(p, b, strong, span, a, div, .data-table-header-text) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.wp-content-root .wp-table-scroll tbody td :is(p, span),
+.wp-content-root .wp-table-scroll tbody th :is(p, span) {
+  margin: 0 !important;
+}
+
+/* 2-column fee / category tables */
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 thead th:first-child,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody td:first-child {
+  width: 48% !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 thead th:last-child,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody td:last-child {
+  width: 52% !important;
+  text-align: right !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody td:first-child {
+  font-weight: 600;
+  color: #0f172a !important;
+  background: rgba(26, 54, 93, 0.03);
+  border-left: 3px solid #d97706;
+  text-transform: capitalize;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody td:last-child {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #1e3a5f !important;
+  background: #ffffff !important;
+}
+
+/* 3-column tables (syllabus, duration, eligibility) */
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 {
+  table-layout: auto;
+  width: max-content;
+  min-width: 100%;
+  max-width: none;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 thead th,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td {
+  text-align: left !important;
+  vertical-align: top;
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:nth-child(1) {
+  width: 7.5rem;
+  min-width: 7.5rem;
+  max-width: 9rem;
+  font-weight: 600;
+  color: #0f172a !important;
+  background: rgba(26, 54, 93, 0.03);
+  border-left: 3px solid #d97706;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:nth-child(2),
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:nth-child(3) {
+  min-width: 11rem;
+  color: #334155 !important;
+  background: #ffffff !important;
+}
+
+/* Labelled data tables — header row always dark (body cell colors must not bleed into th) */
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table thead th,
+.wp-content-root .eael-data-table-wrap table.wp-labeled-data-table thead th {
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border-left: none !important;
+  border-bottom: 2px solid #d97706 !important;
+  font-weight: 700 !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table thead th :is(p, b, strong, span, a, div, .data-table-header-text),
+.wp-content-root .eael-data-table-wrap table.wp-labeled-data-table thead th :is(p, b, strong, span, a, div, .data-table-header-text) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* 4-column comparison tables */
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 {
+  table-layout: auto;
+  width: max-content;
+  min-width: 100%;
+  max-width: none;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 thead th,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td {
+  text-align: left !important;
+  vertical-align: top;
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:nth-child(1) {
+  width: 7.5rem;
+  min-width: 7.5rem;
+  max-width: 9rem;
+  font-weight: 600;
+  border-left: 3px solid #d97706;
+  background: rgba(26, 54, 93, 0.03);
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 thead th:nth-child(2),
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:nth-child(2),
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 thead th:nth-child(3),
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:nth-child(3) {
+  min-width: 12rem;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 thead th:nth-child(4),
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:nth-child(4) {
+  width: 9rem;
+  min-width: 9rem;
+  white-space: nowrap !important;
+  font-weight: 600;
+}
+
+/* 5+ column wide tables (college lists, fee comparisons) */
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-5,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-many {
+  table-layout: auto;
+  min-width: 42rem;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-5 thead th,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-5 tbody td,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-many thead th,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-many tbody td {
+  text-align: left !important;
+  vertical-align: middle;
+  white-space: normal !important;
+  min-width: 6.5rem;
+}
+
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-5 tbody td:first-child,
+.wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-many tbody td:first-child {
+  font-weight: 600;
+  border-left: 3px solid #d97706;
+  background: rgba(26, 54, 93, 0.03);
+  min-width: 8.5rem;
+}
+
+.wp-content-root .wp-table-scroll tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.wp-content-root .wp-table-scroll tbody tr:nth-child(odd) {
+  background: #ffffff;
+}
+
+.wp-content-root .wp-table-scroll tbody tr:nth-child(even) {
+  background: #fffbeb;
+}
+
+.wp-content-root .wp-table-scroll tbody tr:hover {
+  background: #fef3c7;
+}
+
+.wp-content-root .wp-table-scroll tbody td,
+.wp-content-root .wp-table-scroll tbody th {
+  padding: 0.8rem 1.1rem;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+  text-align: left;
+  color: #111827 !important;
+}
+
+.wp-content-root .wp-table-scroll tbody tr:last-child td,
+.wp-content-root .wp-table-scroll tbody tr:last-child th {
+  border-bottom: none;
+}
+
+/* First column = label column (key-value tables) */
+.wp-content-root .wp-table-scroll table:not(.wp-labeled-data-table) tbody td:first-child,
+.wp-content-root .wp-table-scroll table:not(.wp-labeled-data-table) tbody th:first-child {
+  font-weight: 600;
+  color: #000 !important;
+  background: rgba(26, 54, 93, 0.03);
+  border-left: 3px solid #d97706;
+  min-width: 9rem;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child {
+  min-width: 0 !important;
+  max-width: 38% !important;
+}
+
+.wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child {
+  min-width: 4.5rem !important;
+}
+
+/* College profile cards — never crush label column inside wp-table-scroll */
+.wp-content-root .wp-university-profile .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child {
+  min-width: 10.5rem !important;
+  max-width: 40% !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+.wp-content-root .wp-university-profile .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child {
+  width: 100% !important;
+}
+
+.wp-content-root .wp-table-scroll tbody tr:nth-child(even) td:first-child,
+.wp-content-root .wp-table-scroll tbody tr:nth-child(even) th:first-child {
+  background: rgba(217, 119, 6, 0.06);
+}
+
+/* Elementor data-table inner wrappers */
+.wp-content-root .wp-table-scroll .td-content-wrapper,
+.wp-content-root .wp-table-scroll .td-content {
+  color: inherit !important;
+  line-height: 1.55;
+}
+
+.wp-content-root .wp-table-scroll .td-content p {
+  margin: 0;
+  color: inherit !important;
+}
+
+/* Center-aligned tables (Elementor class) — skip labelled / KV tables */
+.wp-content-root .wp-table-scroll table.center:not(.wp-labeled-data-table):not(.wp-facts-kv-table) th,
+.wp-content-root .wp-table-scroll table.center:not(.wp-labeled-data-table):not(.wp-facts-kv-table) td,
+.wp-content-root .wp-table-scroll table.eael-data-table.center:not(.wp-labeled-data-table):not(.wp-facts-kv-table) th,
+.wp-content-root .wp-table-scroll table.eael-data-table.center:not(.wp-facts-kv-table):not(.wp-labeled-data-table) td {
+  text-align: center;
+}
+
+.wp-content-root .wp-table-scroll table.center:not(.wp-labeled-data-table):not(.wp-facts-kv-table) tbody td:first-child,
+.wp-content-root .wp-table-scroll table.center:not(.wp-labeled-data-table):not(.wp-facts-kv-table) tbody th:first-child {
+  text-align: center;
+}
+
+/* Tables without thead — first row as visual header (not key-value fact sheets) */
+.wp-content-root .wp-table-scroll table:not(:has(thead)):not(.wp-facts-kv-table) tbody tr:first-child td,
+.wp-content-root .wp-table-scroll table:not(:has(thead)):not(.wp-facts-kv-table) tbody tr:first-child th {
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%);
+  color: #fff !important;
+  font-weight: 700;
+  border-left: none;
+  border-bottom: 2px solid #d97706;
+}
+
+.wp-content-root .wp-table-scroll table:not(:has(thead)):not(.wp-facts-kv-table) tbody tr:first-child td strong,
+.wp-content-root .wp-table-scroll table:not(:has(thead)):not(.wp-facts-kv-table) tbody tr:first-child th strong {
+  color: #fff !important;
+}
+
+.wp-content-root .wp-table-scroll table:not(:has(thead)) tbody tr:first-child td:first-child {
+  border-left: none;
+}
+
+/* Override inline colors inside tables only */
+.wp-content-root .wp-table-scroll [style*='color'] {
+  color: inherit !important;
+}
+
+.wp-content-root .wp-table-scroll a {
+  color: #b45309 !important;
+  font-weight: 600;
+}
+
+/* Legacy: bare tables not yet wrapped (fallback) */
+.wp-content-root .wp-content-body > table,
+.wp-content-root .wp-content-body .elementor-widget-container > table {
+  width: 100%;
+  border-collapse: collapse;
+  display: table;
+  margin: 1.5rem 0;
+  font-size: 0.9375rem;
+  border-radius: var(--wp-radius);
+  border: 1px solid var(--wp-border);
+  overflow: hidden;
+}
+
+.wp-content-root .wp-content-body > table tbody tr:nth-child(odd),
+.wp-content-root .wp-content-body .elementor-widget-container > table tbody tr:nth-child(odd) {
+  background: #fff;
+}
+
+.wp-content-root .wp-content-body > table tbody tr:nth-child(even),
+.wp-content-root .wp-content-body .elementor-widget-container > table tbody tr:nth-child(even) {
+  background: #fffbeb;
+}
+
+.wp-content-root .wp-content-body > table th,
+.wp-content-root .wp-content-body > table td,
+.wp-content-root .wp-content-body .elementor-widget-container > table th,
+.wp-content-root .wp-content-body .elementor-widget-container > table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--wp-border);
+  text-align: left;
+  vertical-align: middle;
+  color: #111827 !important;
+}
+
+.wp-content-root .wp-content-body > table th,
+.wp-content-root .wp-content-body .elementor-widget-container > table th {
+  background: #1a365d;
+  color: #fff !important;
+  font-weight: 700;
+}
+
+/* Override Elementor inline color styles on body text */
+.wp-content-root .wp-content-body [style*='color']:not(a):not(.elementor-button):not(.wp-premium-btn) {
+  color: #111827 !important;
+}
+
+.wp-content-root .wp-content-body span.elementor-heading-title,
+.wp-content-root .wp-content-body .elementor-widget-heading * {
+  color: #000 !important;
+}
+
+/* ── Links & buttons (exclude premium CTA + WP buttons) ── */
+.wp-content-root .wp-content-body a:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link):not(.wp-contact-card-link):not(.elementor-icon-list-text) {
+  color: #b45309;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Payload / Lexical inline links (not contact icon rows) */
+.wp-content-root .wp-content-body a[href^="http"]:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link):not(.wp-contact-card-link):not(.elementor-icon-list-text),
+.wp-content-root .wp-content-body a[href^="/"]:not(.wp-premium-btn):not(.elementor-button):not(.wp-block-button__link):not(.wp-contact-card-link):not(.elementor-icon-list-text) {
+  color: #c2410c;
+  background: linear-gradient(transparent 60%, rgba(251, 191, 36, 0.35) 60%);
+}
+
+.wp-content-root .wp-content-body strong {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.wp-content-root .wp-content-body strong a,
+.wp-content-root .wp-content-body a strong {
+  color: #c2410c;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.wp-content-root .wp-content-body .elementor-button,
+.wp-content-root .wp-content-body .wp-block-button__link {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.65rem 1.25rem;
+  background: var(--wp-navy) !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  font-weight: 600;
+}
+
+.wp-content-root .wp-content-body blockquote {
+  border-left: 4px solid var(--wp-accent);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  background: #fffbeb;
+  border-radius: 0 var(--wp-radius) var(--wp-radius) 0;
+  font-style: italic;
+  color: #475569;
+}
+
+.wp-content-root .wp-content-body iframe {
+  max-width: 100%;
+  border-radius: var(--wp-radius);
+  margin: 1rem 0;
+}
+
+/* Sidebar */
+.wp-content-sidebar {
+  min-width: 0;
+}
+
+/* ── Affinity-style layout: smooth scroll, lazy sections, quick facts placeholder ── */
+html:has(.wp-content-affinity) {
+  scroll-behavior: smooth;
+}
+
+.wp-content-affinity .wp-quick-facts-placeholder {
+  display: none !important;
+}
+
+.wp-content-affinity .wp-lazy-section {
+  opacity: 1;
+  transform: none;
+}
+
+.wp-content-affinity.js-lazy-enabled .wp-lazy-section:not(.is-visible) {
+  opacity: 1;
+  transform: none;
+}
+
+.wp-content-affinity.js-lazy-enabled .wp-lazy-section {
+  transition:
+    opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.wp-content-affinity.js-lazy-enabled .wp-lazy-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wp-content-affinity .wp-lazy-section + .wp-lazy-section {
+  margin-top: 0.5rem;
+}
+
+.wp-content-affinity .wp-lazy-section > h2:first-child {
+  margin-top: 0;
+}
+
+.wp-content-affinity .wp-content-body img[loading='lazy'] {
+  background: #f1f5f9;
+  min-height: 120px;
+}
+
+.wp-content-bottom-cta {
+  scroll-margin-top: 6rem;
+}
+
+/* ── Long lists → premium chip grid (fills dead space, keeps ul/li for SEO) ── */
+.wp-content-root ul.wp-premium-chip-grid,
+.wp-content-root ol.wp-premium-chip-grid {
+  display: grid;
+  /* Wider min track so labels like "Anatomy" never mid-word wrap. */
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
+  gap: 0.65rem;
+  list-style: none;
+  margin: 1.25rem 0 1.75rem;
+  padding: 1.15rem;
+  border-radius: 1rem;
+  border: 1px solid #dbeafe;
+  background:
+    linear-gradient(135deg, rgba(26, 54, 93, 0.04) 0%, transparent 45%),
+    linear-gradient(225deg, rgba(217, 119, 6, 0.07) 0%, transparent 50%),
+    #fff;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(26, 54, 93, 0.07);
+  counter-reset: wp-chip;
+}
+
+@media (min-width: 640px) {
+  .wp-content-root ul.wp-premium-chip-grid,
+  .wp-content-root ol.wp-premium-chip-grid {
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 0.75rem;
+    padding: 1.35rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-content-root ul.wp-premium-chip-grid,
+  .wp-content-root ol.wp-premium-chip-grid {
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  }
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li,
+.wp-content-root ol.wp-premium-chip-grid > li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li::before,
+.wp-content-root ol.wp-premium-chip-grid > li::before {
+  counter-increment: wp-chip;
+  content: counter(wp-chip, decimal-leading-zero);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 0.45rem;
+  background: linear-gradient(135deg, #1a365d, #234e82);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li,
+.wp-content-root ol.wp-premium-chip-grid > li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #111827 !important;
+  min-width: 0;
+  /* Wrap only at spaces — never split "Anatomy" into Anat/omy. */
+  word-break: keep-all;
+  overflow-wrap: normal;
+  hyphens: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Sibling spans (CMS export) must not share a flex row — stack as one text block. */
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ span),
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ span) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+/* Mixed title + description inside one chip (fallback if not promoted to feature-grid). */
+.wp-content-root ul.wp-premium-chip-grid > li:has(> b, > strong),
+.wp-content-root ol.wp-premium-chip-grid > li:has(> b, > strong) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> b, > strong) > b,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> b, > strong) > strong,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> b, > strong) > span,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> b, > strong) > b,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> b, > strong) > strong,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> b, > strong) > span {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  flex: none;
+  font-family: inherit;
+  white-space: normal !important;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> :is(b, strong) + span) > :is(b, strong),
+.wp-content-root ol.wp-premium-chip-grid > li:has(> :is(b, strong) + span) > :is(b, strong),
+.wp-content-root ul.wp-premium-chip-grid > li:has(> :is(b, strong) + span) > span,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> :is(b, strong) + span) > span {
+  display: inline !important;
+  width: auto !important;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:hover,
+.wp-content-root ol.wp-premium-chip-grid > li:hover {
+  transform: translateY(-2px);
+  border-color: rgba(217, 119, 6, 0.45);
+  box-shadow: 0 6px 18px rgba(26, 54, 93, 0.1);
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:nth-child(3n + 1),
+.wp-content-root ol.wp-premium-chip-grid > li:nth-child(3n + 1) {
+  background: linear-gradient(135deg, #fff 0%, #fffbeb 100%);
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:nth-child(3n + 2),
+.wp-content-root ol.wp-premium-chip-grid > li:nth-child(3n + 2) {
+  background: linear-gradient(135deg, #fff 0%, #eff6ff 100%);
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li > span,
+.wp-content-root ol.wp-premium-chip-grid > li > span,
+.wp-content-root ul.wp-premium-chip-grid .elementor-icon-list-text,
+.wp-content-root ol.wp-premium-chip-grid .elementor-icon-list-text,
+.wp-content-root ul.wp-premium-chip-grid .wp-premium-chip-text,
+.wp-content-root ol.wp-premium-chip-grid .wp-premium-chip-text {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #111827 !important;
+  font-weight: 600;
+  padding: 0 !important;
+  white-space: normal !important;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+/* Links inside chip text stay inline — never become separate flex items. */
+.wp-content-root ul.wp-premium-chip-grid > li > a,
+.wp-content-root ol.wp-premium-chip-grid > li > a {
+  display: inline;
+  flex: none;
+  min-width: 0;
+  color: #b45309 !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.wp-content-root ul.wp-premium-chip-grid .wp-premium-chip-text a,
+.wp-content-root ol.wp-premium-chip-grid .wp-premium-chip-text a,
+.wp-content-root ul.wp-premium-chip-grid .elementor-icon-list-text a,
+.wp-content-root ol.wp-premium-chip-grid .elementor-icon-list-text a {
+  display: inline;
+  color: #b45309 !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ span) > span,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ span) > span {
+  flex: none;
+  width: 100%;
+}
+
+.wp-content-root ul.wp-premium-icon-chip-grid .elementor-icon-list-icon svg,
+.wp-content-root ul.wp-premium-icon-chip-grid .elementor-icon-list-icon i,
+.wp-content-root ul.wp-premium-icon-chip-grid i[class*='jki'],
+.wp-content-root ul.wp-premium-icon-chip-grid i[class*='fa-'] {
+  display: none !important;
+}
+
+.wp-content-root ul.wp-premium-icon-chip-grid .elementor-icon-list-icon:empty {
+  display: none !important;
+}
+
+.wp-content-root ul.wp-premium-icon-chip-grid > li.elementor-icon-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Elementor empty / half-width columns → full width content area */
+.wp-content-root .elementor-column:empty,
+.wp-content-root .elementor-widget-wrap:empty {
+  display: none !important;
+  min-height: 0 !important;
+}
+
+.wp-content-root .elementor-inner-section:not(:has(.elementor-column:nth-child(2) .elementor-element)) .elementor-column:first-child,
+.wp-content-root .elementor-section > .elementor-container:not(:has(.elementor-column:nth-child(2) .elementor-element)) .elementor-column:first-child {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.wp-content-root .elementor-widget__width-initial,
+.wp-content-root .elementor-widget-mobile__width-initial {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.wp-content-root .wp-content-body .elementor-column {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .wp-content-root .wp-content-body .elementor-inner-section .elementor-column:only-child {
+    width: 100% !important;
+  }
+}
+
+/* ── Feature cards: title + description lists (Recognized Institution, etc.) ── */
+/* Admission / process steps — compact bullets, not tall feature cards */
+.wp-content-root ul.wp-premium-steps-list,
+.wp-content-root ol.wp-premium-steps-list {
+  display: block;
+  list-style-position: outside;
+  margin: 0.35rem 0 0.85rem;
+  padding-left: 1.35rem;
+  counter-reset: none;
+}
+
+.wp-content-root ul.wp-premium-steps-list {
+  list-style-type: disc;
+}
+
+.wp-content-root ol.wp-premium-steps-list {
+  list-style-type: decimal;
+}
+
+.wp-content-root ul.wp-premium-steps-list:not(.elementor-icon-list-items) > li,
+.wp-content-root ol.wp-premium-steps-list:not(.elementor-icon-list-items) > li {
+  display: list-item;
+  margin: 0.3rem 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none !important;
+  box-shadow: none;
+  min-height: 0;
+  height: auto;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #111827;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.wp-content-root ul.wp-premium-steps-list > li::before,
+.wp-content-root ol.wp-premium-steps-list > li::before {
+  display: none !important;
+  content: none !important;
+}
+
+.wp-content-root ul.wp-premium-steps-list:not(.elementor-icon-list-items) > li > span,
+.wp-content-root ol.wp-premium-steps-list:not(.elementor-icon-list-items) > li > span,
+.wp-content-root ul.wp-premium-steps-list:not(.elementor-icon-list-items) > li > p,
+.wp-content-root ol.wp-premium-steps-list:not(.elementor-icon-list-items) > li > p {
+  display: inline;
+  font-weight: 400;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit !important;
+}
+
+.wp-content-root ul.wp-premium-steps-list > li > b,
+.wp-content-root ul.wp-premium-steps-list > li > strong,
+.wp-content-root ol.wp-premium-steps-list > li > b,
+.wp-content-root ol.wp-premium-steps-list > li > strong {
+  display: inline;
+  font-weight: 700;
+  color: #000 !important;
+}
+
+.wp-content-root .wp-premium-steps-list ul {
+  list-style-type: disc;
+  margin: 0.35rem 0 0.2rem;
+  padding-left: 1.2rem;
+}
+
+.wp-content-root .wp-premium-steps-list ul > li {
+  display: list-item;
+  margin: 0.2rem 0;
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
+.wp-content-root .elementor-widget-heading:has(+ .elementor-widget-text-editor .wp-premium-steps-list) {
+  margin-bottom: 0.15rem;
+}
+
+.wp-content-root .elementor-widget-text-editor:has(.wp-premium-steps-list) {
+  margin-bottom: 0.35rem;
+}
+
+/* Benefits list (Why pursue MBBS — icon rows → card grid) */
+.wp-content-root ul.wp-premium-benefits-grid {
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.25rem 0 1.5rem !important;
+  padding: 0 !important;
+}
+
+@media (min-width: 640px) {
+  .wp-content-root ul.wp-premium-benefits-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
+.wp-content-root ul.wp-premium-benefits-grid > li.elementor-icon-list-item {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 0.65rem !important;
+  padding: 1.1rem 1.15rem !important;
+  border-radius: 0.9rem !important;
+  border: 1px solid #e2e8f0 !important;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
+  height: 100%;
+}
+
+.wp-content-root ul.wp-premium-benefits-grid > li.elementor-icon-list-item:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+.wp-content-root ul.wp-premium-benefits-grid .elementor-icon-list-icon {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  border-radius: 0.7rem !important;
+  background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  box-shadow: 0 4px 12px rgba(26, 54, 93, 0.25);
+}
+
+.wp-content-root ul.wp-premium-benefits-grid .elementor-icon-list-text {
+  font-size: 0.9rem !important;
+  line-height: 1.6 !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+}
+
+.wp-content-root ul.wp-premium-benefits-grid .elementor-icon-list-text::first-line {
+  font-weight: 700;
+  color: #1a365d;
+}
+
+.wp-content-root .elementor-container.wp-split-collapsed .elementor-widget-heading .elementor-heading-title {
+  text-align: left !important;
+}
+
+.wp-content-root .elementor-container.wp-split-collapsed .elementor-widget-button {
+  align-self: stretch !important;
+  width: 100%;
+  margin-top: 0.5rem !important;
+}
+
+.wp-content-root .elementor-container.wp-split-collapsed .elementor-widget-button .elementor-button {
+  width: 100%;
+  justify-content: center;
+  min-height: 2.75rem;
+}
+
+.wp-content-root ul.wp-premium-feature-grid,
+.wp-content-root ol.wp-premium-feature-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  align-items: stretch;
+  list-style: none;
+  margin: 1.25rem 0 1.75rem;
+  padding: 0;
+  counter-reset: none;
+}
+
+@media (min-width: 640px) {
+  .wp-content-root ul.wp-premium-feature-grid,
+  .wp-content-root ol.wp-premium-feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .wp-content-root ul.wp-premium-feature-grid,
+  .wp-content-root ol.wp-premium-feature-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .wp-content-root ul.wp-premium-feature-grid:has(> li:nth-child(2):last-child),
+  .wp-content-root ol.wp-premium-feature-grid:has(> li:nth-child(2):last-child),
+  .wp-content-root ul.wp-premium-feature-grid:has(> li:nth-child(4):last-child),
+  .wp-content-root ol.wp-premium-feature-grid:has(> li:nth-child(4):last-child) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.wp-content-root ul.wp-premium-feature-grid .elementor-icon-list-icon,
+.wp-content-root ol.wp-premium-feature-grid .elementor-icon-list-icon,
+.wp-content-root ul.wp-premium-feature-grid .elementor-icon-list-icon svg,
+.wp-content-root ol.wp-premium-feature-grid .elementor-icon-list-icon svg {
+  display: none !important;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li.elementor-icon-list-item,
+.wp-content-root ol.wp-premium-feature-grid > li.elementor-icon-list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.wp-content-root ul.wp-premium-feature-grid .elementor-icon-list-text,
+.wp-content-root ol.wp-premium-feature-grid .elementor-icon-list-text {
+  display: block;
+  width: 100%;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #111827 !important;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li,
+.wp-content-root ol.wp-premium-feature-grid > li {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border-radius: 0.85rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  min-width: 0;
+  height: 100%;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li::before,
+.wp-content-root ol.wp-premium-feature-grid > li::before {
+  display: none !important;
+  content: none !important;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:nth-child(odd),
+.wp-content-root ol.wp-premium-feature-grid > li:nth-child(odd) {
+  background: linear-gradient(135deg, #fff 0%, #fffbeb 100%);
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:nth-child(even),
+.wp-content-root ol.wp-premium-feature-grid > li:nth-child(even) {
+  background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:hover,
+.wp-content-root ol.wp-premium-feature-grid > li:hover {
+  border-color: rgba(217, 119, 6, 0.45);
+  box-shadow: 0 8px 20px rgba(26, 54, 93, 0.08);
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li > b,
+.wp-content-root ul.wp-premium-feature-grid > li > strong,
+.wp-content-root ol.wp-premium-feature-grid > li > b,
+.wp-content-root ol.wp-premium-feature-grid > li > strong {
+  display: block;
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #000 !important;
+  line-height: 1.35;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li > span,
+.wp-content-root ol.wp-premium-feature-grid > li > span,
+.wp-content-root ul.wp-premium-feature-grid > li > p,
+.wp-content-root ol.wp-premium-feature-grid > li > p {
+  display: block;
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #111827 !important;
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+/* Title + colon + body stay in one text flow (fixes BPT / long-title cards). */
+.wp-content-root ul.wp-premium-feature-grid > li:has(> :is(b, strong) + span) > :is(b, strong),
+.wp-content-root ol.wp-premium-feature-grid > li:has(> :is(b, strong) + span) > :is(b, strong),
+.wp-content-root ul.wp-premium-feature-grid > li:has(> :is(b, strong) + span) > span,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> :is(b, strong) + span) > span {
+  display: inline !important;
+  width: auto !important;
+}
+
+/* Keep split CMS spans (e.g. "50th" + "percentile") on one line when possible. */
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ span) > span,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ span) > span {
+  display: inline !important;
+  width: auto !important;
+}
+
+.wp-content-root ul.wp-premium-feature-grid:has(> li:nth-child(2):last-child),
+.wp-content-root ol.wp-premium-feature-grid:has(> li:nth-child(2):last-child) {
+  align-items: start;
+}
+
+.wp-content-root ul.wp-premium-feature-grid:has(> li:nth-child(2):last-child) > li,
+.wp-content-root ol.wp-premium-feature-grid:has(> li:nth-child(2):last-child) > li {
+  height: auto;
+  min-height: 0;
+}
+
+/* NEET percentile lines — keep "50th percentile" on one line when possible */
+.wp-content-root ul.wp-premium-feature-grid > li,
+.wp-content-root ol.wp-premium-feature-grid > li {
+  white-space: normal;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:has(:is(b, strong)) :is(b, strong) + span,
+.wp-content-root ol.wp-premium-feature-grid > li:has(:is(b, strong)) :is(b, strong) + span {
+  white-space: normal;
+}
+
+/* Simple bullet lists inside feature cards (no bold title). */
+.wp-content-root ul.wp-premium-feature-grid > li:not(:has(> b, > strong)),
+.wp-content-root ol.wp-premium-feature-grid > li:not(:has(> b, > strong)) {
+  justify-content: flex-start;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:not(:has(> b, > strong)) > span,
+.wp-content-root ol.wp-premium-feature-grid > li:not(:has(> b, > strong)) > span {
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+/* Inline rich copy: <span>…</span><b>…</b> must flow as one sentence, not stacked blocks. */
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong),
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) {
+  display: block;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > span,
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > strong,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > span,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > strong {
+  display: inline;
+  width: auto;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ul.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > strong,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ol.wp-premium-feature-grid > li:has(> span ~ b, > span ~ strong) > strong {
+  font-weight: 700;
+  color: #000 !important;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong),
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) {
+  display: block;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > span,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > strong,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > span,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > strong {
+  display: inline;
+  width: auto;
+  flex: none;
+  font-weight: 400;
+}
+
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ul.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > strong,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > b,
+.wp-content-root ol.wp-premium-chip-grid > li:has(> span ~ b, > span ~ strong) > strong {
+  font-weight: 700;
+}
+
+/* Hidden scrollbars — TOC scrolls smoothly without visible bar */
+.toc-scroll-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.toc-scroll-hide::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* ── Mobile-friendly content (WP body unchanged, layout only) ── */
+@media (max-width: 639px) {
+  .wp-content-root .wp-content-body h2 {
+    font-size: 1.25rem;
+    margin: 1.75rem 0 0.65rem;
+  }
+
+  .wp-content-root .wp-content-body h3 {
+    font-size: 1.125rem;
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  .wp-content-root .wp-content-body h4 {
+    font-size: 1.0625rem;
+  }
+
+  .wp-content-root .wp-content-body p,
+  .wp-content-root .wp-content-body li {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .wp-content-root .wp-table-scroll {
+    margin: 1.25rem 0;
+    border-radius: 0.65rem;
+  }
+
+  .wp-content-root .wp-table-scroll table {
+    font-size: 0.8125rem;
+    min-width: 0;
+  }
+
+  .wp-content-root .wp-table-scroll thead th,
+  .wp-content-root .wp-table-scroll tbody td,
+  .wp-content-root .wp-table-scroll tbody th {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .wp-content-root .wp-table-scroll tbody td:first-child,
+  .wp-content-root .wp-table-scroll tbody th:first-child {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody td:not(:first-child),
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:not(:first-child),
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody th:not(:first-child),
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody th:not(:first-child) {
+    white-space: normal !important;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  /* Course Details / particulars — stack label above value (fixes clipped left column) */
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: auto !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 thead,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 thead,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 thead,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 thead,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 tbody,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 thead tr,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 thead tr,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody tr,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody tr,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 thead tr,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 thead tr,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 tbody tr,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody tr {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 thead th,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 thead th,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody td,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 thead th,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 thead th,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 tbody td,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    text-align: left !important;
+    box-sizing: border-box;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child {
+    font-weight: 700;
+    color: #92400e !important;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+    border-left: 4px solid #d97706 !important;
+    border-bottom: none !important;
+    padding-bottom: 0.35rem !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody td:last-child,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 tbody td:last-child,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child {
+    padding-top: 0.35rem !important;
+    margin-bottom: 0.65rem;
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:not(:first-child),
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:not(:first-child),
+  .wp-content-root .wp-table-scroll table:not(.wp-facts-kv-table):not(.wp-labeled-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many) tbody td:not(:first-child),
+  .wp-content-root .wp-table-scroll table:not(.wp-facts-kv-table):not(.wp-labeled-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many) tbody th:not(:first-child) {
+    white-space: normal !important;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .wp-content-root .wp-content-body img {
+    margin: 1rem auto;
+    border-radius: 0.65rem;
+  }
+
+  .wp-content-root .wp-content-body iframe {
+    width: 100%;
+    min-height: 12rem;
+    aspect-ratio: 16 / 9;
+    height: auto;
+  }
+
+  .wp-content-root .elementor-icon-list-item {
+    padding: 0.85rem 1rem;
+  }
+
+  .wp-content-root .wp-contact-strip .elementor-icon-list-item {
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+  }
+
+  .wp-content-root .wp-contact-card-link {
+    font-size: 0.9rem;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+
+  .wp-content-root .wp-premium-enquiry {
+    padding: 1.25rem;
+  }
+
+  .wp-content-root .wp-premium-enquiry-actions {
+    flex-direction: column;
+  }
+
+  .wp-content-root .wp-premium-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .wp-content-root .wp-content-body .elementor-button,
+  .wp-content-root .wp-content-body .wp-block-button__link {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .wp-content-root ul.wp-premium-chip-grid,
+  .wp-content-root ol.wp-premium-chip-grid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 0.55rem;
+  }
+
+  .wp-content-root ul.wp-premium-chip-grid > li,
+  .wp-content-root ol.wp-premium-chip-grid > li {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .wp-content-root ul.wp-premium-feature-grid,
+  .wp-content-root ol.wp-premium-feature-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .wp-content-root ul.wp-premium-feature-grid > li,
+  .wp-content-root ol.wp-premium-feature-grid > li {
+    padding: 0.85rem 0.95rem;
+  }
+
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-50) {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .wp-content-root .wp-content-body {
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .wp-content-root .wp-content-body .elementor-section,
+  .wp-content-root .wp-content-body .elementor-container,
+  .wp-content-root .wp-content-body .elementor-column,
+  .wp-content-root .wp-content-body .elementor-widget-wrap,
+  .wp-content-root .wp-content-body .elementor-widget-container {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .wp-content-root .wp-content-body pre,
+  .wp-content-root .wp-content-body code {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Mobile: stack 2-column course / details tables (label above value, no clipped columns) */
+@media (max-width: 991px) {
+  /* Syllabus / 3–4 column tables — card rows on tablet + phone */
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 :is(tbody, tbody tr, tbody td, tbody th),
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 :is(tbody, tbody tr, tbody td, tbody th),
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 :is(tbody, tbody tr, tbody td, tbody th),
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 :is(tbody, tbody tr, tbody td, tbody th) {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 thead,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 thead,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 thead,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 thead {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 thead tr,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 thead tr,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 thead tr,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 thead tr {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 thead th,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 thead th,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 thead th,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 thead th {
+    flex: 1 1 8rem !important;
+    display: block !important;
+    background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    padding: 0.55rem 0.65rem !important;
+    border-bottom: 2px solid #d97706 !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 thead th :is(.data-table-header-text, p, span, b, strong),
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 thead th :is(.data-table-header-text, p, span, b, strong),
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 thead th :is(.data-table-header-text, p, span, b, strong),
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 thead th :is(.data-table-header-text, p, span, b, strong) {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3:has(thead) tbody td:not(:first-child)::before,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4:has(thead) tbody td:not(:first-child)::before,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3:has(thead) tbody td:not(:first-child)::before,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4:has(thead) tbody td:not(:first-child)::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody tr,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody tr,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 tbody tr,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 tbody tr {
+    display: block !important;
+    margin-bottom: 0.85rem;
+    border: 1px solid #dbeafe;
+    border-radius: 0.65rem;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(26, 54, 93, 0.05);
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 tbody td,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 tbody td {
+    padding: 0.55rem 0.85rem !important;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    background: #fff !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:last-child,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:last-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 tbody td:last-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 tbody td:last-child {
+    border-bottom: none !important;
+    white-space: normal !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:first-child,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:first-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 tbody td:first-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 tbody td:first-child {
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    color: #92400e !important;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+    border-left: 4px solid #d97706 !important;
+    padding: 0.7rem 0.85rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-3 tbody td:not(:first-child)::before,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-4 tbody td:not(:first-child)::before,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-3 tbody td:not(:first-child)::before,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-4 tbody td:not(:first-child)::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #1a365d;
+    margin-bottom: 0.3rem;
+  }
+
+  .wp-content-root .wp-table-scroll > table.wp-labeled-data-table.wp-table-cols-3:not(.eael-data-table),
+  .wp-content-root .wp-table-scroll > table.wp-labeled-data-table.wp-table-cols-4:not(.eael-data-table) {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .wp-content-root {
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
+  .wp-content-root .wp-content-body {
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
+  .wp-content-root
+    .elementor-section
+    > .elementor-container:has(> .elementor-column.elementor-col-50),
+  .wp-content-root .elementor-container.wp-editorial-split {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wp-content-root .wp-content-body .eael-data-table-wrap,
+  .wp-content-root .wp-content-body .wp-table-scroll,
+  .wp-content-root .wp-content-body .elementor-widget-eael-data-table,
+  .wp-content-root .eael-data-table-wrap,
+  .wp-content-root .wp-table-scroll {
+    overflow-x: visible !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Match tagged tables OR any EAEL 2-column row layout (even without wp-table-cols-2) */
+  .wp-content-root .wp-content-body .eael-data-table-wrap table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ),
+  .wp-content-root .wp-content-body .wp-table-scroll table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ),
+  .wp-content-root .eael-data-table-wrap table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ),
+  .wp-content-root .wp-table-scroll table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ),
+  .wp-content-root .wp-content-body .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2,
+  .wp-content-root .wp-content-body .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2,
+  .wp-content-root .wp-content-body .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2,
+  .wp-content-root .wp-content-body .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  .wp-content-root .wp-content-body table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ) tbody,
+  .wp-content-root .wp-content-body table.wp-facts-kv-table.wp-table-cols-2 thead,
+  .wp-content-root .wp-content-body table.wp-facts-kv-table.wp-table-cols-2 tbody,
+  .wp-content-root .wp-content-body table.wp-labeled-data-table.wp-table-cols-2 thead,
+  .wp-content-root .wp-content-body table.wp-labeled-data-table.wp-table-cols-2 tbody {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .wp-content-root .wp-content-body table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ) thead tr,
+  .wp-content-root .wp-content-body table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ) tbody tr,
+  .wp-content-root .wp-content-body table.wp-facts-kv-table.wp-table-cols-2 thead tr,
+  .wp-content-root .wp-content-body table.wp-facts-kv-table.wp-table-cols-2 tbody tr,
+  .wp-content-root .wp-content-body table.wp-labeled-data-table.wp-table-cols-2 thead tr,
+  .wp-content-root .wp-content-body table.wp-labeled-data-table.wp-table-cols-2 tbody tr {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .wp-content-root .wp-content-body table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ) thead th,
+  .wp-content-root .wp-content-body table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ) tbody td,
+  .wp-content-root .wp-content-body table.wp-facts-kv-table.wp-table-cols-2 thead th,
+  .wp-content-root .wp-content-body table.wp-facts-kv-table.wp-table-cols-2 tbody td,
+  .wp-content-root .wp-content-body table.wp-labeled-data-table.wp-table-cols-2 thead th,
+  .wp-content-root .wp-content-body table.wp-labeled-data-table.wp-table-cols-2 tbody td,
+  .wp-content-root .wp-university-profile .eael-data-table-wrap table.eael-data-table.wp-table-cols-2 tbody td,
+  .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td,
+  .wp-content-root .wp-university-profile
+    .eael-data-table-wrap
+    table.eael-data-table:has(tbody tr > td:first-child:nth-last-child(2))
+    tbody td {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+  }
+
+  .wp-content-root .wp-content-body table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ) tbody td:first-child,
+  .wp-content-root .wp-content-body table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .wp-content-body table.wp-labeled-data-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .wp-university-profile .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .wp-university-profile
+    .eael-data-table-wrap
+    table.eael-data-table:has(tbody tr > td:first-child:nth-last-child(2))
+    tbody td:first-child {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    font-weight: 700 !important;
+    font-size: 0.8125rem !important;
+    color: #92400e !important;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+    border-left: 4px solid #d97706 !important;
+    border-bottom: none !important;
+    padding: 0.65rem 0.85rem 0.35rem !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+  }
+
+  .wp-content-root .wp-content-body table.eael-data-table:is(
+      .wp-table-cols-2,
+      .wp-facts-kv-table,
+      .wp-labeled-data-table,
+      :has(tbody tr > td:first-child:nth-last-child(2))
+    ) tbody td:last-child,
+  .wp-content-root .wp-content-body table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child,
+  .wp-content-root .wp-content-body table.wp-labeled-data-table.wp-table-cols-2 tbody td:last-child {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0.35rem 0.85rem 0.75rem !important;
+    margin-bottom: 0.65rem;
+    border-bottom: 1px solid #e2e8f0 !important;
+    text-align: left !important;
+    font-variant-numeric: normal !important;
+  }
+
+  .wp-content-root .wp-content-body .td-content-wrapper,
+  .wp-content-root .wp-content-body .td-content {
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+  }
+
+  /* Beat global table-cell / nowrap rules that clip the label column on phones */
+  .wp-content-root .wp-table-scroll table.eael-data-table.wp-table-cols-2 :is(tbody, tbody tr, tbody td, tbody th),
+  .wp-content-root .eael-data-table-wrap table.eael-data-table.wp-table-cols-2 :is(tbody, tbody tr, tbody td, tbody th),
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 :is(tbody, tbody tr, tbody td, tbody th),
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 :is(tbody, tbody tr, tbody td, tbody th),
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 :is(tbody, tbody tr, tbody td, tbody th),
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 :is(tbody, tbody tr, tbody td, tbody th) {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.eael-data-table.wp-table-cols-2 thead,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table.wp-table-cols-2 thead,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 thead,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 thead,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 thead,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 thead {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.eael-data-table.wp-table-cols-2 thead tr,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table.wp-table-cols-2 thead tr,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 thead tr,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 thead tr,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 thead tr,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 thead tr {
+    display: flex !important;
+    width: 100% !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.eael-data-table.wp-table-cols-2 thead th,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table.wp-table-cols-2 thead th,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 thead th,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 thead th,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 thead th,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 thead th {
+    flex: 1 1 0 !important;
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    padding: 0.55rem 0.65rem !important;
+    border-bottom: 2px solid #d97706 !important;
+    text-align: left !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.eael-data-table.wp-table-cols-2 thead th :is(.data-table-header-text, p, span, b, strong),
+  .wp-content-root .eael-data-table-wrap table.eael-data-table.wp-table-cols-2 thead th :is(.data-table-header-text, p, span, b, strong),
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 thead th :is(.data-table-header-text, p, span, b, strong),
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 thead th :is(.data-table-header-text, p, span, b, strong) {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.eael-data-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child,
+  .wp-content-root .wp-university-profile .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:first-child {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    font-weight: 700 !important;
+    color: #92400e !important;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+    border-left: 4px solid #d97706 !important;
+    border-bottom: none !important;
+    padding: 0.65rem 0.85rem 0.35rem !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+  }
+
+  .wp-content-root .wp-table-scroll table.eael-data-table.wp-table-cols-2 tbody td:last-child,
+  .wp-content-root .eael-data-table-wrap table.eael-data-table.wp-table-cols-2 tbody td:last-child,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 tbody td:last-child,
+  .wp-content-root .eael-data-table-wrap table.wp-labeled-data-table.wp-table-cols-2 tbody td:last-child,
+  .wp-content-root .wp-table-scroll table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child,
+  .wp-content-root .eael-data-table-wrap table.wp-facts-kv-table.wp-table-cols-2 tbody td:last-child {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0.35rem 0.85rem 0.75rem !important;
+    margin-bottom: 0.65rem;
+    border-bottom: 1px solid #e2e8f0 !important;
+    text-align: left !important;
+  }
+
+  /* Plain HTML tables (NEET syllabus etc.) — mobile card stack even before class tags */
+  .wp-content-root .wp-table-scroll > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many) {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: auto !important;
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many)
+    :is(tbody, tbody tr, tbody td, tbody th) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+  }
+
+  .wp-content-root .wp-table-scroll > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many) thead {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many)
+    thead
+    tr {
+    display: flex !important;
+    width: 100% !important;
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many)
+    thead
+    th {
+    flex: 1 1 0 !important;
+    display: block !important;
+    background: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    padding: 0.55rem 0.65rem !important;
+    border-bottom: 2px solid #d97706 !important;
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many)
+    thead
+    th
+    :is(p, span, b, strong) {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many):has(thead)
+    tbody
+    td[data-label]:not(:first-child)::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many)
+    tbody
+    > tr:first-child:has(td b, td strong) {
+    display: none !important;
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many)
+    tbody
+    tr {
+    display: block !important;
+    margin-bottom: 0.85rem;
+    border: 1px solid #dbeafe;
+    border-radius: 0.65rem;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(26, 54, 93, 0.05);
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many)
+    tbody
+    td {
+    padding: 0.55rem 0.85rem !important;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many)
+    tbody
+    td:last-child {
+    border-bottom: none !important;
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table):not(.wp-table-cols-5):not(.wp-table-cols-many)
+    tbody
+    td:first-child {
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    color: #92400e !important;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+    border-left: 4px solid #d97706 !important;
+    padding: 0.7rem 0.85rem !important;
+  }
+
+  .wp-content-root
+    .wp-table-scroll
+    > table:not(.eael-data-table)
+    tbody
+    td[data-label]:not(:first-child)::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #1a365d;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Wide college lists — horizontal scroll instead of crushed columns */
+  .wp-content-root .wp-table-scroll table.wp-table-cols-5,
+  .wp-content-root .wp-table-scroll table.wp-table-cols-many,
+  .wp-content-root .wp-table-scroll table.eael-data-table.wp-table-cols-5,
+  .wp-content-root .wp-table-scroll table.eael-data-table.wp-table-cols-many {
+    display: table !important;
+    min-width: 36rem;
+  }
+}

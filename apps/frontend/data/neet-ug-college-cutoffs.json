@@ -1,0 +1,2140 @@
+{
+  "generatedAt": "2026-07-20T05:44:42.549Z",
+  "disclaimer": "Indicative closing ranks based on MCC AIQ / counselling trends (approx. 2024–25). Not official NMC seat allotment. Always verify on mcc.nic.in and state counselling portals. State quota cutoffs differ by domicile.",
+  "yearLabel": "MCC AIQ trends 2024–25 (indicative)",
+  "colleges": [
+    {
+      "name": "AIIMS New Delhi",
+      "state": "Delhi",
+      "stateId": "delhi",
+      "type": "aiims",
+      "closingRankUR": 50,
+      "href": "/mbbs-india/delhi",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Jodhpur",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "aiims",
+      "closingRankUR": 400,
+      "href": "/mbbs-india/rajasthan",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Bhopal",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "aiims",
+      "closingRankUR": 550,
+      "href": "/mbbs-india/mp",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Rishikesh",
+      "state": "Uttarakhand",
+      "stateId": "uttarakhand",
+      "type": "aiims",
+      "closingRankUR": 700,
+      "href": "/mbbs-india/uttarakhand",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Bhubaneswar",
+      "state": "Odisha",
+      "stateId": "odisha",
+      "type": "aiims",
+      "closingRankUR": 750,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Nagpur",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "aiims",
+      "closingRankUR": 900,
+      "href": "/mbbs-india/maharashtra",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Raipur",
+      "state": "Chhattisgarh",
+      "stateId": "chhattisgarh",
+      "type": "aiims",
+      "closingRankUR": 1300,
+      "href": "/mbbs-india/chhattisgarh",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Patna",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "aiims",
+      "closingRankUR": 1600,
+      "href": "/mbbs-india/bihar",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Bathinda",
+      "state": "Punjab",
+      "stateId": "punjab",
+      "type": "aiims",
+      "closingRankUR": 1800,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Bibinagar",
+      "state": "Telangana",
+      "stateId": "telangana",
+      "type": "aiims",
+      "closingRankUR": 1900,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Rajkot",
+      "state": "Gujarat",
+      "stateId": "gujarat",
+      "type": "aiims",
+      "closingRankUR": 2100,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Gorakhpur",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "aiims",
+      "closingRankUR": 2200,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Bilaspur",
+      "state": "Himachal Pradesh",
+      "stateId": "himachal-pradesh",
+      "type": "aiims",
+      "closingRankUR": 2300,
+      "href": "/mbbs-india/himachal-pradesh",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Kalyani",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "aiims",
+      "closingRankUR": 2400,
+      "href": "/mbbs-india/west-bengal",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Raebareli",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "aiims",
+      "closingRankUR": 2700,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Deoghar",
+      "state": "Jharkhand",
+      "stateId": "jharkhand",
+      "type": "aiims",
+      "closingRankUR": 3200,
+      "href": "/mbbs-india/jharkhand",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Guwahati",
+      "state": "Assam",
+      "stateId": "assam",
+      "type": "aiims",
+      "closingRankUR": 3300,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Jammu",
+      "state": "Jammu & Kashmir",
+      "stateId": "jk",
+      "type": "aiims",
+      "closingRankUR": 3500,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Madurai",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "aiims",
+      "closingRankUR": 3700,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AIIMS Mangalagiri",
+      "state": "Andhra Pradesh",
+      "stateId": "ap",
+      "type": "aiims",
+      "closingRankUR": 1400,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "JIPMER Puducherry",
+      "state": "Puducherry",
+      "stateId": "pondicherry",
+      "type": "central",
+      "closingRankUR": 350,
+      "href": "/mbbs-india/pondicherry",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "JIPMER Karaikal",
+      "state": "Puducherry",
+      "stateId": "pondicherry",
+      "type": "central",
+      "closingRankUR": 3200,
+      "href": "/mbbs-india/pondicherry",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "IMS BHU Varanasi",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "central",
+      "closingRankUR": 1500,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AMU Faculty of Medicine, Aligarh",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "central",
+      "closingRankUR": 4500,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Maulana Azad Medical College (MAMC)",
+      "state": "Delhi",
+      "stateId": "delhi",
+      "type": "govt",
+      "closingRankUR": 1100,
+      "href": "/mbbs-india/delhi",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Lady Hardinge Medical College",
+      "state": "Delhi",
+      "stateId": "delhi",
+      "type": "govt",
+      "closingRankUR": 900,
+      "href": "/mbbs-india/delhi",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "VMMC & Safdarjung Hospital",
+      "state": "Delhi",
+      "stateId": "delhi",
+      "type": "govt",
+      "closingRankUR": 1400,
+      "href": "/mbbs-india/delhi",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "University College of Medical Sciences (UCMS)",
+      "state": "Delhi",
+      "stateId": "delhi",
+      "type": "govt",
+      "closingRankUR": 1600,
+      "href": "/mbbs-india/delhi",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Atal Bihari Vajpayee Institute of Medical Sciences (RML)",
+      "state": "Delhi",
+      "stateId": "delhi",
+      "type": "govt",
+      "closingRankUR": 220,
+      "href": "/mbbs-india/delhi",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Grant Medical College, Mumbai",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "govt",
+      "closingRankUR": 2100,
+      "href": "/mbbs-india/maharashtra",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Seth GS Medical College (KEM), Mumbai",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "govt",
+      "closingRankUR": 2300,
+      "href": "/mbbs-india/maharashtra",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "BJ Medical College, Pune",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "govt",
+      "closingRankUR": 4500,
+      "href": "/mbbs-india/maharashtra",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Nagpur",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "govt",
+      "closingRankUR": 7000,
+      "href": "/mbbs-india/maharashtra",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "AFMC Pune (via NEET + AFMC process)",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "govt",
+      "closingRankUR": 500,
+      "href": "/mbbs-india/maharashtra",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "King George Medical University (KGMU), Lucknow",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "govt",
+      "closingRankUR": 3500,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "GSVM Medical College, Kanpur",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "govt",
+      "closingRankUR": 9000,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "LLRM Medical College, Meerut",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "govt",
+      "closingRankUR": 12000,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "SN Medical College, Agra",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "govt",
+      "closingRankUR": 14000,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "MLN Medical College, Prayagraj",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "govt",
+      "closingRankUR": 15000,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "BRD Medical College, Gorakhpur",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "govt",
+      "closingRankUR": 18000,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Azamgarh",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "govt",
+      "closingRankUR": 22000,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "SMS Medical College, Jaipur",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "govt",
+      "closingRankUR": 4000,
+      "href": "/mbbs-india/rajasthan",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Dr SN Medical College, Jodhpur",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "govt",
+      "closingRankUR": 8000,
+      "href": "/mbbs-india/rajasthan",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "RNT Medical College, Udaipur",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "govt",
+      "closingRankUR": 10000,
+      "href": "/mbbs-india/rajasthan",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "SP Medical College, Bikaner",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "govt",
+      "closingRankUR": 11000,
+      "href": "/mbbs-india/rajasthan",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Kota",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "govt",
+      "closingRankUR": 13000,
+      "href": "/mbbs-india/rajasthan",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Bangalore Medical College (BMCRI)",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "govt",
+      "closingRankUR": 2800,
+      "href": "/mbbs-india/karnataka",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Mysore Medical College",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "govt",
+      "closingRankUR": 6500,
+      "href": "/mbbs-india/karnataka",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Karnataka Institute of Medical Sciences, Hubli",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "govt",
+      "closingRankUR": 9000,
+      "href": "/mbbs-india/karnataka",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Belgaum Institute of Medical Sciences",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "govt",
+      "closingRankUR": 12000,
+      "href": "/mbbs-india/karnataka",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Hassan Institute of Medical Sciences",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "govt",
+      "closingRankUR": 15000,
+      "href": "/mbbs-india/karnataka",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Madras Medical College, Chennai",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "govt",
+      "closingRankUR": 2500,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Stanley Medical College, Chennai",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "govt",
+      "closingRankUR": 4000,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Madurai Medical College",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "govt",
+      "closingRankUR": 7000,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Coimbatore Medical College",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "govt",
+      "closingRankUR": 9000,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Kilpauk Medical College, Chennai",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "govt",
+      "closingRankUR": 5500,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Thiruvananthapuram",
+      "state": "Kerala",
+      "stateId": "kerala",
+      "type": "govt",
+      "closingRankUR": 2200,
+      "href": "/mbbs-india/kerala",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Kozhikode",
+      "state": "Kerala",
+      "stateId": "kerala",
+      "type": "govt",
+      "closingRankUR": 3500,
+      "href": "/mbbs-india/kerala",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Kottayam",
+      "state": "Kerala",
+      "stateId": "kerala",
+      "type": "govt",
+      "closingRankUR": 5000,
+      "href": "/mbbs-india/kerala",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Thrissur",
+      "state": "Kerala",
+      "stateId": "kerala",
+      "type": "govt",
+      "closingRankUR": 6000,
+      "href": "/mbbs-india/kerala",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Medical College, Kolkata",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "govt",
+      "closingRankUR": 3000,
+      "href": "/mbbs-india/west-bengal",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "IPGMER & SSKM Hospital, Kolkata",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "govt",
+      "closingRankUR": 4500,
+      "href": "/mbbs-india/west-bengal",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Nil Ratan Sircar Medical College, Kolkata",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "govt",
+      "closingRankUR": 7000,
+      "href": "/mbbs-india/west-bengal",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "RG Kar Medical College, Kolkata",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "govt",
+      "closingRankUR": 8000,
+      "href": "/mbbs-india/west-bengal",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Burdwan Medical College",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "govt",
+      "closingRankUR": 14000,
+      "href": "/mbbs-india/west-bengal",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Patna Medical College",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "govt",
+      "closingRankUR": 6000,
+      "href": "/mbbs-india/bihar",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Nalanda Medical College, Patna",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "govt",
+      "closingRankUR": 9000,
+      "href": "/mbbs-india/bihar",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Darbhanga Medical College",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "govt",
+      "closingRankUR": 14000,
+      "href": "/mbbs-india/bihar",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Jawaharlal Nehru Medical College, Bhagalpur",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "govt",
+      "closingRankUR": 18000,
+      "href": "/mbbs-india/bihar",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "SK Medical College, Muzaffarpur",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "govt",
+      "closingRankUR": 20000,
+      "href": "/mbbs-india/bihar",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Gandhi Medical College, Bhopal",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "govt",
+      "closingRankUR": 5500,
+      "href": "/mbbs-india/mp",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "MGM Medical College, Indore",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "govt",
+      "closingRankUR": 7000,
+      "href": "/mbbs-india/mp",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Netaji Subhash Chandra Bose Medical College, Jabalpur",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "govt",
+      "closingRankUR": 11000,
+      "href": "/mbbs-india/mp",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "GR Medical College, Gwalior",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "govt",
+      "closingRankUR": 13000,
+      "href": "/mbbs-india/mp",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "SS Medical College, Rewa",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "govt",
+      "closingRankUR": 17000,
+      "href": "/mbbs-india/mp",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Pt BD Sharma PGIMS, Rohtak",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "govt",
+      "closingRankUR": 5000,
+      "href": "/mbbs-india/haryana",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "BPS Government Medical College, Sonepat",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "govt",
+      "closingRankUR": 12000,
+      "href": "/mbbs-india/haryana",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "SHKM Government Medical College, Nalhar",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "govt",
+      "closingRankUR": 15000,
+      "href": "/mbbs-india/haryana",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Kalpana Chawla Government Medical College, Karnal",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "govt",
+      "closingRankUR": 16000,
+      "href": "/mbbs-india/haryana",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "BJ Medical College, Ahmedabad",
+      "state": "Gujarat",
+      "stateId": "gujarat",
+      "type": "govt",
+      "closingRankUR": 2800,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Surat",
+      "state": "Gujarat",
+      "stateId": "gujarat",
+      "type": "govt",
+      "closingRankUR": 7000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "MP Shah Medical College, Jamnagar",
+      "state": "Gujarat",
+      "stateId": "gujarat",
+      "type": "govt",
+      "closingRankUR": 10000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Baroda",
+      "state": "Gujarat",
+      "stateId": "gujarat",
+      "type": "govt",
+      "closingRankUR": 8000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "GMCH Chandigarh",
+      "state": "Chandigarh",
+      "stateId": "chandigarh",
+      "type": "govt",
+      "closingRankUR": 1200,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Amritsar",
+      "state": "Punjab",
+      "stateId": "punjab",
+      "type": "govt",
+      "closingRankUR": 8000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Patiala",
+      "state": "Punjab",
+      "stateId": "punjab",
+      "type": "govt",
+      "closingRankUR": 9000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Osmania Medical College, Hyderabad",
+      "state": "Telangana",
+      "stateId": "telangana",
+      "type": "govt",
+      "closingRankUR": 3500,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Gandhi Medical College, Secunderabad",
+      "state": "Telangana",
+      "stateId": "telangana",
+      "type": "govt",
+      "closingRankUR": 4500,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Andhra Medical College, Visakhapatnam",
+      "state": "Andhra Pradesh",
+      "stateId": "ap",
+      "type": "govt",
+      "closingRankUR": 5000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Guntur Medical College",
+      "state": "Andhra Pradesh",
+      "stateId": "ap",
+      "type": "govt",
+      "closingRankUR": 8000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Kurnool Medical College",
+      "state": "Andhra Pradesh",
+      "stateId": "ap",
+      "type": "govt",
+      "closingRankUR": 10000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "SCB Medical College, Cuttack",
+      "state": "Odisha",
+      "stateId": "odisha",
+      "type": "govt",
+      "closingRankUR": 6000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "MKCG Medical College, Berhampur",
+      "state": "Odisha",
+      "stateId": "odisha",
+      "type": "govt",
+      "closingRankUR": 12000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Pt JNM Medical College, Raipur",
+      "state": "Chhattisgarh",
+      "stateId": "chhattisgarh",
+      "type": "govt",
+      "closingRankUR": 10000,
+      "href": "/mbbs-india/chhattisgarh",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Rajendra Institute of Medical Sciences, Ranchi",
+      "state": "Jharkhand",
+      "stateId": "jharkhand",
+      "type": "govt",
+      "closingRankUR": 9000,
+      "href": "/mbbs-india/jharkhand",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Doon Medical College, Dehradun",
+      "state": "Uttarakhand",
+      "stateId": "uttarakhand",
+      "type": "govt",
+      "closingRankUR": 11000,
+      "href": "/mbbs-india/uttarakhand",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "IGMC Shimla",
+      "state": "Himachal Pradesh",
+      "stateId": "himachal-pradesh",
+      "type": "govt",
+      "closingRankUR": 7000,
+      "href": "/mbbs-india/himachal-pradesh",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Dr RPGMC Tanda",
+      "state": "Himachal Pradesh",
+      "stateId": "himachal-pradesh",
+      "type": "govt",
+      "closingRankUR": 14000,
+      "href": "/mbbs-india/himachal-pradesh",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Gauhati Medical College",
+      "state": "Assam",
+      "stateId": "assam",
+      "type": "govt",
+      "closingRankUR": 10000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Assam Medical College, Dibrugarh",
+      "state": "Assam",
+      "stateId": "assam",
+      "type": "govt",
+      "closingRankUR": 15000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "RIMS Imphal",
+      "state": "Manipur",
+      "stateId": "manipur",
+      "type": "govt",
+      "closingRankUR": 12000,
+      "href": "/mbbs-india",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Badaun",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "govt",
+      "closingRankUR": 28000,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Basti",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "govt",
+      "closingRankUR": 30000,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Firozabad",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "govt",
+      "closingRankUR": 32000,
+      "href": "/mbbs-india/up",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "ESIC Medical College, Faridabad",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "govt",
+      "closingRankUR": 9000,
+      "href": "/mbbs-india/haryana",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Alwar",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "govt",
+      "closingRankUR": 20000,
+      "href": "/mbbs-india/rajasthan",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Government Medical College, Bharatpur",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "govt",
+      "closingRankUR": 22000,
+      "href": "/mbbs-india/rajasthan",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Chamarajanagar Institute of Medical Sciences",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "govt",
+      "closingRankUR": 22000,
+      "href": "/mbbs-india/karnataka",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Kodagu Institute of Medical Sciences",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "govt",
+      "closingRankUR": 25000,
+      "href": "/mbbs-india/karnataka",
+      "source": "mcc_aiq_indicative"
+    },
+    {
+      "name": "Rama Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 280000,
+      "href": "/rmc-hospital-and-research-centre",
+      "source": "partner"
+    },
+    {
+      "name": "Saraswathi Institute of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 276000,
+      "href": "/saraswathi-institute-of-medical-sciences-hapur",
+      "source": "partner"
+    },
+    {
+      "name": "NCR Institute Of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 272000,
+      "href": "/ncr-institute-of-medical-sciences-meerut",
+      "source": "partner"
+    },
+    {
+      "name": "Venkateshwara Institute of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 268000,
+      "href": "/venkateshwara-institute-of-medical-sciences-gajraula",
+      "source": "partner"
+    },
+    {
+      "name": "Shri Gorakhnath Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 264000,
+      "href": "/shri-gorakhnath-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Muzaffarnagar Medical College - [MMC]",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 260000,
+      "href": "/muzaffarnagar-medical-college-mmc-muzaffarnagar",
+      "source": "partner"
+    },
+    {
+      "name": "FH Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 256000,
+      "href": "/f-h-medical-college-and-hospital-agra",
+      "source": "partner"
+    },
+    {
+      "name": "Subharti Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 252000,
+      "href": "/subharti-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "K.D. Medical College - Hospital and Research Center",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 248000,
+      "href": "/k-d-medical-college-hospital-and-research-center-mathura",
+      "source": "partner"
+    },
+    {
+      "name": "Naraina Medical College & Research Center - [NMRC]",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 244000,
+      "href": "/naraina-medical-college-research-center-nmrc-kanpur",
+      "source": "partner"
+    },
+    {
+      "name": "Ajay Sangal Institute Of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 240000,
+      "href": "/ajay-sangaal-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "Dr SS Kushwah Institute of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 236000,
+      "href": "/dr-bs-kushwah-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "Prasad Institute of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 232000,
+      "href": "/prasad-institute-of-medical-sciences-lucknow",
+      "source": "partner"
+    },
+    {
+      "name": "KMC Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 228000,
+      "href": "/kmc-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Shri Siddhi Vinayak Medical College and Hospital",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 224000,
+      "href": "/shri-siddhi-vinayak-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Rajshree Medical Research Institute",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 220000,
+      "href": "/rajshree-medical-research-institute-bareilly",
+      "source": "partner"
+    },
+    {
+      "name": "Career Institute of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 216000,
+      "href": "/career-institute-of-medical-sciences-lucknow",
+      "source": "partner"
+    },
+    {
+      "name": "United Institute of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 212000,
+      "href": "/united-institute-of-medical-sciences-prayagraj",
+      "source": "partner"
+    },
+    {
+      "name": "Heritage Institute of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 208000,
+      "href": "/heritage-institute-of-medical-sciences-hims-varanasi",
+      "source": "partner"
+    },
+    {
+      "name": "Hind Institute of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 204000,
+      "href": "/hind-institute-of-medical-sciences-lucknow",
+      "source": "partner"
+    },
+    {
+      "name": "Integral Institute Of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 200000,
+      "href": "/integral-university-lucknow",
+      "source": "partner"
+    },
+    {
+      "name": "Rama Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 196000,
+      "href": "/rama-medical-college-hapur",
+      "source": "partner"
+    },
+    {
+      "name": "Santosh Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 192000,
+      "href": "/santosh-medical-college-ghaziabad",
+      "source": "partner"
+    },
+    {
+      "name": "Sharda University",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 188000,
+      "href": "/sharda-university",
+      "source": "partner"
+    },
+    {
+      "name": "Shri Ram Murti Smarak Institute Of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 184000,
+      "href": "/shri-ram-murti-smarak-institute-of-medical-sciences-bareilly",
+      "source": "partner"
+    },
+    {
+      "name": "Rohilkhand Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 180000,
+      "href": "/rohilkhand-medical-college-and-hospital-bareilly",
+      "source": "partner"
+    },
+    {
+      "name": "Noida International Institute of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 176000,
+      "href": "/noida-international-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "TS Misra Medical College & Hospital",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 172000,
+      "href": "/ts-misra-medical-college-hospital-lucknow",
+      "source": "partner"
+    },
+    {
+      "name": "Krishna Mohan Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 168000,
+      "href": "/krishna-mohan-medical-college-mathura",
+      "source": "partner"
+    },
+    {
+      "name": "SKS Hospital Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 164000,
+      "href": "/sks-hospital-medical-college-and-research-centre-mathura",
+      "source": "partner"
+    },
+    {
+      "name": "Teerthanker Mahaveer Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 160000,
+      "href": "/teerthanker-mahaveer-medical-college-moradabad",
+      "source": "partner"
+    },
+    {
+      "name": "GS Medical College",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 156000,
+      "href": "/gs-medical-college-hapur",
+      "source": "partner"
+    },
+    {
+      "name": "Kalka Dental College & Hospital",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 152000,
+      "href": "/kalka-dental-college",
+      "source": "partner"
+    },
+    {
+      "name": "Mayo Institute of Medical Sciences",
+      "state": "Uttar Pradesh",
+      "stateId": "up",
+      "type": "private",
+      "closingRankUR": 148000,
+      "href": "/mayo-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "RPS College of Veterinary & Animal Sciences",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "private",
+      "closingRankUR": 320000,
+      "href": "/rps-college-of-veterinary-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "Al-falah School of Medical Sciences & Research Centre",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "private",
+      "closingRankUR": 316000,
+      "href": "/al-falah-school-of-medical-sciences-research-centre",
+      "source": "partner"
+    },
+    {
+      "name": "Manav Rachna Dental College",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "private",
+      "closingRankUR": 312000,
+      "href": "/manav-rachna-dental-college",
+      "source": "partner"
+    },
+    {
+      "name": "Maharishi Markandeshwar Medical College",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "private",
+      "closingRankUR": 308000,
+      "href": "/maharishi-markandeshwar-medical-college-ambala",
+      "source": "partner"
+    },
+    {
+      "name": "Adesh Medical College",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "private",
+      "closingRankUR": 304000,
+      "href": "/adesh-medical-college-and-hospital-kurukshetra",
+      "source": "partner"
+    },
+    {
+      "name": "NC Medical College and Hospital",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "private",
+      "closingRankUR": 300000,
+      "href": "/nc-medical-college-and-hospital-panipat",
+      "source": "partner"
+    },
+    {
+      "name": "SGT Medical College",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "private",
+      "closingRankUR": 296000,
+      "href": "/sgt-medical-college-gurugram",
+      "source": "partner"
+    },
+    {
+      "name": "World College of Medical Science and Research",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "private",
+      "closingRankUR": 292000,
+      "href": "/world-college-of-medical-science-jhajjar",
+      "source": "partner"
+    },
+    {
+      "name": "Amrita Medical College",
+      "state": "Haryana",
+      "stateId": "haryana",
+      "type": "deemed",
+      "closingRankUR": 180000,
+      "href": "/amrita-medical-college-faridabad",
+      "source": "partner"
+    },
+    {
+      "name": "Sudha Medical College",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 300000,
+      "href": "/sudha-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Vyas Medical College",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 296000,
+      "href": "/vyas-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Ananta Institute of Medical Sciences & Research Centre",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 292000,
+      "href": "/ananta-institute-of-medical-sciences-research-centre-rajsamand",
+      "source": "partner"
+    },
+    {
+      "name": "Mahatma Gandhi University of Medical Science & Technology",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 288000,
+      "href": "/mahatma-gandhi-university-of-medical-science-technology-jaipur",
+      "source": "partner"
+    },
+    {
+      "name": "American International Institute of Medical Science",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 284000,
+      "href": "/american-international-institute-of-medical-science-udaipur",
+      "source": "partner"
+    },
+    {
+      "name": "Surendera Dental College",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 280000,
+      "href": "/surendera-dental-college",
+      "source": "partner"
+    },
+    {
+      "name": "Pacific Medical College",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 276000,
+      "href": "/pacific-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Pacific Institute of Medical Science - [PIMS]",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 272000,
+      "href": "/pacific-institute-of-medical-science-pims-udaipur",
+      "source": "partner"
+    },
+    {
+      "name": "National Institute of Medical Sciences & Research",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 268000,
+      "href": "/national-institute-of-medical-sciences-and-research-jaipur",
+      "source": "partner"
+    },
+    {
+      "name": "Jaipur National University",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 264000,
+      "href": "/jaipur-national-university-rajasthan",
+      "source": "partner"
+    },
+    {
+      "name": "Dr SS Tantia Medical College",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 260000,
+      "href": "/dr-s-s-tantia-medical-college-sri-ganganagar",
+      "source": "partner"
+    },
+    {
+      "name": "Geetanjali Medical College",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 256000,
+      "href": "/geetanjali-medical-college-rajasthan",
+      "source": "partner"
+    },
+    {
+      "name": "Prince Medical College",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 252000,
+      "href": "/prince-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "BHARAT VIKAS Medical College",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 248000,
+      "href": "/bharat-vikas-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Dr. B. S. Tomar Institute of Medical Sciences and Research",
+      "state": "Rajasthan",
+      "stateId": "rajasthan",
+      "type": "private",
+      "closingRankUR": 244000,
+      "href": "/dr-b-s-tomar-institute-of-medical-sciences-and-research",
+      "source": "partner"
+    },
+    {
+      "name": "DY Patil Medical College",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "deemed",
+      "closingRankUR": 180000,
+      "href": "/dy-patil-medical-college-pune",
+      "source": "partner"
+    },
+    {
+      "name": "Symbiosis Medical College for Women",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "deemed",
+      "closingRankUR": 180000,
+      "href": "/symbiosis-medical-college-for-women-pune",
+      "source": "partner"
+    },
+    {
+      "name": "Bharati Vidyapeeth Medical College",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "private",
+      "closingRankUR": 242000,
+      "href": "/bharati-vidyapeeth-medical-college-pune",
+      "source": "partner"
+    },
+    {
+      "name": "MGM Medical College",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "private",
+      "closingRankUR": 238000,
+      "href": "/mgm-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Datta Meghe Medical College",
+      "state": "Maharashtra",
+      "stateId": "maharashtra",
+      "type": "private",
+      "closingRankUR": 234000,
+      "href": "/datta-meghe-medical-college-nagpur",
+      "source": "partner"
+    },
+    {
+      "name": "BRAMC Dr BR Ambedkar Medical College",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 220000,
+      "href": "/dr-b-r-ambedkar-medical-college-bramc-bangalore",
+      "source": "partner"
+    },
+    {
+      "name": "JSS Medical College",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "deemed",
+      "closingRankUR": 180000,
+      "href": "/jss-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "JJM Medical College",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 212000,
+      "href": "/jjm-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Jawaharlal Nehru Medical College",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 208000,
+      "href": "/jawaharlal-nehru-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Kasturba Medical College",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 204000,
+      "href": "/kasturba-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Al-Ameen Medical College",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 200000,
+      "href": "/al-ameen-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "St. John's Medical College",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 196000,
+      "href": "/st-johns-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "S Nijalingappa Medical College and H.S.K Hospital",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 192000,
+      "href": "/s-nijalingappa-medical-college-and-h-s-k-hospital",
+      "source": "partner"
+    },
+    {
+      "name": "Adichunchanagiri Institute of Medical Sciences",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 188000,
+      "href": "/adichunchanagiri-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "AJ Institute of Medical Sciences and Research Centre",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 184000,
+      "href": "/a-j-institute-of-medical-sciences-and-research-centre",
+      "source": "partner"
+    },
+    {
+      "name": "Vydehi Institute of Medical Sciences and Research Centre",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 180000,
+      "href": "/vydehi-institute-of-medical-sciences-and-research-centre",
+      "source": "partner"
+    },
+    {
+      "name": "MVJ Medical College & Research Hospital",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 176000,
+      "href": "/m-v-j-medical-college-research-hospital",
+      "source": "partner"
+    },
+    {
+      "name": "MS Ramaiah Medical College",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 172000,
+      "href": "/m-s-ramaiah-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Kempegowda Institute of Medical Sciences",
+      "state": "Karnataka",
+      "stateId": "karnataka",
+      "type": "private",
+      "closingRankUR": 168000,
+      "href": "/kempegowda-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "LNCT Medical College",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 310000,
+      "href": "/lnct-medical-college-and-sewakunj-hospital-indore",
+      "source": "partner"
+    },
+    {
+      "name": "Sukh Sagar Medical College and Hospital",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 306000,
+      "href": "/sukh-sagar-medical-college-and-hospital",
+      "source": "partner"
+    },
+    {
+      "name": "Sri Satya Sai University of Technology & Medical Sciences",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 302000,
+      "href": "/sri-satya-sai-university-of-technology-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "RKDF Medical College & Research Centre",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 298000,
+      "href": "/r-k-d-f-medical-college-research-centre-bhopal",
+      "source": "partner"
+    },
+    {
+      "name": "Ram Krishna Medical College Hospital and Research Centre",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 294000,
+      "href": "/ram-krishna-medical-college-hospital-and-research-centre",
+      "source": "partner"
+    },
+    {
+      "name": "Amaltas Institute of Medical Science",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 290000,
+      "href": "/amaltas-institute-of-medical-science",
+      "source": "partner"
+    },
+    {
+      "name": "Index Medical College",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 286000,
+      "href": "/index-medical-college-indore",
+      "source": "partner"
+    },
+    {
+      "name": "Sri Aurobindo Institute of Medical Sciences",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 282000,
+      "href": "/sri-aurobindo-institute-of-medical-sciences-indore",
+      "source": "partner"
+    },
+    {
+      "name": "Ruxmaniben Deepchand Gardi Medical College",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 278000,
+      "href": "/ruxmaniben-deepchand-gardi-medical-college-ujjain",
+      "source": "partner"
+    },
+    {
+      "name": "Peoples College of Medical Science",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 274000,
+      "href": "/peoples-college-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "LN Medical College",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 270000,
+      "href": "/mbbs-india/mp",
+      "source": "partner"
+    },
+    {
+      "name": "Chirayu Medical College and Hospital",
+      "state": "Madhya Pradesh",
+      "stateId": "mp",
+      "type": "private",
+      "closingRankUR": 266000,
+      "href": "/chirayu-medical-college-bhopal",
+      "source": "partner"
+    },
+    {
+      "name": "Lord Buddha Koshi Medical College & Hospital",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "private",
+      "closingRankUR": 350000,
+      "href": "/lord-buddha-koshi-medical-college-hospital",
+      "source": "partner"
+    },
+    {
+      "name": "Mata Gujri Memorial Medical College",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "private",
+      "closingRankUR": 346000,
+      "href": "/mata-gujri-memorial-medical-college-lions-seva-kendra-hospital-kishanganj-bihar",
+      "source": "partner"
+    },
+    {
+      "name": "Radha Devi Jageshwari Memorial Medical College",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "private",
+      "closingRankUR": 342000,
+      "href": "/radha-devi-jageshwari-memorial-medical-college-and-hospital-muzaffarpur",
+      "source": "partner"
+    },
+    {
+      "name": "Shree Narayan Medical Institute & Hospital",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "private",
+      "closingRankUR": 338000,
+      "href": "/shree-narayan-medical-institute-hospital-saharsa",
+      "source": "partner"
+    },
+    {
+      "name": "Narayan Medical College & Hospital",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "private",
+      "closingRankUR": 334000,
+      "href": "/narayan-medical-college-hospital-bihar",
+      "source": "partner"
+    },
+    {
+      "name": "Madhubani Medical College & Hospital",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "private",
+      "closingRankUR": 330000,
+      "href": "/madhubani-medical-college-hospital-bihar",
+      "source": "partner"
+    },
+    {
+      "name": "Katihar Medical College",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "private",
+      "closingRankUR": 326000,
+      "href": "/katihar-medical-college-bihar",
+      "source": "partner"
+    },
+    {
+      "name": "Netaji Subhas Medical College & Hospital",
+      "state": "Bihar",
+      "stateId": "bihar",
+      "type": "private",
+      "closingRankUR": 322000,
+      "href": "/netaji-subhas-medical-college-hospital",
+      "source": "partner"
+    },
+    {
+      "name": "Graphic Era Institute of Medical Sciences",
+      "state": "Uttarakhand",
+      "stateId": "uttarakhand",
+      "type": "private",
+      "closingRankUR": 330000,
+      "href": "/graphic-era-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "Gautam Buddha Chikitsa Mahavidyalaya",
+      "state": "Uttarakhand",
+      "stateId": "uttarakhand",
+      "type": "private",
+      "closingRankUR": 326000,
+      "href": "/gautam-buddha-chikitsa-mahavidyalaya",
+      "source": "partner"
+    },
+    {
+      "name": "Himalayan Institute of Medical Science",
+      "state": "Uttarakhand",
+      "stateId": "uttarakhand",
+      "type": "private",
+      "closingRankUR": 322000,
+      "href": "/himalayan-institute-of-medical-science",
+      "source": "partner"
+    },
+    {
+      "name": "Shri Guru Ram Rai Institute of Medical Science",
+      "state": "Uttarakhand",
+      "stateId": "uttarakhand",
+      "type": "private",
+      "closingRankUR": 318000,
+      "href": "/shri-guru-ram-rai-institute-of-medical-science",
+      "source": "partner"
+    },
+    {
+      "name": "Maharishi Markandeshwar Medical College",
+      "state": "Himachal Pradesh",
+      "stateId": "himachal-pradesh",
+      "type": "private",
+      "closingRankUR": 340000,
+      "href": "/maharishi-markandeshwar-medical-college-solan",
+      "source": "partner"
+    },
+    {
+      "name": "Hamdard Institute of Medical Sciences & Research (HIMSR)",
+      "state": "Delhi",
+      "stateId": "delhi",
+      "type": "private",
+      "closingRankUR": 180000,
+      "href": "/hamdard-institute-of-medical-sciences-research-himsr-new-delhi",
+      "source": "partner"
+    },
+    {
+      "name": "Raipur Institute of Medical Sciences",
+      "state": "Chhattisgarh",
+      "stateId": "chhattisgarh",
+      "type": "private",
+      "closingRankUR": 340000,
+      "href": "/raipur-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "Shri Rawatpura Sarkar Institute of Medical Sciences and Research",
+      "state": "Chhattisgarh",
+      "stateId": "chhattisgarh",
+      "type": "private",
+      "closingRankUR": 336000,
+      "href": "/shri-rawatpura-sarkar-institute-of-medical-sciences-and-research",
+      "source": "partner"
+    },
+    {
+      "name": "Shri Balaji Institute of Medical Sciences",
+      "state": "Chhattisgarh",
+      "stateId": "chhattisgarh",
+      "type": "private",
+      "closingRankUR": 332000,
+      "href": "/shri-balaji-institute-of-medical-sciences-raipur",
+      "source": "partner"
+    },
+    {
+      "name": "Shree Shankaracharya Institute of Medical Sciences",
+      "state": "Chhattisgarh",
+      "stateId": "chhattisgarh",
+      "type": "private",
+      "closingRankUR": 328000,
+      "href": "/shree-shankaracharya-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "Manipal TATA Medical College (MTMC)",
+      "state": "Jharkhand",
+      "stateId": "jharkhand",
+      "type": "deemed",
+      "closingRankUR": 180000,
+      "href": "/manipal-tata-medical-college-mtmc-jamshedpur",
+      "source": "partner"
+    },
+    {
+      "name": "Sikkim Manipal University",
+      "state": "Sikkim",
+      "stateId": "sikkim",
+      "type": "deemed",
+      "closingRankUR": 180000,
+      "href": "/sikkim-manipal-university",
+      "source": "partner"
+    },
+    {
+      "name": "Aarupadai Veedu Medical College & Hospital",
+      "state": "Pondicherry",
+      "stateId": "pondicherry",
+      "type": "private",
+      "closingRankUR": 280000,
+      "href": "/aarupadai-veedu-medical-college-hospital",
+      "source": "partner"
+    },
+    {
+      "name": "Shri Lakshmi Narayan Institute of Medical Sciences",
+      "state": "Pondicherry",
+      "stateId": "pondicherry",
+      "type": "private",
+      "closingRankUR": 276000,
+      "href": "/shri-lakshmi-narayan-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "Mahatma Gandhi Medical College & Research Institute",
+      "state": "Pondicherry",
+      "stateId": "pondicherry",
+      "type": "private",
+      "closingRankUR": 272000,
+      "href": "/mahatma-gandhi-medical-college-research-institute",
+      "source": "partner"
+    },
+    {
+      "name": "Amrita School of Medicine",
+      "state": "Kerala",
+      "stateId": "kerala",
+      "type": "deemed",
+      "closingRankUR": 180000,
+      "href": "/mbbs-india/kerala",
+      "source": "partner"
+    },
+    {
+      "name": "Jubilee Mission Medical College",
+      "state": "Kerala",
+      "stateId": "kerala",
+      "type": "private",
+      "closingRankUR": 196000,
+      "href": "/mbbs-india/kerala",
+      "source": "partner"
+    },
+    {
+      "name": "Pushpagiri Institute of Medical Sciences",
+      "state": "Kerala",
+      "stateId": "kerala",
+      "type": "private",
+      "closingRankUR": 192000,
+      "href": "/mbbs-india/kerala",
+      "source": "partner"
+    },
+    {
+      "name": "ICARE Institute of Medical Sciences",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "private",
+      "closingRankUR": 270000,
+      "href": "/icare-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "Santiniketan Medical College",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "private",
+      "closingRankUR": 266000,
+      "href": "/santiniketan-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Gouri Devi Institute of Medical Sciences and Hospital",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "private",
+      "closingRankUR": 262000,
+      "href": "/gouri-devi-institute-of-medical-sciences-and-hospital",
+      "source": "partner"
+    },
+    {
+      "name": "JIS School of Medical Science & Research",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "private",
+      "closingRankUR": 258000,
+      "href": "/jis-school-of-medical-science-research",
+      "source": "partner"
+    },
+    {
+      "name": "IQ City Medical College",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "private",
+      "closingRankUR": 254000,
+      "href": "/iq-city-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Shri Ramkrishna Institute of Medical Sciences",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "private",
+      "closingRankUR": 250000,
+      "href": "/shri-ramkrishna-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "Jagannath Gupta Institute of Medical Sciences",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "private",
+      "closingRankUR": 246000,
+      "href": "/jagannath-gupta-institute-of-medical-sciences",
+      "source": "partner"
+    },
+    {
+      "name": "KPC Medical College",
+      "state": "West Bengal",
+      "stateId": "west-bengal",
+      "type": "private",
+      "closingRankUR": 242000,
+      "href": "/kpc-medical-college",
+      "source": "partner"
+    },
+    {
+      "name": "Madras Medical College",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "private",
+      "closingRankUR": 240000,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "partner"
+    },
+    {
+      "name": "Christian Medical College",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "private",
+      "closingRankUR": 236000,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "partner"
+    },
+    {
+      "name": "Stanley Medical College",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "private",
+      "closingRankUR": 232000,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "partner"
+    },
+    {
+      "name": "Sri Ramachandra Medical College",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "private",
+      "closingRankUR": 228000,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "partner"
+    },
+    {
+      "name": "Chettinad Hospital and Research Institute",
+      "state": "Tamil Nadu",
+      "stateId": "tamil-nadu",
+      "type": "private",
+      "closingRankUR": 224000,
+      "href": "/mbbs-india/tamil-nadu",
+      "source": "partner"
+    }
+  ]
+}

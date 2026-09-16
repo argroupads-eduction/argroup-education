@@ -1,0 +1,122 @@
+import { postgresAdapter } from '@payloadcms/db-postgres'
+import sharp from 'sharp'
+import path from 'path'
+import { buildConfig, PayloadRequest } from 'payload'
+import { fileURLToPath } from 'url'
+
+import { Categories } from './collections/Categories'
+import { Media } from './collections/Media'
+import { Pages } from './collections/Pages'
+import { Posts } from './collections/Posts'
+import { Users } from './collections/Users'
+import { Footer } from './Footer/config'
+import { Header } from './Header/config'
+import { SiteSettings } from './globals/SiteSettings/config'
+import { plugins } from './plugins'
+import { defaultLexical } from '@/fields/defaultLexical'
+import { getServerSideURL } from './utilities/getURL'
+import { resolveDatabasePoolConfig } from './utilities/resolveDatabaseUrl'
+import { ensureMarketingPages } from './utilities/ensureMarketingPages'
+
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
+const databasePool = resolveDatabasePoolConfig()
+
+export default buildConfig({
+  admin: {
+    components: {
+      // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
+      // Feel free to delete this at any time. Simply remove the line below.
+      beforeLogin: ['@/components/BeforeLogin'],
+      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
+      // Feel free to delete this at any time. Simply remove the line below.
+      beforeDashboard: ['@/components/BeforeDashboard'],
+    },
+    importMap: {
+      baseDir: path.resolve(dirname),
+    },
+    user: Users.slug,
+    livePreview: {
+      breakpoints: [
+        {
+          label: 'Mobile',
+          name: 'mobile',
+          width: 375,
+          height: 667,
+        },
+        {
+          label: 'Tablet',
+          name: 'tablet',
+          width: 768,
+          height: 1024,
+        },
+        {
+          label: 'Desktop',
+          name: 'desktop',
+          width: 1440,
+          height: 900,
+        },
+      ],
+    },
+  },
+  // This config helps us configure global or default features that the other editors can inherit
+  editor: defaultLexical,
+  db: postgresAdapter({
+    pool: databasePool,
+    // Payload tables in `cms` schema — Prisma marketing tables stay in `public` (no Drizzle rename prompts).
+    schemaName: 'cms',
+    migrationDir: path.resolve(dirname, 'migrations'),
+    /**
+     * When false, skips Drizzle `push` on boot (no interactive "Accept warnings?" prompt, faster admin).
+     * Set PAYLOAD_DATABASE_PUSH=true temporarily when you need schema synced after collection changes.
+     */
+    push: process.env.PAYLOAD_DATABASE_PUSH === 'true',
+  }),
+  collections: [Pages, Posts, Media, Categories, Users],
+  cors: [getServerSideURL()].filter(Boolean),
+  globals: [Header, Footer, SiteSettings],
+  plugins,
+  secret: process.env.PAYLOAD_SECRET,
+  sharp,
+  typescript: {
+    outputFile: path.resolve(dirname, 'payload-types.ts'),
+  },
+  jobs: {
+    access: {
+      run: ({ req }: { req: PayloadRequest }): boolean => {
+        // Allow logged in users to execute this endpoint (default)
+        if (req.user) return true
+
+        const secret = process.env.CRON_SECRET
+        if (!secret) return false
+
+        // If there is no logged in user, then check
+        // for the Vercel Cron secret to be present as an
+        // Authorization header:
+        const authHeader = req.headers.get('authorization')
+        return authHeader === `Bearer ${secret}`
+      },
+    },
+    // Local/long-running Node: run scheduled Publish jobs every minute.
+    // Vercel serverless must use Cron → GET /api/payload-jobs/run (see vercel.json).
+    autoRun:
+      process.env.VERCEL === '1'
+        ? undefined
+        : [
+            {
+              cron: '* * * * *',
+              limit: 20,
+              queue: 'default',
+            },
+          ],
+    shouldAutoRun: async () => process.env.DISABLE_PAYLOAD_JOBS_AUTORUN !== 'true',
+    tasks: [],
+  },
+  onInit: async (payload) => {
+    // Skip during Vercel `next build` — DB is only required at runtime (admin + API).
+    if (process.env.NEXT_PHASE === 'phase-production-build') return
+    // Skip on Vercel — competes for the tiny serverless pool and worsens cold-start 504s.
+    if (process.env.VERCEL === '1') return
+    void ensureMarketingPages(payload)
+  },
+})

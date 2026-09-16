@@ -1,0 +1,97 @@
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { ContentJsonLd } from '@/components/content/ContentJsonLd';
+import { ContentPageShell } from '@/components/content/ContentPageShell';
+import { ProgramPageHero } from '@/components/content/ProgramPageHero';
+import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
+import { getPageContentBySlug } from '@/lib/contentApi';
+import { getMdMsNavItemById, MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
+import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
+import { plainTitle } from '@/lib/wpHtmlPrepare';
+
+type PageProps = {
+  params: Promise<{ slug: string[] }>;
+};
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const item = getMdMsNavItemById(slug[0]);
+  if (!item) return { title: 'MD/MS' };
+
+  const curated = getCuratedPageSeo(item.href);
+  const title = curated?.metaTitle ?? item.label;
+  const description =
+    curated?.metaDescription ?? `MD/MS admission guidance for ${item.label.replace('MD/MS in ', '')}.`;
+  const ogImage = item.coverImage || '/ar-group-logo.png';
+
+  return {
+    title,
+    description,
+    alternates: { canonical: item.href },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
+    openGraph: {
+      title,
+      description,
+      url: item.href,
+      type: 'website',
+      images: [{ url: ogImage, alt: item.label }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+  };
+}
+
+export default async function MdMsStatePage({ params }: PageProps) {
+  const { slug } = await params;
+  const item = getMdMsNavItemById(slug[0]);
+  if (!item) notFound();
+
+  const wpContent = await getPageContentBySlug(item.wpSlug);
+  const title = plainTitle(wpContent?.title || item.label);
+  const breadcrumbs = [
+    { label: 'MD / MS', href: '/md-ms' },
+    { label: item.label.replace('MD/MS in ', '') },
+  ];
+  // Prefer curated coverImage — CMS featuredImage alone often rewrites to a
+  // missing relative /wp-content path and shows a broken hero.
+  const featuredImage = item.coverImage || wpContent?.featuredImage || null;
+
+  return (
+    <>
+      {wpContent ? (
+        <ContentJsonLd content={{ ...wpContent, slug: item.wpSlug }} breadcrumbs={breadcrumbs} />
+      ) : null}
+
+      <ProgramPageHero
+        title={title}
+        badge="MD / MS"
+        theme="mdms"
+        breadcrumbs={breadcrumbs}
+        subtitle="Postgraduate medical admission · Counselling & seat selection support"
+        featuredImage={featuredImage}
+      />
+
+      {wpContent ? (
+        <ContentPageShell
+          html={wpContent.content}
+          featuredImage={featuredImage}
+          title={title}
+          showFeaturedImage={false}
+          pageSlug={item.wpSlug}
+        />
+      ) : null}
+
+      <RelatedLinksPills
+        title="Explore other states"
+        links={MD_MS_NAV_ITEMS.filter((s) => s.id !== item.id).map((s) => ({
+          label: s.shortLabel,
+          href: s.href,
+        }))}
+      />
+    </>
+  );
+}

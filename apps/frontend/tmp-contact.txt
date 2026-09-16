@@ -1,0 +1,54 @@
+﻿ecc8844 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-eae-slider="18616" data-id="ecc8844" data-element_type="section" data-e-type="section">
+						<div class="elementor-container elementor-column-gap-wide">
+					<div class="has_eae_slider elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-11e6f2c" data-eae-slider="57168" data-id="11e6f2c" data-element_type="column" data-e-type="column">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-d3db5a5 elementor-widget elementor-widget-heading" data-id="d3db5a5" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">Propel your medical career by joining the colleges offered by the state of MBBS in Uttar Pradesh.</h2>				</div>
+				<div class="elementor-element elementor-element-e0632a4 elementor-widget elementor-widget-text-editor" data-id="e0632a4" data-element_type="widget" data-e-type="widget" data-widget_type="text-editor.default">
+									<p>Are you ready to pursue a successful medical career in the state of <b>Uttar Pradesh</b>, then look no further as as this state provides with the best way to achieve your dreams</p>								</div>
+				<div class="elementor-element elementor-element-1ca9425 elementor-widget elementor-widget-heading" data-id="1ca9425" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
+					<h3 class="elementor-heading-title elementor-size-default">Contact Us Now!</h3>				</div>
+				<div class="elementor-element elementor-element-dc27e84 elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-id="dc27e84" data-element_type="widget" data-e-type="widget" data-widget_type="icon-list.default">
+							<ul class="elementor-icon-list-items">
+							<li class="elementor-icon-list-item">
+											<span class="elementor-icon-list-icon">
+							<svg aria-hidden="true" class="e-font-icon-svg e-fas-phone-alt" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M497.39 361.8l-112-48a24 24 0 0 0-28 6.9l-49.6 60.6A370.66 370.66 0 0 1 130.6 204.11l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112A24.16 24.16 0 0 0 122.6.61l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0-14.01-27.6z"></path></svg>						</span>
+										<span class="elementor-icon-list-text">+91-7076909090</span>
+									</li>
+								<li class="elementor-icon-list-item">
+											<span class="elementor-icon-list-icon">
+							<svg aria-hidden="true" class="e-font-icon-svg e-far-envelope" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M464 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm0 48v40.805c-22.422 18.259-58.168 46.651-134.587 106.49-16.841 13.247-50.201 45.072-73.413 44.701-23.208.375-56.579-31.459-73.413-44.701C106.18 199.465 70.425 171.067 48 152.805V112h416zM48 400V214.398c22.914 18.251 55.409 43.862 104.938 82.646 21.857 17.205 60.134 55.186 103.062 54.955 42.717.231 80.509-37.199 103.053-54.947 49.528-38.783 82.032-64.401 104.947-82.653V400H48z"></path></svg>						</span>
+										<span class="elementor-icon-list-text">info@argroupofeducation.com</span>
+									</li>
+								<li class="elementor-icon-list-item">
+											<span class="elementor-icon-list-icon">
+							<i aria-hidden="true" class="icon icon-map-marker1"></i>						</span>
+										<span class="elementor-icon-list-text">523, 5th Floor, Wave Silver Tower, Sec-18 Noida, UP-201301</span>
+									</li>
+						</ul>
+						</div>
+					</div>
+		</div>
+				<div class="has_eae_slider elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-4ceb391" data-eae-slider="48985" data-id="4ceb391" data-element_type="column" data-e-type="column" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+			<div class="elementor-widget-wrap elementor-element-populated">
+						<div class="elementor-element elementor-element-bca6b85 elementor-widget elementor-widget-heading" data-id="bca6b85" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
+					<h3 class="elementor-heading-title elementor-size-default">Book Your Consultation Now!</h3>				</div>
+				<div class="elementor-element elementor-element-e9866e3 elementor-widget elementor-widget-html" data-id="e9866e3" data-element_type="widget" data-e-type="widget" data-widget_type="html.default">
+					<div class="frm_forms  with_frm_style frm_style_formidable-style" id="frm_form_6_container" >
+<form enctype="multipart/form-data" method="post" class="frm-show-form " id="form_genralform" >
+<div class="frm_form_fields ">
+<fieldset>
+<legend class="frm_screen_reader">Genral Form</legend>
+
+<div class="frm_fields_container">
+<input type="hidden" name="frm_action" value="create" />
+<input type="hidden" name="form_id" value="6" />
+<input type="hidden" name="frm_hide_fields_6" id="frm_hide_fields_6" value="" />
+<input type="hidden" name="form_key" value="genralform" />
+<input type="hidden" name="item_meta[0]" value="" />
+<input type="hidden" id="frm_submit_entry_6" name="frm_submit_entry_6" value="e5114ca46b" /><input type="hidden" name="_wp_http_referer" value="/wp-json/wp/v2/pages?per_page=100&#038;page=4&#038;status=publish&#038;_embed=wp%3Afeaturedmedia" /><div id="frm_field_47_container" class="frm_form_field form-field  frm_required_field frm_top_container">
+    <label for="field_27si4" id="field_27si4_label" class="frm_primary_label">Full Name
+        <span class="frm_required">*</span>
+    </label>
+    <input type="text" id="field_27si4" name="item_meta[47]" value=""  data-reqmsg="Full Name cannot be blank." aria-required="true" data-invmsg="Text is invalid" aria-invalid="false"  />
+    

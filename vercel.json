@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm ci && npm run db:generate --workspace=ar-education-backend",
+  "buildCommand": "npm run build --workspace=ar-education-frontend",
+  "framework": "nextjs",
+  "outputDirectory": "apps/frontend/.next",
+  "crons": [
+    {
+      "path": "/api/cron/resend-leads",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}

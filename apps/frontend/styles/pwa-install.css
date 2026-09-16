@@ -1,0 +1,191 @@
+/* PWA install chip — high-contrast, independent of page theme */
+.pwa-install-chip {
+  box-sizing: border-box;
+  width: min(22rem, calc(100vw - 2.5rem));
+  padding: 1rem 1rem 0.95rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  color: #051219;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow:
+    0 18px 40px -12px rgba(5, 18, 25, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+}
+
+.pwa-install-chip * {
+  color: inherit;
+}
+
+.pwa-install-chip__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #051219 !important;
+  letter-spacing: -0.01em;
+}
+
+.pwa-install-chip__body {
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #334155 !important;
+}
+
+.pwa-install-chip__status {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #b45309 !important;
+}
+
+.pwa-install-chip__icon {
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: #051219;
+  color: #ffca80 !important;
+}
+
+.pwa-install-chip__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #ffca80 !important;
+  stroke: #ffca80;
+}
+
+.pwa-install-chip__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  border: none;
+  cursor: pointer;
+  background: #051219;
+  color: #ffffff !important;
+}
+
+.pwa-install-chip__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pwa-install-chip__btn--ghost {
+  background: #fff;
+  color: #051219 !important;
+  border: 1px solid #cbd5e1;
+}
+
+.pwa-install-chip__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: #64748b !important;
+  cursor: pointer;
+}
+
+.pwa-install-chip__close:hover {
+  background: #f1f5f9;
+  color: #0f172a !important;
+}
+
+.pwa-install-chip__steps {
+  margin: 0.75rem 0 0;
+  padding: 0.65rem 0.75rem;
+  list-style: none;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  color: #334155 !important;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.pwa-install-chip__steps li {
+  color: #334155 !important;
+}
+
+.pwa-install-chip__steps strong {
+  color: #051219 !important;
+  font-weight: 700;
+}
+
+/* Mobile slim top alert */
+.pwa-top-alert {
+  position: relative;
+  z-index: 55;
+  background: #051219;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pwa-top-alert__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+}
+
+.pwa-top-alert__text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #ffffff !important;
+}
+
+.pwa-top-alert__btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: #ffa726;
+  color: #051219 !important;
+  cursor: pointer;
+}
+
+.pwa-top-alert__close {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: #cbd5e1 !important;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+.pwa-top-alert__steps {
+  margin: 0;
+  padding: 0.5rem 0.75rem 0.65rem;
+  list-style: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0a1b29;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: #e2e8f0 !important;
+}
+
+.pwa-top-alert__steps strong {
+  color: #ffca80 !important;
+}

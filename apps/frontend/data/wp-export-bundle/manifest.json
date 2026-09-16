@@ -1,0 +1,15 @@
+{
+  "exportedAt": "2026-05-26T05:15:28.866Z",
+  "source": "https://argroupofeducation.com",
+  "counts": {
+    "pages": 358,
+    "posts": 269
+  },
+  "slugCollisions": [
+    "mbbs-in-karnataka"
+  ],
+  "notes": [
+    "Pages and posts use root URLs on WordPress (no /blog/ prefix on posts).",
+    "Home page slug: mbbs-admission-in-top-colleges → URL /"
+  ]
+}
