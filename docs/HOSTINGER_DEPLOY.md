@@ -1,23 +1,29 @@
-﻿# Hostinger deploy (marketing frontend only)
+﻿# Hostinger deploy (marketing frontend → temporary *.hostingersite.com)
 
-## Why builds failed (base cause)
+## Why every build failed (base cause)
 
-Hostinger clones the **whole GitHub repo**. This monorepo includes:
+Hostinger clones GitHub **`main`**. That tree used to include **`apps/frontend/public/wp-content` (~700MB+, 8k files)**.
 
-- `apps/frontend/public/wp-content` (~700MB+, 8k+ files)
-- `ar-group-of-eductions` (Payload CMS, not needed on Hostinger)
+Clone/prepare dies around **5 minutes** with **Build logs Lines: 0** and analysis “logs null / no files in `apps/frontend/.next`”. Not a Next.js compile error.
 
-That often dies at **Preparing build environment** with **Lines: 0** (5 min timeout). Not a Next.js compile error.
+## What we changed on `main`
 
-## Fix: deploy the slim branch
+- Dropped bulk WP uploads from git (CDN via `WP_MEDIA_ORIGIN`)
+- Kept `public/wp-content/uploads/colleges` (~48MB card images)
+- `npm run hostinger:build` forces `HOSTINGER=1` + skips media bundling
+- Live DB = **Hostinger MySQL** (269 blogs already imported)
+
+Amplify is **paused for live traffic** — use Hostinger temp URL until you point the domain.
+
+## Hostinger panel settings (use `main`)
 
 | Setting | Value |
 |--------|--------|
-| **Branch** | **`hostinger-deploy`** (not `main`) |
-| Framework | Next.js **or** Other |
+| **Branch** | **`main`** |
+| Framework | Next.js or Other |
 | Node | 22.x |
 | Root directory | `./` |
-| Build command | `npm run build:frontend` |
+| **Build command** | **`npm run hostinger:build`** |
 | Output directory | `apps/frontend/.next` |
 | Start command | `npm run start --workspace=ar-education-frontend` |
 
@@ -30,28 +36,17 @@ NODE_ENV=production
 DATABASE_URL=mysql://u559193891_Argroup2026:ARgroup%402026%23Db@srv1192.hstgr.io:3306/u559193891_argroup
 NEXT_PUBLIC_SITE_URL=https://khaki-mole-176670.hostingersite.com
 NEXT_PUBLIC_SITE_NAME=AR Group of Education
+WP_MEDIA_ORIGIN=https://www.argroupofeducation.com
 REVALIDATE_SECRET=<same as before>
 PAYLOAD_SYNC_SECRET=<same as before>
 ```
 
-## Amplify live site (www) — fastest blog fix
+After ENV + build command update → **Deploy** (or push to `main`).
 
-Amplify still shows `database: disconnected` because ENV points at **dead Cockroach**.
+## Domain later
 
-AWS Amplify → Environment variables → set the **same** `DATABASE_URL` MySQL line above → **Redeploy**.
+When ready: Hostinger → Domains → point `www.argroupofeducation.com` → this app, then set `NEXT_PUBLIC_SITE_URL` to the real domain.
 
-Code on `main` already uses Prisma MySQL. Hostinger MySQL already has **269 blogs**.
+## Vercel CMS `/admin` (separate)
 
-## Vercel CMS admin — separate problem
-
-`/admin` fails because Payload uses **Cockroach Postgres** (port 26257) and the cluster hit **RU / trial limit**.
-
-- Hostinger MySQL **cannot** power Payload CMS.
-- Fix CMS: Cockroach → Edit cluster → Capacity → **Finalize** (paid), **or** move CMS `DATABASE_URL` to Neon Postgres later.
-
-## Architecture (base)
-
-| App | Host | Database |
-|-----|------|----------|
-| Marketing www | Amplify (now) / Hostinger (next) | Hostinger MySQL |
-| Payload CMS | Vercel | Cockroach/Neon Postgres (not MySQL) |
+Payload still needs **Postgres** (Cockroach Finalize or Neon). Hostinger MySQL does **not** power `/admin`.

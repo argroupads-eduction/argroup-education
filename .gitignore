@@ -26,6 +26,16 @@ data/wp-export/
 # Local WP uploads mirror (deploy public/wp-content/uploads instead)
 _uploads/
 
+# Hostinger clone limit: keep only college card packs in git; rest via WP_MEDIA_ORIGIN CDN
+apps/frontend/public/wp-content/**
+!apps/frontend/public/wp-content/uploads/
+!apps/frontend/public/wp-content/uploads/colleges/
+!apps/frontend/public/wp-content/uploads/colleges/**
+
+# Large WP export JSON (regenerate: npm run build:wp-bundle) — omit so Hostinger clone fits
+apps/frontend/data/wp-export-bundle/pages.json
+apps/frontend/data/wp-export-bundle/posts.json
+
 # Payload import run reports (dev artifacts)
 apps/frontend/data/wp-export-bundle/reports/payload-import-*.json
 

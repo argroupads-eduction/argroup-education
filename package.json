@@ -17,7 +17,7 @@
     "predev:stack": "node scripts/ensure-prisma-client.mjs",
     "build": "turbo run build",
     "build:frontend": "npm run build --workspace=ar-education-frontend",
-    "hostinger:build": "npm ci && npm run build:frontend",
+    "hostinger:build": "node scripts/hostinger-build.mjs",
     "hostinger:start": "npm run start --workspace=ar-education-frontend",
     "start": "turbo run start",
     "lint": "npx turbo run lint",

@@ -1,4 +1,6 @@
 version: 1
+# TEMP: Live marketing site is Hostinger (*.hostingersite.com), not Amplify.
+# Keep this file for a later cutback; prefer Hostinger MySQL DATABASE_URL if you redeploy here.
 # Amplify Console → Hosting → Rewrites and redirects (add ABOVE any catch-all rewrite):
 #   Source: https://argroupofeducation.com/<*>
 #   Target: https://www.argroupofeducation.com/<*>
