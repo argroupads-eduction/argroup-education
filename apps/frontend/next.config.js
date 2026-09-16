@@ -12,6 +12,11 @@ function resolveOutputFileTracingRoot() {
 
 const outputFileTracingRoot = resolveOutputFileTracingRoot();
 
+const isHostinger =
+  process.env.HOSTINGER === '1' ||
+  process.env.HOSTINGER === 'true' ||
+  process.env.SKIP_WP_MEDIA_BUNDLE === '1';
+
 /** Marketing images referenced as plain /filename paths in components. */
 const PUBLIC_MARKETING_ASSETS = [
   'favicon.ico',
@@ -36,6 +41,9 @@ const PUBLIC_MARKETING_ASSETS = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
+  // Hostinger Node hosting expects .next/standalone (not plain next start).
+  ...(isHostinger ? { output: 'standalone' } : {}),
 
   serverExternalPackages: ['@prisma/client', 'web-push'],
 
