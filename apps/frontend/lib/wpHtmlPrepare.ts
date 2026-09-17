@@ -36,10 +36,20 @@ export function removeDuplicateImages(html: string, featuredImage?: string | nul
   let out = html;
   const imgRe = /<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi;
   let removed = 0;
+  const curatedLocal = featuredImage.startsWith('/images/');
 
   out = out.replace(imgRe, (match, src: string) => {
     if (removed >= 2) return match;
     if (urlsMatch(src, featuredImage)) {
+      removed++;
+      return '';
+    }
+    // Featured remapped to /images/* while body still embeds the old WP upload.
+    if (
+      curatedLocal &&
+      /wp-content\/uploads/i.test(src) &&
+      !/\/uploads\/colleges\//i.test(src)
+    ) {
       removed++;
       return '';
     }

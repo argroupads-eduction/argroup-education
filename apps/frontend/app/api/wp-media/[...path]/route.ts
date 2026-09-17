@@ -88,7 +88,11 @@ function isImageResponse(res: Response): boolean {
 }
 
 async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null> {
-  const origin = process.env.WP_MEDIA_ORIGIN?.replace(/\/$/, '');
+  const origin = (
+    process.env.WP_MEDIA_ORIGIN ||
+    process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN ||
+    'https://khaki-mole-453413.hostingersite.com'
+  ).replace(/\/$/, '');
   if (!origin) return null;
 
   const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');

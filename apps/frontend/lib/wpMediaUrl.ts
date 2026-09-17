@@ -1,5 +1,19 @@
 const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
 
+/**
+ * Amplify omits most of public/wp-content. Hostinger still serves the full WP uploads tree.
+ * Override with WP_MEDIA_ORIGIN when the temporary Hostinger hostname changes.
+ */
+const DEFAULT_WP_MEDIA_ORIGIN = 'https://khaki-mole-453413.hostingersite.com';
+
+export function getWpMediaOrigin(): string {
+  return (
+    process.env.WP_MEDIA_ORIGIN ||
+    process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN ||
+    DEFAULT_WP_MEDIA_ORIGIN
+  ).replace(/\/$/, '');
+}
+
 /** Bundled uploads in public/wp-content — static path for Next.js. */
 function toStaticWpContentPath(relativePath: string): string {
   const safe = relativePath.replace(/^\/+/, '').replace(/^wp-content\//, '');
@@ -23,11 +37,18 @@ function isBundledCollegeUpload(pathname: string): boolean {
   return /^\/?wp-content\/uploads\/colleges\//i.test(pathname);
 }
 
+function isHostingerMediaHost(hostname: string): boolean {
+  const host = hostname.replace(/^www\./, '').toLowerCase();
+  return host.endsWith('hostingersite.com') || host.endsWith('hostinger.com');
+}
+
 /**
- * Always prefer same-origin /wp-content (public/ + /api/wp-media fallback).
- * Absolute www CDN URLs 404 because WP media is no longer on the apex host.
+ * Colleges stay same-origin (bundled on Amplify). All other WP uploads point at
+ * Hostinger so live pages do not 404 when Amplify excludes public/wp-content.
  */
-function toLocalWpContentPath(pathOrUrl: string): string {
+function toDeployableWpContentUrl(pathOrUrl: string): string {
+  let pathname = pathOrUrl;
+
   if (/^https?:\/\//i.test(pathOrUrl) || pathOrUrl.startsWith('//')) {
     const absolute = pathOrUrl.startsWith('//')
       ? `https:${pathOrUrl}`
@@ -36,31 +57,43 @@ function toLocalWpContentPath(pathOrUrl: string): string {
       const u = new URL(absolute);
       const host = u.hostname.replace(/^www\./, '').toLowerCase();
       if (host === 'argroupofeducation.com' && u.pathname.includes('/wp-content/')) {
-        return normalizeWpContentRel(u.pathname.replace(/^\/+/, ''));
+        pathname = normalizeWpContentRel(u.pathname.replace(/^\/+/, ''));
+      } else if (isHostingerMediaHost(u.hostname) && u.pathname.includes('/wp-content/')) {
+        return absolute.replace(/^http:\/\//i, 'https://');
+      } else {
+        return absolute.replace(/^http:\/\//i, 'https://');
       }
     } catch {
-      /* fall through */
+      return pathOrUrl;
     }
   }
-  if (pathOrUrl.startsWith('/wp-content/')) {
-    return normalizeWpContentRel(pathOrUrl.replace(/^\/+/, ''));
+
+  if (pathname.startsWith('/wp-content/')) {
+    pathname = normalizeWpContentRel(pathname.replace(/^\/+/, ''));
+  } else if (isBundledCollegeUpload(pathname)) {
+    return pathname.startsWith('/') ? pathname : `/${pathname}`;
+  } else {
+    return pathOrUrl;
   }
-  if (isBundledCollegeUpload(pathOrUrl)) {
-    return pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+
+  if (isBundledCollegeUpload(pathname)) {
+    return pathname.startsWith('/') ? pathname : `/${pathname}`;
   }
-  return pathOrUrl;
+
+  const rel = pathname.replace(/^\/wp-content\//i, '');
+  return `${getWpMediaOrigin()}/wp-content/${rel}`;
 }
 
-/** Legacy WP uploads → local /wp-content (public bundle + api fallback). */
+/** Legacy WP uploads → deployable URL (local colleges or Hostinger CDN). */
 export function resolveWpMediaUrl(url: string | null | undefined): string | null {
   if (!url?.trim()) return null;
 
   const trimmed = url.trim();
   if (trimmed.startsWith('/api/wp-media/')) {
-    return apiMediaToStatic(trimmed);
+    return toDeployableWpContentUrl(apiMediaToStatic(trimmed));
   }
   if (trimmed.startsWith('/wp-content/')) {
-    return toLocalWpContentPath(trimmed);
+    return toDeployableWpContentUrl(trimmed);
   }
   if (trimmed.startsWith('/images/') || trimmed.startsWith('/ar-')) {
     return trimmed;
@@ -70,11 +103,11 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
   if (withoutHost !== trimmed) {
     const rel = withoutHost.replace(/^\/+/, '');
     if (rel.startsWith('wp-content/')) {
-      return toLocalWpContentPath(normalizeWpContentRel(rel));
+      return toDeployableWpContentUrl(normalizeWpContentRel(rel));
     }
   }
 
-  // Keep known CDN hosts (Payload / Vercel Blob); drop localhost + other hotlinks.
+  // Keep known CDN hosts (Payload / Vercel Blob / Hostinger); drop localhost + other hotlinks.
   if (/^https?:\/\//i.test(trimmed)) {
     try {
       const host = new URL(trimmed).hostname.replace(/^www\./, '').toLowerCase();
@@ -84,8 +117,11 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
       if (host === 'argroupofeducation.com') {
         const u = new URL(trimmed.replace(/^http:\/\//i, 'https://'));
         if (u.pathname.includes('/wp-content/')) {
-          return toLocalWpContentPath(u.pathname);
+          return toDeployableWpContentUrl(u.pathname);
         }
+      }
+      if (isHostingerMediaHost(host)) {
+        return trimmed.replace(/^http:\/\//i, 'https://');
       }
       if (
         host.endsWith('vercel-storage.com') ||
@@ -116,21 +152,21 @@ export function rewriteSingleWpMediaUrl(url: string): string {
   const trimmed = url.trim();
   if (!trimmed || trimmed.startsWith('data:')) return trimmed;
   if (trimmed.startsWith('/api/wp-media/')) {
-    return apiMediaToStatic(trimmed);
+    return toDeployableWpContentUrl(apiMediaToStatic(trimmed));
   }
 
   const resolved = resolveWpMediaUrl(trimmed);
-  if (resolved && resolved !== trimmed) return resolved;
+  if (resolved) return resolved;
 
   const hostMatch = trimmed.match(
     /^https?:\/\/(?:www\.)?argroupofeducation\.com\/wp-content\/(.+)$/i
   );
   if (hostMatch) {
-    return toLocalWpContentPath(normalizeWpContentRel(`wp-content/${hostMatch[1]}`));
+    return toDeployableWpContentUrl(normalizeWpContentRel(`wp-content/${hostMatch[1]}`));
   }
 
   if (trimmed.startsWith('/wp-content/')) {
-    return toLocalWpContentPath(normalizeWpContentRel(trimmed.replace(/^\/+/, '')));
+    return toDeployableWpContentUrl(normalizeWpContentRel(trimmed.replace(/^\/+/, '')));
   }
 
   return trimmed;

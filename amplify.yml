@@ -6,7 +6,7 @@ version: 1
 #   Target: https://www.argroupofeducation.com/<*>
 #   Type:   301 (Permanent Redirect)
 # Also set Amplify env: NEXT_PUBLIC_SITE_URL=https://www.argroupofeducation.com
-#                       WP_MEDIA_ORIGIN=https://www.argroupofeducation.com
+#                       WP_MEDIA_ORIGIN=https://khaki-mole-453413.hostingersite.com
 applications:
   - appRoot: apps/frontend
     frontend:
