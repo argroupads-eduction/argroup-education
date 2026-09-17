@@ -6,6 +6,7 @@ import { DeferredSitePopups } from '@/components/common/DeferredSitePopups';
 import { LeadSubmissionFeedbackHost } from '@/components/common/LeadSubmissionFeedbackHost';
 import { PwaRegistrar } from '@/components/common/PwaRegistrar';
 import { GoogleAnalytics } from '@/components/common/GoogleAnalytics';
+import { ClientBootRecovery } from '@/components/common/ClientBootRecovery';
 import { SiteOrganizationJsonLd } from '@/components/seo/SiteOrganizationJsonLd';
 import {
   SITE_PROTECTION_INLINE_SCRIPT,
@@ -149,6 +150,12 @@ export default async function RootLayout({
             __html: `(function(){try{var h=location.hostname;if(h!=='localhost'&&h!=='127.0.0.1'&&h!=='[::1]')return;var k='ar-dev-bust-v7';if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');if('serviceWorker'in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()});});}if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(c){caches.delete(c)});});}var u=new URL(location.href);u.searchParams.set('_devbust','7');location.replace(u.toString());}catch(e){}})();`,
           }}
         />
+        {/* One-shot recovery when a prior deploy left the tab on deleted /_next chunk hashes. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var k='ar-chunk-recovery-v1';function bad(m){return/Loading chunk|ChunkLoadError|Failed to fetch dynamically imported module|Importing a module script failed/i.test(String(m||''));}function once(){try{if(sessionStorage.getItem(k)==='1')return;sessionStorage.setItem(k,'1');}catch(e){}var u=new URL(location.href);u.searchParams.set('_r',String(Date.now()));location.replace(u.toString());}window.addEventListener('error',function(e){if(bad(e&&e.message)||bad(e&&e.error&&e.error.message)){once();}},true);window.addEventListener('unhandledrejection',function(e){if(bad(e&&e.reason&&e.reason.message)||bad(e&&e.reason)){once();}});setTimeout(function(){try{sessionStorage.removeItem(k);}catch(e){}},12000);}catch(e){}})();`,
+          }}
+        />
         {/* Hero LCP preload is emitted by the homepage <img fetchPriority="high"> — avoid a second preload (can cancel the load on reload). */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         {isSiteProtectionEnabled() ? (
@@ -162,6 +169,7 @@ export default async function RootLayout({
         <SiteGlobalsProvider globals={siteGlobals}>
           <NavPagesProvider pages={navPages}>
             {/* Mobile slim top alert + desktop floating install chip (one instance). */}
+            <ClientBootRecovery />
             <PwaRegistrar />
             <CollegePredictorPromoStrip />
             <Navbar />

@@ -1,4 +1,4 @@
-const CACHE = 'ar-group-shell-v12';
+const CACHE = 'ar-group-shell-v13';
 /** Do not precache `/` — homepage changes often; stale HTML causes hydration mismatches. */
 const PRECACHE = [
   '/manifest.webmanifest',
@@ -74,6 +74,7 @@ self.addEventListener('fetch', (event) => {
   if (
     /\.(?:png|jpe?g|webp|gif|svg|avif|ico|mp4|webm)(?:$|\?)/i.test(url.pathname) ||
     url.pathname.startsWith('/wp-content/') ||
+    url.pathname.startsWith('/images/') ||
     url.pathname.startsWith('/api/wp-media/') ||
     url.pathname.startsWith('/uploads/') ||
     url.pathname.startsWith('/states/')
@@ -84,12 +85,18 @@ self.addEventListener('fetch', (event) => {
   // Never cache HTML navigations — stale document + fresh/old JS causes hydration errors.
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req).catch(() => caches.match(req).then((r) => r || caches.match('/')))
+      fetch(req).catch(
+        () =>
+          new Response('You are offline. Please reconnect and try again.', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          })
+      )
     );
     return;
   }
 
-  // Dev/HMR bundles must always hit the network.
+  // Next.js hashed assets must always hit the network (never SW cache).
   if (url.pathname.startsWith('/_next/')) {
     return;
   }

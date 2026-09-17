@@ -12,6 +12,22 @@ export function getThankYouUrl(path: string = THANK_YOU_PATH): string {
   return `${window.location.origin}${normalized}`;
 }
 
+function thankYouUrlWithOk(
+  path: string,
+  data?: Omit<CounsellingSubmitSession, 'at'>
+): string {
+  const base = getThankYouUrl(path);
+  try {
+    const url = new URL(base, typeof window !== 'undefined' ? window.location.origin : 'https://www.argroupofeducation.com');
+    url.searchParams.set('ok', '1');
+    const name = data?.name?.trim();
+    if (name) url.searchParams.set('name', name.slice(0, 80));
+    return url.toString();
+  } catch {
+    return `${base}${base.includes('?') ? '&' : '?'}ok=1`;
+  }
+}
+
 /**
  * Open a blank tab synchronously on user click (before any await).
  * Pass the returned window to `openThankYouInNewTab` after submit succeeds.
@@ -37,7 +53,7 @@ export function openThankYouInNewTab(
   if (typeof window === 'undefined') return;
 
   markCounsellingSubmitted(data);
-  const url = getThankYouUrl(path);
+  const url = thankYouUrlWithOk(path, data);
 
   if (preopened && !preopened.closed) {
     try {

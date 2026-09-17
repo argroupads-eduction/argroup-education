@@ -32,6 +32,10 @@ export function DeferredSitePopups() {
   useEffect(() => {
     if (!mounted) return undefined;
 
+    if (pathname === '/thank-you' || pathname.startsWith('/thank-you')) {
+      return undefined;
+    }
+
     clearLegacyLeadPopupBlocks();
 
     if (isLeadPopupSubmitted()) {

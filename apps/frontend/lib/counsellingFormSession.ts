@@ -32,10 +32,14 @@ function readRaw(): CounsellingSubmitSession | null {
 
 export function markCounsellingSubmitted(data: Omit<CounsellingSubmitSession, 'at'>) {
   if (typeof window === 'undefined') return;
-  const payload: CounsellingSubmitSession = { ...data, at: Date.now() };
-  const json = JSON.stringify(payload);
-  localStorage.setItem(COUNSELLING_SUBMIT_KEY, json);
-  sessionStorage.setItem(COUNSELLING_SUBMIT_KEY, json);
+  try {
+    const payload: CounsellingSubmitSession = { ...data, at: Date.now() };
+    const json = JSON.stringify(payload);
+    localStorage.setItem(COUNSELLING_SUBMIT_KEY, json);
+    sessionStorage.setItem(COUNSELLING_SUBMIT_KEY, json);
+  } catch {
+    /* private mode / storage blocked — thank-you still works via ?ok=1 */
+  }
 }
 
 export function readCounsellingSubmitted(): CounsellingSubmitSession | null {
@@ -44,6 +48,10 @@ export function readCounsellingSubmitted(): CounsellingSubmitSession | null {
 
 export function clearCounsellingSubmitted() {
   if (typeof window === 'undefined') return;
-  localStorage.removeItem(COUNSELLING_SUBMIT_KEY);
-  sessionStorage.removeItem(COUNSELLING_SUBMIT_KEY);
+  try {
+    localStorage.removeItem(COUNSELLING_SUBMIT_KEY);
+    sessionStorage.removeItem(COUNSELLING_SUBMIT_KEY);
+  } catch {
+    /* ignore */
+  }
 }
