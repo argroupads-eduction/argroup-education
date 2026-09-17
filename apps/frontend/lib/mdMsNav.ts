@@ -17,7 +17,7 @@ export const MD_MS_NAV_ITEMS: MdMsNavItem[] = [
     shortLabel: 'UP',
     wpSlug: 'md-ms-colleges-in-uttar-pradesh',
     coverImage:
-      'https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-05-at-4.49.13-PM.jpeg',
+      '/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-05-at-4.49.13-PM.jpeg',
   },
   {
     id: 'karnataka',
@@ -26,7 +26,7 @@ export const MD_MS_NAV_ITEMS: MdMsNavItem[] = [
     shortLabel: 'KA',
     wpSlug: 'md-ms-in-karnataka',
     coverImage:
-      'https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-08-at-12.07.12-PM.jpeg',
+      '/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-08-at-12.07.12-PM.jpeg',
   },
   {
     id: 'haryana',
@@ -35,7 +35,7 @@ export const MD_MS_NAV_ITEMS: MdMsNavItem[] = [
     shortLabel: 'HR',
     wpSlug: 'md-ms-in-haryana',
     coverImage:
-      'https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-08-at-12.09.53-PM.jpeg',
+      '/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-08-at-12.09.53-PM.jpeg',
   },
   {
     id: 'mp',
@@ -44,7 +44,7 @@ export const MD_MS_NAV_ITEMS: MdMsNavItem[] = [
     shortLabel: 'MP',
     wpSlug: 'md-ms-in-madhya-pradesh',
     coverImage:
-      'https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-08-at-12.12.53-PM.jpeg',
+      '/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-08-at-12.12.53-PM.jpeg',
   },
   {
     id: 'chhattisgarh',
@@ -53,7 +53,7 @@ export const MD_MS_NAV_ITEMS: MdMsNavItem[] = [
     shortLabel: 'CG',
     wpSlug: 'md-ms-in-chhattisgarh',
     coverImage:
-      'https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-20-at-1.30.00-PM.jpeg',
+      '/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-20-at-1.30.00-PM.jpeg',
   },
   {
     id: 'rajasthan',
@@ -62,7 +62,7 @@ export const MD_MS_NAV_ITEMS: MdMsNavItem[] = [
     shortLabel: 'RJ',
     wpSlug: 'md-ms-in-rajasthan',
     coverImage:
-      'https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-11-at-1.06.53-PM.jpeg',
+      '/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-11-at-1.06.53-PM.jpeg',
   },
   {
     id: 'maharashtra',
@@ -71,7 +71,7 @@ export const MD_MS_NAV_ITEMS: MdMsNavItem[] = [
     shortLabel: 'MH',
     wpSlug: 'md-ms-in-maharashtra',
     coverImage:
-      'https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-13-at-3.59.48-PM.jpeg',
+      '/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-13-at-3.59.48-PM.jpeg',
   },
   {
     id: 'uttarakhand',
@@ -80,7 +80,7 @@ export const MD_MS_NAV_ITEMS: MdMsNavItem[] = [
     shortLabel: 'UK',
     wpSlug: 'md-ms-in-uttarakhand',
     coverImage:
-      'https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-18-at-4.39.47-PM.jpeg',
+      '/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-18-at-4.39.47-PM.jpeg',
   },
   {
     id: 'tamil-nadu',
@@ -89,7 +89,7 @@ export const MD_MS_NAV_ITEMS: MdMsNavItem[] = [
     shortLabel: 'TN',
     wpSlug: 'md-ms-in-tamil-nadu',
     coverImage:
-      'https://argroupofeducation.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-20-at-11.31.14-AM.jpeg',
+      '/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-20-at-11.31.14-AM.jpeg',
   },
 ];
 

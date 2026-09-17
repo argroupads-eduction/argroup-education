@@ -1,4 +1,6 @@
 import { cache } from 'react';
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 import {
   BLOG_REMOVED_PUBLIC_SLUGS,
   BLOG_SLUG_CANONICAL,
@@ -654,10 +656,40 @@ async function fetchBackendContentBySlug(
   return withServerTimeout(load(), 6000, null);
 }
 
+let pageContentFallbackCache: Map<string, SiteContent> | null = null;
+
+function loadPageContentFallbackMap(): Map<string, SiteContent> {
+  if (pageContentFallbackCache) return pageContentFallbackCache;
+  pageContentFallbackCache = new Map();
+  try {
+    const candidates = [
+      path.join(process.cwd(), 'data', 'page-content-fallback.json'),
+      path.join(process.cwd(), 'apps', 'frontend', 'data', 'page-content-fallback.json'),
+    ];
+    for (const file of candidates) {
+      if (!existsSync(file)) continue;
+      const raw = JSON.parse(readFileSync(file, 'utf8')) as {
+        posts?: SiteContent[];
+      };
+      if (!Array.isArray(raw.posts)) continue;
+      for (const post of raw.posts) {
+        if (post?.slug) pageContentFallbackCache.set(post.slug, post);
+      }
+      break;
+    }
+  } catch {
+    /* empty map */
+  }
+  return pageContentFallbackCache;
+}
+
 async function loadBundledContent(slug: string): Promise<SiteContent | null> {
   const { getWpExportContentBySlug } = await import('@/lib/wpExportContent');
   const local = await getWpExportContentBySlug(slug);
   if (local) return normalizeContent(local);
+
+  const fromLeanFallback = loadPageContentFallbackMap().get(slug);
+  if (fromLeanFallback) return normalizeContent(fromLeanFallback);
 
   const { buildCollegeFallbackContent } = await import('@/lib/collegeFallbackContent');
   const fallback = buildCollegeFallbackContent(slug);
@@ -784,7 +816,12 @@ export const getPageContentBySlug = cache(async function getPageContentBySlug(
 
   const { getWpExportPageBySlug } = await import('@/lib/wpExportContent');
   const bundledRaw = await getWpExportPageBySlug(slug);
-  const bundled = bundledRaw ? normalizeContent(bundledRaw) : null;
+  const bundled = bundledRaw
+    ? normalizeContent(bundledRaw)
+    : (() => {
+        const lean = loadPageContentFallbackMap().get(slug);
+        return lean ? normalizeContent(lean) : null;
+      })();
 
   if (await suppressedPromise) {
     return null;
