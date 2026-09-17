@@ -1,11 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { ArrowRight, Stethoscope } from 'lucide-react';
 import { HorizontalScrollItem, HorizontalScrollRow } from '@/components/ui/HorizontalScrollRow';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
-import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 export function MdMsHubExplorer() {
   return (
@@ -20,20 +18,19 @@ export function MdMsHubExplorer() {
           </p>
         </div>
         <HorizontalScrollRow ariaLabel="MD MS states" autoScrollMobile gapClassName="gap-4">
-          {MD_MS_NAV_ITEMS.map((item) => {
-            const imageSrc = resolveWpMediaUrl(item.coverImage);
-            return (
+          {MD_MS_NAV_ITEMS.map((item) => (
             <HorizontalScrollItem key={item.href} className="w-[15rem] sm:w-[16rem]">
               <Link href={item.href} className="program-hub-card group block h-full">
                 <div className="program-hub-card-media program-hub-card-media--photo">
-                  {imageSrc ? (
-                    <Image
-                      src={imageSrc}
+                  {item.coverImage ? (
+                    // Plain img avoids Next/Image edge quirks on Amplify static assets.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.coverImage}
                       alt=""
-                      fill
-                      sizes="256px"
-                      className="object-cover object-center"
-                      unoptimized
+                      className="absolute inset-0 h-full w-full object-cover object-center"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <Stethoscope className="h-10 w-10 text-indigo-400/80" aria-hidden />
@@ -51,8 +48,7 @@ export function MdMsHubExplorer() {
                 </div>
               </Link>
             </HorizontalScrollItem>
-          );
-          })}
+          ))}
         </HorizontalScrollRow>
       </div>
     </section>

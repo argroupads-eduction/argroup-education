@@ -87,11 +87,16 @@ export function resolveBlogFeaturedImage(
 
   const resolvedFallback = resolveWpMediaUrl(fallback);
   if (resolvedFallback?.startsWith('/images/')) return resolvedFallback;
-  // Absolute Payload / Vercel Blob URLs stay; dead self-hosted wp-content → drop for placeholder.
-  if (
-    resolvedFallback &&
-    !/argroupofeducation\.com\/wp-content\//i.test(resolvedFallback)
-  ) {
+  // Payload / Vercel Blob URLs stay; college packs stay; other /wp-content 404s on Amplify.
+  if (resolvedFallback) {
+    if (/blob\.vercel-storage\.com/i.test(resolvedFallback)) return resolvedFallback;
+    if (/^\/wp-content\/uploads\/colleges\//i.test(resolvedFallback)) return resolvedFallback;
+    if (
+      resolvedFallback.startsWith('/wp-content/') ||
+      /argroupofeducation\.com\/wp-content\//i.test(resolvedFallback)
+    ) {
+      return curatedFeaturedImage(slug);
+    }
     return resolvedFallback;
   }
 

@@ -10,6 +10,7 @@ import {
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { applyMarketingPageSeo } from '@/lib/marketingPageSeo';
 import { resolveBlogFeaturedImage, resolveBlogPublishedAt } from '@/lib/blogFeaturedImages';
+import { resolvePageFeaturedImage } from '@/lib/pageFeaturedImages';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 import { extractFirstContentImage } from '@/lib/wpHtmlPrepare';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
@@ -62,10 +63,16 @@ function normalizeContent(doc: SiteContent): SiteContent {
   const wpResolved = resolveWpMediaUrl(doc.featuredImage);
   const fromContent =
     doc.type === 'post' && !wpResolved ? extractFirstContentImage(doc.content) : null;
-  const featuredImage = resolveBlogFeaturedImage(
-    doc.slug,
-    wpResolved ?? (fromContent ? resolveWpMediaUrl(fromContent) : null)
-  );
+  const fallbackImg = wpResolved ?? (fromContent ? resolveWpMediaUrl(fromContent) : null);
+  const featuredImage =
+    doc.type === 'page'
+      ? resolvePageFeaturedImage(doc.slug, fallbackImg) ??
+        (fallbackImg?.startsWith('/images/') ||
+        fallbackImg?.includes('blob.vercel-storage.com') ||
+        /^\/wp-content\/uploads\/colleges\//i.test(fallbackImg || '')
+          ? fallbackImg
+          : null)
+      : resolveBlogFeaturedImage(doc.slug, fallbackImg);
 
   return applyMarketingPageSeo({
     ...doc,
