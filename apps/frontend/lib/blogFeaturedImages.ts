@@ -1,5 +1,6 @@
 import { BLOG_SLUG_CANONICAL } from '@/lib/blogUtils';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
+import blogFeaturedMap from '@/data/blog-featured-map.json';
 
 /** Curated blog hero images when CMS/DB has no featuredImage set. */
 export const BLOG_FEATURED_IMAGES: Record<string, string> = {
@@ -44,6 +45,7 @@ export const BLOG_FEATURED_IMAGES: Record<string, string> = {
   'mbbs-with-300-marks-in-neet-2026': '/images/blog/mbbs-with-300-marks-in-neet-v2.png',
   'score-needed-in-neet-2026':
     '/images/blog/how-much-score-needed-neet-2026-full-cut-off-analysis.png',
+  ...((blogFeaturedMap as { map?: Record<string, string> }).map ?? {}),
 };
 
 /** Editorial publish dates for bundle-managed posts (overrides stale CMS/API copies). */
@@ -76,15 +78,29 @@ export function resolveBlogFeaturedImage(
   slug: string,
   fallback: string | null | undefined
 ): string | null {
-  // Local curated heroes win over broken/stale Payload blob URLs.
+  // Local curated + bundled featured heroes win over broken wp-content CDN 404s.
   const curated = curatedFeaturedImage(slug);
   if (curated) return curated;
 
-  const resolvedFallback = resolveWpMediaUrl(fallback);
-  if (resolvedFallback) return resolvedFallback;
+  const trimmed = fallback?.trim();
+  if (trimmed?.startsWith('/images/')) return trimmed;
 
-  // Do NOT fuzzy-match college/WP media by slug tokens — that showed UP NEET art on MP posts.
-  return null;
+  const resolvedFallback = resolveWpMediaUrl(fallback);
+  if (resolvedFallback?.startsWith('/images/')) return resolvedFallback;
+  // Payload / Vercel Blob URLs stay; college packs stay; other /wp-content 404s on Amplify.
+  if (resolvedFallback) {
+    if (/blob\.vercel-storage\.com/i.test(resolvedFallback)) return resolvedFallback;
+    if (/^\/wp-content\/uploads\/colleges\//i.test(resolvedFallback)) return resolvedFallback;
+    if (
+      resolvedFallback.startsWith('/wp-content/') ||
+      /argroupofeducation\.com\/wp-content\//i.test(resolvedFallback)
+    ) {
+      return curatedFeaturedImage(slug);
+    }
+    return resolvedFallback;
+  }
+
+  return curatedFeaturedImage(slug);
 }
 
 export function resolveBlogPublishedAt(

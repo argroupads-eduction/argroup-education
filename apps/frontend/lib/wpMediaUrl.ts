@@ -1,21 +1,18 @@
 const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
 
-/** CDN that still hosts legacy WP uploads when the Next deploy omits public/wp-content. */
-function wpMediaCdnOrigin(): string {
-  const fromEnv = process.env.WP_MEDIA_ORIGIN?.trim().replace(/\/$/, '');
-  if (fromEnv) {
-    // Keep apex → www so sitemap-images / OG never emit mixed hosts.
-    try {
-      const u = new URL(fromEnv);
-      if (u.hostname === 'argroupofeducation.com') {
-        u.hostname = 'www.argroupofeducation.com';
-      }
-      return u.origin;
-    } catch {
-      return fromEnv;
-    }
-  }
-  return 'https://www.argroupofeducation.com';
+/**
+ * Amplify omits most of public/wp-content. Prefer bundled colleges + /images + /mbbs-* heroes.
+ * Do NOT hotlink Hostinger Node (returns HTML for /wp-content). Keep same-origin paths so
+ * next.config can rewrite misses to /api/wp-media when a real origin is configured.
+ */
+export function getWpMediaOrigin(): string | null {
+  const raw = (process.env.WP_MEDIA_ORIGIN || process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN || '')
+    .trim()
+    .replace(/\/$/, '');
+  if (!raw) return null;
+  // khaki-mole Node app is the marketing site, not a WP media host.
+  if (/hostingersite\.com/i.test(raw)) return null;
+  return raw;
 }
 
 /** Bundled uploads in public/wp-content — static path for Next.js. */
@@ -28,11 +25,6 @@ function apiMediaToStatic(url: string): string {
   return toStaticWpContentPath(url.replace(/^\/api\/wp-media\//, ''));
 }
 
-/**
- * Keep Elementor thumb paths as static /wp-content URLs.
- * Missing files fall through next.config rewrite → /api/wp-media (fs + remote).
- * Do not rewrite to /api/wp-media here — that used to self-fetch /wp-content and loop.
- */
 function normalizeWpContentRel(rel: string): string {
   return rel.startsWith('wp-content/') ? `/${rel}` : `/wp-content/${rel.replace(/^\/+/, '')}`;
 }
@@ -42,40 +34,54 @@ function isBundledCollegeUpload(pathname: string): boolean {
   return /^\/?wp-content\/uploads\/colleges\//i.test(pathname);
 }
 
-/** Relative legacy WP media → absolute CDN so heroes work when public/wp-content is incomplete. */
-function toCdnWpContentUrl(pathname: string): string {
-  const rel = pathname.startsWith('/') ? pathname : `/${pathname}`;
-  return `${wpMediaCdnOrigin()}${rel}`;
-}
-
-function absolutizeIfNeeded(pathOrUrl: string): string {
+/**
+ * Always prefer same-origin /wp-content (public/ + /api/wp-media fallback).
+ * Absolute www CDN URLs 404 because WP media is no longer on the apex host.
+ */
+function toLocalWpContentPath(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl) || pathOrUrl.startsWith('//')) {
     const absolute = pathOrUrl.startsWith('//')
       ? `https:${pathOrUrl}`
       : pathOrUrl.replace(/^http:\/\//i, 'https://');
-    return absolute.replace(
-      /^https:\/\/argroupofeducation\.com/i,
-      'https://www.argroupofeducation.com'
-    );
+    try {
+      const u = new URL(absolute);
+      const host = u.hostname.replace(/^www\./, '').toLowerCase();
+      if (
+        (host === 'argroupofeducation.com' || host.endsWith('hostingersite.com')) &&
+        u.pathname.includes('/wp-content/')
+      ) {
+        return normalizeWpContentRel(u.pathname.replace(/^\/+/, ''));
+      }
+    } catch {
+      /* fall through */
+    }
   }
-  if (isBundledCollegeUpload(pathOrUrl)) return pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
-  if (pathOrUrl.startsWith('/wp-content/')) return toCdnWpContentUrl(pathOrUrl);
+  if (pathOrUrl.startsWith('/wp-content/')) {
+    return normalizeWpContentRel(pathOrUrl.replace(/^\/+/, ''));
+  }
+  if (isBundledCollegeUpload(pathOrUrl)) {
+    return pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+  }
   return pathOrUrl;
 }
 
-/** Legacy WP uploads → local college packs stay relative; other media uses CDN absolute URLs. */
+/** Legacy WP uploads → local /wp-content (public bundle + api fallback). */
 export function resolveWpMediaUrl(url: string | null | undefined): string | null {
   if (!url?.trim()) return null;
 
   const trimmed = url.trim();
-  // Prefer static /wp-content for bundled colleges images (deploy-stable).
   if (trimmed.startsWith('/api/wp-media/')) {
-    return absolutizeIfNeeded(apiMediaToStatic(trimmed));
+    return apiMediaToStatic(trimmed);
   }
   if (trimmed.startsWith('/wp-content/')) {
-    return absolutizeIfNeeded(normalizeWpContentRel(trimmed.replace(/^\/+/, '')));
+    return toLocalWpContentPath(trimmed);
   }
-  if (trimmed.startsWith('/images/') || trimmed.startsWith('/ar-')) {
+  if (
+    trimmed.startsWith('/images/') ||
+    trimmed.startsWith('/ar-') ||
+    trimmed.startsWith('/mbbs-') ||
+    trimmed.startsWith('/states/')
+  ) {
     return trimmed;
   }
 
@@ -83,36 +89,29 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
   if (withoutHost !== trimmed) {
     const rel = withoutHost.replace(/^\/+/, '');
     if (rel.startsWith('wp-content/')) {
-      const path = normalizeWpContentRel(rel);
-      // Keep absolute CDN URLs for legacy uploads — relative rewrites 404 when
-      // public/wp-content is not fully mirrored into the Next deploy.
-      if (isBundledCollegeUpload(path)) return path;
-      return absolutizeIfNeeded(trimmed);
+      return toLocalWpContentPath(normalizeWpContentRel(rel));
     }
   }
 
-  // Keep known CDN hosts (Payload / Vercel Blob); drop localhost + other hotlinks.
   if (/^https?:\/\//i.test(trimmed)) {
     try {
       const host = new URL(trimmed).hostname.replace(/^www\./, '').toLowerCase();
       if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
         return null;
       }
+      if (host === 'argroupofeducation.com' || host.endsWith('hostingersite.com')) {
+        const u = new URL(trimmed.replace(/^http:\/\//i, 'https://'));
+        if (u.pathname.includes('/wp-content/')) {
+          return toLocalWpContentPath(u.pathname);
+        }
+      }
       if (
-        host.endsWith('argroupofeducation.com') ||
         host.endsWith('vercel-storage.com') ||
         host.endsWith('public.blob.vercel-storage.com')
       ) {
-        let next = trimmed.replace(/^http:\/\//i, 'https://').replace(
-          /^https:\/\/argroupofeducation\.com/i,
-          'https://www.argroupofeducation.com'
+        return preferFullSizeVercelBlobUrl(
+          trimmed.replace(/^http:\/\//i, 'https://')
         );
-        // Payload imageSizes append -WIDTHxHEIGHT-hash before ext (e.g. -300x169-abc.webp).
-        // Featured cards need the original upload, not the tiny admin thumbnail.
-        if (host.endsWith('vercel-storage.com') || host.endsWith('public.blob.vercel-storage.com')) {
-          next = preferFullSizeVercelBlobUrl(next);
-        }
-        return next;
       }
     } catch {
       return null;
@@ -123,10 +122,6 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
   return trimmed;
 }
 
-/**
- * Upgrade Payload/Vercel Blob resized variants to the original file URL.
- * Example: `…-uuid-300x169-sizeHash.webp` → `…-uuid.webp`
- */
 export function preferFullSizeVercelBlobUrl(url: string): string {
   return url.replace(/-\d+x\d+-[A-Za-z0-9]+(\.(?:webp|jpe?g|png|gif))$/i, '$1');
 }
@@ -135,21 +130,21 @@ export function rewriteSingleWpMediaUrl(url: string): string {
   const trimmed = url.trim();
   if (!trimmed || trimmed.startsWith('data:')) return trimmed;
   if (trimmed.startsWith('/api/wp-media/')) {
-    return absolutizeIfNeeded(apiMediaToStatic(trimmed));
+    return apiMediaToStatic(trimmed);
   }
 
   const resolved = resolveWpMediaUrl(trimmed);
   if (resolved && resolved !== trimmed) return resolved;
 
   const hostMatch = trimmed.match(
-    /^https?:\/\/(?:www\.)?argroupofeducation\.com\/wp-content\/(.+)$/i
+    /^https?:\/\/(?:www\.)?(?:argroupofeducation\.com|[^/]*hostingersite\.com)\/wp-content\/(.+)$/i
   );
   if (hostMatch) {
-    return absolutizeIfNeeded(normalizeWpContentRel(`wp-content/${hostMatch[1]}`));
+    return toLocalWpContentPath(normalizeWpContentRel(`wp-content/${hostMatch[1]}`));
   }
 
   if (trimmed.startsWith('/wp-content/')) {
-    return absolutizeIfNeeded(normalizeWpContentRel(trimmed.replace(/^\/+/, '')));
+    return toLocalWpContentPath(normalizeWpContentRel(trimmed.replace(/^\/+/, '')));
   }
 
   return trimmed;

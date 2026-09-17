@@ -129,16 +129,30 @@ export function ProgramPageHero({
                 heroImageFit === 'state' ? 'max-w-none' : 'max-w-lg lg:max-w-none',
               ].join(' ')}
             >
-              <FitImage
-                src={featuredImage}
-                alt={title}
-                priority
-                maxHeight={heroImageFit === 'state' ? undefined : '20rem'}
-                frameClassName={[
-                  'rounded-2xl',
-                  heroImageFit === 'state' ? 'program-hero-state-image' : 'bg-navy-950/40',
-                ].join(' ')}
-              />
+              {featuredImage.startsWith('/images/') ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={featuredImage}
+                  alt={title}
+                  className={[
+                    'h-auto w-full object-cover',
+                    heroImageFit === 'state' ? '' : 'max-h-[20rem]',
+                  ].join(' ')}
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              ) : (
+                <FitImage
+                  src={featuredImage}
+                  alt={title}
+                  priority
+                  maxHeight={heroImageFit === 'state' ? undefined : '20rem'}
+                  frameClassName={[
+                    'rounded-2xl',
+                    heroImageFit === 'state' ? 'program-hero-state-image' : 'bg-navy-950/40',
+                  ].join(' ')}
+                />
+              )}
             </div>
           ) : null}
         </div>
