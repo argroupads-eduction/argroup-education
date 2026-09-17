@@ -64,7 +64,11 @@ function run(cmd, args, cwd) {
 }
 
 if (serverJs) {
-  run(process.execPath, [serverJs], path.dirname(serverJs));
+  const serverCwd = path.dirname(serverJs);
+  console.log('[hostinger-server] requiring', serverJs, 'cwd=' + serverCwd, 'PORT=' + port);
+  process.chdir(serverCwd);
+  Object.assign(process.env, env);
+  require(serverJs);
 } else {
   console.warn('[hostinger-server] no standalone server.js — falling back to next start');
   const frontend = path.join(root, 'apps', 'frontend');

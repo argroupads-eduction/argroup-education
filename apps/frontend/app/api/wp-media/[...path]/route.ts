@@ -91,9 +91,10 @@ async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null
   const origin = (
     process.env.WP_MEDIA_ORIGIN ||
     process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN ||
-    'https://khaki-mole-453413.hostingersite.com'
+    ''
   ).replace(/\/$/, '');
-  if (!origin) return null;
+  // Hostinger Node marketing app is not a WP media CDN (returns HTML).
+  if (!origin || /hostingersite\.com/i.test(origin)) return null;
 
   const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
   const candidates = new Set<string>();

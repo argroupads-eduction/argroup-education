@@ -1,17 +1,18 @@
 const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
 
 /**
- * Amplify omits most of public/wp-content. Hostinger still serves the full WP uploads tree.
- * Override with WP_MEDIA_ORIGIN when the temporary Hostinger hostname changes.
+ * Amplify omits most of public/wp-content. Prefer bundled colleges + /images + /mbbs-* heroes.
+ * Do NOT hotlink Hostinger Node (returns HTML for /wp-content). Keep same-origin paths so
+ * next.config can rewrite misses to /api/wp-media when a real origin is configured.
  */
-const DEFAULT_WP_MEDIA_ORIGIN = 'https://khaki-mole-453413.hostingersite.com';
-
-export function getWpMediaOrigin(): string {
-  return (
-    process.env.WP_MEDIA_ORIGIN ||
-    process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN ||
-    DEFAULT_WP_MEDIA_ORIGIN
-  ).replace(/\/$/, '');
+export function getWpMediaOrigin(): string | null {
+  const raw = (process.env.WP_MEDIA_ORIGIN || process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN || '')
+    .trim()
+    .replace(/\/$/, '');
+  if (!raw) return null;
+  // khaki-mole Node app is the marketing site, not a WP media host.
+  if (/hostingersite\.com/i.test(raw)) return null;
+  return raw;
 }
 
 /** Bundled uploads in public/wp-content — static path for Next.js. */
@@ -24,10 +25,6 @@ function apiMediaToStatic(url: string): string {
   return toStaticWpContentPath(url.replace(/^\/api\/wp-media\//, ''));
 }
 
-/**
- * Keep Elementor thumb paths as static /wp-content URLs.
- * Missing files fall through next.config rewrite → /api/wp-media (fs + remote).
- */
 function normalizeWpContentRel(rel: string): string {
   return rel.startsWith('wp-content/') ? `/${rel}` : `/wp-content/${rel.replace(/^\/+/, '')}`;
 }
@@ -37,18 +34,11 @@ function isBundledCollegeUpload(pathname: string): boolean {
   return /^\/?wp-content\/uploads\/colleges\//i.test(pathname);
 }
 
-function isHostingerMediaHost(hostname: string): boolean {
-  const host = hostname.replace(/^www\./, '').toLowerCase();
-  return host.endsWith('hostingersite.com') || host.endsWith('hostinger.com');
-}
-
 /**
- * Colleges stay same-origin (bundled on Amplify). All other WP uploads point at
- * Hostinger so live pages do not 404 when Amplify excludes public/wp-content.
+ * Always prefer same-origin /wp-content (public/ + /api/wp-media fallback).
+ * Absolute www CDN URLs 404 because WP media is no longer on the apex host.
  */
-function toDeployableWpContentUrl(pathOrUrl: string): string {
-  let pathname = pathOrUrl;
-
+function toLocalWpContentPath(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl) || pathOrUrl.startsWith('//')) {
     const absolute = pathOrUrl.startsWith('//')
       ? `https:${pathOrUrl}`
@@ -56,46 +46,42 @@ function toDeployableWpContentUrl(pathOrUrl: string): string {
     try {
       const u = new URL(absolute);
       const host = u.hostname.replace(/^www\./, '').toLowerCase();
-      if (host === 'argroupofeducation.com' && u.pathname.includes('/wp-content/')) {
-        pathname = normalizeWpContentRel(u.pathname.replace(/^\/+/, ''));
-      } else if (isHostingerMediaHost(u.hostname) && u.pathname.includes('/wp-content/')) {
-        return absolute.replace(/^http:\/\//i, 'https://');
-      } else {
-        return absolute.replace(/^http:\/\//i, 'https://');
+      if (
+        (host === 'argroupofeducation.com' || host.endsWith('hostingersite.com')) &&
+        u.pathname.includes('/wp-content/')
+      ) {
+        return normalizeWpContentRel(u.pathname.replace(/^\/+/, ''));
       }
     } catch {
-      return pathOrUrl;
+      /* fall through */
     }
   }
-
-  if (pathname.startsWith('/wp-content/')) {
-    pathname = normalizeWpContentRel(pathname.replace(/^\/+/, ''));
-  } else if (isBundledCollegeUpload(pathname)) {
-    return pathname.startsWith('/') ? pathname : `/${pathname}`;
-  } else {
-    return pathOrUrl;
+  if (pathOrUrl.startsWith('/wp-content/')) {
+    return normalizeWpContentRel(pathOrUrl.replace(/^\/+/, ''));
   }
-
-  if (isBundledCollegeUpload(pathname)) {
-    return pathname.startsWith('/') ? pathname : `/${pathname}`;
+  if (isBundledCollegeUpload(pathOrUrl)) {
+    return pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
   }
-
-  const rel = pathname.replace(/^\/wp-content\//i, '');
-  return `${getWpMediaOrigin()}/wp-content/${rel}`;
+  return pathOrUrl;
 }
 
-/** Legacy WP uploads → deployable URL (local colleges or Hostinger CDN). */
+/** Legacy WP uploads → local /wp-content (public bundle + api fallback). */
 export function resolveWpMediaUrl(url: string | null | undefined): string | null {
   if (!url?.trim()) return null;
 
   const trimmed = url.trim();
   if (trimmed.startsWith('/api/wp-media/')) {
-    return toDeployableWpContentUrl(apiMediaToStatic(trimmed));
+    return apiMediaToStatic(trimmed);
   }
   if (trimmed.startsWith('/wp-content/')) {
-    return toDeployableWpContentUrl(trimmed);
+    return toLocalWpContentPath(trimmed);
   }
-  if (trimmed.startsWith('/images/') || trimmed.startsWith('/ar-')) {
+  if (
+    trimmed.startsWith('/images/') ||
+    trimmed.startsWith('/ar-') ||
+    trimmed.startsWith('/mbbs-') ||
+    trimmed.startsWith('/states/')
+  ) {
     return trimmed;
   }
 
@@ -103,25 +89,21 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
   if (withoutHost !== trimmed) {
     const rel = withoutHost.replace(/^\/+/, '');
     if (rel.startsWith('wp-content/')) {
-      return toDeployableWpContentUrl(normalizeWpContentRel(rel));
+      return toLocalWpContentPath(normalizeWpContentRel(rel));
     }
   }
 
-  // Keep known CDN hosts (Payload / Vercel Blob / Hostinger); drop localhost + other hotlinks.
   if (/^https?:\/\//i.test(trimmed)) {
     try {
       const host = new URL(trimmed).hostname.replace(/^www\./, '').toLowerCase();
       if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
         return null;
       }
-      if (host === 'argroupofeducation.com') {
+      if (host === 'argroupofeducation.com' || host.endsWith('hostingersite.com')) {
         const u = new URL(trimmed.replace(/^http:\/\//i, 'https://'));
         if (u.pathname.includes('/wp-content/')) {
-          return toDeployableWpContentUrl(u.pathname);
+          return toLocalWpContentPath(u.pathname);
         }
-      }
-      if (isHostingerMediaHost(host)) {
-        return trimmed.replace(/^http:\/\//i, 'https://');
       }
       if (
         host.endsWith('vercel-storage.com') ||
@@ -140,10 +122,6 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
   return trimmed;
 }
 
-/**
- * Upgrade Payload/Vercel Blob resized variants to the original file URL.
- * Example: `…-uuid-300x169-sizeHash.webp` → `…-uuid.webp`
- */
 export function preferFullSizeVercelBlobUrl(url: string): string {
   return url.replace(/-\d+x\d+-[A-Za-z0-9]+(\.(?:webp|jpe?g|png|gif))$/i, '$1');
 }
@@ -152,21 +130,21 @@ export function rewriteSingleWpMediaUrl(url: string): string {
   const trimmed = url.trim();
   if (!trimmed || trimmed.startsWith('data:')) return trimmed;
   if (trimmed.startsWith('/api/wp-media/')) {
-    return toDeployableWpContentUrl(apiMediaToStatic(trimmed));
+    return apiMediaToStatic(trimmed);
   }
 
   const resolved = resolveWpMediaUrl(trimmed);
-  if (resolved) return resolved;
+  if (resolved && resolved !== trimmed) return resolved;
 
   const hostMatch = trimmed.match(
-    /^https?:\/\/(?:www\.)?argroupofeducation\.com\/wp-content\/(.+)$/i
+    /^https?:\/\/(?:www\.)?(?:argroupofeducation\.com|[^/]*hostingersite\.com)\/wp-content\/(.+)$/i
   );
   if (hostMatch) {
-    return toDeployableWpContentUrl(normalizeWpContentRel(`wp-content/${hostMatch[1]}`));
+    return toLocalWpContentPath(normalizeWpContentRel(`wp-content/${hostMatch[1]}`));
   }
 
   if (trimmed.startsWith('/wp-content/')) {
-    return toDeployableWpContentUrl(normalizeWpContentRel(trimmed.replace(/^\/+/, '')));
+    return toLocalWpContentPath(normalizeWpContentRel(trimmed.replace(/^\/+/, '')));
   }
 
   return trimmed;

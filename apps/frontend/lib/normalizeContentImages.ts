@@ -3,25 +3,25 @@ import { rewriteSingleWpMediaUrl, resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 const SKIP_IMG = /wpforms|submit-spin|\.svg(?:\?|$)|emoji|gravatar|pixel|tracking/i;
 const BUNDLED_COLLEGE_IMG = /\/uploads\/colleges\//i;
-const BUNDLED_SCROLL_IMG = /\/mbbs-abroad-scroll\//i;
-const BUNDLED_IMAGES_DIR = /^\/images\//i;
-const LIVE_MEDIA_CDN = /hostingersite\.com|blob\.vercel-storage\.com/i;
+const BUNDLED_SCROLL_IMG = /\/mbbs-abroad-scroll\//;
+const BUNDLED_LOCAL =
+  /^\/(?:images|states|mbbs-)|^\/wp-content\/uploads\/colleges\//i;
 
 function isBundledHeroImage(url: string | null | undefined): boolean {
   if (!url) return false;
   return (
     BUNDLED_COLLEGE_IMG.test(url) ||
     BUNDLED_SCROLL_IMG.test(url) ||
-    BUNDLED_IMAGES_DIR.test(url)
+    BUNDLED_LOCAL.test(url) ||
+    url.startsWith('/mbbs-')
   );
 }
 
-/** Old CMS uploads in page body — replace with bundled college/country heroes when available. */
 function isStaleWpUpload(url: string | null | undefined): boolean {
   if (!url) return false;
   if (isBundledHeroImage(url)) return false;
-  if (LIVE_MEDIA_CDN.test(url)) return false;
-  return /wp-content\/uploads|\/api\/wp-media\/uploads/i.test(url);
+  if (/blob\.vercel-storage\.com/i.test(url)) return false;
+  return /wp-content\/uploads|\/api\/wp-media\/uploads|hostingersite\.com/i.test(url);
 }
 
 function pickImageSrc(
@@ -33,26 +33,29 @@ function pickImageSrc(
   const fromFeatured = resolveWpMediaUrl(featuredImage);
   const fromCurrent = currentSrc ? rewriteSingleWpMediaUrl(currentSrc) : null;
 
-  // Already on a working CDN (Hostinger / Vercel Blob) — keep as-is.
-  if (fromCurrent && LIVE_MEDIA_CDN.test(fromCurrent)) {
+  if (fromCurrent && /blob\.vercel-storage\.com/i.test(fromCurrent)) {
     return fromCurrent;
   }
 
   if (isStaleWpUpload(fromCurrent)) {
     if (isBundledHeroImage(fromSlug)) return fromSlug;
     if (isBundledHeroImage(fromFeatured)) return fromFeatured;
+    // Drop broken WP/Hostinger body images rather than leave a broken <img>.
+    return null;
   }
 
   if (
     fromCurrent?.startsWith('/api/wp-media/') ||
     fromCurrent?.startsWith('/wp-content/') ||
-    fromCurrent?.startsWith('/images/')
+    fromCurrent?.startsWith('/images/') ||
+    fromCurrent?.startsWith('/states/') ||
+    fromCurrent?.startsWith('/mbbs-')
   ) {
     return fromCurrent;
   }
   if (fromSlug) return fromSlug;
   if (fromCurrent) return fromCurrent;
-  if (fromFeatured) return fromFeatured;
+  if (fromFeatured && isBundledHeroImage(fromFeatured)) return fromFeatured;
   return null;
 }
 
@@ -62,7 +65,6 @@ export function normalizeContentImagesInHtml(
   options?: {
     pageSlug?: string | null;
     featuredImage?: string | null;
-    /** Used when WP HTML ships images without alt (helps Google Image indexing). */
     title?: string | null;
   }
 ): string {
@@ -79,7 +81,11 @@ export function normalizeContentImagesInHtml(
     const srcMatch = attrs.match(/\bsrc=["']([^"']*)["']/i);
     const currentSrc = srcMatch?.[1];
     const resolved = pickImageSrc(currentSrc, options?.pageSlug, options?.featuredImage);
-    if (!resolved) return match;
+    if (!resolved) {
+      // Remove broken WP images entirely when no local replacement exists.
+      if (currentSrc && isStaleWpUpload(currentSrc)) return '';
+      return match;
+    }
 
     let clean = attrs
       .replace(/\ssrcset=["'][^"']*["']/gi, '')

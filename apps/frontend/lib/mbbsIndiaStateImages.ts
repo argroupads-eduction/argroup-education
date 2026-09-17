@@ -27,19 +27,26 @@ export function getMbbsIndiaStateFeaturedImage(wpSlug: string | null | undefined
   return MBBS_INDIA_STATE_FEATURED_IMAGES[wpSlug] ?? null;
 }
 
-function isElementorThumb(url: string | null | undefined): boolean {
-  return Boolean(url && /elementor\/thumbs/i.test(url));
-}
-
 export function resolveMbbsIndiaFeaturedImage(
   wpSlug: string | null | undefined,
   fallback: string | null | undefined,
   collegeFallback?: string | null
 ): string | null {
-  // Elementor thumbs often 404 on CDN; prefer usable CMS media, then a college pack image.
-  if (fallback && !isElementorThumb(fallback)) return fallback;
-  if (collegeFallback?.trim()) return collegeFallback;
-  return getMbbsIndiaStateFeaturedImage(wpSlug) ?? fallback ?? null;
+  const curated = getMbbsIndiaStateFeaturedImage(wpSlug);
+  if (curated) return curated;
+
+  const usable = (url: string | null | undefined) => {
+    if (!url?.trim()) return false;
+    const u = url.trim();
+    if (u.startsWith('/states/') || u.startsWith('/images/') || u.startsWith('/mbbs-')) return true;
+    if (/^\/wp-content\/uploads\/colleges\//i.test(u)) return true;
+    if (/blob\.vercel-storage\.com/i.test(u)) return true;
+    return false;
+  };
+
+  if (usable(fallback)) return fallback!.trim();
+  if (usable(collegeFallback)) return collegeFallback!.trim();
+  return curated ?? null;
 }
 
 const MBBS_INDIA_HREF_TO_WP_SLUG: Record<string, string> = Object.fromEntries(

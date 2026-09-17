@@ -13,7 +13,11 @@ const MBBS_ABROAD_SCROLL_FEATURED_IMAGES: Record<string, string> = Object.fromEn
 /** Local country landmark heroes — full image visible (see public/mbbs-*-hero.png). */
 export const MBBS_ABROAD_COUNTRY_FEATURED_IMAGES: Record<string, string> = {
   ...MBBS_ABROAD_SCROLL_FEATURED_IMAGES,
+  'study-mbbs-in-russia': '/mbbs-russia-hero.png',
+  'study-mbbs-in-nepal': '/mbbs-nepal-hero.png',
   'study-mbbs-in-bangladesh': '/mbbs-bangladesh-hero.png',
+  'study-mbbs-in-uzbekistan': '/mbbs-uzbekistan-hero.png',
+  'mbbs-in-kazakhstan': '/mbbs-kazakhstan-hero.png',
   'mbbs-in-serbia': '/mbbs-serbia-hero.png',
   'mbbs-in-iran': '/mbbs-iran-hero.png',
   'mbbs-in-bosnia': '/mbbs-bosnia-hero.png',
@@ -21,8 +25,11 @@ export const MBBS_ABROAD_COUNTRY_FEATURED_IMAGES: Record<string, string> = {
   'mbbs-in-vietnam': '/mbbs-vietnam-hero.png',
   'study-mbbs-in-kyrgyzstan': '/mbbs-kyrgyzstan-hero.png',
   'mbbs-in-philippines-3-2': '/mbbs-philippines-hero.png',
+  'mbbs-in-georgia': '/mbbs-georgia-hero.png',
   'study-mbbs-in-china': '/mbbs-china-hero.png',
   'mbbs-in-romania': '/mbbs-romania-hero.png',
+  // No dedicated Asia hero yet — use China landmark as regional stand-in.
+  'mbbs-in-asia': '/mbbs-china-hero.png',
 };
 
 export function getMbbsAbroadCountryFeaturedImage(wpSlug: string | null | undefined): string | null {
@@ -30,8 +37,25 @@ export function getMbbsAbroadCountryFeaturedImage(wpSlug: string | null | undefi
   return MBBS_ABROAD_COUNTRY_FEATURED_IMAGES[wpSlug] ?? null;
 }
 
-function isElementorThumb(url: string | null | undefined): boolean {
-  return Boolean(url && /elementor\/thumbs/i.test(url));
+function isDeployableLocalMedia(url: string | null | undefined): boolean {
+  if (!url?.trim()) return false;
+  const u = url.trim();
+  if (u.startsWith('/mbbs-')) return true;
+  if (u.startsWith('/images/')) return true;
+  if (u.startsWith('/states/')) return true;
+  if (/^\/wp-content\/uploads\/colleges\//i.test(u)) return true;
+  if (/blob\.vercel-storage\.com/i.test(u)) return true;
+  return false;
+}
+
+function isBrokenRemoteWp(url: string | null | undefined): boolean {
+  if (!url?.trim()) return false;
+  return (
+    /wp-content\/uploads/i.test(url) ||
+    /argroupofeducation\.com\/wp-content/i.test(url) ||
+    /hostingersite\.com\/wp-content/i.test(url) ||
+    /elementor\/thumbs/i.test(url)
+  );
 }
 
 export function resolveMbbsAbroadFeaturedImage(
@@ -39,9 +63,14 @@ export function resolveMbbsAbroadFeaturedImage(
   fallback: string | null | undefined,
   collegeFallback?: string | null
 ): string | null {
-  if (fallback && !isElementorThumb(fallback)) return fallback;
-  if (collegeFallback?.trim()) return collegeFallback;
-  return getMbbsAbroadCountryFeaturedImage(wpSlug) ?? fallback ?? null;
+  // Always prefer bundled Amplify-safe heroes over WP/Hostinger URLs (hotlink → HTML).
+  const curated = getMbbsAbroadCountryFeaturedImage(wpSlug);
+  if (curated) return curated;
+
+  if (isDeployableLocalMedia(fallback) && !isBrokenRemoteWp(fallback)) return fallback!;
+  if (isDeployableLocalMedia(collegeFallback)) return collegeFallback!.trim();
+  if (fallback && !isBrokenRemoteWp(fallback) && isDeployableLocalMedia(fallback)) return fallback;
+  return curated ?? null;
 }
 
 const MBBS_ABROAD_HREF_TO_WP_SLUG: Record<string, string> = Object.fromEntries(
@@ -90,7 +119,7 @@ function isReplaceableCountryContentImage(attrs: string, src: string): boolean {
   if (/icon|logo|emoji|avatar/i.test(src)) return false;
   if (isCollegeThumbSrc(src)) return false;
   if (/\bwidth\s*=\s*["'](?:[1-9]|[1-9]\d)["']/i.test(attrs)) return false;
-  return /wp-content\/uploads/i.test(src);
+  return /wp-content\/uploads|hostingersite\.com/i.test(src);
 }
 
 /** Hub grid: each country tile link → matching landmark image. */
