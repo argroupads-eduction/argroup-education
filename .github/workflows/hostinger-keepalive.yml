@@ -1,0 +1,26 @@
+# Keep Hostinger Node awake — managed apps sleep after idle (~10s cold start).
+name: Keep Hostinger warm
+
+on:
+  schedule:
+    # Every 4 minutes (GitHub cron minimum granularity is ~5 min in practice)
+    - cron: '*/4 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: hostinger-keepalive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Warm homepage + logo
+        run: |
+          set -euo pipefail
+          BASE="https://www.argroupofeducation.com"
+          for path in "/" "/ar-group-logo.webp" "/favicon.ico"; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 45 "${BASE}${path}" || echo "000")
+            echo "${path} -> ${code}"
+          done
