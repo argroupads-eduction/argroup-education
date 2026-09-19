@@ -89,6 +89,14 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   return (
     <>
+      {/* LCP: responsive hero preload (no logo preload competing). */}
+      <link
+        rel="preload"
+        as="image"
+        href="/hero-banner-aug4-1280.webp"
+        imageSrcSet="/hero-banner-aug4-640.webp 640w, /hero-banner-aug4-1280.webp 1280w, /hero-banner-aug4.webp 1920w"
+        imageSizes="100vw"
+      />
       <HomeWebPageJsonLd />
       <HomeFaqJsonLd />
       <HomeHeroClient />

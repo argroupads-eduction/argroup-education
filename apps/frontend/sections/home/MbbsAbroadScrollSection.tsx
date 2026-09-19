@@ -220,6 +220,7 @@ export function MbbsAbroadScrollSection() {
                 const src = resolveMbbsAbroadScrollImage(c);
                 const active = i === activeIndex;
                 const leaving = i === leavingIndex;
+                const shouldPaint = active || leaving;
                 const layerClass = [
                   'abroad-atlas__visual-layer',
                   active ? 'is-active' : '',
@@ -230,16 +231,18 @@ export function MbbsAbroadScrollSection() {
 
                 return (
                   <div key={c.slug} className={layerClass} aria-hidden={!active}>
-                    {src ? (
+                    {shouldPaint && src ? (
                       // eslint-disable-next-line @next/next/no-img-element -- atlas carousel heroes
                       <img
                         src={src}
                         alt={active ? `MBBS in ${c.name}` : ''}
                         className="abroad-atlas__visual-img"
                         decoding="async"
-                        loading={active || leaving ? 'eager' : 'lazy'}
+                        loading={active ? 'eager' : 'lazy'}
                         fetchPriority={active ? 'low' : undefined}
                         draggable={false}
+                        width={900}
+                        height={600}
                       />
                     ) : (
                       <div

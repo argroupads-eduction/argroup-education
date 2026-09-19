@@ -137,7 +137,7 @@ export default async function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="AR Group" />
-        <link rel="preload" href="/ar-group-logo.webp" as="image" type="image/webp" />
+        {/* Do not preload navbar logo — it steals bandwidth from homepage LCP hero. */}
         <style
           dangerouslySetInnerHTML={{
             __html:

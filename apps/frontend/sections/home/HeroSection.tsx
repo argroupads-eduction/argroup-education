@@ -30,6 +30,9 @@ const COLLEGES_ABROAD = [
 const INDIA_SHOW_MS = 15_000;
 const ABROAD_SHOW_MS = 15_000;
 const BANNER = '/hero-banner-aug4.webp';
+const BANNER_SRCSET =
+  '/hero-banner-aug4-640.webp 640w, /hero-banner-aug4-1280.webp 1280w, /hero-banner-aug4.webp 1920w';
+const BANNER_SIZES = '100vw';
 
 type HeroCopyProps = {
   badge: string;
@@ -188,28 +191,24 @@ export const HeroSection = () => {
     'AR Group of Education - MBBS India and Abroad admission counselling';
 
   return (
-    <section
-      className="relative flex min-h-[32rem] items-start overflow-hidden bg-navy-900 sm:min-h-[36rem] sm:items-center md:min-h-[42rem] lg:min-h-[48rem] xl:min-h-[52rem]"
-      style={{
-        backgroundImage: `url(${BANNER})`,
-        backgroundSize: 'cover',
-        backgroundPosition: '62% center',
-      }}
-    >
-      {/* CSS background paints even if <img> briefly fails; img keeps LCP + a11y. */}
+    <section className="relative flex min-h-[32rem] items-start overflow-hidden bg-navy-900 sm:min-h-[36rem] sm:items-center md:min-h-[42rem] lg:min-h-[48rem] xl:min-h-[52rem]">
+      {/* Single LCP image — no CSS background duplicate (was 2x network). */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={BANNER}
+        srcSet={BANNER_SRCSET}
+        sizes={BANNER_SIZES}
         alt={bannerAlt}
-        width={1920}
-        height={1080}
-        decoding="sync"
+        width={1600}
+        height={690}
+        decoding="async"
         fetchPriority="high"
         className="absolute inset-0 z-0 h-full w-full object-cover max-md:object-[62%_center] md:object-[28%_center] lg:object-left md:[object-position:28%_center] lg:[object-position:left_center]"
         onError={(e) => {
           const img = e.currentTarget;
           if (img.dataset.retried === '1') return;
           img.dataset.retried = '1';
+          img.removeAttribute('srcset');
           img.src = `${BANNER}?v=2`;
         }}
       />

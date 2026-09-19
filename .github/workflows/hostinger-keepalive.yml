@@ -3,8 +3,8 @@ name: Keep Hostinger warm
 
 on:
   schedule:
-    # Every 4 minutes (GitHub cron minimum granularity is ~5 min in practice)
-    - cron: '*/4 * * * *'
+    # GitHub schedules often drift; ping often enough to reduce cold starts.
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 concurrency:
@@ -14,13 +14,19 @@ concurrency:
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 3
     steps:
-      - name: Warm homepage + logo
+      - name: Warm HTML + LCP assets
         run: |
           set -euo pipefail
           BASE="https://www.argroupofeducation.com"
-          for path in "/" "/ar-group-logo.webp" "/favicon.ico"; do
-            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 45 "${BASE}${path}" || echo "000")
+          for path in \
+            "/" \
+            "/hero-banner-aug4-640.webp" \
+            "/hero-banner-aug4.webp" \
+            "/ar-group-logo.webp" \
+            "/favicon.ico"
+          do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 50 "${BASE}${path}" || echo "000")
             echo "${path} -> ${code}"
           done

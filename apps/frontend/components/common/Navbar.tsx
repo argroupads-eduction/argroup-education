@@ -245,7 +245,6 @@ export const Navbar = () => {
                   width={140}
                   height={56}
                   sizes="140px"
-                  priority
                   className="brand-logo-link__img"
                 />
               </BrandLogoLink>
