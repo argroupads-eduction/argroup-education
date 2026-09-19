@@ -9,9 +9,9 @@
     "deploy": "strapi deploy",
     "dev": "strapi develop",
     "develop": "strapi develop",
-    "start": "node hostinger-start.js",
+    "start": "node server.js",
     "hostinger:build": "npm run build",
-    "hostinger:start": "node hostinger-start.js",
+    "hostinger:start": "node server.js",
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
