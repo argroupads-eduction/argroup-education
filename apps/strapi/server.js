@@ -88,6 +88,16 @@ server.on('error', (err) => {
     process.env[key] = v;
   }
 
+  // Hostinger Node → MySQL on same account must use localhost.
+  // Connecting via srv….hstgr.io makes MySQL see an external IPv6 client → Access denied.
+  const dbHost = String(process.env.DATABASE_HOST || '');
+  if (/\.hstgr\.io$/i.test(dbHost) || /^mysql\d*\./i.test(dbHost)) {
+    console.error(
+      '[hostinger-strapi] rewriting DATABASE_HOST from ' + dbHost + ' → localhost (same-server MySQL)'
+    );
+    process.env.DATABASE_HOST = 'localhost';
+  }
+
   const pw = process.env.DATABASE_PASSWORD || '';
   console.error(
     '[hostinger-strapi] loading Strapi… user=' +
