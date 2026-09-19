@@ -50,7 +50,7 @@ const MIME = {
   '.webmanifest': 'application/manifest+json',
 };
 
-const HTML_TTL_MS = Math.max(5_000, parseInt(process.env.HTML_CACHE_TTL_MS || '120000', 10) || 120_000);
+const HTML_TTL_MS = Math.max(0, parseInt(process.env.HTML_CACHE_TTL_MS || '0', 10) || 0);
 const HTML_CACHE_MAX = Math.max(10, parseInt(process.env.HTML_CACHE_MAX || '80', 10) || 80);
 const htmlCache = new Map();
 
@@ -189,6 +189,7 @@ function normalizeHtmlKey(pathname) {
 }
 
 function shouldCacheHtml(pathname, method) {
+  if (!(HTML_TTL_MS > 0)) return false;
   if (method !== 'GET') return false;
   if (!pathname) return false;
   if (pathname.startsWith('/api/')) return false;
@@ -197,8 +198,16 @@ function shouldCacheHtml(pathname, method) {
   return true;
 }
 
+function isCompressedBody(body, contentEncoding) {
+  if (contentEncoding && String(contentEncoding).toLowerCase() !== 'identity') return true;
+  if (!body || body.length < 2) return false;
+  if (body[0] === 0x1f && body[1] === 0x8b) return true;
+  return false;
+}
+
 function rememberHtml(key, statusCode, headers, body) {
   if (statusCode !== 200 || !body || !body.length) return;
+  if (isCompressedBody(body, headers && headers['Content-Encoding'])) return;
   if (htmlCache.size >= HTML_CACHE_MAX) {
     const oldest = htmlCache.keys().next().value;
     if (oldest !== undefined) htmlCache.delete(oldest);
@@ -283,7 +292,13 @@ function wrapHtmlCache(handle) {
       if (chunk) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding));
       const body = Buffer.concat(chunks);
       const ct = headerBag['content-type'] || '';
-      if (ct.includes('text/html') && statusCode === 200 && !headerBag['set-cookie']) {
+      const contentEncoding = headerBag['content-encoding'] || '';
+      if (
+        ct.includes('text/html') &&
+        statusCode === 200 &&
+        !headerBag['set-cookie'] &&
+        !isCompressedBody(body, contentEncoding)
+      ) {
         rememberHtml(
           key,
           statusCode,
@@ -308,7 +323,7 @@ let requestHandler = (req, res) => {
   res.statusCode = 503;
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Retry-After', '2');
-  res.end('Starting…');
+  res.end('Starting...');
 };
 
 const server = http.createServer((req, res) => {
