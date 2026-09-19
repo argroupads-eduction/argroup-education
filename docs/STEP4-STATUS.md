@@ -1,14 +1,6 @@
-# STEP 4 — Status
+# Step 4 status
 
-**Date:** 2026-09-19  
-**Live wipe / mass delete:** NO
-
-| Item | Status |
-|------|--------|
-| Pre-cutover MySQL counts (read-only) | 346 posts / 358 pages |
-| Live sync env on `D:\ar-group-strapi` | ON (`STRAPI_ALLOW_LIVE_SYNC=1`) |
-| Safety allow-list for www | Requires flag |
-| Smoke sync to live | PASS (`strapi-step4-smoke-test`) |
-| Same blog template | YES (MySQL → existing Next pages) |
-| Hostinger-hosted Strapi 24/7 | Deferred (local admin for now) |
-| Payload/Amplify retirement | Deferred |
+- Live sync: **ON** (local Strapi → www payload-sync) — smoke OK
+- Hostinger Strapi package: **ready in repo** — see `docs/STRAPI_HOSTINGER.md`
+- Next operator steps (hPanel): create **separate** MySQL DB → second Node app `apps/strapi` → set env → redeploy → seed import with `STRAPI_ALLOW_REMOTE_IMPORT=1`
+- Marketing site branch/deploy: unchanged (`hostinger-live`)

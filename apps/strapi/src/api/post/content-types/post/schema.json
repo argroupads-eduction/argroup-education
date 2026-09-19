@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "posts",
+  "info": {
+    "singularName": "post",
+    "pluralName": "posts",
+    "displayName": "Post (Blog)",
+    "description": "Mirrors Hostinger MySQL BlogPost - Step 3 local/staging only"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": { "type": "string", "required": true, "maxLength": 500 },
+    "slug": { "type": "string", "required": true, "unique": true, "maxLength": 255 },
+    "content": { "type": "richtext", "required": true },
+    "excerpt": { "type": "text" },
+    "featuredImage": { "type": "text" },
+    "category": { "type": "string", "default": "Blog", "maxLength": 120 },
+    "tags": { "type": "json" },
+    "metaTitle": { "type": "string", "maxLength": 500 },
+    "metaDescription": { "type": "text" },
+    "canonicalUrl": { "type": "text" },
+    "focusKeyword": { "type": "string", "maxLength": 255 },
+    "keywords": { "type": "json" },
+    "ogTitle": { "type": "string", "maxLength": 500 },
+    "ogDescription": { "type": "text" },
+    "ogImage": { "type": "text" },
+    "twitterTitle": { "type": "string", "maxLength": 500 },
+    "twitterDescription": { "type": "text" },
+    "schemaJson": { "type": "json" },
+    "author": { "type": "string", "default": "AR Group", "maxLength": 120 },
+    "wpId": { "type": "integer", "unique": true },
+    "mysqlId": { "type": "string", "private": true },
+    "views": { "type": "integer", "default": 0 },
+    "legacyPublishedAt": { "type": "datetime" }
+  }
+}

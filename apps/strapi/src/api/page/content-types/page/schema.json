@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pages",
+  "info": {
+    "singularName": "page",
+    "pluralName": "pages",
+    "displayName": "Page (Site)",
+    "description": "Mirrors Hostinger MySQL SitePage - Step 3 local/staging only"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": { "type": "string", "required": true, "maxLength": 500 },
+    "slug": { "type": "string", "required": true, "unique": true, "maxLength": 255 },
+    "content": { "type": "richtext", "required": true },
+    "excerpt": { "type": "text" },
+    "featuredImage": { "type": "text" },
+    "metaTitle": { "type": "string", "maxLength": 500 },
+    "metaDescription": { "type": "text" },
+    "canonicalUrl": { "type": "text" },
+    "focusKeyword": { "type": "string", "maxLength": 255 },
+    "keywords": { "type": "json" },
+    "ogTitle": { "type": "string", "maxLength": 500 },
+    "ogDescription": { "type": "text" },
+    "ogImage": { "type": "text" },
+    "twitterTitle": { "type": "string", "maxLength": 500 },
+    "twitterDescription": { "type": "text" },
+    "schemaJson": { "type": "json" },
+    "navEnabled": { "type": "boolean", "default": false },
+    "navSection": { "type": "string", "maxLength": 120 },
+    "navParent": { "type": "string", "maxLength": 255 },
+    "navLabel": { "type": "string", "maxLength": 255 },
+    "navSortOrder": { "type": "integer", "default": 0 },
+    "wpId": { "type": "integer", "unique": true },
+    "mysqlId": { "type": "string", "private": true },
+    "legacyPublishedAt": { "type": "datetime" }
+  }
+}
