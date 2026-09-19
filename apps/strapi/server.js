@@ -2,11 +2,12 @@
  * Hostinger entry file — MUST call listen() within ~3s or proxy returns 403.
  * Pattern matches repo root marketing server.js (early listen, then attach app).
  *
- * Panel settings:
- *   Entry / Start: node server.js
+ * Panel settings (Hostinger):
+ *   Root directory: apps/strapi
+ *   Entry file: server.js          ← filename ONLY (not "node server.js")
+ *   Start command: node server.js  ← if panel has a separate Start field
  *   Build: npm run hostinger:build
- *   Output directory: (empty)
- *   Root: apps/strapi
+ *   Output directory: (leave empty)
  */
 'use strict';
 
