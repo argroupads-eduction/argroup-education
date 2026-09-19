@@ -76,13 +76,39 @@ server.on('error', (err) => {
     process.exit(1);
   }
 
+  // Hostinger env UI sometimes wraps values in quotes; # in passwords also gets truncated in .env imports.
+  for (const key of ['DATABASE_PASSWORD', 'DATABASE_USERNAME', 'DATABASE_NAME', 'DATABASE_HOST']) {
+    let v = String(process.env[key] || '').trim();
+    if (
+      (v.startsWith('"') && v.endsWith('"')) ||
+      (v.startsWith("'") && v.endsWith("'"))
+    ) {
+      v = v.slice(1, -1);
+    }
+    process.env[key] = v;
+  }
+
+  const pw = process.env.DATABASE_PASSWORD || '';
   console.error(
-    '[hostinger-strapi] loading Strapi… DB=%s@%s/%s PUBLIC_URL=%s',
-    process.env.DATABASE_USERNAME,
-    process.env.DATABASE_HOST,
-    process.env.DATABASE_NAME,
-    process.env.PUBLIC_URL || '(unset)'
+    '[hostinger-strapi] loading Strapi… user=' +
+      process.env.DATABASE_USERNAME +
+      ' host=' +
+      process.env.DATABASE_HOST +
+      ' db=' +
+      process.env.DATABASE_NAME +
+      ' passwordLength=' +
+      pw.length +
+      ' publicUrl=' +
+      (process.env.PUBLIC_URL || '(unset)')
   );
+  if (pw.length < 8) {
+    console.error(
+      '[hostinger-strapi] DATABASE_PASSWORD looks truncated (len=' +
+        pw.length +
+        '). Reset DB user password WITHOUT # or @ and update env.'
+    );
+  }
+
 
   const { createStrapi } = require('@strapi/strapi');
   const app = createStrapi({
