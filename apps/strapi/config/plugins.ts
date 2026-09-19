@@ -26,6 +26,9 @@ const deniedTypes = [
 const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin => ({
   'users-permissions': {
     config: {
+      jwt: {
+        jwtSecret: env('JWT_SECRET'),
+      },
       jwtManagement: 'refresh',
       sessions: {
         httpOnly: true,
