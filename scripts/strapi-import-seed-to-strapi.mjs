@@ -1,23 +1,3 @@
-/**
- * Import seed JSON into Strapi via API token (local SQLite or Hostinger Strapi MySQL).
- * Does NOT write marketing MySQL BlogPost tables directly.
- * Does NOT call the live website unless Strapi lifecycles sync is enabled on the target.
- *
- * Prereq:
- *   1. Seed JSON exists (already: 346/358)
- *   2. Target Strapi running with Full-access API token
- *
- * Usage (local):
- *   set STRAPI_URL=http://127.0.0.1:1337
- *   set STRAPI_TOKEN=...
- *   node scripts/strapi-import-seed-to-strapi.mjs
- *
- * Usage (Hostinger Strapi CMS subdomain — not www):
- *   set STRAPI_URL=https://cms.YOUR-DOMAIN
- *   set STRAPI_TOKEN=...
- *   set STRAPI_ALLOW_REMOTE_IMPORT=1
- *   node scripts/strapi-import-seed-to-strapi.mjs
- */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,22 +21,20 @@ if (!STRAPI_TOKEN && !dryRun) {
 {
   const u = STRAPI_URL.toLowerCase();
   const isLocal = u.includes('127.0.0.1') || u.includes('localhost');
-  const looksLikeMarketing =
-    /(^https?:\/\/)?(www\.)?argroupofeducation\.com(\/|$)/i.test(u) ||
-    /\/\/[a-z0-9-]+\.hostingersite\.com(\/|$)/i.test(u);
-  // Temporary Hostinger marketing preview hosts look like color-animal-####.hostingersite.com
-  // CMS may also use *.hostingersite.com — require opt-in + prefer cms. subdomain when remote.
+  const isWwwMarketing =
+    /(^https?:\/\/)?(www\.)?argroupofeducation\.com(\/|$)/i.test(u);
+  // Temporary Hostinger marketing previews look like color-animal-####.hostingersite.com
+  // Our Strapi CMS also uses *.hostingersite.com — allow with STRAPI_ALLOW_REMOTE_IMPORT=1
   const allowRemote = process.env.STRAPI_ALLOW_REMOTE_IMPORT === '1';
-  const looksLikeCms =
+  const looksLikeCmsHost =
     u.includes('://cms.') ||
-    u.includes('.cms.') ||
-    u.includes('/cms.') ||
+    u.includes('mintcream-echidna') ||
     /strapi/i.test(u);
 
   if (!isLocal) {
-    if (looksLikeMarketing && !looksLikeCms) {
+    if (isWwwMarketing) {
       console.error(
-        'Refusing STRAPI_URL that looks like the marketing site (www / preview). Use the Strapi CMS URL.',
+        'Refusing STRAPI_URL that is the live marketing site (www). Use the Strapi CMS URL.',
         STRAPI_URL
       );
       process.exit(1);
@@ -66,6 +44,10 @@ if (!STRAPI_TOKEN && !dryRun) {
         'Remote STRAPI_URL requires STRAPI_ALLOW_REMOTE_IMPORT=1 (Hostinger CMS only).',
         STRAPI_URL
       );
+      process.exit(1);
+    }
+    if (!looksLikeCmsHost && !u.includes('hostingersite.com')) {
+      console.error('Unexpected STRAPI_URL for import:', STRAPI_URL);
       process.exit(1);
     }
   }
@@ -194,7 +176,9 @@ const postList = LIMIT ? posts.slice(0, LIMIT) : posts;
 const pageList = LIMIT ? pages.slice(0, LIMIT) : pages;
 
 console.log('[strapi-import] target', STRAPI_URL, 'posts', postList.length, 'pages', pageList.length);
-console.log('[strapi-import] LIVE MySQL write: NO | live website sync: NO');
+console.log(
+  '[strapi-import] writes Strapi CMS DB only via API; marketing BlogPost sync only if Strapi env STRAPI_ALLOW_LIVE_SYNC=1'
+);
 
 let ok = 0;
 let fail = 0;
