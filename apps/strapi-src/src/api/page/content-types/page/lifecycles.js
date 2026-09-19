@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-  assertStagingOnlySyncTarget,
+  assertMarketingSyncTarget,
   buildPayloadSyncBody,
 } = require('../../../utils/marketingSyncSafety');
 
@@ -12,7 +12,7 @@ async function syncToMarketing(event, type, published) {
     strapi.log.info(`[marketing-sync] skipped (${type}): MARKETING_SYNC_URL / secret not set`);
     return;
   }
-  assertStagingOnlySyncTarget(syncUrl);
+  assertMarketingSyncTarget(syncUrl);
 
   const entry = event.result || {};
   const body = buildPayloadSyncBody(type, entry, { published });

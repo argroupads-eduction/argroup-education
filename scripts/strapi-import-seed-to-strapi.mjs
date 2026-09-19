@@ -46,10 +46,23 @@ function load(name) {
   return JSON.parse(fs.readFileSync(path.join(seedDir, name), 'utf8'));
 }
 
+function sanitizeSlug(raw, fallbackTitle) {
+  // Prefer exact MySQL slug (string field, not uid) so Step 4 sync matches live URLs.
+  let s = String(raw || '').trim();
+  if (s) return s.slice(0, 255);
+  s = String(fallbackTitle || 'item')
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  return (s || 'item').slice(0, 255);
+}
+
 function postPayload(row) {
   return {
     title: row.title,
-    slug: row.slug,
+    slug: sanitizeSlug(row.slug, row.title),
     content: row.content || '',
     excerpt: row.excerpt || '',
     featuredImage: row.featuredImage,
@@ -77,7 +90,7 @@ function postPayload(row) {
 function pagePayload(row) {
   return {
     title: row.title,
-    slug: row.slug,
+    slug: sanitizeSlug(row.slug, row.title),
     content: row.content || '',
     excerpt: row.excerpt,
     featuredImage: row.featuredImage,

@@ -5,7 +5,7 @@
     "singularName": "page",
     "pluralName": "pages",
     "displayName": "Page (Site)",
-    "description": "Mirrors Hostinger MySQL SitePage — Step 3 local/staging only"
+    "description": "Mirrors Hostinger MySQL SitePage - Step 3 local/staging only"
   },
   "options": {
     "draftAndPublish": true
@@ -13,7 +13,7 @@
   "pluginOptions": {},
   "attributes": {
     "title": { "type": "string", "required": true, "maxLength": 500 },
-    "slug": { "type": "uid", "targetField": "title", "required": true },
+    "slug": { "type": "string", "required": true, "unique": true, "maxLength": 255 },
     "content": { "type": "richtext", "required": true },
     "excerpt": { "type": "text" },
     "featuredImage": { "type": "text" },

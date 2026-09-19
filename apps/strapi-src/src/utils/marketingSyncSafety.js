@@ -1,30 +1,51 @@
+'use strict';
+
 /**
- * Safety rails for Strapi Step 3.
- * HARD RULE: never point marketing sync at production unless Step 4 approved.
+ * Marketing sync safety (Step 3 + Step 4).
+ *
+ * Step 3: refuse live www URLs.
+ * Step 4: allow live only when STRAPI_ALLOW_LIVE_SYNC=1 (explicit cutover).
  */
-export function assertStagingOnlySyncTarget(url) {
+
+function assertMarketingSyncTarget(url) {
   const u = String(url || '').trim().toLowerCase();
   if (!u) {
     throw new Error('MARKETING_SYNC_URL is empty — refusing to sync.');
   }
-  const blocked = [
-    'https://www.argroupofeducation.com',
-    'http://www.argroupofeducation.com',
-    'https://argroupofeducation.com',
-    'http://argroupofeducation.com',
-  ];
-  for (const b of blocked) {
-    if (u === b || u.startsWith(b + '/')) {
-      throw new Error(
-        `Refusing to sync to LIVE site (${b}). Set MARKETING_SYNC_URL to localhost/staging only until Step 4 approval.`
-      );
-    }
+
+  const isLive =
+    u === 'https://www.argroupofeducation.com' ||
+    u.startsWith('https://www.argroupofeducation.com/') ||
+    u === 'http://www.argroupofeducation.com' ||
+    u.startsWith('http://www.argroupofeducation.com/') ||
+    u === 'https://argroupofeducation.com' ||
+    u.startsWith('https://argroupofeducation.com/') ||
+    u === 'http://argroupofeducation.com' ||
+    u.startsWith('http://argroupofeducation.com/');
+
+  const allowLive =
+    process.env.STRAPI_ALLOW_LIVE_SYNC === '1' ||
+    process.env.STRAPI_ALLOW_LIVE_SYNC === 'true';
+
+  if (isLive && !allowLive) {
+    throw new Error(
+      'Refusing LIVE sync. Set STRAPI_ALLOW_LIVE_SYNC=1 only after Step 4 approval.'
+    );
   }
+
   return true;
 }
 
-export function buildPayloadSyncBody(type, entry, { published }) {
+/** @deprecated use assertMarketingSyncTarget */
+function assertStagingOnlySyncTarget(url) {
+  return assertMarketingSyncTarget(url);
+}
+
+function buildPayloadSyncBody(type, entry, { published }) {
   const data = entry || {};
+  const publishedAt =
+    data.publishedAt || data.legacyPublishedAt || data.legacy_published_at || null;
+
   return {
     type,
     slug: data.slug,
@@ -51,8 +72,14 @@ export function buildPayloadSyncBody(type, entry, { published }) {
     navLabel: data.navLabel ?? null,
     navSortOrder: data.navSortOrder,
     published: published !== false,
-    publishedAt: data.publishedAt || null,
+    publishedAt,
     notifyPush: false,
     pullFromCms: false,
   };
 }
+
+module.exports = {
+  assertMarketingSyncTarget,
+  assertStagingOnlySyncTarget,
+  buildPayloadSyncBody,
+};

@@ -25,38 +25,70 @@ Custom schemas / lifecycles live in the monorepo and are copied in:
 apps/strapi-src/   → copy into D:\ar-group-strapi\src\
 ```
 
-## Setup (local)
+## Setup (local) — PowerShell
 
-```bash
-# 1) Ensure seed JSON exists (read-only from dump)
+Cursor/VS Code terminal **PowerShell** hai. `cd /d` aur `set` **CMD** commands hain — unse error aata hai.
+
+```powershell
+# 1) Strapi folder pe jao (D: drive)
+cd D:\ar-group-strapi
+
+# 2) Start Strapi admin
+npm run develop
+```
+
+Browser: http://127.0.0.1:1337 → pehli baar admin user banao → **Settings → API Tokens → Create** (Full access) → token copy.
+
+**Nayi PowerShell window** me (repo OneDrive pe):
+
+```powershell
+cd "C:\Users\akash\OneDrive\Desktop\ARGROUP OF EDUCTION"
+
+# seed JSON (agar pehle se nahi)
 node scripts/strapi-export-from-mysql-dump.mjs
 
-# 2) Copy content-types into the Strapi app on D:
-#    (PowerShell)
-robocopy apps\strapi-src\src D:\ar-group-strapi\src /E
+# env (PowerShell syntax — `set` mat use karo)
+$env:STRAPI_URL = "http://127.0.0.1:1337"
+$env:STRAPI_TOKEN = "PASTE_YOUR_TOKEN_HERE"
 
-# 3) Env for Strapi (D:\ar-group-strapi\.env) — example:
-#    HOST=0.0.0.0
-#    PORT=1337
-#    APP_KEYS=...
-#    # Leave MARKETING_SYNC_URL unset in Step 3
-#    # Or: MARKETING_SYNC_URL=http://127.0.0.1:3000
-#    # PAYLOAD_SYNC_SECRET=dev-only-secret
-
-# 4) Start Strapi
-cd /d D:\ar-group-strapi
-npm run develop
-
-# 5) Create admin user in browser → Settings → API Tokens → Full access
-
-# 6) Import seed (writes SQLite only)
-set STRAPI_URL=http://127.0.0.1:1337
-set STRAPI_TOKEN=your_token
+# pehle chhota test
 node scripts/strapi-import-seed-to-strapi.mjs --limit=3
+
+# full import (SQLite only — live MySQL nahi)
 node scripts/strapi-import-seed-to-strapi.mjs
 ```
 
-## Smoke checklist (Step 3)
+**CMD** use karte ho to alag syntax:
+
+```bat
+cd /d D:\ar-group-strapi
+npm run develop
+```
+
+## Content Manager: newest blogs on top
+
+Posts **are** in Strapi (including Aug 2026 live blogs like `mbbs-in-russia-vs-india`).  
+Default list was sorting by **title A→Z**, so new posts looked “missing”.
+
+Fix (already scripted):
+
+```powershell
+node scripts/strapi-set-admin-newest-first.cjs
+```
+
+Then hard-refresh admin (`Ctrl+Shift+R`). List sorts by **legacyPublishedAt DESC** (original MySQL publish date).
+
+Or manually: **Content Manager → Post → ⚙️ Configure the view → Default sort attribute = legacyPublishedAt, order = DESC → Save**.
+
+## Will Strapi publish use the same live blog template?
+
+**Yes — after Step 4.** The live site does **not** read Strapi directly. It reads Hostinger MySQL (`BlogPost`) and renders the existing Next.js blog template (`BlogPostLayout` / blog pages).
+
+Flow after Step 4 approval:
+
+`Strapi Publish` → `POST /api/cms/payload-sync` → MySQL `BlogPost` → same live `/blog/...` UI.
+
+**Step 3 now:** Strapi publish only updates **local SQLite**. Live www is unchanged (by design / your safety rule).
 
 - [ ] Strapi admin opens on localhost:1337
 - [ ] After import: post count ≈ 346, page count ≈ 358
