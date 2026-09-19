@@ -1,14 +1,3 @@
-/**
- * Hostinger entry file — MUST call listen() within ~3s or proxy returns 403.
- * Pattern matches repo root marketing server.js (early listen, then attach app).
- *
- * Panel settings (Hostinger):
- *   Root directory: apps/strapi
- *   Entry file: server.js          ← filename ONLY (not "node server.js")
- *   Start command: node server.js  ← if panel has a separate Start field
- *   Build: npm run hostinger:build
- *   Output directory: (leave empty)
- */
 'use strict';
 
 const http = require('node:http');
@@ -53,8 +42,11 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, '0.0.0.0', () => {
-  console.error('[hostinger-strapi] early listen OK on 0.0.0.0:%s (Hostinger proxy ready)', port);
+  console.error(
+    '[hostinger-strapi] early listen OK on 0.0.0.0:' + port + ' (Hostinger proxy ready)'
+  );
 });
+
 
 server.on('error', (err) => {
   console.error('[hostinger-strapi] server error', err);
