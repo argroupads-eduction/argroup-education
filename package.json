@@ -61,7 +61,10 @@
     "wp:import:payload:pages": "node scripts/wp-migration/import-payload-pages-batched.mjs",
     "docker:build:frontend": "docker build -f docker/frontend.Dockerfile -t ar-education/frontend:latest .",
     "docker:build:backend": "docker build -f docker/backend.Dockerfile -t ar-education/backend:latest .",
-    "k8s:apply": "kubectl apply -f k8s/namespace.yaml && kubectl apply -f k8s/configmap.example.yaml && kubectl apply -f k8s/backend-deployment.yaml && kubectl apply -f k8s/frontend-deployment.yaml && kubectl apply -f k8s/ingress.yaml && kubectl apply -f k8s/hpa-frontend.yaml"
+    "k8s:apply": "kubectl apply -f k8s/namespace.yaml && kubectl apply -f k8s/configmap.example.yaml && kubectl apply -f k8s/backend-deployment.yaml && kubectl apply -f k8s/frontend-deployment.yaml && kubectl apply -f k8s/ingress.yaml && kubectl apply -f k8s/hpa-frontend.yaml",
+    "strapi:export-seed": "node scripts/strapi-export-from-mysql-dump.mjs",
+    "strapi:import-seed": "node scripts/strapi-import-seed-to-strapi.mjs",
+    "strapi:import-seed:dry": "node scripts/strapi-import-seed-to-strapi.mjs --dry-run --limit=3"
   },
   "workspaces": [
     "apps/frontend",
