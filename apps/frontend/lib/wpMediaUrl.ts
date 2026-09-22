@@ -10,8 +10,14 @@ export function getWpMediaOrigin(): string | null {
     .trim()
     .replace(/\/$/, '');
   if (!raw) return null;
-  // khaki-mole Node app is the marketing site, not a WP media host.
+  // Never treat this marketing Node app as a media CDN (self-proxy = slow).
   if (/hostingersite\.com/i.test(raw)) return null;
+  try {
+    const host = new URL(raw).hostname.replace(/^www\./i, '').toLowerCase();
+    if (host === 'argroupofeducation.com') return null;
+  } catch {
+    return null;
+  }
   return raw;
 }
 

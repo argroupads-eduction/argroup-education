@@ -50,7 +50,11 @@ const MIME = {
   '.webmanifest': 'application/manifest+json',
 };
 
-const HTML_TTL_MS = Math.max(0, parseInt(process.env.HTML_CACHE_TTL_MS || '0', 10) || 0);
+// Default 2 min in-memory HTML cache on Hostinger (override with HTML_CACHE_TTL_MS=0 to disable).
+const HTML_TTL_MS = Math.max(
+  0,
+  parseInt(process.env.HTML_CACHE_TTL_MS ?? '120000', 10) || 0
+);
 const HTML_CACHE_MAX = Math.max(10, parseInt(process.env.HTML_CACHE_MAX || '80', 10) || 80);
 const htmlCache = new Map();
 
@@ -112,7 +116,13 @@ function underRoot(rootDir, filePath) {
 function cacheControlFor(filePath) {
   const base = path.basename(filePath).toLowerCase();
   if (base === 'sw.js') return 'no-cache, no-store, must-revalidate';
-  if (filePath.includes(`${path.sep}_next${path.sep}static${path.sep}`)) {
+  // Disk path is `.next/static` (URL is `/_next/static`) — match both.
+  const norm = filePath.replace(/\\/g, '/');
+  if (
+    norm.includes('/.next/static/') ||
+    norm.includes('/_next/static/') ||
+    filePath.includes(`${path.sep}_next${path.sep}static${path.sep}`)
+  ) {
     return 'public, max-age=31536000, immutable';
   }
   const ext = path.extname(filePath).toLowerCase();

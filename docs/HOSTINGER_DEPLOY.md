@@ -29,15 +29,28 @@ HOSTINGER=1
 SKIP_WP_MEDIA_BUNDLE=1
 NODE_ENV=production
 HOSTNAME=0.0.0.0
-DATABASE_URL=mysql://u559193891_Argroup2026:ARgroup%402026%23Db@srv1192.hstgr.io:3306/u559193891_argroup
-NEXT_PUBLIC_SITE_URL=https://khaki-mole-176670.hostingersite.com
+HTML_CACHE_TTL_MS=120000
+DATABASE_URL=mysql://USER:PASSWORD@HOSTNAME:3306/DBNAME
+NEXT_PUBLIC_SITE_URL=https://www.argroupofeducation.com
 NEXT_PUBLIC_SITE_NAME=AR Group of Education
-WP_MEDIA_ORIGIN=https://www.argroupofeducation.com
+# Do NOT set WP_MEDIA_ORIGIN to www — that self-proxies and makes missing images take 20–30s.
+# Only set it to a *separate* legacy WordPress/media host if files are not on disk.
+# WP_MEDIA_ORIGIN=
 ```
 
-Full file: `apps/frontend/.env.hostinger` → Import .env
+Full file: `apps/frontend/.env.hostinger.example` → Import .env
 
 After changing Output/Start → **Redeploy**.
+
+## Speed (images + pages)
+
+Live Node on shared Hostinger has high origin TTFB. After deploying the perf fixes:
+
+1. **hPanel env:** remove `WP_MEDIA_ORIGIN` if it is `https://www.argroupofeducation.com` (or any self URL). Add `HTML_CACHE_TTL_MS=120000`.
+2. **Cloudflare (recommended):** point DNS through Cloudflare → Caching → Cache Rules:
+   - Cache everything under `/_next/static/*`, `/wp-content/*`, and common image extensions (`*.webp`, `*.jpg`, `*.png`, …) with long edge TTL.
+   - Bypass or short TTL for `/api/*` and HTML if you need instant CMS updates; otherwise cache HTML briefly (1–5 min).
+3. **Media on disk:** marketing images already ship in `public/`. Most legacy `wp-content/uploads` are gitignored — upload/sync needed files into the app `public/wp-content/` on the server (same URL paths) so `X-AR-Static: 1` serves them from disk. Do not delete existing files.
 
 ## Check Runtime logs
 

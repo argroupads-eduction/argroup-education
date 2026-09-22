@@ -137,6 +137,6 @@ export const config = {
   // Skip middleware for Next internals + static favicons (avoid HTML soft-404s for crawlers).
   matcher: [
     '/api/:path*',
-    '/((?!_next/static|_next/image|favicon\\.ico|favicon\\.png|favicon-.*\\.png|apple-touch-icon\\.png|manifest\\.webmanifest|.*\\.(?:svg|jpg|jpeg|gif|webp|txt|xml)$).*)',
+    '/((?!_next/static|_next/image|favicon\\.ico|favicon\\.png|favicon-.*\\.png|apple-touch-icon\\.png|manifest\\.webmanifest|.*\\.(?:svg|jpg|jpeg|png|gif|webp|avif|ico|woff2?|txt|xml)$).*)',
   ],
 };

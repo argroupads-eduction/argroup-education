@@ -87,28 +87,51 @@ function isImageResponse(res: Response): boolean {
   return contentType.startsWith('image/') || contentType.includes('octet-stream');
 }
 
+/** True when WP_MEDIA_ORIGIN points at this marketing site (self-proxy = slow storm). */
+function isSelfOrBlockedMediaOrigin(origin: string): boolean {
+  if (!origin) return true;
+  if (/hostingersite\.com/i.test(origin)) return true;
+  try {
+    const host = new URL(origin).hostname.replace(/^www\./i, '').toLowerCase();
+    if (host === 'argroupofeducation.com') return true;
+    if (host === 'localhost' || host === '127.0.0.1') return true;
+  } catch {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Fetch from a *separate* legacy WP/media host only.
+ * Cap candidates + short timeout so misses fail fast on shared Hostinger CPU.
+ */
 async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null> {
   const origin = (
     process.env.WP_MEDIA_ORIGIN ||
     process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN ||
     ''
   ).replace(/\/$/, '');
-  // Hostinger Node marketing app is not a WP media CDN (returns HTML).
-  if (!origin || /hostingersite\.com/i.test(origin)) return null;
+  // Never remote-fetch our own Node app (docs used to set WP_MEDIA_ORIGIN=www → 20–30s 404s).
+  if (isSelfOrBlockedMediaOrigin(origin)) return null;
 
   const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
-  const candidates = new Set<string>();
-  candidates.add(safe);
+  const candidates: string[] = [safe];
   // Keep `uploads/` prefix — stripping it built invalid /wp-content/2025/09/... URLs.
-  for (const alt of elementorThumbAlternates(safe)) candidates.add(alt);
+  for (const alt of elementorThumbAlternates(safe).slice(0, 8)) {
+    if (!candidates.includes(alt)) candidates.push(alt);
+  }
 
   const file = safe.split('/').pop() ?? '';
   const dir = safe.includes('/') ? safe.slice(0, safe.lastIndexOf('/') + 1) : '';
   for (const variant of dashVariants(file)) {
-    candidates.add(`${dir}${variant}`);
+    const p = `${dir}${variant}`;
+    if (!candidates.includes(p)) candidates.push(p);
   }
 
-  for (const candidate of candidates) {
+  // Hard cap — Elementor year/month fan-out used to spawn dozens of 8s fetches.
+  const limited = candidates.slice(0, 6);
+
+  for (const candidate of limited) {
     const urls = [encodeWpContentUrl(origin, candidate)];
     if (candidate.startsWith('uploads/uploads/')) {
       urls.push(encodeWpContentUrl(origin, candidate.replace(/^uploads\//, '')));
@@ -121,7 +144,7 @@ async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null
             'User-Agent': 'ARGroupMediaProxy/1.0',
             Accept: 'image/*,*/*',
           },
-          signal: AbortSignal.timeout(8_000),
+          signal: AbortSignal.timeout(2_500),
           redirect: 'follow',
         });
         if (res.ok && res.body && isImageResponse(res)) return res;
@@ -157,7 +180,8 @@ export async function GET(
   const bundled = await readBundledStatic(relativePath);
   if (bundled) return serveBuffer(bundled);
 
-  for (const alt of elementorThumbAlternates(relativePath)) {
+  // Cap disk alternate probes (full Elementor year/month grid is expensive on miss).
+  for (const alt of elementorThumbAlternates(relativePath).slice(0, 12)) {
     const altBundled = await readBundledStatic(alt);
     if (altBundled) return serveBuffer(altBundled);
   }
@@ -177,8 +201,14 @@ export async function GET(
   return NextResponse.json(
     {
       error: 'Media not found',
-      hint: 'Mirror wp-content/uploads to public/wp-content/uploads (npm run wp:setup:uploads), add repo _uploads/, or set WP_MEDIA_ORIGIN.',
+      hint: 'Put the file under public/wp-content/ (disk static). Do not set WP_MEDIA_ORIGIN to this site. Only set it to a separate legacy WP/media host if needed.',
     },
-    { status: 404 }
+    {
+      status: 404,
+      headers: {
+        // Short negative cache so browsers/CDN do not hammer Node on missing media.
+        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
+      },
+    }
   );
 }
