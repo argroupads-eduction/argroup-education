@@ -41,10 +41,30 @@ function assertStagingOnlySyncTarget(url) {
   return assertMarketingSyncTarget(url);
 }
 
+/** Upload file row / relation → absolute URL for marketing BlogPost.featuredImage */
+function mediaFileToAbsoluteUrl(file) {
+  if (!file) return null;
+  if (typeof file === 'string') {
+    const s = file.trim();
+    return s || null;
+  }
+  const url = file.url || file?.attributes?.url || null;
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  const base = String(process.env.PUBLIC_URL || '').replace(/\/$/, '');
+  if (!base) return url.startsWith('/') ? url : `/${url}`;
+  return `${base}${url.startsWith('/') ? url : `/${url}`}`;
+}
+
 function buildPayloadSyncBody(type, entry, { published }) {
   const data = entry || {};
   const publishedAt =
     data.publishedAt || data.legacyPublishedAt || data.legacy_published_at || null;
+
+  const fromMedia =
+    mediaFileToAbsoluteUrl(data.featuredMedia) ||
+    mediaFileToAbsoluteUrl(data.featuredMedia?.data) ||
+    null;
 
   return {
     type,
@@ -52,7 +72,7 @@ function buildPayloadSyncBody(type, entry, { published }) {
     title: data.title,
     content: data.content || '',
     excerpt: data.excerpt || undefined,
-    featuredImage: data.featuredImage ?? null,
+    featuredImage: fromMedia || data.featuredImage || null,
     category: data.category || undefined,
     metaTitle: data.metaTitle ?? null,
     metaDescription: data.metaDescription ?? null,
@@ -82,4 +102,5 @@ module.exports = {
   assertMarketingSyncTarget,
   assertStagingOnlySyncTarget,
   buildPayloadSyncBody,
+  mediaFileToAbsoluteUrl,
 };
