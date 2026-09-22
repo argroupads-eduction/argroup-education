@@ -156,8 +156,8 @@ function underRoot(rootDir, filePath) {
 function cacheControlFor(filePath) {
   const base = path.basename(filePath).toLowerCase();
   if (base === 'sw.js') return 'no-cache, no-store, must-revalidate';
-  // Disk path is `.next/static` (URL is `/_next/static`) — match both.
-  const norm = String(filePath).replace(/\\\\/g, '/');
+  // Disk path is .next/static (URL is /_next/static) - match both. No backticks here (breaks launcher template).
+  const norm = String(filePath).split(String.fromCharCode(92)).join('/');
   if (norm.includes('/.next/static/') || norm.includes('/_next/static/') ||
       filePath.includes(path.sep + '_next' + path.sep + 'static' + path.sep)) {
     return 'public, max-age=31536000, immutable';
