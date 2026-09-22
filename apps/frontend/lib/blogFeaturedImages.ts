@@ -37,6 +37,12 @@ export const BLOG_FEATURED_IMAGES: Record<string, string> = {
     '/images/blog/mbbs-admission-2026-without-donation.png',
   'mbbs-drop-year-strategy-neet-2026':
     '/images/blog/mbbs-drop-year-strategy-neet-2026.png',
+  'neet-marks-required-for-maulana-azad-medical-college':
+    '/images/blog/neet-marks-mamc-2026.webp',
+  'how-much-neet-score-is-required-for-kasturba-medical-college':
+    '/images/blog/neet-score-kasturba-medical-college.webp',
+  'neet-cut-off-for-mbbs-at-amrita-institute-of-medical-sciences-kochi':
+    '/images/blog/neet-cutoff-amrita-kochi.webp',
   'marks-are-required-in-neet-for-mbbs':
     '/images/blog/how-many-marks-are-required-in-neet-for-mbbs-v2.png',
   'marks-required-in-neet-for-mbbs-2026':
@@ -84,6 +90,19 @@ export function resolveBlogFeaturedImage(
 
   const trimmed = fallback?.trim();
   if (trimmed?.startsWith('/images/')) return trimmed;
+
+  // Absolute CDN / GitHub / blob thumbs (resolveWpMediaUrl nulls unknown hosts)
+  if (trimmed && /^https?:\/\//i.test(trimmed)) {
+    if (
+      /blob\.vercel-storage\.com/i.test(trimmed) ||
+      /githubusercontent\.com/i.test(trimmed) ||
+      /argroupofeducation\.com/i.test(trimmed) ||
+      /hostingersite\.com/i.test(trimmed) ||
+      /res\.cloudinary\.com/i.test(trimmed)
+    ) {
+      return trimmed.replace(/^http:\/\//i, 'https://');
+    }
+  }
 
   const resolvedFallback = resolveWpMediaUrl(fallback);
   if (resolvedFallback?.startsWith('/images/')) return resolvedFallback;
