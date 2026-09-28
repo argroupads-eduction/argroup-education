@@ -33,8 +33,13 @@ export function BlogImage({ src, alt, variant, priority, sizes }: BlogImageProps
   }
 
   const onError = () => {
-    if (activeSrc.includes('.webp') && !/[?&]v=2(?:&|$)/.test(activeSrc)) {
-      setActiveSrc(activeSrc.includes('?') ? `${activeSrc}&v=2` : `${activeSrc}?v=2`);
+    if (activeSrc.includes('.webp') && !/[?&]v=3(?:&|$)/.test(activeSrc)) {
+      const bumped = activeSrc.replace(/([?&])v=\d+/, '$1v=3');
+      if (bumped !== activeSrc) {
+        setActiveSrc(bumped);
+        return;
+      }
+      setActiveSrc(activeSrc.includes('?') ? `${activeSrc}&v=3` : `${activeSrc}?v=3`);
       return;
     }
     setFailed(true);

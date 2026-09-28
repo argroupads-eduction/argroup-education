@@ -21,7 +21,7 @@ function formatBlogListItem(post: {
     slug: post.slug,
     excerpt: post.excerpt,
     featuredImage: bundled
-      ? `/images/blog/${bundled[1]}${bundled[1].toLowerCase().endsWith('.webp') ? '?v=2' : ''}`
+      ? `/images/blog/${bundled[1]}${bundled[1].toLowerCase().endsWith('.webp') ? '?v=3' : ''}`
       : rawImage,
     category: post.category,
     publishedAt:
