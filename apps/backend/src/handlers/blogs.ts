@@ -13,12 +13,14 @@ function formatBlogListItem(post: {
   createdAt: Date;
 }) {
   const publishedAt = post.publishedAt ?? post.createdAt;
+  const rawImage = post.featuredImage?.trim() || null;
+  const bundled = rawImage?.match(/\/images\/blog\/([^/?#]+)$/i);
   return {
     id: post.id,
     title: post.title,
     slug: post.slug,
     excerpt: post.excerpt,
-    featuredImage: post.featuredImage,
+    featuredImage: bundled ? `/images/blog/${bundled[1]}` : rawImage,
     category: post.category,
     publishedAt:
       publishedAt instanceof Date ? publishedAt.toISOString() : String(publishedAt),

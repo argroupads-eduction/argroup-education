@@ -83,7 +83,35 @@ export function resolveBlogFeaturedImage(
   if (curated) return curated;
 
   const trimmed = fallback?.trim();
-  if (trimmed?.startsWith('/images/')) return trimmed;
+  if (!trimmed) return curatedFeaturedImage(slug);
+
+  const bundledBlogFile = trimmed.match(/\/images\/blog\/([^/?#]+)$/i);
+  if (bundledBlogFile) return `/images/blog/${bundledBlogFile[1]}`;
+
+  if (trimmed.startsWith('/images/')) return trimmed;
+
+  // Absolute CDN / GitHub / blob thumbs
+  if (/^https?:\/\//i.test(trimmed)) {
+    if (
+      /blob\.vercel-storage\.com/i.test(trimmed) ||
+      /argroupofeducation\.com/i.test(trimmed) ||
+      /hostingersite\.com/i.test(trimmed) ||
+      /res\.cloudinary\.com/i.test(trimmed)
+    ) {
+      const httpsUrl = trimmed.replace(/^http:\/\//i, 'https://');
+      try {
+        const pathName = new URL(httpsUrl).pathname;
+        if (pathName.startsWith('/images/')) return pathName;
+        if (pathName.includes('/wp-content/')) {
+          const wp = pathName.slice(pathName.indexOf('/wp-content/'));
+          return wp;
+        }
+      } catch {
+        /* keep absolute */
+      }
+      return httpsUrl;
+    }
+  }
 
   // Absolute CDN / GitHub / blob thumbs (resolveWpMediaUrl nulls unknown hosts)
   if (trimmed && /^https?:\/\//i.test(trimmed)) {
@@ -100,16 +128,9 @@ export function resolveBlogFeaturedImage(
 
   const resolvedFallback = resolveWpMediaUrl(fallback);
   if (resolvedFallback?.startsWith('/images/')) return resolvedFallback;
-  // Payload / Vercel Blob URLs stay; college packs stay; other /wp-content 404s on Amplify.
   if (resolvedFallback) {
     if (/blob\.vercel-storage\.com/i.test(resolvedFallback)) return resolvedFallback;
-    if (/^\/wp-content\/uploads\/colleges\//i.test(resolvedFallback)) return resolvedFallback;
-    if (
-      resolvedFallback.startsWith('/wp-content/') ||
-      /argroupofeducation\.com\/wp-content\//i.test(resolvedFallback)
-    ) {
-      return curatedFeaturedImage(slug);
-    }
+    if (resolvedFallback.startsWith('/wp-content/')) return resolvedFallback;
     return resolvedFallback;
   }
 
