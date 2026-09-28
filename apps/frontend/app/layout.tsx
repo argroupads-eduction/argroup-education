@@ -157,7 +157,6 @@ export default async function RootLayout({
           }}
         />
         {/* Hero LCP preload is emitted by the homepage <img fetchPriority="high"> — avoid a second preload (can cancel the load on reload). */}
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         {isSiteProtectionEnabled() ? (
           <script dangerouslySetInnerHTML={{ __html: SITE_PROTECTION_INLINE_SCRIPT }} />
         ) : null}

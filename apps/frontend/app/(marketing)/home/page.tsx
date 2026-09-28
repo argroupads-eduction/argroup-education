@@ -4,7 +4,6 @@ import { getSiteUrl } from '@/lib/siteUrl';
 import { HOME_PAGE_META_DESCRIPTION } from '@/lib/homePageSeoContent';
 import { HomeHeroClient } from '@/sections/home/HomeHeroClient';
 import { CollegePredictorHomeSection } from '@/sections/home/CollegePredictorHomeSection';
-import { MBBSIndiaStateSection } from '@/sections/home/MBBSIndiaStateSection';
 import { MbbsAbroadScrollSection } from '@/sections/home/MbbsAbroadScrollSection';
 import { LazySection } from '@/components/common/LazySection';
 import { HomeFaqJsonLd } from '@/components/home/HomeFaqJsonLd';
@@ -16,6 +15,12 @@ const HomeSeoContentSections = dynamic(
     import('@/sections/home/HomeSeoContentSections').then((m) => ({
       default: m.HomeSeoContentSections,
     }))
+);
+
+const MBBSIndiaStateSection = dynamic(() =>
+  import('@/sections/home/MBBSIndiaStateSection').then((m) => ({
+    default: m.MBBSIndiaStateSection,
+  }))
 );
 
 const AboutSection = dynamic(() =>
@@ -89,23 +94,17 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   return (
     <>
-      {/* LCP: responsive hero preload (no logo preload competing). */}
-      <link
-        rel="preload"
-        as="image"
-        href="/hero-banner-aug4-1280.webp"
-        imageSrcSet="/hero-banner-aug4-640.webp 640w, /hero-banner-aug4-1280.webp 1280w, /hero-banner-aug4.webp 1920w"
-        imageSizes="100vw"
-      />
       <HomeWebPageJsonLd />
       <HomeFaqJsonLd />
       <HomeHeroClient />
       <CollegePredictorHomeSection />
-      <MBBSIndiaStateSection />
+      <LazySection minHeight="28rem" rootMargin="40px 0px">
+        <MBBSIndiaStateSection />
+      </LazySection>
       <LazySection minHeight="24rem">
         <AboutSection />
       </LazySection>
-      <LazySection minHeight="26rem">
+      <LazySection minHeight="26rem" rootMargin="40px 0px">
         <YoutubeChannelSection />
       </LazySection>
       {/* SSR: country links must stay in HTML for crawl/indexing */}

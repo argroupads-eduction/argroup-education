@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import type { SiteSocialLink } from '@/lib/siteGlobals';
 
 const FOOTER_FOLLOW_ORDER = ['instagram', 'facebook', 'email', 'youtube'] as const;
@@ -100,6 +101,27 @@ type FooterFollowUsProps = {
   email: string;
 };
 
+function FollowIconLink({ platform, url }: { platform: FollowPlatform; url: string }) {
+  const isEmail = platform === 'email';
+  const [href, setHref] = useState(isEmail ? undefined : url);
+
+  useEffect(() => {
+    if (isEmail) setHref(url);
+  }, [isEmail, url]);
+
+  return (
+    <a
+      href={href}
+      target={isEmail ? undefined : '_blank'}
+      rel={isEmail ? undefined : 'noopener noreferrer'}
+      className={`site-footer-follow__icon site-footer-follow__icon--${platform}`}
+      aria-label={platformLabel(platform)}
+    >
+      <SocialBrandIcon platform={platform} />
+    </a>
+  );
+}
+
 export function FooterFollowUs({ socialLinks, email }: FooterFollowUsProps) {
   const links = resolveFooterFollowLinks(socialLinks, email);
 
@@ -108,16 +130,7 @@ export function FooterFollowUs({ socialLinks, email }: FooterFollowUsProps) {
       <h2 className="site-footer-follow__title">Follow us on</h2>
       <div className="site-footer-follow__icons">
         {links.map((social) => (
-          <a
-            key={social.platform}
-            href={social.url}
-            target={social.platform === 'email' ? undefined : '_blank'}
-            rel={social.platform === 'email' ? undefined : 'noopener noreferrer'}
-            className={`site-footer-follow__icon site-footer-follow__icon--${social.platform}`}
-            aria-label={platformLabel(social.platform)}
-          >
-            <SocialBrandIcon platform={social.platform} />
-          </a>
+          <FollowIconLink key={social.platform} platform={social.platform} url={social.url} />
         ))}
       </div>
     </div>

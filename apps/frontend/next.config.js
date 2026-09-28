@@ -132,6 +132,15 @@ const nextConfig = {
 
     return [
       {
+        source: '/',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=180, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
         source: '/sw.js',
         headers: [
           { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },

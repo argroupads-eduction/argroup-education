@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { CTA_EXPERT_COUNSELLING } from '@/lib/brandCopy';
 import { CONTACT_INFO, FOOTER_SOCIAL_PLATFORMS, NAV_LINKS, SOCIAL_LINKS } from '@/lib/constants';
+import { EmailLink } from '@/components/common/EmailLink';
 import { openLeadCapturePopup } from '@/lib/openLeadCapture';
 import { MbbsIndiaNavMegaMenu } from '@/components/common/MbbsIndiaNavMegaMenu';
 import { MbbsAbroadNavMegaMenu } from '@/components/common/MbbsAbroadNavMegaMenu';
@@ -187,13 +188,12 @@ export const Navbar = () => {
               <Phone className="h-3.5 w-3.5" aria-hidden />
               {CONTACT_INFO.phone}
             </a>
-            <a
-              href={`mailto:${CONTACT_INFO.email}`}
+            <EmailLink
+              email={CONTACT_INFO.email}
               className="site-topbar-contact site-topbar-contact--email"
             >
               <Mail className="h-3.5 w-3.5" aria-hidden />
-              {CONTACT_INFO.email}
-            </a>
+            </EmailLink>
           </div>
           <div className="site-topbar-social">
             {SOCIAL_LINKS.filter((social) =>

@@ -137,8 +137,8 @@ const MIME = {
   '.webmanifest': 'application/manifest+json',
 };
 
-const HTML_TTL_MS = Math.max(0, parseInt(process.env.HTML_CACHE_TTL_MS || '0', 10) || 0);
-const HTML_CACHE_MAX = Math.max(10, parseInt(process.env.HTML_CACHE_MAX || '80', 10) || 80);
+const HTML_TTL_MS = Math.max(0, parseInt(process.env.HTML_CACHE_TTL_MS || '180000', 10) || 180000);
+const HTML_CACHE_MAX = Math.max(10, parseInt(process.env.HTML_CACHE_MAX || '150', 10) || 150);
 const htmlCache = new Map();
 
 function safeDecode(p) {
@@ -297,7 +297,7 @@ function wrapHtmlCache(handle) {
       if (ct.includes('text/html') && statusCode === 200 && !headerBag['set-cookie'] && !isCompressedBody(body, contentEncoding)) {
         rememberHtml(key, statusCode, {
           'Content-Type': ct || 'text/html; charset=utf-8',
-          'Cache-Control': headerBag['cache-control'] || 'public, s-maxage=120, stale-while-revalidate=600',
+          'Cache-Control': headerBag['cache-control'] || 'public, s-maxage=180, stale-while-revalidate=86400',
         }, body);
       }
       return origEnd(chunk, encoding, cb);

@@ -57,9 +57,9 @@ export function GoogleAnalytics() {
     window.addEventListener('scroll', onInteract, { once: true, passive: true, capture: true });
 
     if (typeof window.requestIdleCallback === 'function') {
-      idleId = window.requestIdleCallback(load, { timeout: 4000 });
+      idleId = window.requestIdleCallback(load, { timeout: 8000 });
     } else {
-      timerId = window.setTimeout(load, 2500);
+      timerId = window.setTimeout(load, 6000);
     }
 
     return () => {

@@ -29,7 +29,7 @@ const COLLEGES_ABROAD = [
 
 const INDIA_SHOW_MS = 15_000;
 const ABROAD_SHOW_MS = 15_000;
-const BANNER = '/hero-banner-aug4.webp';
+const BANNER = '/hero-banner-aug4-1280.webp';
 const BANNER_SRCSET =
   '/hero-banner-aug4-640.webp 640w, /hero-banner-aug4-1280.webp 1280w, /hero-banner-aug4.webp 1920w';
 const BANNER_SIZES = '100vw';
@@ -199,9 +199,9 @@ export const HeroSection = () => {
         srcSet={BANNER_SRCSET}
         sizes={BANNER_SIZES}
         alt={bannerAlt}
-        width={1600}
-        height={690}
-        decoding="async"
+        width={1280}
+        height={552}
+        decoding="sync"
         fetchPriority="high"
         className="absolute inset-0 z-0 h-full w-full object-cover max-md:object-[62%_center] md:object-[28%_center] lg:object-left md:[object-position:28%_center] lg:[object-position:left_center]"
         onError={(e) => {
