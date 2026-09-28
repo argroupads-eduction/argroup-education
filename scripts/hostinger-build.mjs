@@ -171,13 +171,27 @@ function cacheControlFor(filePath) {
   return 'public, max-age=3600, stale-while-revalidate=86400';
 }
 
+function sniffContentType(filePath, fallback) {
+  try {
+    const fd = fs.openSync(filePath, 'r');
+    const buf = Buffer.alloc(16);
+    fs.readSync(fd, buf, 0, 16, 0);
+    fs.closeSync(fd);
+    if (buf[0] === 0xff && buf[1] === 0xd8) return 'image/jpeg';
+    if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e) return 'image/png';
+    if (buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46) return 'image/webp';
+    if (buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46) return 'image/gif';
+  } catch {}
+  return fallback;
+}
+
 function sendFile(req, res, filePath) {
   let st;
   try { st = fs.statSync(filePath); } catch { return false; }
   if (!st.isFile()) return false;
   const ext = path.extname(filePath).toLowerCase();
   const headers = {
-    'Content-Type': MIME[ext] || 'application/octet-stream',
+    'Content-Type': sniffContentType(filePath, MIME[ext] || 'application/octet-stream'),
     'Content-Length': st.size,
     'Cache-Control': cacheControlFor(filePath),
     'Last-Modified': st.mtime.toUTCString(),
