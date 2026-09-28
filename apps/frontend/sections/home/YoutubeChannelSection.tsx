@@ -29,9 +29,8 @@ export function YoutubeChannelSection() {
   const loadVideos = useCallback(async (options?: { silent?: boolean }) => {
     if (!options?.silent) setLoading(true);
     try {
-      const res = await fetch(`/api/youtube/videos?_=${Date.now()}`, {
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+      const res = await fetch('/api/youtube/videos', {
+        cache: 'force-cache',
       });
       if (res.ok) {
         const data = (await res.json()) as YoutubeChannelPayload;
@@ -60,7 +59,7 @@ export function YoutubeChannelSection() {
 
     const interval = window.setInterval(() => {
       void loadVideos({ silent: true });
-    }, CLIENT_REFRESH_MS);
+    }, Math.max(CLIENT_REFRESH_MS, 5 * 60_000));
 
     const onVisible = () => {
       if (document.visibilityState === 'visible') {

@@ -59,5 +59,13 @@
     "eslint-config-next": "^15.0.0",
     "postcss": "^8.4.31",
     "prettier": "^3.1.0"
-  }
+  },
+  "browserslist": [
+    "chrome >= 92",
+    "firefox >= 90",
+    "safari >= 15",
+    "edge >= 92",
+    "not dead",
+    "not op_mini all"
+  ]
 }

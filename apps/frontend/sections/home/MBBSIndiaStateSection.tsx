@@ -7,6 +7,9 @@ import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaTree'
 import { CollegeCard } from '@/components/mbbs-india/CollegeCard'
 import { HorizontalScrollItem, HorizontalScrollRow } from '@/components/ui/HorizontalScrollRow'
 
+/** Homepage only — full state hubs keep every college. PSI was downloading 30+ 300KB PNGs. */
+const HOME_COLLEGE_LIMIT = 8
+
 export const MBBSIndiaStateSection = () => {
   const [activeState, setActiveState] = useState(MBBS_INDIA_STATES[0].id)
 
@@ -96,7 +99,7 @@ export const MBBSIndiaStateSection = () => {
             </div>
 
             <HorizontalScrollRow ariaLabel={collegeCountLabel} gapClassName="gap-4">
-              {currentState.colleges.map((college, index) => (
+              {currentState.colleges.slice(0, HOME_COLLEGE_LIMIT).map((college, index) => (
                 <HorizontalScrollItem
                   key={`${currentState.id}-${college.name}-${index}`}
                   className="w-[17.5rem] sm:w-[19rem]"
@@ -105,6 +108,14 @@ export const MBBSIndiaStateSection = () => {
                 </HorizontalScrollItem>
               ))}
             </HorizontalScrollRow>
+            {currentState.colleges.length > HOME_COLLEGE_LIMIT ? (
+              <p className="mt-6 text-center text-sm text-slate-600">
+                Showing {HOME_COLLEGE_LIMIT} of {currentState.colleges.length} colleges.{' '}
+                <Link href={currentState.href} className="font-semibold text-navy-900 hover:text-gold-700">
+                  See all in {currentState.name}
+                </Link>
+              </p>
+            ) : null}
           </div>
         ) : null}
 

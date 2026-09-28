@@ -9,6 +9,7 @@ import { CONTACT_INFO, SOCIAL_LINKS } from '@/lib/constants';
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
 import { FooterAirportDiaries } from './footer/FooterAirportDiaries';
 import { FooterFollowUs } from './footer/FooterFollowUs';
+import { EmailLink } from '@/components/common/EmailLink';
 import { useDynamicNavPages } from '@/components/common/NavPagesProvider';
 import { useSiteGlobals } from '@/components/common/SiteGlobalsProvider';
 import { navPagesForSection } from '@/lib/dynamicNav';
@@ -103,10 +104,9 @@ export const Footer = () => {
                   <Phone className="h-3.5 w-3.5 shrink-0 text-gold-500" />
                   {contactInfo.phone}
                 </a>
-                <a href={`mailto:${contactInfo.email}`}>
+                <EmailLink email={contactInfo.email ?? CONTACT_INFO.email}>
                   <Mail className="h-3.5 w-3.5 shrink-0 text-gold-500" />
-                  {contactInfo.email}
-                </a>
+                </EmailLink>
                 <span className="inline-flex items-start gap-2">
                   <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-500" />
                   {contactInfo.address}

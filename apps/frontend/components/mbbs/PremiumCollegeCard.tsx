@@ -22,6 +22,7 @@ export function PremiumCollegeCard({
   college,
   theme = 'india',
   variant = 'default',
+  index = 0,
 }: PremiumCollegeCardProps) {
   const badgeBg = theme === 'india' ? 'bg-navy-900' : 'bg-blue-900';
   const badgeLabel = theme === 'india' ? 'MBBS India' : 'MBBS Abroad';
@@ -35,7 +36,12 @@ export function PremiumCollegeCard({
         className="group flex items-start justify-between gap-2 rounded-xl px-2.5 py-2 transition hover:bg-slate-50/90"
       >
         {imageSrc ? (
-          <CollegeCardImage src={imageSrc} alt={college.name} variant="compact" />
+          <CollegeCardImage
+            src={imageSrc}
+            alt={college.name}
+            variant="compact"
+            priority={index < 2}
+          />
         ) : null}
         <span className="min-w-0 flex-1">
           <span className="block text-[13px] font-medium leading-snug text-navy-900 group-hover:text-gold-700">
@@ -60,7 +66,7 @@ export function PremiumCollegeCard({
       ].join(' ')}
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100/80">
-        <CollegeCardImage src={imageSrc} alt={college.name} />
+        <CollegeCardImage src={imageSrc} alt={college.name} priority={false} />
       </div>
 
       <div className="relative z-10 flex flex-1 flex-col bg-white p-4 pt-3">

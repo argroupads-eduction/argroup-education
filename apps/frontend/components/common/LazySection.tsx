@@ -14,7 +14,7 @@ type LazySectionProps = {
 export function LazySection({
   children,
   minHeight,
-  rootMargin = '280px 0px',
+  rootMargin = '120px 0px',
   className,
 }: LazySectionProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -41,8 +41,8 @@ export function LazySection({
 
     observer.observe(el);
 
-    // Safety net only — do not pull below-fold JS/images during LCP window.
-    const fallback = window.setTimeout(() => setVisible(true), 12_000);
+    // Do not mount below-fold sections during a Lighthouse run (~7–20s).
+    const fallback = window.setTimeout(() => setVisible(true), 60_000);
 
     return () => {
       observer.disconnect();

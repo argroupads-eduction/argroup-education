@@ -50,12 +50,8 @@ const MIME = {
   '.webmanifest': 'application/manifest+json',
 };
 
-// Default 2 min in-memory HTML cache on Hostinger (override with HTML_CACHE_TTL_MS=0 to disable).
-const HTML_TTL_MS = Math.max(
-  0,
-  parseInt(process.env.HTML_CACHE_TTL_MS ?? '120000', 10) || 0
-);
-const HTML_CACHE_MAX = Math.max(10, parseInt(process.env.HTML_CACHE_MAX || '80', 10) || 80);
+const HTML_TTL_MS = Math.max(0, parseInt(process.env.HTML_CACHE_TTL_MS ?? '180000', 10) || 0);
+const HTML_CACHE_MAX = Math.max(10, parseInt(process.env.HTML_CACHE_MAX || '150', 10) || 150);
 const htmlCache = new Map();
 
 function findServer(dir, depth = 0) {
@@ -223,8 +219,8 @@ function rememberHtml(key, statusCode, headers, body) {
     if (oldest !== undefined) htmlCache.delete(oldest);
   }
   const outHeaders = { ...headers };
-  outHeaders['Cache-Control'] =
-    outHeaders['Cache-Control'] || 'public, s-maxage=120, stale-while-revalidate=600';
+    outHeaders['Cache-Control'] =
+    outHeaders['Cache-Control'] || 'public, s-maxage=180, stale-while-revalidate=86400';
   outHeaders['X-AR-Html-Cache'] = 'STORE';
   outHeaders['Content-Length'] = Buffer.byteLength(body);
   htmlCache.set(key, {
@@ -315,7 +311,7 @@ function wrapHtmlCache(handle) {
           {
             'Content-Type': ct || 'text/html; charset=utf-8',
             'Cache-Control':
-              headerBag['cache-control'] || 'public, s-maxage=120, stale-while-revalidate=600',
+              headerBag['cache-control'] || 'public, s-maxage=180, stale-while-revalidate=86400',
           },
           body
         );
