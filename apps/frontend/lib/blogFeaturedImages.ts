@@ -89,7 +89,7 @@ export function resolveBlogFeaturedImage(
   if (bundledBlogFile) {
     const file = bundledBlogFile[1];
     return file.toLowerCase().endsWith('.webp')
-      ? `/images/blog/${file}?v=2`
+      ? `/images/blog/${file}?v=3`
       : `/images/blog/${file}`;
   }
 
