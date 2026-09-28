@@ -1,6 +1,6 @@
 import { BLOG_SLUG_CANONICAL } from '@/lib/blogUtils';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
-import blogFeaturedMap from '@/data/blog-featured-map.json';
+import blogFeaturedMap from '../data/blog-featured-map.json';
 
 /** Curated blog hero images when CMS/DB has no featuredImage set. */
 export const BLOG_FEATURED_IMAGES: Record<string, string> = {
@@ -85,8 +85,13 @@ export function resolveBlogFeaturedImage(
   const trimmed = fallback?.trim();
   if (!trimmed) return curatedFeaturedImage(slug);
 
-  const bundledBlogFile = trimmed.match(/\/images\/blog\/([^/?#]+)$/i);
-  if (bundledBlogFile) return `/images/blog/${bundledBlogFile[1]}`;
+  const bundledBlogFile = trimmed.match(/\/images\/blog\/([^/?#]+)(\?[^#]*)?$/i);
+  if (bundledBlogFile) {
+    const file = bundledBlogFile[1];
+    return file.toLowerCase().endsWith('.webp')
+      ? `/images/blog/${file}?v=2`
+      : `/images/blog/${file}`;
+  }
 
   if (trimmed.startsWith('/images/')) return trimmed;
 
