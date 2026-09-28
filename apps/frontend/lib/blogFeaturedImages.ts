@@ -1,4 +1,5 @@
 import { BLOG_SLUG_CANONICAL } from '@/lib/blogUtils';
+import { getCollegeImageBySlug } from '@/lib/collegeImageIndex';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 import blogFeaturedMap from '../data/blog-featured-map.json';
 
@@ -83,7 +84,9 @@ export function resolveBlogFeaturedImage(
   if (curated) return curated;
 
   const trimmed = fallback?.trim();
-  if (!trimmed) return curatedFeaturedImage(slug);
+  if (!trimmed || /getmyuniversity\.com/i.test(trimmed)) {
+    return curatedFeaturedImage(slug) || getCollegeImageBySlug(slug);
+  }
 
   const bundledBlogFile = trimmed.match(/\/images\/blog\/([^/?#]+)(\?[^#]*)?$/i);
   if (bundledBlogFile) {
@@ -139,7 +142,7 @@ export function resolveBlogFeaturedImage(
     return resolvedFallback;
   }
 
-  return curatedFeaturedImage(slug);
+  return curatedFeaturedImage(slug) || getCollegeImageBySlug(slug);
 }
 
 export function resolveBlogPublishedAt(
