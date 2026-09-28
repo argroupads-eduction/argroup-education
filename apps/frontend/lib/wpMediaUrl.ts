@@ -106,6 +106,14 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
         }
       }
       if (
+        host.endsWith('githubusercontent.com') ||
+        host === 'github.com'
+      ) {
+        const localBlog = trimmed.match(/\/images\/blog\/([^/?#]+)$/i);
+        if (localBlog?.[1]) return `/images/blog/${localBlog[1]}`;
+        return trimmed.replace(/^http:\/\//i, 'https://');
+      }
+      if (
         host.endsWith('vercel-storage.com') ||
         host.endsWith('public.blob.vercel-storage.com')
       ) {
