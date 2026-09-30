@@ -50,6 +50,8 @@ export const BLOG_SLUG_CANONICAL: Record<string, string> = {
   '400-marks-in-neet-rank': '400-marks-in-neet-2026',
   'score-is-needed-in-neet': 'score-needed-in-neet-2026',
   'neet-paper-analysis': 'neet-2026-paper-analysis',
+  // Space / legacy variants still seen in Search Console / sitemap
+  'study mbbs in india': 'study-mbbs-in-india',
 };
 
 /** Legacy duplicate slugs hidden from blog index (canonical slug kept). */

@@ -13,6 +13,7 @@ import { resolveBlogFeaturedImage } from '@/lib/blogFeaturedImages';
 import { formatBlogDate, readingTimeMinutes } from '@/lib/blogUtils';
 import { CONTACT_INFO } from '@/lib/constants';
 import { sanitizeCmsHtml } from '@/lib/sanitizeCmsHtml';
+import { normalizeBlogArticleHtml } from '@/lib/normalizeBlogArticleHtml';
 
 type BlogPostLayoutProps = {
   content: SiteContent;
@@ -23,13 +24,15 @@ type BlogPostLayoutProps = {
 export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLayoutProps) {
   const heroImage =
     resolveBlogFeaturedImage(content.slug, content.featuredImage) || content.featuredImage;
-  const prepared = prepareWpHtml(content.content, {
+  const prepared = prepareWpHtml(normalizeBlogArticleHtml(content.content), {
     featuredImage: heroImage,
     title: content.title,
     pageSlug: content.slug,
     dedupeFeaturedInBody: false,
   });
-  const { html: structuredHtml, headings, quickFacts } = parseContentStructure(prepared, {
+  // Second pass: demote junk headings left in CMS HTML + wrap any tables prepareWpHtml left bare.
+  const normalized = normalizeBlogArticleHtml(prepared);
+  const { html: structuredHtml, headings, quickFacts } = parseContentStructure(normalized, {
     extractQuickFacts: false,
   });
   const safeHtml = sanitizeCmsHtml(structuredHtml);

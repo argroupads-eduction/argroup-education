@@ -77,8 +77,12 @@ export default async function BlogSlugPage({ params }: PageProps) {
   }
 
   const canonical = BLOG_SLUG_CANONICAL[decoded];
-  if (canonical) {
+  if (canonical && canonical !== decoded) {
     redirect(blogPostPath(canonical));
+  }
+  // Legacy spaced slugs (Search Console / old sitemap) → hyphen form.
+  if (/\s/.test(decoded)) {
+    redirect(blogPostPath(decoded.replace(/\s+/g, '-')));
   }
 
   const { post, latestPosts } = await getBlogPostPageData(decoded);

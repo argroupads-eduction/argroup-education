@@ -317,6 +317,33 @@ const nextConfig = {
         destination: '/:slug',
         permanent: true,
       },
+      // Legacy WP taxonomy / author archives (often still indexed) → blog index
+      {
+        source: '/category/:path*',
+        destination: '/blog',
+        permanent: true,
+      },
+      {
+        source: '/tag/:path*',
+        destination: '/blog',
+        permanent: true,
+      },
+      {
+        source: '/author/:path*',
+        destination: '/blog',
+        permanent: true,
+      },
+      // Space slug still in sitemap / Search Console → hyphen canonical
+      {
+        source: '/blog/study%20mbbs%20in%20india',
+        destination: '/blog/study-mbbs-in-india',
+        permanent: true,
+      },
+      {
+        source: '/blog/study mbbs in india',
+        destination: '/blog/study-mbbs-in-india',
+        permanent: true,
+      },
     ];
   },
 

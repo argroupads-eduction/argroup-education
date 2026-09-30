@@ -221,6 +221,8 @@ function filterSitemapEntries(entries: SitemapEntry[], baseUrl: string): Sitemap
       const slug = decodeURIComponent(entry.loc.slice(blogPrefix.length));
       if (BLOG_EXCLUDED_LIST_SLUGS.has(slug)) return false;
       if (slug in BLOG_SLUG_CANONICAL) return false;
+      // Never index spaced / comma legacy slugs — hyphen canonical is the public URL.
+      if (/\s|,/.test(slug)) return false;
       return true;
     }
 

@@ -1799,6 +1799,18 @@
   transform: scale(1.05);
 }
 
+.wp-content-root .wp-premium-faq-qtext .wp-faq-heading,
+.wp-content-root .wp-faq-heading {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-weight: inherit;
+  color: inherit;
+  line-height: inherit;
+}
+
 .wp-content-root .wp-premium-faq-qtext {
   font-weight: 700;
   font-size: 1rem;

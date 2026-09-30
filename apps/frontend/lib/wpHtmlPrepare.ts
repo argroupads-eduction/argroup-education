@@ -1239,7 +1239,7 @@ function buildFaqDetailsHtml(items: FaqItem[]): string {
         `<details class="wp-premium-faq" style="--faq-i:${i}">` +
         `<summary class="wp-premium-faq-summary">` +
         `<span class="wp-premium-faq-qnum">${item.num.padStart(2, '0')}</span>` +
-        `<span class="wp-premium-faq-qtext">${escapeHtml(question)}</span>` +
+        `<span class="wp-premium-faq-qtext"><h3 class="wp-faq-heading">${escapeHtml(question)}</h3></span>` +
         `</summary>` +
         `<div class="wp-premium-faq-body"><div class="wp-premium-faq-body-inner">${wrapFaqAnswerHtml(item.answer)}</div></div>` +
         `</details>`
