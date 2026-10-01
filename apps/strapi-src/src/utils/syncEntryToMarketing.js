@@ -6,6 +6,14 @@ const {
 } = require('./marketingSyncSafety');
 const { readLocalUpload } = require('./readLocalUpload');
 
+function mediaFileAbsolute(_strapi, url) {
+  if (typeof url !== 'string' || !url.trim()) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  const base = String(process.env.PUBLIC_URL || '').replace(/\/$/, '');
+  if (!base) return null;
+  return `${base}${url.startsWith('/') ? url : `/${url}`}`;
+}
+
 /**
  * Push Post or Page to marketing MySQL via payload-sync.
  * Delete/Unpublish → published:false (never hard-delete marketing rows).
@@ -54,19 +62,46 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
 
     // Prefer Media Library bytes so live never depends on Hostinger /uploads HTTP.
     if (kind === 'post' && published !== false) {
-      const local = readLocalUpload(
-        strapi,
-        entry?.featuredMedia || entry?.featuredMedia?.data
-      );
+      const media =
+        entry?.featuredMedia ||
+        entry?.featuredMedia?.data ||
+        body.featuredMedia ||
+        null;
+      let local = readLocalUpload(strapi, media);
+      // If disk miss (redeploy wiped public/uploads), try HTTP from this Strapi host
+      if (!local?.buffer?.length && media?.url) {
+        try {
+          const abs = mediaFileAbsolute(strapi, media.url);
+          if (abs) {
+            const res = await fetch(abs);
+            if (res.ok) {
+              const buf = Buffer.from(await res.arrayBuffer());
+              if (buf.length > 32) {
+                local = {
+                  buffer: buf,
+                  mime: media.mime || res.headers.get('content-type') || 'image/webp',
+                  name: media.name || 'featured.webp',
+                };
+              }
+            }
+          }
+        } catch (err) {
+          strapi.log.warn(
+            `[marketing-sync] fetch media failed: ${err?.message || err}`
+          );
+        }
+      }
       if (local?.buffer?.length) {
         body.featuredImageBase64 = local.buffer.toString('base64');
         body.featuredImageMime = local.mime;
+        // Clear stale URL so www uses persisted /api/cms/media/{id}
+        body.featuredImage = body.featuredImage || null;
         strapi.log.info(
-          `[marketing-sync] attached local upload ${local.name} (${local.buffer.length} bytes) for ${body.slug}`
+          `[marketing-sync] attached upload ${local.name} (${local.buffer.length} bytes) for ${body.slug}`
         );
       } else if (!body.featuredImage) {
         strapi.log.warn(
-          `[marketing-sync] ${body.slug}: no featured media bytes on disk — re-upload Featured media then Publish`
+          `[marketing-sync] ${body.slug}: no featured media bytes — re-upload Featured media then Publish`
         );
       }
     }
