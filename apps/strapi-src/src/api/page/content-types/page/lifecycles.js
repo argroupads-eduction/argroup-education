@@ -1,59 +1,24 @@
 'use strict';
 
-const {
-  assertMarketingSyncTarget,
-  buildPayloadSyncBody,
-} = require('../../../utils/marketingSyncSafety');
+const { syncEntryToMarketing } = require('../../../utils/syncEntryToMarketing');
 
-async function stashPriorPublishState(event) {
+async function loadPrior(event) {
   event.state = event.state || {};
   try {
     const where = event.params?.where || {};
     if (!where || Object.keys(where).length === 0) {
       event.state.wasPublished = false;
-      return;
+      event.state.prior = null;
+      return null;
     }
     const prior = await strapi.db.query('api::page.page').findOne({ where });
     event.state.wasPublished = prior?.publishedAt != null;
+    event.state.prior = prior || null;
+    return prior;
   } catch {
     event.state.wasPublished = false;
-  }
-}
-
-async function syncToMarketing(event, type, published) {
-  try {
-    const syncUrl = process.env.MARKETING_SYNC_URL;
-    const secret = process.env.PAYLOAD_SYNC_SECRET || process.env.REVALIDATE_SECRET;
-    if (!syncUrl || !secret) {
-      strapi.log.info(`[marketing-sync] skipped (${type}): MARKETING_SYNC_URL / secret not set`);
-      return;
-    }
-    assertMarketingSyncTarget(syncUrl);
-
-    const entry = event.result || {};
-    const body = buildPayloadSyncBody(type, entry, { published });
-    if (!body.slug) {
-      strapi.log.warn(`[marketing-sync] skip ${type}: missing slug`);
-      return;
-    }
-
-    const endpoint = syncUrl.replace(/\/$/, '') + '/api/cms/payload-sync';
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${secret}`,
-      },
-      body: JSON.stringify(body),
-    });
-    const text = await res.text();
-    if (!res.ok) {
-      strapi.log.error(`[marketing-sync] ${type} ${body.slug} → ${res.status} ${text.slice(0, 300)}`);
-      return;
-    }
-    strapi.log.info(`[marketing-sync] ${type} ${body.slug} published=${published} ok`);
-  } catch (err) {
-    strapi.log.error(`[marketing-sync] ${type} error: ${err.message}`);
+    event.state.prior = null;
+    return null;
   }
 }
 
@@ -61,18 +26,65 @@ function isPublished(entry) {
   return entry?.publishedAt != null;
 }
 
+function sanitizeSlug(raw) {
+  return String(raw || '')
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^\w\s/-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 80);
+}
+
+function applySlugSanitize(event) {
+  const data = event.params?.data;
+  if (!data || typeof data !== 'object') return;
+  if (typeof data.slug === 'string' && data.slug.trim()) {
+    const clean = sanitizeSlug(data.slug);
+    if (clean) data.slug = clean;
+  }
+}
+
 module.exports = {
+  async beforeCreate(event) {
+    applySlugSanitize(event);
+  },
   async beforeUpdate(event) {
-    await stashPriorPublishState(event);
+    await loadPrior(event);
+    applySlugSanitize(event);
   },
   async afterCreate(event) {
     const published = isPublished(event.result);
-    if (published) await syncToMarketing(event, 'page', true);
+    if (published) {
+      await syncEntryToMarketing(strapi, 'page', event.result, {
+        published: true,
+        notifyPush: false,
+      });
+    }
   },
   async afterUpdate(event) {
     const published = isPublished(event.result);
     const wasPublished = event.state?.wasPublished === true;
     if (!published && !wasPublished) return;
-    await syncToMarketing(event, 'page', published);
+    await syncEntryToMarketing(strapi, 'page', event.result, {
+      published,
+      notifyPush: false,
+    });
+  },
+  async beforeDelete(event) {
+    await loadPrior(event);
+  },
+  async afterDelete(event) {
+    const entry = event.result || {};
+    const slug = entry.slug || event.state?.prior?.slug;
+    if (!slug) return;
+    await syncEntryToMarketing(
+      strapi,
+      'page',
+      { slug, title: entry.title || event.state?.prior?.title || slug, content: '' },
+      { published: false, notifyPush: false }
+    );
   },
 };

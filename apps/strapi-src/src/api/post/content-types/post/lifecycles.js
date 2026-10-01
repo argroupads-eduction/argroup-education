@@ -9,7 +9,7 @@ const {
   buildPostSchemaJson,
   applyMetaAutofill,
 } = require('../../../utils/buildPostSchemaJson');
-const { syncPostToMarketing } = require('../../../utils/syncPostToMarketing');
+const { syncEntryToMarketing } = require('../../../utils/syncEntryToMarketing');
 
 /** URL-safe slug: lowercase, hyphens, no spaces (live /blog/[slug] + sitemap). */
 function sanitizeSlug(raw) {
@@ -170,7 +170,10 @@ module.exports = {
   async afterCreate(event) {
     const published = isPublished(event.result);
     if (published) {
-      await syncPostToMarketing(strapi, event.result, { published: true, notifyPush: true });
+      await syncEntryToMarketing(strapi, 'post', event.result, {
+        published: true,
+        notifyPush: true,
+      });
     }
   },
   async afterUpdate(event) {
@@ -180,7 +183,7 @@ module.exports = {
     if (!published && !wasPublished) return;
     // First publish → notifyPush; later edits → sync only (IndexNow still runs server-side)
     const notifyPush = published && !wasPublished;
-    await syncPostToMarketing(strapi, event.result, { published, notifyPush });
+    await syncEntryToMarketing(strapi, 'post', event.result, { published, notifyPush });
   },
   async beforeDelete(event) {
     await loadPrior(event);
@@ -189,8 +192,9 @@ module.exports = {
     const entry = event.result || {};
     const slug = entry.slug || event.state?.prior?.slug;
     if (!slug) return;
-    await syncPostToMarketing(
+    await syncEntryToMarketing(
       strapi,
+      'post',
       { slug, title: entry.title || event.state?.prior?.title || slug, content: '' },
       { published: false, notifyPush: false }
     );
