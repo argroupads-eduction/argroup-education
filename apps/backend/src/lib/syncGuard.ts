@@ -151,14 +151,19 @@ export function resolvePublishedAtForSync(opts: {
   legacyPublishedAt?: string | null | undefined;
   published: boolean;
 }): Date | null {
+  // Strapi `legacyPublishedAt` is the editorial date — always honor when set
+  // (fixes wrong "today" dates on re-Publish of existing posts).
+  if (opts.legacyPublishedAt) {
+    const legacy = new Date(opts.legacyPublishedAt);
+    if (!Number.isNaN(legacy.getTime())) return legacy;
+  }
+
   if (!opts.isNew) {
-    // Existing rows: never overwrite publishedAt
+    // Existing rows: keep prior publishedAt unless legacy override above
     return opts.existingPublishedAt ?? null;
   }
-  const preferred =
-    opts.legacyPublishedAt || opts.incomingPublishedAt || null;
-  if (preferred) {
-    const d = new Date(preferred);
+  if (opts.incomingPublishedAt) {
+    const d = new Date(opts.incomingPublishedAt);
     if (!Number.isNaN(d.getTime())) return d;
   }
   return opts.published ? new Date() : null;

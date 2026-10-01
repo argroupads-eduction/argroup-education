@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { BLOG_SLUG_CANONICAL, blogPostPath } from '@/lib/blogUtils';
 import { IMAGE_SITEMAP_PATH } from '@/lib/seoCrawlConfig';
 
@@ -16,6 +16,10 @@ export function revalidateAfterContentSync(opts: {
   slug: string;
   type: 'post' | 'page';
 }) {
+  // Bust unstable_cache used by blog post pages (path revalidate alone is not enough).
+  revalidateTag('blog-posts');
+  revalidateTag('blog-post');
+  revalidateTag('blog-sidebar');
   revalidatePath('/blog');
   revalidatePath('/sitemap.xml');
   revalidatePath('/sitemap');

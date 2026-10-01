@@ -7,14 +7,14 @@ import {
 
 const cachedPostBySlug = unstable_cache(
   async (slug: string) => loadPostBySlug(slug),
-  ['blog-post-by-slug-v2'],
-  { revalidate: 60 }
+  ['blog-post-by-slug-v3'],
+  { revalidate: 60, tags: ['blog-posts', 'blog-post'] }
 );
 
 const cachedSidebar = unstable_cache(
   async () => loadSidebar(8),
-  ['blog-post-sidebar-v1'],
-  { revalidate: 60 }
+  ['blog-post-sidebar-v2'],
+  { revalidate: 60, tags: ['blog-posts', 'blog-sidebar'] }
 );
 
 /** Request-deduped + ISR-cached Neon load for /blog/[slug]. */
