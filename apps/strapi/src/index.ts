@@ -9,20 +9,56 @@ function registerPostMarketingSync(strapi: Core.Strapi) {
   const { syncPostToMarketing } = require('./utils/syncPostToMarketing');
 
   strapi.documents.use(async (context, next) => {
+    // Capture slug before delete (result may be empty)
+    const params = (context as { params?: { documentId?: string; slug?: string } }).params || {};
+    let preDeleteSlug: string | null = null;
+    if (context.uid === 'api::post.post' && (context.action === 'delete' || context.action === 'unpublish')) {
+      try {
+        if (params.documentId) {
+          const prior = await strapi.db.query('api::post.post').findOne({
+            where: { documentId: params.documentId },
+          });
+          preDeleteSlug = prior?.slug || null;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
     const result = await next();
     if (context.uid !== 'api::post.post') return result;
 
     const action = context.action;
-    if (!['publish', 'update', 'create'].includes(action)) return result;
+    if (!['publish', 'update', 'create', 'unpublish', 'delete'].includes(action)) {
+      return result;
+    }
 
     try {
       const entry = Array.isArray(result) ? result[0] : result;
+
+      // Delete / Unpublish → hide on live (published:false, never hard-delete marketing row)
+      if (action === 'delete' || action === 'unpublish') {
+        const slug = entry?.slug || preDeleteSlug || params.slug;
+        if (!slug) {
+          strapi.log.warn(`[marketing-sync] ${action}: no slug to unpublish`);
+          return result;
+        }
+        await syncPostToMarketing(
+          strapi,
+          { slug, title: entry?.title || slug, content: entry?.content || '' },
+          { published: false, notifyPush: false }
+        );
+        return result;
+      }
+
       if (!entry?.slug) return result;
 
       const published = entry.publishedAt != null || action === 'publish';
-      if (!published && action !== 'publish') return result;
+      if (!published) {
+        await syncPostToMarketing(strapi, entry, { published: false, notifyPush: false });
+        return result;
+      }
 
-      // publish action = first go-live notify; update while published = silent sync
       const notifyPush = action === 'publish';
       await syncPostToMarketing(strapi, entry, { published: true, notifyPush });
     } catch (err: any) {

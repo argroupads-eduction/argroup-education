@@ -182,4 +182,17 @@ module.exports = {
     const notifyPush = published && !wasPublished;
     await syncPostToMarketing(strapi, event.result, { published, notifyPush });
   },
+  async beforeDelete(event) {
+    await loadPrior(event);
+  },
+  async afterDelete(event) {
+    const entry = event.result || {};
+    const slug = entry.slug || event.state?.prior?.slug;
+    if (!slug) return;
+    await syncPostToMarketing(
+      strapi,
+      { slug, title: entry.title || event.state?.prior?.title || slug, content: '' },
+      { published: false, notifyPush: false }
+    );
+  },
 };
