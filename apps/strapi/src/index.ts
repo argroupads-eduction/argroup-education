@@ -2,10 +2,23 @@ import type { Core } from '@strapi/strapi';
 
 type MarketingKind = 'post' | 'page';
 
+type MarketingEntry = {
+  slug?: string;
+  title?: string;
+  content?: string;
+  publishedAt?: string | Date | null;
+  [key: string]: unknown;
+};
+
 const UID_MAP: Record<string, MarketingKind> = {
   'api::post.post': 'post',
   'api::page.page': 'page',
 };
+
+function asEntry(value: unknown): MarketingEntry | null {
+  if (!value || typeof value !== 'object') return null;
+  return value as MarketingEntry;
+}
 
 /**
  * Strapi 5 Document Service publish/delete often bypasses classic afterUpdate/afterDelete.
@@ -24,11 +37,13 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
     if (kind && (context.action === 'delete' || context.action === 'unpublish')) {
       try {
         if (params.documentId) {
-          const prior = await strapi.db.query(context.uid).findOne({
-            where: { documentId: params.documentId },
-          });
-          preDeleteSlug = prior?.slug || null;
-          preDeleteTitle = prior?.title || null;
+          const prior = asEntry(
+            await strapi.db.query(context.uid).findOne({
+              where: { documentId: params.documentId },
+            })
+          );
+          preDeleteSlug = typeof prior?.slug === 'string' ? prior.slug : null;
+          preDeleteTitle = typeof prior?.title === 'string' ? prior.title : null;
         }
       } catch {
         /* ignore */
@@ -44,10 +59,15 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
     }
 
     try {
-      const entry = Array.isArray(result) ? result[0] : result;
+      const raw = Array.isArray(result) ? result[0] : result;
+      const entry = asEntry(raw);
 
       if (action === 'delete' || action === 'unpublish') {
-        const slug = entry?.slug || preDeleteSlug || params.slug;
+        const slug =
+          (typeof entry?.slug === 'string' && entry.slug) ||
+          preDeleteSlug ||
+          params.slug ||
+          null;
         if (!slug) {
           strapi.log.warn(`[marketing-sync] ${kind} ${action}: no slug to unpublish`);
           return result;
@@ -57,15 +77,18 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
           kind,
           {
             slug,
-            title: entry?.title || preDeleteTitle || slug,
-            content: entry?.content || '',
+            title:
+              (typeof entry?.title === 'string' && entry.title) ||
+              preDeleteTitle ||
+              slug,
+            content: typeof entry?.content === 'string' ? entry.content : '',
           },
           { published: false, notifyPush: false }
         );
         return result;
       }
 
-      if (!entry?.slug) return result;
+      if (!entry || typeof entry.slug !== 'string' || !entry.slug) return result;
 
       const published = entry.publishedAt != null || action === 'publish';
       if (!published) {
@@ -78,8 +101,9 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
 
       const notifyPush = kind === 'post' && action === 'publish';
       await syncEntryToMarketing(strapi, kind, entry, { published: true, notifyPush });
-    } catch (err: any) {
-      strapi.log.error(`[marketing-sync] documents middleware: ${err?.message || err}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      strapi.log.error(`[marketing-sync] documents middleware: ${message}`);
     }
     return result;
   });
