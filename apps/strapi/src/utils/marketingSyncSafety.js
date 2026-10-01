@@ -1,12 +1,5 @@
 'use strict';
 
-/**
- * Marketing sync safety (Step 3 + Step 4).
- *
- * Step 3: refuse live www URLs.
- * Step 4: allow live only when STRAPI_ALLOW_LIVE_SYNC=1 (explicit cutover).
- */
-
 function assertMarketingSyncTarget(url) {
   const u = String(url || '').trim().toLowerCase();
   if (!u) {
@@ -41,30 +34,57 @@ function assertStagingOnlySyncTarget(url) {
   return assertMarketingSyncTarget(url);
 }
 
-/** Upload file row / relation → absolute URL for marketing BlogPost.featuredImage */
+/**
+ * Upload file row / relation → absolute URL for marketing BlogPost.featuredImage.
+ * - Absolutize /uploads/ with PUBLIC_URL
+ * - Reject other relative URLs (would resolve against www)
+ */
 function mediaFileToAbsoluteUrl(file) {
   if (!file) return null;
   if (typeof file === 'string') {
-    const s = file.trim();
-    return s || null;
+    return resolveImageUrlForSync(file);
   }
   const url = file.url || file?.attributes?.url || null;
   if (!url) return null;
-  if (/^https?:\/\//i.test(url)) return url;
-  const base = String(process.env.PUBLIC_URL || '').replace(/\/$/, '');
-  if (!base) return url.startsWith('/') ? url : `/${url}`;
-  return `${base}${url.startsWith('/') ? url : `/${url}`}`;
+  return resolveImageUrlForSync(url);
 }
 
-function buildPayloadSyncBody(type, entry, { published }) {
+function resolveImageUrlForSync(raw) {
+  if (typeof raw !== 'string') return null;
+  const s = raw.trim();
+  if (!s) return null;
+  if (/^https?:\/\//i.test(s)) return s;
+  if (/^\/\//.test(s)) return `https:${s}`;
+
+  const isUploads = s === '/uploads' || s.startsWith('/uploads/');
+  if (isUploads) {
+    const base = String(process.env.PUBLIC_URL || '').replace(/\/$/, '');
+    if (!base) return null;
+    return `${base}${s.startsWith('/') ? s : `/${s}`}`;
+  }
+
+  // Relative non-uploads — reject (do not send to marketing)
+  if (s.startsWith('/') || !s.includes('://')) {
+    return null;
+  }
+  return s;
+}
+
+function buildPayloadSyncBody(type, entry, { published, notifyPush } = {}) {
   const data = entry || {};
-  const publishedAt =
-    data.publishedAt || data.legacyPublishedAt || data.legacy_published_at || null;
+  // Prefer legacy date for marketing publishedAt on create; marketing guard
+  // freezes publishedAt on existing rows regardless.
+  const legacyPublishedAt =
+    data.legacyPublishedAt || data.legacy_published_at || null;
+  const publishedAt = legacyPublishedAt || data.publishedAt || null;
 
   const fromMedia =
     mediaFileToAbsoluteUrl(data.featuredMedia) ||
     mediaFileToAbsoluteUrl(data.featuredMedia?.data) ||
     null;
+  const featuredImage =
+    fromMedia || resolveImageUrlForSync(data.featuredImage) || null;
+  const ogImage = resolveImageUrlForSync(data.ogImage) || featuredImage;
 
   return {
     type,
@@ -72,12 +92,12 @@ function buildPayloadSyncBody(type, entry, { published }) {
     title: data.title,
     content: data.content || '',
     excerpt: data.excerpt || undefined,
-    featuredImage: fromMedia || data.featuredImage || null,
+    featuredImage,
     category: data.category || undefined,
     metaTitle: data.metaTitle ?? null,
     metaDescription: data.metaDescription ?? null,
     canonicalUrl: data.canonicalUrl ?? null,
-    ogImage: data.ogImage ?? null,
+    ogImage,
     focusKeyword: data.focusKeyword ?? null,
     tags: Array.isArray(data.tags) ? data.tags : [],
     keywords: Array.isArray(data.keywords) ? data.keywords : [],
@@ -93,7 +113,9 @@ function buildPayloadSyncBody(type, entry, { published }) {
     navSortOrder: data.navSortOrder,
     published: published !== false,
     publishedAt,
-    notifyPush: false,
+    legacyPublishedAt,
+    // true only on first publish (lifecycle); IndexNow/sitemap revalidate still run on every published sync
+    notifyPush: notifyPush === true,
     pullFromCms: false,
   };
 }
@@ -103,4 +125,5 @@ module.exports = {
   assertStagingOnlySyncTarget,
   buildPayloadSyncBody,
   mediaFileToAbsoluteUrl,
+  resolveImageUrlForSync,
 };

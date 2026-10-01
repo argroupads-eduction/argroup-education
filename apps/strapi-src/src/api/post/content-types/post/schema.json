@@ -14,9 +14,23 @@
   "attributes": {
     "title": { "type": "string", "required": true, "maxLength": 500 },
     "slug": { "type": "string", "required": true, "unique": true, "maxLength": 255 },
-    "content": { "type": "richtext", "required": true },
+    "content": {
+      "type": "richtext",
+      "required": true,
+      "description": "Paste Markdown or HTML. On Save/Publish, headings/paragraphs normalize to h1–h3/p for the live blog template."
+    },
     "excerpt": { "type": "text" },
-    "featuredImage": { "type": "text" },
+    "featuredMedia": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"],
+      "description": "Import / upload featured image (hero). Auto-fills featuredImage URL for the live site."
+    },
+    "featuredImage": {
+      "type": "text",
+      "description": "Auto-filled from Featured media, or paste a public https URL"
+    },
     "category": { "type": "string", "default": "Blog", "maxLength": 120 },
     "tags": { "type": "json" },
     "metaTitle": { "type": "string", "maxLength": 500 },
@@ -29,7 +43,10 @@
     "ogImage": { "type": "text" },
     "twitterTitle": { "type": "string", "maxLength": 500 },
     "twitterDescription": { "type": "text" },
-    "schemaJson": { "type": "json" },
+    "schemaJson": {
+      "type": "json",
+      "description": "Auto-generated Article (+ FAQ) JSON-LD on Save/Publish from title, slug, content, and image"
+    },
     "author": { "type": "string", "default": "AR Group", "maxLength": 120 },
     "wpId": { "type": "integer", "unique": true },
     "mysqlId": { "type": "string", "private": true },

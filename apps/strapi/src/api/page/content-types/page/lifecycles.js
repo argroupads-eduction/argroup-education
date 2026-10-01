@@ -5,6 +5,21 @@ const {
   buildPayloadSyncBody,
 } = require('../../../utils/marketingSyncSafety');
 
+async function stashPriorPublishState(event) {
+  event.state = event.state || {};
+  try {
+    const where = event.params?.where || {};
+    if (!where || Object.keys(where).length === 0) {
+      event.state.wasPublished = false;
+      return;
+    }
+    const prior = await strapi.db.query('api::page.page').findOne({ where });
+    event.state.wasPublished = prior?.publishedAt != null;
+  } catch {
+    event.state.wasPublished = false;
+  }
+}
+
 async function syncToMarketing(event, type, published) {
   try {
     const syncUrl = process.env.MARKETING_SYNC_URL;
@@ -42,14 +57,22 @@ async function syncToMarketing(event, type, published) {
   }
 }
 
+function isPublished(entry) {
+  return entry?.publishedAt != null;
+}
+
 module.exports = {
+  async beforeUpdate(event) {
+    await stashPriorPublishState(event);
+  },
   async afterCreate(event) {
-    const published = event.result?.publishedAt != null;
+    const published = isPublished(event.result);
     if (published) await syncToMarketing(event, 'page', true);
   },
   async afterUpdate(event) {
-    const published = event.result?.publishedAt != null;
-    if (!published) return;
-    await syncToMarketing(event, 'page', true);
+    const published = isPublished(event.result);
+    const wasPublished = event.state?.wasPublished === true;
+    if (!published && !wasPublished) return;
+    await syncToMarketing(event, 'page', published);
   },
 };
