@@ -7,13 +7,13 @@ import {
 
 const cachedPostBySlug = unstable_cache(
   async (slug: string) => loadPostBySlug(slug),
-  ['blog-post-by-slug-v3'],
+  ['blog-post-by-slug-v4'],
   { revalidate: 60, tags: ['blog-posts', 'blog-post'] }
 );
 
 const cachedSidebar = unstable_cache(
   async () => loadSidebar(8),
-  ['blog-post-sidebar-v2'],
+  ['blog-post-sidebar-v3'],
   { revalidate: 60, tags: ['blog-posts', 'blog-sidebar'] }
 );
 
