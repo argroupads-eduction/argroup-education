@@ -42,11 +42,29 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, '0.0.0.0', () => {
-  console.error(
+  // Use log (not error) — Hostinger Runtime Logs counts console.error as Errors
+  console.log(
     '[hostinger-strapi] early listen OK on 0.0.0.0:' + port + ' (Hostinger proxy ready)'
   );
 });
 
+// Hostinger proxy / health probes often reset idle sockets — not a real app failure
+server.on('clientError', (err, socket) => {
+  if (err && (err.code === 'ECONNRESET' || err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED')) {
+    try {
+      socket.destroy();
+    } catch {
+      /* ignore */
+    }
+    return;
+  }
+  console.error('[hostinger-strapi] clientError', err && err.message ? err.message : err);
+  try {
+    socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+  } catch {
+    /* ignore */
+  }
+});
 
 server.on('error', (err) => {
   console.error('[hostinger-strapi] server error', err);
@@ -93,14 +111,14 @@ server.on('error', (err) => {
   // Connecting via srv….hstgr.io makes MySQL see an external IPv6 client → Access denied.
   const dbHost = String(process.env.DATABASE_HOST || '');
   if (/\.hstgr\.io$/i.test(dbHost) || /^mysql\d*\./i.test(dbHost)) {
-    console.error(
+    console.log(
       '[hostinger-strapi] rewriting DATABASE_HOST from ' + dbHost + ' → localhost (same-server MySQL)'
     );
     process.env.DATABASE_HOST = 'localhost';
   }
 
   const pw = process.env.DATABASE_PASSWORD || '';
-  console.error(
+  console.log(
     '[hostinger-strapi] loading Strapi… user=' +
       process.env.DATABASE_USERNAME +
       ' host=' +
@@ -140,10 +158,10 @@ server.on('error', (err) => {
   if (typeof app.postListen === 'function') {
     await app.postListen();
   } else {
-    console.error('[hostinger-strapi] Strapi loaded and serving on existing HTTP server');
+    console.log('[hostinger-strapi] Strapi loaded and serving on existing HTTP server');
   }
 
-  console.error('[hostinger-strapi] READY — open /admin');
+  console.log('[hostinger-strapi] READY — open /admin');
 })().catch((err) => {
   console.error('[hostinger-strapi] FATAL during Strapi load', err);
   process.exit(1);

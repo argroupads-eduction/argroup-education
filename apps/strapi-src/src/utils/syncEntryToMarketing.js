@@ -43,14 +43,41 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
     }
 
     const endpoint = syncUrl.replace(/\/$/, '') + '/api/cms/payload-sync';
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${secret}`,
-      },
-      body: JSON.stringify(body),
-    });
+    const payload = JSON.stringify(body);
+    let res;
+    let lastErr;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${secret}`,
+          },
+          body: payload,
+        });
+        lastErr = null;
+        break;
+      } catch (err) {
+        lastErr = err;
+        const code = err?.cause?.code || err?.code || '';
+        const msg = String(err?.message || err);
+        // Hostinger → www sometimes drops sockets (ECONNRESET); brief retry
+        if (
+          attempt < 3 &&
+          (code === 'ECONNRESET' || code === 'ETIMEDOUT' || /ECONNRESET|ETIMEDOUT|fetch failed/i.test(msg))
+        ) {
+          strapi.log.warn(
+            `[marketing-sync] ${kind} ${body.slug} attempt ${attempt} ${code || msg} — retry`
+          );
+          await new Promise((r) => setTimeout(r, 400 * attempt));
+          continue;
+        }
+        throw err;
+      }
+    }
+    if (lastErr) throw lastErr;
+
     const text = await res.text();
     if (!res.ok) {
       strapi.log.error(
