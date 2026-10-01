@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Marketing payload-sync guards (Phase 1.6).
  *
  * Richer-field keep rule:
@@ -26,7 +26,16 @@ function tagCount(html: string): number {
 export function htmlRichness(value: string | null | undefined): number {
   const html = typeof value === 'string' ? value : '';
   if (!html.trim()) return 0;
-  return stripHtml(html).length + tagCount(html) * 50 + html.length * 0.1;
+  const headings = (html.match(/<h[1-6]\b/gi) || []).length;
+  const faqs = (html.match(/wp-premium-faq|<details\b/gi) || []).length;
+  // Prefer structured blog HTML over plain text that Strapi richtext sometimes emits.
+  return (
+    stripHtml(html).length +
+    tagCount(html) * 50 +
+    headings * 400 +
+    faqs * 300 +
+    html.length * 0.1
+  );
 }
 
 export function textRichness(value: string | null | undefined): number {
@@ -124,7 +133,7 @@ export function resolveSyncImageUrl(
     return s.split('?')[0] || s;
   }
 
-  // Relative non-uploads ΓÇö reject for sync write
+  // Relative non-uploads — reject for sync write
   if (s.startsWith('/') || !s.includes('://')) {
     return null;
   }
@@ -151,7 +160,7 @@ export function resolvePublishedAtForSync(opts: {
   legacyPublishedAt?: string | null | undefined;
   published: boolean;
 }): Date | null {
-  // Strapi `legacyPublishedAt` is the editorial date ΓÇö always honor when set
+  // Strapi `legacyPublishedAt` is the editorial date — always honor when set
   // (fixes wrong "today" dates on re-Publish of existing posts).
   if (opts.legacyPublishedAt) {
     const legacy = new Date(opts.legacyPublishedAt);
