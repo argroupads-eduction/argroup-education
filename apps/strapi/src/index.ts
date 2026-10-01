@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Core } from '@strapi/strapi';
 
 type MarketingKind = 'post' | 'page';
@@ -23,14 +24,16 @@ function asEntry(value: unknown): MarketingEntry | null {
 /**
  * Strapi 5 Document Service publish/delete often bypasses classic afterUpdate/afterDelete.
  * One middleware covers Post + Page: publish → live, delete/unpublish → published:false.
+ *
+ * Note: context/next typed as `any` so Hostinger `strapi build` accepts documents.use Middleware.
  */
 function registerMarketingDocumentSync(strapi: Core.Strapi) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { syncEntryToMarketing } = require('./utils/syncEntryToMarketing');
 
-  strapi.documents.use(async (context: { uid: string; action: string; params?: { documentId?: string; slug?: string } }, next: () => Promise<unknown>) => {
-    const kind = UID_MAP[context.uid];
-    const params = (context as { params?: { documentId?: string; slug?: string } }).params || {};
+  strapi.documents.use(async (context: any, next: any) => {
+    const kind = UID_MAP[context?.uid as string];
+    const params = (context?.params || {}) as { documentId?: string; slug?: string };
     let preDeleteSlug: string | null = null;
     let preDeleteTitle: string | null = null;
 
@@ -53,7 +56,7 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
     const result = await next();
     if (!kind) return result;
 
-    const action = context.action;
+    const action = String(context.action || '');
     if (!['publish', 'update', 'create', 'unpublish', 'delete'].includes(action)) {
       return result;
     }
@@ -115,7 +118,12 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
 
 export default {
   register({ strapi }: { strapi: Core.Strapi }) {
-    registerMarketingDocumentSync(strapi);
+    try {
+      registerMarketingDocumentSync(strapi);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      strapi.log.error(`[marketing-sync] register failed (CMS still boots): ${message}`);
+    }
   },
 
   bootstrap(/* { strapi }: { strapi: Core.Strapi } */) {},
