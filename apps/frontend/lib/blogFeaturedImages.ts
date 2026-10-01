@@ -1,6 +1,7 @@
 import { BLOG_SLUG_CANONICAL } from '@/lib/blogUtils';
+import { getCollegeImageBySlug } from '@/lib/collegeImageIndex';
 import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
-import blogFeaturedMap from '@/data/blog-featured-map.json';
+import blogFeaturedMap from '../data/blog-featured-map.json';
 
 /** Curated blog hero images when CMS/DB has no featuredImage set. */
 export const BLOG_FEATURED_IMAGES: Record<string, string> = {
@@ -74,33 +75,105 @@ function curatedFeaturedImage(slug: string): string | null {
   return null;
 }
 
+/** CMS/Strapi URLs that must win over local curated fallbacks. */
+function isTrustedCmsFeaturedUrl(url: string): boolean {
+  if (/hostingersite\.com/i.test(url)) return true;
+  if (/\/uploads\//i.test(url)) return true;
+  if (/blob\.vercel-storage\.com/i.test(url)) return true;
+  if (/res\.cloudinary\.com/i.test(url)) return true;
+  if (/githubusercontent\.com|github\.com/i.test(url)) return true;
+  // Site-owned absolute media (not the old broken WP CDN guesses)
+  if (/argroupofeducation\.com\/uploads\//i.test(url)) return true;
+  return false;
+}
+
+function isBrokenFeaturedFallback(url: string): boolean {
+  return /getmyuniversity\.com/i.test(url);
+}
+
 export function resolveBlogFeaturedImage(
   slug: string,
   fallback: string | null | undefined
 ): string | null {
-  // Local curated + bundled featured heroes win over broken wp-content CDN 404s.
-  const curated = curatedFeaturedImage(slug);
-  if (curated) return curated;
-
   const trimmed = fallback?.trim();
-  if (trimmed?.startsWith('/images/')) return trimmed;
 
-  const resolvedFallback = resolveWpMediaUrl(fallback);
-  if (resolvedFallback?.startsWith('/images/')) return resolvedFallback;
-  // Payload / Vercel Blob URLs stay; college packs stay; other /wp-content 404s on Amplify.
-  if (resolvedFallback) {
-    if (/blob\.vercel-storage\.com/i.test(resolvedFallback)) return resolvedFallback;
-    if (/^\/wp-content\/uploads\/colleges\//i.test(resolvedFallback)) return resolvedFallback;
-    if (
-      resolvedFallback.startsWith('/wp-content/') ||
-      /argroupofeducation\.com\/wp-content\//i.test(resolvedFallback)
-    ) {
-      return curatedFeaturedImage(slug);
+  // Strapi / CMS featured image always wins when present and trusted.
+  // Curated maps are fallback only — never override an admin upload.
+  if (trimmed && !isBrokenFeaturedFallback(trimmed)) {
+    // Persisted Media Library bytes served from www
+    if (/\/api\/cms\/media\/[a-f0-9]+/i.test(trimmed)) {
+      try {
+        if (/^https?:\/\//i.test(trimmed)) {
+          const u = new URL(trimmed.replace(/^http:\/\//i, 'https://'));
+          return u.pathname;
+        }
+      } catch {
+        /* keep */
+      }
+      return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
     }
-    return resolvedFallback;
+
+    if (/^https?:\/\//i.test(trimmed) && isTrustedCmsFeaturedUrl(trimmed)) {
+      const httpsUrl = trimmed.replace(/^http:\/\//i, 'https://');
+      // Keep Hostinger Strapi /uploads absolute so the Media Library file shows on live.
+      if (/hostingersite\.com/i.test(httpsUrl) || /\/uploads\//i.test(httpsUrl)) {
+        return httpsUrl;
+      }
+      if (/githubusercontent\.com|github\.com/i.test(httpsUrl)) {
+        return httpsUrl;
+      }
+      try {
+        const pathName = new URL(httpsUrl).pathname;
+        if (pathName.startsWith('/images/')) return pathName;
+        if (pathName.includes('/wp-content/')) {
+          return pathName.slice(pathName.indexOf('/wp-content/'));
+        }
+      } catch {
+        /* keep absolute */
+      }
+      return httpsUrl;
+    }
+
+    // Only rewrite relative/same-bundle paths — never strip GitHub/CDN absolutes to local.
+    const bundledBlogFile =
+      !/^https?:\/\//i.test(trimmed) &&
+      trimmed.match(/\/images\/blog\/([^/?#]+)(\?[^#]*)?$/i);
+    if (bundledBlogFile) {
+      const file = bundledBlogFile[1];
+      return file.toLowerCase().endsWith('.webp')
+        ? `/images/blog/${file}?v=3`
+        : `/images/blog/${file}`;
+    }
+
+    if (trimmed.startsWith('/images/')) return trimmed;
+
+    if (/^https?:\/\//i.test(trimmed)) {
+      if (
+        /blob\.vercel-storage\.com/i.test(trimmed) ||
+        /argroupofeducation\.com/i.test(trimmed) ||
+        /hostingersite\.com/i.test(trimmed) ||
+        /res\.cloudinary\.com/i.test(trimmed) ||
+        /githubusercontent\.com/i.test(trimmed) ||
+        /github\.com/i.test(trimmed)
+      ) {
+        return trimmed.replace(/^http:\/\//i, 'https://');
+      }
+    }
+
+    const resolvedFallback = resolveWpMediaUrl(fallback);
+    if (resolvedFallback?.startsWith('/images/')) return resolvedFallback;
+    if (resolvedFallback) {
+      if (/blob\.vercel-storage\.com/i.test(resolvedFallback)) return resolvedFallback;
+      if (resolvedFallback.startsWith('/wp-content/')) return resolvedFallback;
+      // Prefer trusted CMS absolutes over curated
+      if (/^https?:\/\//i.test(resolvedFallback) && isTrustedCmsFeaturedUrl(resolvedFallback)) {
+        return resolvedFallback;
+      }
+      return resolvedFallback;
+    }
   }
 
-  return curatedFeaturedImage(slug);
+  return curatedFeaturedImage(slug) || getCollegeImageBySlug(slug);
 }
 
 export function resolveBlogPublishedAt(

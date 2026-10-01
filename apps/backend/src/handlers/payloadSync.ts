@@ -1,16 +1,20 @@
 import { timingSafeEqual } from 'crypto';
 import { prisma, withPrismaRetry } from '../lib/prisma';
+import { cmsMediaPublicUrl, storeCmsMediaBase64 } from '../lib/cmsMediaStore';
 import { pullPostFromPayloadCms } from '../lib/pullPostFromPayloadCms';
+import {
+  pickFeaturedImage,
+  pickRicherSchema,
+  pickRicherText,
+  resolvePublishedAtForSync,
+  stripHtml,
+} from '../lib/syncGuard';
 
 function bearerTokenMatches(secret: string, token: string): boolean {
   const a = Buffer.from(token);
   const b = Buffer.from(secret);
   if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);
-}
-
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 function payloadWpId(slug: string): number {
@@ -28,6 +32,9 @@ export type PayloadSyncBody = {
   content?: string;
   excerpt?: string;
   featuredImage?: string | null;
+  /** Strapi Publish attaches Media Library bytes so live does not depend on Hostinger /uploads. */
+  featuredImageBase64?: string | null;
+  featuredImageMime?: string | null;
   category?: string;
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -49,6 +56,8 @@ export type PayloadSyncBody = {
   navSortOrder?: number;
   published?: boolean;
   publishedAt?: string | null;
+  /** Preferred date source from Strapi (create-only for publishedAt). */
+  legacyPublishedAt?: string | null;
   /** When true, marketing site should send a Web Push (first publish from Payload). */
   notifyPush?: boolean;
   /**
@@ -101,6 +110,10 @@ export function verifyPayloadSyncAuth(authHeader: string | null): PayloadSyncRes
   return null;
 }
 
+function imageOpts() {
+  return { publicUrl: process.env.PUBLIC_URL || process.env.STRAPI_PUBLIC_URL || null };
+}
+
 export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSyncResult> {
   const type = body.type === 'page' ? 'page' : 'post';
   const slug = typeof body.slug === 'string' ? body.slug.trim() : '';
@@ -112,9 +125,24 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
   let metaDescription = body.metaDescription ?? null;
   let ogImage = body.ogImage ?? null;
   let publishedAtIn = body.publishedAt ?? null;
+  const legacyPublishedAtIn = body.legacyPublishedAt ?? null;
 
   if (!slug) {
     return { ok: false, status: 400, body: { success: false, message: 'slug is required' } };
+  }
+
+  // Strapi Media Library bytes → persistent /api/cms/media/{id} URL on www
+  if (typeof body.featuredImageBase64 === 'string' && body.featuredImageBase64.trim()) {
+    try {
+      const stored = await storeCmsMediaBase64(body.featuredImageBase64, body.featuredImageMime);
+      if (stored) {
+        featuredImage = cmsMediaPublicUrl(stored.id);
+        ogImage = featuredImage;
+        console.info('[payload-sync] stored cms media', slug, stored.id, stored.mime);
+      }
+    } catch (err) {
+      console.error('[payload-sync] cms media store failed', slug, err);
+    }
   }
 
   const published = body.published !== false;
@@ -156,78 +184,95 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
     }
   }
 
-  if (!title) {
-    return { ok: false, status: 400, body: { success: false, message: 'slug and title are required' } };
-  }
-
-  const publishedAt = publishedAtIn ? new Date(publishedAtIn) : published ? new Date() : null;
-  const excerpt =
-    (typeof excerptIn === 'string' && excerptIn.trim()) ||
-    stripHtml(content).slice(0, 500);
-  const resolvedMetaTitle = metaTitle ?? title;
-  const resolvedMetaDescription = metaDescription ?? excerpt.slice(0, 160);
-
   try {
     if (type === 'post') {
-      if (!published) {
-        await withPrismaRetry(() =>
-          prisma.blogPost.deleteMany({
-            where: {
-              OR: [{ slug }, { title: { equals: title } }],
-            },
-          })
-        );
-        return { ok: true, status: 200, body: { success: true, type: 'post', slug, published: false } };
-      }
-
-      await withPrismaRetry(() =>
-        prisma.blogPost.deleteMany({
-          where: {
-            title: { equals: title },
-            slug: { not: slug },
-          },
-        })
-      );
-
       const existing = await withPrismaRetry(() =>
         prisma.blogPost.findUnique({ where: { slug } })
       );
-      const isNew = !existing;
-      // Payload first-publish, or brand-new row — both should notify subscribers.
-      const notifyPush = Boolean(body.notifyPush) || isNew;
 
-      // Guard: Payload sometimes syncs title-only (empty Lexical / unresolved media).
-      // Never wipe a richer live row with a thin payload.
-      const incomingContent = (content || excerpt || title).trim();
-      const existingContent = (existing?.content || '').trim();
-      const stillThinAfterPull =
-        incomingContent.length < 200 ||
-        incomingContent === title ||
-        incomingContent === title.trim();
-      const existingLooksRich = existingContent.length > Math.max(incomingContent.length, 200);
+      // Unpublish: flag only — NEVER deleteMany
+      if (!published) {
+        if (existing) {
+          await withPrismaRetry(() =>
+            prisma.blogPost.update({
+              where: { slug },
+              data: { published: false },
+            })
+          );
+        }
+        return { ok: true, status: 200, body: { success: true, type: 'post', slug, published: false } };
+      }
+
+      if (!title && !existing?.title) {
+        return { ok: false, status: 400, body: { success: false, message: 'slug and title are required' } };
+      }
+      title = title || existing!.title;
+
+      // Title-collision cleanup kept for create path only (does not delete by slug)
+      if (!existing) {
+        await withPrismaRetry(() =>
+          prisma.blogPost.deleteMany({
+            where: {
+              title: { equals: title },
+              slug: { not: slug },
+            },
+          })
+        );
+      }
+
+      const isNew = !existing;
+      const notifyPush = Boolean(body.notifyPush) || isNew;
+      const opts = imageOpts();
 
       const resolvedContent =
-        stillThinAfterPull && existingLooksRich ? existingContent : incomingContent;
+        pickRicherText(content, existing?.content, 'html') || title;
+      const fallbackExcerpt = stripHtml(resolvedContent).slice(0, 500);
       const resolvedExcerpt =
-        stillThinAfterPull && existingLooksRich && existing?.excerpt
-          ? existing.excerpt
-          : excerpt;
-      // Never wipe a stored image when sync sends null/empty (CMS often has
-      // hero media but featured_image_url column empty).
-      const incomingImage =
-        typeof featuredImage === 'string' && featuredImage.trim()
-          ? featuredImage.trim()
-          : null;
-      const incomingOg =
-        typeof ogImage === 'string' && ogImage.trim() ? ogImage.trim() : null;
-      const resolvedFeaturedImage =
-        incomingImage || existing?.featuredImage || null;
+        pickRicherText(excerptIn, existing?.excerpt, 'html') ||
+        (existing?.excerpt ?? fallbackExcerpt);
+      const resolvedFeaturedImage = pickFeaturedImage(
+        featuredImage,
+        existing?.featuredImage,
+        opts
+      );
       const resolvedOgImage =
-        incomingOg ||
-        incomingImage ||
-        existing?.ogImage ||
-        resolvedFeaturedImage ||
-        null;
+        pickFeaturedImage(ogImage, existing?.ogImage, opts) ||
+        resolvedFeaturedImage;
+      const resolvedMetaTitle =
+        pickRicherText(metaTitle, existing?.metaTitle, 'text') || title;
+      const resolvedMetaDescription =
+        pickRicherText(metaDescription, existing?.metaDescription, 'text') ||
+        String(resolvedExcerpt).slice(0, 160);
+      const resolvedCanonical = pickRicherText(
+        body.canonicalUrl,
+        existing?.canonicalUrl,
+        'text'
+      );
+      const resolvedFocus = pickRicherText(
+        body.focusKeyword,
+        existing?.focusKeyword,
+        'text'
+      );
+      const resolvedOgTitle =
+        pickRicherText(body.ogTitle, existing?.ogTitle, 'text') || resolvedMetaTitle;
+      const resolvedOgDescription =
+        pickRicherText(body.ogDescription, existing?.ogDescription, 'text') ||
+        resolvedMetaDescription;
+      const resolvedTwTitle =
+        pickRicherText(body.twitterTitle, existing?.twitterTitle, 'text') ||
+        resolvedOgTitle;
+      const resolvedTwDescription =
+        pickRicherText(body.twitterDescription, existing?.twitterDescription, 'text') ||
+        resolvedOgDescription;
+      const resolvedSchema = pickRicherSchema(body.schemaJson, existing?.schemaJson);
+
+      const publishedAt = resolvePublishedAtForSync({
+        isNew,
+        existingPublishedAt: existing?.publishedAt,
+        incomingPublishedAt: publishedAtIn,
+        legacyPublishedAt: legacyPublishedAtIn,
+        published,
+      });
 
       const data = {
         title,
@@ -235,20 +280,21 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
         content: resolvedContent,
         excerpt: resolvedExcerpt,
         featuredImage: resolvedFeaturedImage,
-        category: body.category || 'Blog',
-        tags: Array.isArray(body.tags) ? body.tags : [],
+        category: body.category || existing?.category || 'Blog',
+        tags: Array.isArray(body.tags) ? body.tags : existing?.tags ?? [],
         metaTitle: resolvedMetaTitle,
         metaDescription: resolvedMetaDescription,
-        canonicalUrl: body.canonicalUrl ?? null,
-        focusKeyword: body.focusKeyword ?? null,
-        keywords: Array.isArray(body.keywords) ? body.keywords : [],
-        ogTitle: body.ogTitle ?? resolvedMetaTitle,
-        ogDescription: body.ogDescription ?? resolvedMetaDescription,
+        canonicalUrl: resolvedCanonical,
+        focusKeyword: resolvedFocus,
+        keywords: Array.isArray(body.keywords)
+          ? body.keywords
+          : existing?.keywords ?? [],
+        ogTitle: resolvedOgTitle,
+        ogDescription: resolvedOgDescription,
         ogImage: resolvedOgImage,
-        twitterTitle: body.twitterTitle ?? body.ogTitle ?? resolvedMetaTitle,
-        twitterDescription:
-          body.twitterDescription ?? body.ogDescription ?? resolvedMetaDescription,
-        schemaJson: body.schemaJson ?? undefined,
+        twitterTitle: resolvedTwTitle,
+        twitterDescription: resolvedTwDescription,
+        ...(resolvedSchema !== undefined ? { schemaJson: resolvedSchema } : {}),
         published,
         publishedAt,
       };
@@ -270,63 +316,114 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
           isNew,
           notifyPush: published && notifyPush,
           title,
-          excerpt,
+          excerpt: resolvedExcerpt,
         },
       };
     }
 
-    const wpId = payloadWpId(slug);
+    // Pages
+    const existingPage = await withPrismaRetry(() =>
+      prisma.sitePage.findUnique({ where: { slug } })
+    );
+
+    if (!published) {
+      if (existingPage) {
+        await withPrismaRetry(() =>
+          prisma.sitePage.update({
+            where: { slug },
+            data: { published: false },
+          })
+        );
+      }
+      return { ok: true, status: 200, body: { success: true, type: 'page', slug, published: false } };
+    }
+
+    if (!title && !existingPage?.title) {
+      return { ok: false, status: 400, body: { success: false, message: 'slug and title are required' } };
+    }
+    title = title || existingPage!.title;
+
+    if (!existingPage) {
+      await withPrismaRetry(() =>
+        prisma.sitePage.deleteMany({
+          where: {
+            title: { equals: title },
+            slug: { not: slug },
+          },
+        })
+      );
+    }
+
+    const opts = imageOpts();
+    const resolvedContent =
+      pickRicherText(content, existingPage?.content, 'html') || title;
+    const fallbackExcerpt = stripHtml(resolvedContent).slice(0, 500);
+    const excerpt =
+      pickRicherText(excerptIn, existingPage?.excerpt, 'html') ||
+      (existingPage?.excerpt ?? fallbackExcerpt);
+    const resolvedFeaturedImage = pickFeaturedImage(
+      featuredImage,
+      existingPage?.featuredImage,
+      opts
+    );
+    const resolvedOgImage =
+      pickFeaturedImage(ogImage, existingPage?.ogImage, opts) ||
+      resolvedFeaturedImage;
+    const resolvedMetaTitle =
+      pickRicherText(metaTitle, existingPage?.metaTitle, 'text') || title;
+    const resolvedMetaDescription =
+      pickRicherText(metaDescription, existingPage?.metaDescription, 'text') ||
+      String(excerpt).slice(0, 160);
+    const resolvedSchema = pickRicherSchema(body.schemaJson, existingPage?.schemaJson);
+    const publishedAt = resolvePublishedAtForSync({
+      isNew: !existingPage,
+      existingPublishedAt: existingPage?.publishedAt,
+      incomingPublishedAt: publishedAtIn,
+      legacyPublishedAt: legacyPublishedAtIn,
+      published,
+    });
+
+    const wpId = existingPage?.wpId ?? payloadWpId(slug);
     const pageData = {
       wpId,
       title,
       slug,
-      content: content || excerpt || title,
+      content: resolvedContent,
       excerpt,
-      featuredImage: featuredImage ?? null,
+      featuredImage: resolvedFeaturedImage,
       metaTitle: resolvedMetaTitle,
       metaDescription: resolvedMetaDescription,
-      canonicalUrl: body.canonicalUrl ?? null,
-      focusKeyword: body.focusKeyword ?? null,
-      keywords: Array.isArray(body.keywords) ? body.keywords : [],
-      ogTitle: body.ogTitle ?? resolvedMetaTitle,
-      ogDescription: body.ogDescription ?? resolvedMetaDescription,
-      ogImage: ogImage ?? featuredImage ?? null,
-      twitterTitle: body.twitterTitle ?? body.ogTitle ?? resolvedMetaTitle,
+      canonicalUrl: pickRicherText(body.canonicalUrl, existingPage?.canonicalUrl, 'text'),
+      focusKeyword: pickRicherText(body.focusKeyword, existingPage?.focusKeyword, 'text'),
+      keywords: Array.isArray(body.keywords)
+        ? body.keywords
+        : existingPage?.keywords ?? [],
+      ogTitle:
+        pickRicherText(body.ogTitle, existingPage?.ogTitle, 'text') || resolvedMetaTitle,
+      ogDescription:
+        pickRicherText(body.ogDescription, existingPage?.ogDescription, 'text') ||
+        resolvedMetaDescription,
+      ogImage: resolvedOgImage,
+      twitterTitle:
+        pickRicherText(body.twitterTitle, existingPage?.twitterTitle, 'text') ||
+        body.ogTitle ||
+        resolvedMetaTitle,
       twitterDescription:
-        body.twitterDescription ?? body.ogDescription ?? resolvedMetaDescription,
-      schemaJson: body.schemaJson ?? undefined,
+        pickRicherText(body.twitterDescription, existingPage?.twitterDescription, 'text') ||
+        body.ogDescription ||
+        resolvedMetaDescription,
+      ...(resolvedSchema !== undefined ? { schemaJson: resolvedSchema } : {}),
       navEnabled: body.navEnabled === true,
-      navSection: body.navSection ?? null,
-      navParent: body.navParent ?? null,
-      navLabel: body.navLabel ?? null,
-      navSortOrder: typeof body.navSortOrder === 'number' ? body.navSortOrder : 0,
+      navSection: body.navSection ?? existingPage?.navSection ?? null,
+      navParent: body.navParent ?? existingPage?.navParent ?? null,
+      navLabel: body.navLabel ?? existingPage?.navLabel ?? null,
+      navSortOrder:
+        typeof body.navSortOrder === 'number'
+          ? body.navSortOrder
+          : existingPage?.navSortOrder ?? 0,
       published,
       publishedAt,
     };
-
-    if (!published) {
-      await withPrismaRetry(() =>
-        prisma.sitePage.deleteMany({
-          where: {
-            OR: [{ slug }, { title: { equals: title } }],
-          },
-        })
-      );
-      return { ok: true, status: 200, body: { success: true, type: 'page', slug, published: false } };
-    }
-
-    await withPrismaRetry(() =>
-      prisma.sitePage.deleteMany({
-        where: {
-          title: { equals: title },
-          slug: { not: slug },
-        },
-      })
-    );
-
-    const existingPage = await withPrismaRetry(() =>
-      prisma.sitePage.findUnique({ where: { slug } })
-    );
 
     if (existingPage) {
       await withPrismaRetry(() =>
