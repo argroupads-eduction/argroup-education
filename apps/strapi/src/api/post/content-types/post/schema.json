@@ -17,7 +17,7 @@
     "content": {
       "type": "richtext",
       "required": true,
-      "description": "Paste Markdown or HTML. On Save/Publish, headings/paragraphs normalize to h1–h3/p for the live blog template."
+      "description": "Paste Markdown or HTML. Save/Publish → h2/h3/p lists + FAQs become live accordion (add a 'Frequently Asked Questions' heading, then Q then Answer)."
     },
     "excerpt": { "type": "text" },
     "featuredMedia": {
