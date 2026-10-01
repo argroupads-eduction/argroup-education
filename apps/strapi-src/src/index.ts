@@ -126,5 +126,17 @@ export default {
     }
   },
 
-  bootstrap(/* { strapi }: { strapi: Core.Strapi } */) {},
+  bootstrap({ strapi }: { strapi: Core.Strapi }) {
+    const syncUrl = process.env.MARKETING_SYNC_URL || '';
+    const secret = process.env.PAYLOAD_SYNC_SECRET || process.env.REVALIDATE_SECRET || '';
+    const allow = process.env.STRAPI_ALLOW_LIVE_SYNC || '';
+    strapi.log.info(
+      `[marketing-sync] boot check url=${syncUrl ? 'set' : 'MISSING'} secret=${secret ? 'set' : 'MISSING'} STRAPI_ALLOW_LIVE_SYNC=${allow || 'MISSING'}`
+    );
+    if (!syncUrl || !secret || allow !== '1') {
+      strapi.log.error(
+        '[marketing-sync] Publish will NOT reach www until Hostinger env has MARKETING_SYNC_URL, PAYLOAD_SYNC_SECRET, STRAPI_ALLOW_LIVE_SYNC=1'
+      );
+    }
+  },
 };

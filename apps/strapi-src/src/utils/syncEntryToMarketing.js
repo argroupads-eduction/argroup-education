@@ -21,10 +21,19 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
     const syncUrl = process.env.MARKETING_SYNC_URL;
     const secret = process.env.PAYLOAD_SYNC_SECRET || process.env.REVALIDATE_SECRET;
     if (!syncUrl || !secret) {
-      strapi.log.info(`[marketing-sync] skipped (${kind}): MARKETING_SYNC_URL / secret not set`);
+      strapi.log.error(
+        `[marketing-sync] skipped (${kind}): set MARKETING_SYNC_URL + PAYLOAD_SYNC_SECRET on Hostinger env`
+      );
       return { ok: false, reason: 'env' };
     }
-    assertMarketingSyncTarget(syncUrl);
+    try {
+      assertMarketingSyncTarget(syncUrl);
+    } catch (err) {
+      strapi.log.error(
+        `[marketing-sync] blocked (${kind}): ${err.message} — set STRAPI_ALLOW_LIVE_SYNC=1 on Hostinger`
+      );
+      return { ok: false, reason: 'allow-live' };
+    }
 
     const body = buildPayloadSyncBody(kind, entry || {}, {
       published: published !== false,
