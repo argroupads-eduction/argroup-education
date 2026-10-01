@@ -28,7 +28,7 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { syncEntryToMarketing } = require('./utils/syncEntryToMarketing');
 
-  strapi.documents.use(async (context, next) => {
+  strapi.documents.use(async (context: { uid: string; action: string; params?: { documentId?: string; slug?: string } }, next: () => Promise<unknown>) => {
     const kind = UID_MAP[context.uid];
     const params = (context as { params?: { documentId?: string; slug?: string } }).params || {};
     let preDeleteSlug: string | null = null;
