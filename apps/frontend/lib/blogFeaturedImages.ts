@@ -115,11 +115,13 @@ export function resolveBlogFeaturedImage(
 
     if (/^https?:\/\//i.test(trimmed) && isTrustedCmsFeaturedUrl(trimmed)) {
       const httpsUrl = trimmed.replace(/^http:\/\//i, 'https://');
-      // Keep Hostinger Strapi /uploads absolute so the Media Library file shows on live.
-      if (/hostingersite\.com/i.test(httpsUrl) || /\/uploads\//i.test(httpsUrl)) {
-        return httpsUrl;
-      }
-      if (/githubusercontent\.com|github\.com/i.test(httpsUrl)) {
+      // Never rewrite GitHub/CDN absolutes to /images/... (path may contain that substring).
+      if (
+        /githubusercontent\.com|github\.com|jsdelivr\.net/i.test(httpsUrl) ||
+        /hostingersite\.com/i.test(httpsUrl) ||
+        /\/uploads\//i.test(httpsUrl) ||
+        /blog-heroes\//i.test(httpsUrl)
+      ) {
         return httpsUrl;
       }
       try {
