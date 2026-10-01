@@ -30,6 +30,8 @@ function asEntry(value: unknown): MarketingEntry | null {
 function registerMarketingDocumentSync(strapi: Core.Strapi) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { syncEntryToMarketing } = require('./utils/syncEntryToMarketing');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { loadPreparedPost, preparePostEntry } = require('./utils/preparePostForMarketingSync');
 
   strapi.documents.use(async (context: any, next: any) => {
     const kind = UID_MAP[context?.uid as string];
@@ -102,8 +104,22 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
         return result;
       }
 
+      // Posts: re-load with featuredMedia + normalize HTML/h2/h3/FAQ before sync
+      let syncPayload: MarketingEntry = entry;
+      if (kind === 'post') {
+        const documentId =
+          (typeof (entry as { documentId?: string }).documentId === 'string' &&
+            (entry as { documentId?: string }).documentId) ||
+          params.documentId ||
+          null;
+        const prepared = documentId
+          ? await loadPreparedPost(strapi, documentId, { preferPublished: true })
+          : preparePostEntry(strapi, entry);
+        if (prepared) syncPayload = prepared;
+      }
+
       const notifyPush = kind === 'post' && action === 'publish';
-      await syncEntryToMarketing(strapi, kind, entry, { published: true, notifyPush });
+      await syncEntryToMarketing(strapi, kind, syncPayload, { published: true, notifyPush });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       strapi.log.error(`[marketing-sync] documents middleware: ${message}`);

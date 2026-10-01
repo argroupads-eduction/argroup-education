@@ -20,6 +20,9 @@ export const BLOG_FEATURED_IMAGES: Record<string, string> = {
   'study-low-cost-mbbs-in-india': '/images/blog/study-low-cost-mbbs-in-india.png',
   'NEET PG Exam 2026': '/images/blog/neet-pg-exam-2026.png',
   'neet-pg-exam-2026': '/images/blog/neet-pg-exam-2026.png',
+  'neet-pg-required-for-nri-and-management-quota': '/images/blog/neet-pg.webp?v=3',
+  'is-the-neet-pg-score-required-for-admission-to-the-national-and-management-quota':
+    '/images/blog/neet-pg.webp?v=3',
   'affordable-medical-universities-abroad':
     '/images/blog/affordable-medical-universities-abroad.png',
   'score-is-needed-in-neet':
@@ -88,7 +91,10 @@ export function resolveBlogFeaturedImage(
     return curatedFeaturedImage(slug) || getCollegeImageBySlug(slug);
   }
 
-  const bundledBlogFile = trimmed.match(/\/images\/blog\/([^/?#]+)(\?[^#]*)?$/i);
+  // Only rewrite relative/same-bundle paths — never strip GitHub/CDN absolutes to local.
+  const bundledBlogFile =
+    !/^https?:\/\//i.test(trimmed) &&
+    trimmed.match(/\/images\/blog\/([^/?#]+)(\?[^#]*)?$/i);
   if (bundledBlogFile) {
     const file = bundledBlogFile[1];
     return file.toLowerCase().endsWith('.webp')
@@ -104,9 +110,15 @@ export function resolveBlogFeaturedImage(
       /blob\.vercel-storage\.com/i.test(trimmed) ||
       /argroupofeducation\.com/i.test(trimmed) ||
       /hostingersite\.com/i.test(trimmed) ||
-      /res\.cloudinary\.com/i.test(trimmed)
+      /res\.cloudinary\.com/i.test(trimmed) ||
+      /githubusercontent\.com/i.test(trimmed) ||
+      /github\.com/i.test(trimmed)
     ) {
       const httpsUrl = trimmed.replace(/^http:\/\//i, 'https://');
+      // Prefer same-origin for our own host; keep GitHub raw absolute.
+      if (/githubusercontent\.com|github\.com/i.test(httpsUrl)) {
+        return httpsUrl;
+      }
       try {
         const pathName = new URL(httpsUrl).pathname;
         if (pathName.startsWith('/images/')) return pathName;

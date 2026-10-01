@@ -10,6 +10,7 @@ const {
   applyMetaAutofill,
 } = require('../../../utils/buildPostSchemaJson');
 const { syncEntryToMarketing } = require('../../../utils/syncEntryToMarketing');
+const { preparePostEntry } = require('../../../utils/preparePostForMarketingSync');
 
 /** URL-safe slug: lowercase, hyphens, no spaces (live /blog/[slug] + sitemap). */
 function sanitizeSlug(raw) {
@@ -170,7 +171,8 @@ module.exports = {
   async afterCreate(event) {
     const published = isPublished(event.result);
     if (published) {
-      await syncEntryToMarketing(strapi, 'post', event.result, {
+      const prepared = preparePostEntry(strapi, event.result) || event.result;
+      await syncEntryToMarketing(strapi, 'post', prepared, {
         published: true,
         notifyPush: true,
       });
@@ -183,7 +185,8 @@ module.exports = {
     if (!published && !wasPublished) return;
     // First publish → notifyPush; later edits → sync only (IndexNow still runs server-side)
     const notifyPush = published && !wasPublished;
-    await syncEntryToMarketing(strapi, 'post', event.result, { published, notifyPush });
+    const prepared = preparePostEntry(strapi, event.result) || event.result;
+    await syncEntryToMarketing(strapi, 'post', prepared, { published, notifyPush });
   },
   async beforeDelete(event) {
     await loadPrior(event);

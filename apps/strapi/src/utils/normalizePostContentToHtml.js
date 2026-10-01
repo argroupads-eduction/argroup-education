@@ -35,7 +35,11 @@ function stripTags(html) {
 
 function firstParagraphText(html, maxLen = 220) {
   const m = String(html || '').match(/<p\b[^>]*>([\s\S]*?)<\/p>/i);
-  return stripTags(m ? m[1] : html).slice(0, maxLen);
+  const plain = stripTags(m ? m[1] : html);
+  if (plain.length <= maxLen) return plain;
+  const cut = plain.slice(0, maxLen);
+  const sp = cut.lastIndexOf(' ');
+  return (sp > maxLen * 0.6 ? cut.slice(0, sp) : cut).trimEnd() + '…';
 }
 
 function inlineFormat(text) {
@@ -432,8 +436,68 @@ function polishHtmlFormatting(html) {
   );
 
   // Ensure blank lines between block elements don't collapse weirdly
-  s = s.replace(/(<\/(?:p|h[1-6]|ul|ol|blockquote|table|div)>)\s*(<(?:p|h[1-6]|ul|ol|blockquote|table|div)\b)/gi, '$1\n$2');
+  s = s.replace(
+    /(<\/(?:p|h[1-6]|ul|ol|blockquote|table|div)>)\s*(<(?:p|h[1-6]|ul|ol|blockquote|table|div)\b)/gi,
+    '$1\n$2'
+  );
   return s;
+}
+
+/**
+ * Split mashed blog paragraphs into h2/h3 + p (Strapi paste often has no real headings).
+ * Mirrors live-site promoteEmbeddedHeadings patterns at publish time so DB stores structure.
+ */
+function promoteEmbeddedHeadingsInParagraphs(html) {
+  const QUESTION_RE =
+    /(?:^|(?<=[.!?]["']?\s+))((?:\d{1,2}[.)]?\s+|\(\d{1,2}\)\s+)?(?:What|Why|How|Is|Can|Which|When|Where|Who|Do|Does|Are|Should|Will|Before)\b[^.!?]{3,110}\?)/g;
+  const SECTION_RE =
+    /(?:^|(?<=[.!?]["']?\s+))((?:What is|What are|Why is|Why are|How to|How does|Eligibility Criteria|Admission Process|Counselling Process|Fee Structure|Documents Required|Key Highlights|Final Takeaway|Conclusion|Important Points|NEET PG Required For NRI And Management Quota|Is NEET PG Score Required for (?:NRI|Management) Quota\??|Difference between NEET PG|Role of NEET PG|Mistakes to avoid|How can AR Group)[^.!?]{0,90}(?:\?|(?=\s+[A-Z("])))/gi;
+
+  return String(html || '').replace(/<p(\b[^>]*)>([\s\S]*?)<\/p>/gi, (full, attrs, inner) => {
+    if (/<(?:ul|ol|table|img|h[1-6]|div|figure|blockquote|details)\b/i.test(inner)) return full;
+    const plain = stripTags(inner);
+    if (plain.length < 80) return full;
+
+    /** @type {{ start: number, end: number, text: string, level: 'h2'|'h3' }[]} */
+    const hits = [];
+    const push = (start, end, text, level) => {
+      const cleaned = stripFaqQuestionNumberPrefix(text).replace(/\s+/g, ' ').trim();
+      if (cleaned.length < 12 || cleaned.length > 110) return;
+      if (/^(for example|note|important|tip)$/i.test(cleaned)) return;
+      hits.push({ start, end, text: cleaned, level });
+    };
+
+    for (const re of [QUESTION_RE, SECTION_RE]) {
+      re.lastIndex = 0;
+      let m;
+      while ((m = re.exec(plain)) !== null) {
+        push(m.index, m.index + m[1].length, m[1], 'h2');
+      }
+    }
+    if (!hits.length) return full;
+
+    hits.sort((a, b) => a.start - b.start);
+    const unique = [];
+    for (const hit of hits) {
+      const prev = unique[unique.length - 1];
+      if (prev && hit.start < prev.end) continue;
+      if (hit.start === 0 && hit.end >= plain.length - 1) continue;
+      unique.push(hit);
+    }
+    if (!unique.length) return full;
+
+    const parts = [];
+    let cursor = 0;
+    for (const hit of unique) {
+      const before = plain.slice(cursor, hit.start).trim();
+      if (before) parts.push(`<p${attrs}>${escapeHtml(before)}</p>`);
+      parts.push(`<${hit.level}>${escapeHtml(hit.text)}</${hit.level}>`);
+      cursor = hit.end;
+    }
+    const after = plain.slice(cursor).trim();
+    if (after) parts.push(`<p${attrs}>${escapeHtml(after)}</p>`);
+    return parts.join('\n') || full;
+  });
 }
 
 function markdownToHtml(src) {
@@ -452,6 +516,11 @@ function normalizePostContentToHtml(content) {
   let html;
   if (looksLikeHtml(raw)) {
     html = polishHtmlFormatting(raw);
+    // Only a few heading tags → promote questions/sections out of paragraph blobs
+    const headingCount = (html.match(/<h[1-6]\b/gi) || []).length;
+    if (headingCount < 3) {
+      html = promoteEmbeddedHeadingsInParagraphs(html);
+    }
   } else {
     html = markdownToHtml(raw);
   }
@@ -468,4 +537,5 @@ module.exports = {
   markdownToHtml,
   buildFaqHtml,
   enhanceHtmlFaqs,
+  promoteEmbeddedHeadingsInParagraphs,
 };
