@@ -72,8 +72,7 @@ function resolveImageUrlForSync(raw) {
 
 function buildPayloadSyncBody(type, entry, { published, notifyPush } = {}) {
   const data = entry || {};
-  // Prefer legacy date for marketing publishedAt on create; marketing guard
-  // freezes publishedAt on existing rows regardless.
+  // Prefer Strapi legacyPublishedAt (editorial date shown on live).
   const legacyPublishedAt =
     data.legacyPublishedAt || data.legacy_published_at || null;
   const publishedAt = legacyPublishedAt || data.publishedAt || null;
