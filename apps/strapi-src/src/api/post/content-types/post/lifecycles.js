@@ -1,8 +1,6 @@
 'use strict';
 
 const {
-  assertMarketingSyncTarget,
-  buildPayloadSyncBody,
   mediaFileToAbsoluteUrl,
   resolveImageUrlForSync,
 } = require('../../../utils/marketingSyncSafety');
@@ -11,6 +9,20 @@ const {
   buildPostSchemaJson,
   applyMetaAutofill,
 } = require('../../../utils/buildPostSchemaJson');
+const { syncPostToMarketing } = require('../../../utils/syncPostToMarketing');
+
+/** URL-safe slug: lowercase, hyphens, no spaces (live /blog/[slug] + sitemap). */
+function sanitizeSlug(raw) {
+  return String(raw || '')
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 80);
+}
 
 /** Copy Media Library file → featuredImage URL string (marketing MySQL expects a URL). */
 async function applyFeaturedMediaUrl(event) {
@@ -58,6 +70,16 @@ async function applyFeaturedMediaUrl(event) {
 function applyContentSchemaDefaults(event, prior) {
   const data = event.params?.data;
   if (!data || typeof data !== 'object') return;
+
+  if (typeof data.slug === 'string' && data.slug.trim()) {
+    const clean = sanitizeSlug(data.slug);
+    if (clean) data.slug = clean;
+  } else if (!data.slug && prior?.slug) {
+    // leave prior
+  } else if (typeof data.title === 'string' && data.title.trim() && !prior?.slug) {
+    const fromTitle = sanitizeSlug(data.title);
+    if (fromTitle) data.slug = fromTitle;
+  }
 
   if (typeof data.content === 'string' && data.content.trim()) {
     data.content = normalizePostContentToHtml(data.content);
@@ -131,46 +153,6 @@ async function loadPrior(event) {
   }
 }
 
-async function syncToMarketing(event, type, published, notifyPush) {
-  try {
-    const syncUrl = process.env.MARKETING_SYNC_URL;
-    const secret = process.env.PAYLOAD_SYNC_SECRET || process.env.REVALIDATE_SECRET;
-    if (!syncUrl || !secret) {
-      strapi.log.info(`[marketing-sync] skipped (${type}): MARKETING_SYNC_URL / secret not set`);
-      return;
-    }
-    assertMarketingSyncTarget(syncUrl);
-
-    const entry = event.result || event.params?.data || {};
-    const body = buildPayloadSyncBody(type, entry, { published, notifyPush });
-    if (!body.slug) {
-      strapi.log.warn(`[marketing-sync] skip ${type}: missing slug`);
-      return;
-    }
-
-    const endpoint = syncUrl.replace(/\/$/, '') + '/api/cms/payload-sync';
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${secret}`,
-      },
-      body: JSON.stringify(body),
-    });
-    const text = await res.text();
-    if (!res.ok) {
-      strapi.log.error(`[marketing-sync] ${type} ${body.slug} → ${res.status} ${text.slice(0, 300)}`);
-      return;
-    }
-    strapi.log.info(
-      `[marketing-sync] ${type} ${body.slug} published=${published} notifyPush=${!!notifyPush} ok`
-    );
-  } catch (err) {
-    // Never fail Save/Publish UI because marketing sync hiccuped.
-    strapi.log.error(`[marketing-sync] ${type} error: ${err.message}`);
-  }
-}
-
 function isPublished(entry) {
   return entry?.publishedAt != null;
 }
@@ -187,7 +169,9 @@ module.exports = {
   },
   async afterCreate(event) {
     const published = isPublished(event.result);
-    if (published) await syncToMarketing(event, 'post', true, true);
+    if (published) {
+      await syncPostToMarketing(strapi, event.result, { published: true, notifyPush: true });
+    }
   },
   async afterUpdate(event) {
     const published = isPublished(event.result);
@@ -196,6 +180,6 @@ module.exports = {
     if (!published && !wasPublished) return;
     // First publish → notifyPush; later edits → sync only (IndexNow still runs server-side)
     const notifyPush = published && !wasPublished;
-    await syncToMarketing(event, 'post', published, notifyPush);
+    await syncPostToMarketing(strapi, event.result, { published, notifyPush });
   },
 };
