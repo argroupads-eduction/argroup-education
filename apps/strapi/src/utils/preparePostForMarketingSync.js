@@ -45,10 +45,12 @@ function preparePostEntry(strapi, entry) {
   if (!entry || typeof entry !== 'object') return null;
 
   const content = normalizePostContentToHtml(entry.content || '');
+  // Featured media (Media Library) always wins over stale featuredImage string
+  // (e.g. leftover /images/blog/... paths from old scripts).
   let featuredImage =
-    resolveImageUrlForSync(entry.featuredImage) ||
     mediaFileToAbsoluteUrl(entry.featuredMedia) ||
     mediaFileToAbsoluteUrl(entry.featuredMedia?.data) ||
+    resolveImageUrlForSync(entry.featuredImage) ||
     null;
 
   // First <img src> in body as last-resort hero

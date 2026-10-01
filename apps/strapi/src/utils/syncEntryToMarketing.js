@@ -4,6 +4,7 @@ const {
   assertMarketingSyncTarget,
   buildPayloadSyncBody,
 } = require('./marketingSyncSafety');
+const { readLocalUpload } = require('./readLocalUpload');
 
 /**
  * Push Post or Page to marketing MySQL via payload-sync.
@@ -49,6 +50,25 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
         `[marketing-sync] refuse bad slug (use lowercase-hyphens): "${body.slug}"`
       );
       return { ok: false, reason: 'bad-slug' };
+    }
+
+    // Prefer Media Library bytes so live never depends on Hostinger /uploads HTTP.
+    if (kind === 'post' && published !== false) {
+      const local = readLocalUpload(
+        strapi,
+        entry?.featuredMedia || entry?.featuredMedia?.data
+      );
+      if (local?.buffer?.length) {
+        body.featuredImageBase64 = local.buffer.toString('base64');
+        body.featuredImageMime = local.mime;
+        strapi.log.info(
+          `[marketing-sync] attached local upload ${local.name} (${local.buffer.length} bytes) for ${body.slug}`
+        );
+      } else if (!body.featuredImage) {
+        strapi.log.warn(
+          `[marketing-sync] ${body.slug}: no featured media bytes on disk — re-upload Featured media then Publish`
+        );
+      }
     }
 
     const endpoint = syncUrl.replace(/\/$/, '') + '/api/cms/payload-sync';

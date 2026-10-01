@@ -82,9 +82,13 @@ function buildPayloadSyncBody(type, entry, { published, notifyPush } = {}) {
     mediaFileToAbsoluteUrl(data.featuredMedia) ||
     mediaFileToAbsoluteUrl(data.featuredMedia?.data) ||
     null;
-  const featuredImage =
-    fromMedia || resolveImageUrlForSync(data.featuredImage) || null;
-  const ogImage = resolveImageUrlForSync(data.ogImage) || featuredImage;
+  // Ignore leftover site-relative /images/... strings when Media Library file exists
+  const fromString = resolveImageUrlForSync(data.featuredImage);
+  const featuredImage = fromMedia || fromString || null;
+  const ogImage =
+    resolveImageUrlForSync(data.ogImage) ||
+    fromMedia ||
+    featuredImage;
 
   return {
     type,
