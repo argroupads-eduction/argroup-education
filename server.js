@@ -1,6 +1,6 @@
 /**
- * Hostinger-only entry (panel Start / Entry file: server.js).
- * Amplify does NOT use this file.
+ * Hostinger entry (panel Start / Entry file: server.js).
+ * Live site: Hostinger Node + Cloudflare (www.argroupofeducation.com).
  *
  * Hostinger's supervisor requires THIS process to call http.Server#listen()
  * within ~3 seconds. Spawning Next (or requiring a file that only starts when

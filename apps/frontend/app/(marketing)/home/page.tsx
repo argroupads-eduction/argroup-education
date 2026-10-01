@@ -44,7 +44,7 @@ const FAQSection = dynamic(() =>
 
 const SITE = getSiteUrl();
 
-/** ISR — warmer Amplify HTML for homepage (field TTFB support). */
+/** ISR — warmer HTML for homepage (Hostinger + Cloudflare). */
 export const revalidate = 300;
 
 const HOME_SEO_TITLE = 'Medical Admission Guidance | MBBS Admission Consultancy';

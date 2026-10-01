@@ -1,5 +1,5 @@
 /**
- * Bundled page hero images for Amplify (public/wp-content is mostly excluded from deploy).
+ * Bundled page hero images (public/wp-content is mostly excluded from Hostinger deploy).
  * Keys are SitePage / route slugs.
  */
 export const PAGE_FEATURED_IMAGES: Record<string, string> = {
@@ -27,7 +27,7 @@ export function resolvePageFeaturedImage(
   const trimmed = fallback?.trim();
   if (!trimmed) return null;
   if (trimmed.startsWith('/images/')) return trimmed;
-  // College packs are present on Amplify; other /wp-content paths usually 404.
+  // College packs ship in deploy; other /wp-content paths usually 404.
   if (/^\/wp-content\/uploads\/colleges\//i.test(trimmed)) return trimmed;
   if (/blob\.vercel-storage\.com/i.test(trimmed)) return trimmed;
   return curated ?? null;

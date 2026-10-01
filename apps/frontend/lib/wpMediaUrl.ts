@@ -1,9 +1,9 @@
 const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
 
 /**
- * Amplify omits most of public/wp-content. Prefer bundled colleges + /images + /mbbs-* heroes.
- * Do NOT hotlink Hostinger Node (returns HTML for /wp-content). Keep same-origin paths so
- * next.config can rewrite misses to /api/wp-media when a real origin is configured.
+ * Prefer bundled colleges + /images + /mbbs-* heroes (Hostinger deploy omits most wp-content).
+ * Do NOT hotlink Hostinger Node for /wp-content (often returns HTML). Keep same-origin paths so
+ * next.config can rewrite misses to /api/wp-media when WP_MEDIA_ORIGIN is configured.
  */
 export function getWpMediaOrigin(): string | null {
   const raw = (process.env.WP_MEDIA_ORIGIN || process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN || '')
@@ -109,8 +109,8 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
         host.endsWith('githubusercontent.com') ||
         host === 'github.com'
       ) {
-        const localBlog = trimmed.match(/\/images\/blog\/([^/?#]+)$/i);
-        if (localBlog?.[1]) return `/images/blog/${localBlog[1]}`;
+        // Keep absolute GitHub raw URLs — rewriting to /images/blog/* breaks
+        // when the file is not yet on the Hostinger public bundle.
         return trimmed.replace(/^http:\/\//i, 'https://');
       }
       if (

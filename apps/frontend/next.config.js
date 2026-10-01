@@ -54,7 +54,7 @@ const nextConfig = {
 
   // @vercel/nft traces all of public/ when route uses dynamic path.join(cwd, 'public', …) — exclude then re-include only fallbacks.
   outputFileTracingExcludes: {
-    // Keep Amplify/Vercel server bundles under the ~220MB deploy limit (public/wp-content is ~770MB).
+    // Keep Hostinger Node server bundles lean (public/wp-content is ~770MB).
     '*': [
       './public/wp-content/**',
       './public/**',
@@ -259,7 +259,7 @@ const nextConfig = {
 
   redirects: async () => {
     return [
-      // Apex → www (301). Amplify Console should mirror this for edge coverage.
+      // Apex → www (301). Mirror in Cloudflare Redirect Rules for edge coverage.
       {
         source: '/:path*',
         has: [{ type: 'host', value: 'argroupofeducation.com' }],

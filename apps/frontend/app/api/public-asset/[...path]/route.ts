@@ -26,7 +26,7 @@ const MIME: Record<string, string> = {
   '.ico': 'image/x-icon',
 }
 
-/** Try cwd + common Amplify/Next traced locations for bundled public files. */
+/** Try cwd + common Next traced locations for bundled public files. */
 function candidatePaths(fileName: string): string[] {
   const roots = [
     process.cwd(),

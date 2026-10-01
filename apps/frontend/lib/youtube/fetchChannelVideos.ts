@@ -4,7 +4,7 @@ const YOUTUBE_API = 'https://www.googleapis.com/youtube/v3';
 const DEFAULT_HANDLE = 'argroupofeducation';
 const MAX_VIDEOS = 16;
 
-/** Client + server refresh interval (seconds). Override via YOUTUBE_FEED_REFRESH_SECONDS in Amplify. */
+/** Client + server refresh interval (seconds). Override via YOUTUBE_FEED_REFRESH_SECONDS in Hostinger env. */
 export const YOUTUBE_FEED_REVALIDATE_SECONDS = Math.max(
   30,
   Number(process.env.YOUTUBE_FEED_REFRESH_SECONDS) || 60

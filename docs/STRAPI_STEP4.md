@@ -55,7 +55,7 @@ You can unpublish/delete this smoke post from Strapi (Publish off → sync unpub
 ## Not done in this Step 4 (later)
 
 - Strapi hosted on Hostinger subdomain 24/7 (now: local Strapi must be running to publish)
-- Retire Payload Vercel / Amplify files
+- Retire Payload / unused deploy files
 - Bulk push all 700 Strapi rows to MySQL (unnecessary — MySQL already SoT)
 
 ## Rollback

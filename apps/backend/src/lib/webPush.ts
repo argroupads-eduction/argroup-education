@@ -100,7 +100,7 @@ export async function sendPushToAllSubscribers(
   const webpush = await loadWebPush();
   if (!cfg || !webpush) {
     console.error(
-      '[web-push] skipped — set NEXT_PUBLIC_VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY (and matching Amplify env), or install web-push'
+      '[web-push] skipped — set NEXT_PUBLIC_VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY (Hostinger env), or install web-push'
     );
     return { sent: 0, removed: 0, skipped: true, reason: 'vapid_not_configured' };
   }

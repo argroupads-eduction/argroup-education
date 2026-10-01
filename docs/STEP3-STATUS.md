@@ -29,5 +29,5 @@
 - No push to `hostinger-live`
 - No `DATABASE_URL` writes
 - No deletes of BlogPost / SitePage
-- No Amplify / Payload deletion
+- No Payload deletion
 - No `MARKETING_SYNC_URL` pointing at production

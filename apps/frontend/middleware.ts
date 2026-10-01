@@ -7,7 +7,7 @@ import { resolveSlugAlias } from '@/lib/wpSlugAliases';
 const API_LIMIT = parseInt(process.env.RATE_LIMIT_API_MAX || '120', 10);
 const API_WINDOW_MS = parseInt(process.env.RATE_LIMIT_API_WINDOW_MS || '60000', 10);
 
-/** Read-heavy routes polled by the homepage — skip edge rate limit to avoid 429 noise on Amplify. */
+  /** Read-heavy routes polled by the homepage — skip edge rate limit to avoid 429 noise. */
 const RATE_LIMIT_SKIP_PREFIXES = [
   '/api/health',
   '/api/youtube/videos',
@@ -88,7 +88,7 @@ function legacyWpRedirect(req: NextRequest): NextResponse | null {
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Apex → www (301). Prefer Amplify Console rule too so CloudFront never serves mixed hosts.
+  // Apex → www (301). Mirror in Cloudflare Redirect Rules for edge coverage.
   const host = (req.headers.get('x-forwarded-host') || req.headers.get('host') || '')
     .split(',')[0]
     ?.trim()

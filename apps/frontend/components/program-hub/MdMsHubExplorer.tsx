@@ -23,7 +23,7 @@ export function MdMsHubExplorer() {
               <Link href={item.href} className="program-hub-card group block h-full">
                 <div className="program-hub-card-media program-hub-card-media--photo">
                   {item.coverImage ? (
-                    // Plain img avoids Next/Image edge quirks on Amplify static assets.
+                    // Plain img avoids Next/Image edge quirks on Hostinger static assets.
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={item.coverImage}

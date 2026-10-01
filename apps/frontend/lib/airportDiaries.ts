@@ -6,7 +6,7 @@ export type AirportDiaryImage = {
   alt: string;
 };
 
-/** Prefer bundled /images/airport-diaries/* — wp-content is not in Amplify/Hostinger deploys. */
+/** Prefer bundled /images/airport-diaries/* — wp-content is not in Hostinger deploys. */
 const VALID_IMAGES = airportDiariesData.images
   .filter((img) => Boolean(img.src?.trim()) && !img.src.endsWith('.svg'))
   .map((img) => ({

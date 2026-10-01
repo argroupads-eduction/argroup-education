@@ -5,7 +5,7 @@ type CacheEntry<T> = {
 
 const store = new Map<string, CacheEntry<unknown>>();
 
-/** Per-instance TTL cache — cuts repeat SSR/API work on Amplify. */
+/** Per-instance TTL cache — cuts repeat SSR/API work on Hostinger Node. */
 export function getTtlCache<T>(key: string): T | null {
   const hit = store.get(key);
   if (!hit) return null;

@@ -30,7 +30,7 @@ export function resolveCollegeFeaturedImage(
 
   const resolved = treeUrl ?? cmsUrl;
   if (!resolved) return null;
-  // Amplify does not ship most of public/wp-content — avoid broken heroes.
+  // Hostinger deploy does not ship most of public/wp-content — avoid broken heroes.
   if (
     resolved.startsWith('/wp-content/') &&
     !LOCAL_COLLEGE_IMAGE.test(resolved)

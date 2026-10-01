@@ -51,9 +51,12 @@ export function getSiteUrl(): string {
     process.env.SITE_URL?.trim() ||
     CANONICAL_SITE_ORIGIN;
 
-  // Local / preview hosts must stay as configured.
-  if (/localhost|127\.0\.0\.1|\[::1\]/i.test(raw) || /\.amplifyapp\.com/i.test(raw)) {
+  // Local hosts stay as configured. Ignore legacy Amplify preview hosts.
+  if (/localhost|127\.0\.0\.1|\[::1\]/i.test(raw)) {
     return raw.replace(/\/$/, '');
+  }
+  if (/\.amplifyapp\.com/i.test(raw)) {
+    return CANONICAL_SITE_ORIGIN;
   }
 
   return canonicalizeSiteOrigin(raw);

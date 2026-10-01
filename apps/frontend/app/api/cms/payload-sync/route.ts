@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   let indexNow: { ok: boolean; submitted: number; skipped?: boolean; reason?: string } | null =
     null;
 
-  // Await push so Amplify/serverless does not freeze before delivery finishes.
+  // Await push so Hostinger Node does not end the request before delivery finishes.
   if (
     result.body.type === 'post' &&
     result.body.published &&

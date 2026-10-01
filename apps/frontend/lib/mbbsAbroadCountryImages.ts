@@ -63,7 +63,7 @@ export function resolveMbbsAbroadFeaturedImage(
   fallback: string | null | undefined,
   collegeFallback?: string | null
 ): string | null {
-  // Always prefer bundled Amplify-safe heroes over WP/Hostinger URLs (hotlink → HTML).
+  // Always prefer bundled heroes over WP/Hostinger hotlink URLs (hotlink → HTML).
   const curated = getMbbsAbroadCountryFeaturedImage(wpSlug);
   if (curated) return curated;
 
