@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'crypto';
 import { prisma, withPrismaRetry } from '../lib/prisma';
 import { pullPostFromPayloadCms } from '../lib/pullPostFromPayloadCms';
+import { cmsMediaPublicUrl, storeCmsMediaBase64 } from '../lib/cmsMediaStore';
 
 function bearerTokenMatches(secret: string, token: string): boolean {
   const a = Buffer.from(token);
@@ -28,6 +29,9 @@ export type PayloadSyncBody = {
   content?: string;
   excerpt?: string;
   featuredImage?: string | null;
+  /** Strapi Media Library bytes (base64) — persisted to CmsMedia on www */
+  featuredImageBase64?: string | null;
+  featuredImageMime?: string | null;
   category?: string;
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -115,6 +119,20 @@ export async function runPayloadSync(body: PayloadSyncBody): Promise<PayloadSync
 
   if (!slug) {
     return { ok: false, status: 400, body: { success: false, message: 'slug is required' } };
+  }
+
+  // Strapi Media Library bytes → persistent /api/cms/media/{id} URL on www
+  if (typeof body.featuredImageBase64 === 'string' && body.featuredImageBase64.trim()) {
+    try {
+      const stored = await storeCmsMediaBase64(body.featuredImageBase64, body.featuredImageMime);
+      if (stored) {
+        featuredImage = cmsMediaPublicUrl(stored.id);
+        ogImage = featuredImage;
+        console.info('[payload-sync] stored cms media', slug, stored.id, stored.mime);
+      }
+    } catch (err) {
+      console.error('[payload-sync] cms media store failed', slug, err);
+    }
   }
 
   const published = body.published !== false;
