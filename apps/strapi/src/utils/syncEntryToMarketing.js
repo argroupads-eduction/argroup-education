@@ -268,8 +268,9 @@ async function withMarketingMysql(strapi, fn) {
   return { ok: false, reason: lastErr?.message || 'mysql-failed' };
 }
 
-/** Best-effort ISR bust — never throws, never logs ECONNRESET as fatal. */
+/** Best-effort ISR bust — opt-in only (MARKETING_REVALIDATE=1). Default off = zero outbound noise. */
 async function pingMarketingRevalidate(strapi, slug) {
+  if (String(process.env.MARKETING_REVALIDATE || '').trim() !== '1') return;
   const secret = process.env.PAYLOAD_SYNC_SECRET || process.env.REVALIDATE_SECRET;
   if (!secret || !slug) return;
   const originIp = (process.env.MARKETING_SYNC_ORIGIN_IP || '').trim();

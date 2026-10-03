@@ -5,6 +5,48 @@ const http = require('node:http');
 const path = require('node:path');
 const { pipeline } = require('node:stream');
 
+/**
+ * Hostinger Runtime Logs print proxy/health-check socket drops as:
+ *   Connection Error: Error: read ECONNRESET
+ * Those are NOT Publish failures. Swallow before anything else loads.
+ */
+function isBenignConnNoise(value) {
+  const s =
+    typeof value === 'string'
+      ? value
+      : value instanceof Error
+        ? `${value.code || ''} ${value.message || ''}`
+        : String(value ?? '');
+  return /ECONNRESET|EPIPE|ERR_STREAM_DESTROYED|ECONNABORTED|ECONNREFUSED|ETIMEDOUT|Connection Error:/i.test(
+    s
+  );
+}
+
+const _consoleError = console.error.bind(console);
+const _consoleWarn = console.warn.bind(console);
+console.error = (...args) => {
+  if (args.some((a) => isBenignConnNoise(a))) return;
+  _consoleError(...args);
+};
+console.warn = (...args) => {
+  if (args.some((a) => isBenignConnNoise(a))) return;
+  _consoleWarn(...args);
+};
+try {
+  const _stderrWrite = process.stderr.write.bind(process.stderr);
+  process.stderr.write = (chunk, encoding, cb) => {
+    const text = typeof chunk === 'string' ? chunk : Buffer.isBuffer(chunk) ? chunk.toString('utf8') : '';
+    if (isBenignConnNoise(text)) {
+      if (typeof encoding === 'function') encoding();
+      else if (typeof cb === 'function') cb();
+      return true;
+    }
+    return _stderrWrite(chunk, encoding, cb);
+  };
+} catch {
+  /* ignore */
+}
+
 process.env.HOST = '0.0.0.0';
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
@@ -75,10 +117,18 @@ function bootHandler(req, res) {
 }
 
 const server = http.createServer((req, res) => {
+  req.on('error', (err) => {
+    if (isBenignConnNoise(err)) return;
+  });
+  res.on('error', (err) => {
+    if (isBenignConnNoise(err)) return;
+  });
   try {
     bootHandler(req, res);
   } catch (err) {
-    console.error('[hostinger-strapi] request error', err);
+    if (!isBenignConnNoise(err)) {
+      _consoleError('[hostinger-strapi] request error', err);
+    }
     if (!res.headersSent) {
       res.statusCode = 500;
       res.end('Internal error');
@@ -86,34 +136,27 @@ const server = http.createServer((req, res) => {
   }
 });
 
+// Hostinger proxy idle probes — longer than default 5s helps avoid noisy resets
+server.keepAliveTimeout = 65000;
+server.headersTimeout = 66000;
+server.requestTimeout = 0;
+
 server.listen(port, '0.0.0.0', () => {
-  // Use log (not error) — Hostinger Runtime Logs counts console.error as Errors
   console.log(
     '[hostinger-strapi] early listen OK on 0.0.0.0:' + port + ' (Hostinger proxy ready)'
   );
 });
 
-
-function isBenignSocketErr(err) {
-  const code = err && err.code;
-  return (
-    code === 'ECONNRESET' ||
-    code === 'EPIPE' ||
-    code === 'ERR_STREAM_DESTROYED' ||
-    code === 'ECONNABORTED' ||
-    code === 'ETIMEDOUT'
-  );
-}
-
 server.on('connection', (socket) => {
+  socket.setTimeout(0);
   socket.on('error', (err) => {
-    if (isBenignSocketErr(err)) return;
-    console.error('[hostinger-strapi] socket error', err && err.message ? err.message : err);
+    if (isBenignConnNoise(err)) return;
+    _consoleError('[hostinger-strapi] socket error', err && err.message ? err.message : err);
   });
 });
 
 server.on('clientError', (err, socket) => {
-  if (isBenignSocketErr(err)) {
+  if (isBenignConnNoise(err)) {
     try {
       socket.destroy();
     } catch {
@@ -121,7 +164,7 @@ server.on('clientError', (err, socket) => {
     }
     return;
   }
-  console.error('[hostinger-strapi] clientError', err && err.message ? err.message : err);
+  _consoleError('[hostinger-strapi] clientError', err && err.message ? err.message : err);
   try {
     socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
   } catch {
@@ -129,15 +172,13 @@ server.on('clientError', (err, socket) => {
   }
 });
 
-// Node / Hostinger sometimes surfaces aborted client sockets as uncaughtException
 process.on('uncaughtException', (err) => {
-  if (isBenignSocketErr(err)) return;
-  console.error('[hostinger-strapi] uncaughtException', err);
+  if (isBenignConnNoise(err)) return;
+  _consoleError('[hostinger-strapi] uncaughtException', err);
 });
 process.on('unhandledRejection', (reason) => {
-  const err = reason instanceof Error ? reason : null;
-  if (err && isBenignSocketErr(err)) return;
-  console.error('[hostinger-strapi] unhandledRejection', reason);
+  if (isBenignConnNoise(reason)) return;
+  _consoleError('[hostinger-strapi] unhandledRejection', reason);
 });
 
 server.on('error', (err) => {
@@ -182,13 +223,34 @@ server.on('error', (err) => {
   }
 
   // Hostinger Node → MySQL on same account must use localhost.
-  // Connecting via srv….hstgr.io makes MySQL see an external IPv6 client → Access denied.
+  // Connecting via srv….hstgr.io makes MySQL see an external IPv6 client → Access denied / ECONNRESET.
   const dbHost = String(process.env.DATABASE_HOST || '');
   if (/\.hstgr\.io$/i.test(dbHost) || /^mysql\d*\./i.test(dbHost)) {
     console.log(
       '[hostinger-strapi] rewriting DATABASE_HOST from ' + dbHost + ' → localhost (same-server MySQL)'
     );
     process.env.DATABASE_HOST = 'localhost';
+  }
+
+  // Same rewrite for marketing BlogPost DB URL (Publish sync).
+  const mkt = String(process.env.MARKETING_DATABASE_URL || '').trim();
+  if (mkt) {
+    try {
+      const u = new URL(mkt);
+      if (/\.hstgr\.io$/i.test(u.hostname) || /^mysql\d*\./i.test(u.hostname)) {
+        u.hostname = 'localhost';
+        process.env.MARKETING_DATABASE_URL = u.toString();
+        console.log(
+          '[hostinger-strapi] MARKETING_DATABASE_URL host → localhost (same-server marketing MySQL)'
+        );
+      }
+    } catch (err) {
+      _consoleError('[hostinger-strapi] bad MARKETING_DATABASE_URL', err && err.message);
+    }
+  } else {
+    _consoleError(
+      '[hostinger-strapi] MARKETING_DATABASE_URL MISSING — Publish will not write BlogPost'
+    );
   }
 
   const pw = process.env.DATABASE_PASSWORD || '';
