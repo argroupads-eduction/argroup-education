@@ -1,5 +1,7 @@
 'use strict';
 
+const http = require('http');
+const https = require('https');
 const {
   assertMarketingSyncTarget,
   buildPayloadSyncBody,
@@ -12,6 +14,62 @@ function mediaFileAbsolute(_strapi, url) {
   const base = String(process.env.PUBLIC_URL || '').replace(/\/$/, '');
   if (!base) return null;
   return `${base}${url.startsWith('/') ? url : `/${url}`}`;
+}
+
+/**
+ * POST JSON to marketing payload-sync.
+ * When MARKETING_SYNC_HOST is set (or base host is a raw IP), connect to that
+ * IP/host but send Host/SNI for the real site — bypasses Cloudflare ECONNRESET.
+ */
+function postPayloadSync(base, secret, payload, { timeoutMs = 25000 } = {}) {
+  const url = new URL(`${String(base).replace(/\/$/, '')}/api/cms/payload-sync`);
+  const hostHeader =
+    (process.env.MARKETING_SYNC_HOST || '').trim() ||
+    (/^\d{1,3}(\.\d{1,3}){3}$/.test(url.hostname)
+      ? 'www.argroupofeducation.com'
+      : url.hostname);
+  const lib = url.protocol === 'https:' ? https : http;
+  const body = typeof payload === 'string' ? payload : JSON.stringify(payload);
+
+  return new Promise((resolve, reject) => {
+    const req = lib.request(
+      {
+        protocol: url.protocol,
+        hostname: url.hostname,
+        port: url.port || (url.protocol === 'https:' ? 443 : 80),
+        path: `${url.pathname}${url.search}`,
+        method: 'POST',
+        servername: hostHeader,
+        rejectUnauthorized: false,
+        headers: {
+          Host: hostHeader,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body),
+          Authorization: `Bearer ${secret}`,
+          Connection: 'close',
+          'User-Agent': 'argroup-strapi-marketing-sync/1.0',
+        },
+      },
+      (res) => {
+        const chunks = [];
+        res.on('data', (c) => chunks.push(c));
+        res.on('end', () => {
+          resolve({
+            ok: res.statusCode >= 200 && res.statusCode < 300,
+            status: res.statusCode || 0,
+            text: Buffer.concat(chunks).toString('utf8'),
+            via: `${url.protocol}//${url.hostname} Host=${hostHeader}`,
+          });
+        });
+      }
+    );
+    req.setTimeout(timeoutMs, () => {
+      req.destroy(new Error('ETIMEDOUT'));
+    });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
 }
 
 /**
@@ -106,51 +164,70 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
       }
     }
 
-    const endpoint = syncUrl.replace(/\/$/, '') + '/api/cms/payload-sync';
+    // Prefer direct Hostinger origin IP (bypass Cloudflare ECONNRESET), then public www.
+    // Example: MARKETING_SYNC_ORIGIN=https://195.35.44.199
+    //          MARKETING_SYNC_HOST=www.argroupofeducation.com
+    const originIp = (process.env.MARKETING_SYNC_ORIGIN_IP || '').trim();
+    const bases = [
+      process.env.MARKETING_SYNC_ORIGIN,
+      originIp
+        ? originIp.startsWith('http')
+          ? originIp
+          : `https://${originIp}`
+        : null,
+      syncUrl,
+      ...(String(process.env.MARKETING_SYNC_URLS || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)),
+    ]
+      .filter(Boolean)
+      .map((u) => String(u).replace(/\/$/, ''));
+    const uniqueBases = [...new Set(bases)];
+
     const payload = JSON.stringify(body);
-    let res;
+    let result;
     let lastErr;
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        res = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${secret}`,
-          },
-          body: payload,
-        });
-        lastErr = null;
-        break;
-      } catch (err) {
-        lastErr = err;
-        const code = err?.cause?.code || err?.code || '';
-        const msg = String(err?.message || err);
-        // Hostinger → www sometimes drops sockets (ECONNRESET); brief retry
-        if (
-          attempt < 3 &&
-          (code === 'ECONNRESET' || code === 'ETIMEDOUT' || /ECONNRESET|ETIMEDOUT|fetch failed/i.test(msg))
-        ) {
+    let usedBase = uniqueBases[0];
+
+    outer: for (const base of uniqueBases) {
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        try {
+          result = await postPayloadSync(base, secret, payload);
+          lastErr = null;
+          usedBase = result.via || base;
+          break outer;
+        } catch (err) {
+          lastErr = err;
+          const code = err?.cause?.code || err?.code || '';
+          const msg = String(err?.message || err);
+          const retryable =
+            code === 'ECONNRESET' ||
+            code === 'ETIMEDOUT' ||
+            code === 'ECONNREFUSED' ||
+            code === 'UND_ERR_CONNECT_TIMEOUT' ||
+            /ECONNRESET|ETIMEDOUT|fetch failed|aborted|timeout/i.test(msg);
           strapi.log.warn(
-            `[marketing-sync] ${kind} ${body.slug} attempt ${attempt} ${code || msg} — retry`
+            `[marketing-sync] ${kind} ${body.slug} via ${base} attempt ${attempt} ${code || msg}`
           );
-          await new Promise((r) => setTimeout(r, 400 * attempt));
-          continue;
+          if (retryable && attempt < 4) {
+            await new Promise((r) => setTimeout(r, 600 * attempt));
+            continue;
+          }
+          break;
         }
-        throw err;
       }
     }
     if (lastErr) throw lastErr;
 
-    const text = await res.text();
-    if (!res.ok) {
+    if (!result?.ok) {
       strapi.log.error(
-        `[marketing-sync] ${kind} ${body.slug} → ${res.status} ${text.slice(0, 300)}`
+        `[marketing-sync] ${kind} ${body.slug} via ${usedBase} → ${result?.status} ${String(result?.text || '').slice(0, 300)}`
       );
-      return { ok: false, reason: 'http', status: res.status };
+      return { ok: false, reason: 'http', status: result?.status };
     }
     strapi.log.info(
-      `[marketing-sync] ${kind} ${body.slug} published=${published !== false} notifyPush=${!!notifyPush} ok`
+      `[marketing-sync] ${kind} ${body.slug} via ${usedBase} published=${published !== false} notifyPush=${!!notifyPush} ok`
     );
     return { ok: true };
   } catch (err) {

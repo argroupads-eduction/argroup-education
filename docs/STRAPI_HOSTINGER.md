@@ -54,6 +54,7 @@ Must set:
 - `PUBLIC_URL=https://<your-cms-subdomain>` (no trailing slash)  
 - `HOST=0.0.0.0`  
 - Step 4 sync: `MARKETING_SYNC_URL=https://www.argroupofeducation.com`, `STRAPI_ALLOW_LIVE_SYNC=1`, `PAYLOAD_SYNC_SECRET=<same as frontend>`
+- If Runtime logs show `ECONNRESET` on Publish: Cloudflare is resetting Hostinger→www. Add a **DNS-only (grey cloud)** A record e.g. `sync` → Hostinger origin IP, set `MARKETING_SYNC_ORIGIN=https://sync.argroupofeducation.com`, restart Strapi. Keep `www` orange-cloud for visitors.
 
 Redeploy after saving env.
 
