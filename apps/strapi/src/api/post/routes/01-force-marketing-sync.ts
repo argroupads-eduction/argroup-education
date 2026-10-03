@@ -9,7 +9,8 @@ export default {
   routes: [
     {
       method: 'POST',
-      path: '/posts/force-marketing-sync',
+      // Avoid /posts/:id collision — keep under /posts/actions/*
+      path: '/posts/actions/force-marketing-sync',
       handler: 'post.forceMarketingSync',
       config: {
         auth: false,

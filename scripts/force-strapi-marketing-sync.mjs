@@ -32,7 +32,7 @@ if (!secret) {
   process.exit(1);
 }
 
-const url = `${STRAPI_URL}/api/posts/force-marketing-sync`;
+const url = `${STRAPI_URL}/api/posts/actions/force-marketing-sync`;
 console.log('POST', url, 'slug=', slug);
 const res = await fetch(url, {
   method: 'POST',
