@@ -509,19 +509,9 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
         delete dbBody.featuredImageMime;
         const dbRes = await upsertMarketingMysql(strapi, kind, dbBody);
         if (dbRes.ok) {
-          log(strapi, 'info', `MySQL ok via ${dbRes.via} slug=${body.slug}`);
-          // Best-effort revalidate/notify via HTTP (ignore ECONNRESET)
-          if (syncUrl && secret) {
-            try {
-              const origin = (process.env.MARKETING_SYNC_ORIGIN || syncUrl)
-                .replace(/\/$/, '');
-              await postPayloadSync(origin, secret, JSON.stringify(body), {
-                timeoutMs: 8000,
-              });
-            } catch {
-              /* MySQL already wrote — HTTP is optional */
-            }
-          }
+          // Do NOT call www HTTP after MySQL — Hostinger hairpin causes ECONNRESET noise.
+          // Content is already live in marketing DB; Next revalidates on next request / cron.
+          log(strapi, 'info', `MySQL ok via ${dbRes.via} slug=${body.slug} (skip HTTP)`);
           return { ok: true, via: dbRes.via };
         }
         log(strapi, 'error', `MySQL failed: ${dbRes.reason}`);
