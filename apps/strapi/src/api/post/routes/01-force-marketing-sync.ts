@@ -9,7 +9,7 @@ export default {
   routes: [
     {
       method: 'POST',
-      // Avoid /posts/:id collision — keep under /posts/actions/*
+      // Full API path becomes /api/posts/actions/force-marketing-sync
       path: '/posts/actions/force-marketing-sync',
       handler: 'post.forceMarketingSync',
       config: {
