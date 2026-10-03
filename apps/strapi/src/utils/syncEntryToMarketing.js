@@ -2,11 +2,25 @@
 
 const http = require('http');
 const https = require('https');
+const crypto = require('crypto');
 const {
   assertMarketingSyncTarget,
   buildPayloadSyncBody,
 } = require('./marketingSyncSafety');
 const { readLocalUpload } = require('./readLocalUpload');
+
+function log(strapi, level, msg) {
+  // Hostinger Runtime logs reliably show console.*; strapi.log can be quieter.
+  const line = `[marketing-sync] ${msg}`;
+  if (level === 'error') console.error(line);
+  else if (level === 'warn') console.warn(line);
+  else console.log(line);
+  try {
+    if (strapi?.log?.[level]) strapi.log[level](line);
+  } catch {
+    /* ignore */
+  }
+}
 
 function mediaFileAbsolute(_strapi, url) {
   if (typeof url !== 'string' || !url.trim()) return null;
@@ -16,12 +30,15 @@ function mediaFileAbsolute(_strapi, url) {
   return `${base}${url.startsWith('/') ? url : `/${url}`}`;
 }
 
+function newId() {
+  return `c${Date.now().toString(36)}${crypto.randomBytes(6).toString('hex')}`;
+}
+
 /**
- * POST JSON to marketing payload-sync.
- * When MARKETING_SYNC_HOST is set (or base host is a raw IP), connect to that
- * IP/host but send Host/SNI for the real site — bypasses Cloudflare ECONNRESET.
+ * POST JSON to marketing payload-sync (HTTP).
+ * Hostinger→own public IP often hairpins (ECONNRESET); Cloudflare www also resets.
  */
-function postPayloadSync(base, secret, payload, { timeoutMs = 25000 } = {}) {
+function postPayloadSync(base, secret, payload, { timeoutMs = 20000 } = {}) {
   const url = new URL(`${String(base).replace(/\/$/, '')}/api/cms/payload-sync`);
   const hostHeader =
     (process.env.MARKETING_SYNC_HOST || '').trim() ||
@@ -72,34 +89,230 @@ function postPayloadSync(base, secret, payload, { timeoutMs = 25000 } = {}) {
   });
 }
 
+function jsonCol(v, fallback) {
+  if (v == null) return JSON.stringify(fallback);
+  if (typeof v === 'string') return v;
+  try {
+    return JSON.stringify(v);
+  } catch {
+    return JSON.stringify(fallback);
+  }
+}
+
 /**
- * Push Post or Page to marketing MySQL via payload-sync.
- * Delete/Unpublish → published:false (never hard-delete marketing rows).
- * Safe from lifecycles / documents middleware — never throws.
- *
- * @param {import('@strapi/strapi').Core.Strapi} strapi
- * @param {'post'|'page'} type
- * @param {object} entry
- * @param {{ published?: boolean, notifyPush?: boolean }} [opts]
+ * Direct write to marketing MySQL BlogPost/SitePage — bypasses HTTP/Cloudflare/hairpin.
+ * Set MARKETING_DATABASE_URL to the same value as marketing site DATABASE_URL.
  */
+async function upsertMarketingMysql(strapi, kind, body) {
+  const raw = (process.env.MARKETING_DATABASE_URL || '').trim();
+  if (!raw) return { ok: false, reason: 'no-db-url' };
+
+  let mysql;
+  try {
+    mysql = require('mysql2/promise');
+  } catch (err) {
+    log(strapi, 'error', `mysql2 missing: ${err.message}`);
+    return { ok: false, reason: 'no-mysql2' };
+  }
+
+  const u = new URL(raw);
+  const conn = await mysql.createConnection({
+    host: u.hostname,
+    port: Number(u.port || 3306),
+    user: decodeURIComponent(u.username),
+    password: decodeURIComponent(u.password),
+    database: u.pathname.replace(/^\//, ''),
+    connectTimeout: 15000,
+  });
+
+  try {
+    const published = body.published !== false;
+    const publishedAt = body.publishedAt
+      ? new Date(body.publishedAt)
+      : published
+        ? new Date()
+        : null;
+    const now = new Date();
+
+    if (kind === 'page') {
+      const [rows] = await conn.query('SELECT id FROM SitePage WHERE slug = ? LIMIT 1', [
+        body.slug,
+      ]);
+      if (!published) {
+        if (rows.length) {
+          await conn.query(
+            'UPDATE SitePage SET published = 0, updatedAt = ? WHERE slug = ?',
+            [now, body.slug]
+          );
+        }
+        return { ok: true, via: 'mysql:SitePage:unpublish' };
+      }
+      if (rows.length) {
+        await conn.query(
+          `UPDATE SitePage SET title=?, content=?, excerpt=?, featuredImage=?, metaTitle=?,
+           metaDescription=?, canonicalUrl=?, ogImage=?, published=1, publishedAt=COALESCE(?, publishedAt),
+           updatedAt=? WHERE slug=?`,
+          [
+            body.title || body.slug,
+            body.content || '',
+            body.excerpt || '',
+            body.featuredImage || null,
+            body.metaTitle || null,
+            body.metaDescription || null,
+            body.canonicalUrl || null,
+            body.ogImage || body.featuredImage || null,
+            publishedAt,
+            now,
+            body.slug,
+          ]
+        );
+      } else {
+        const wpId =
+          920_000_000 +
+          (Math.abs(
+            [...body.slug].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) | 0, 0)
+          ) %
+            9_000_000);
+        await conn.query(
+          `INSERT INTO SitePage
+           (id, wpId, title, slug, content, excerpt, featuredImage, metaTitle, metaDescription,
+            canonicalUrl, keywords, ogImage, navEnabled, navSortOrder, published, publishedAt, createdAt, updatedAt)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 1, ?, ?, ?)`,
+          [
+            newId(),
+            wpId,
+            body.title || body.slug,
+            body.slug,
+            body.content || '',
+            body.excerpt || '',
+            body.featuredImage || null,
+            body.metaTitle || null,
+            body.metaDescription || null,
+            body.canonicalUrl || null,
+            jsonCol(body.keywords, []),
+            body.ogImage || body.featuredImage || null,
+            publishedAt || now,
+            now,
+            now,
+          ]
+        );
+      }
+      return { ok: true, via: 'mysql:SitePage' };
+    }
+
+    // post → BlogPost
+    const [rows] = await conn.query('SELECT id FROM BlogPost WHERE slug = ? LIMIT 1', [
+      body.slug,
+    ]);
+    if (!published) {
+      if (rows.length) {
+        await conn.query(
+          'UPDATE BlogPost SET published = 0, updatedAt = ? WHERE slug = ?',
+          [now, body.slug]
+        );
+      }
+      return { ok: true, via: 'mysql:BlogPost:unpublish' };
+    }
+
+    const title = body.title || body.slug;
+    const content = body.content || '';
+    const excerpt =
+      body.excerpt ||
+      String(content)
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 500);
+
+    if (rows.length) {
+      await conn.query(
+        `UPDATE BlogPost SET title=?, content=?, excerpt=?, featuredImage=?, category=?,
+         tags=?, metaTitle=?, metaDescription=?, canonicalUrl=?, focusKeyword=?, keywords=?,
+         ogImage=?, author=?, published=1, publishedAt=COALESCE(?, publishedAt), updatedAt=?
+         WHERE slug=?`,
+        [
+          title,
+          content,
+          excerpt,
+          body.featuredImage || null,
+          body.category || 'Blog',
+          jsonCol(body.tags, []),
+          body.metaTitle || null,
+          body.metaDescription || null,
+          body.canonicalUrl || null,
+          body.focusKeyword || null,
+          jsonCol(body.keywords, []),
+          body.ogImage || body.featuredImage || null,
+          body.author || 'AR Group',
+          publishedAt,
+          now,
+          body.slug,
+        ]
+      );
+    } else {
+      await conn.query(
+        `INSERT INTO BlogPost
+         (id, title, slug, content, excerpt, featuredImage, category, tags, metaTitle,
+          metaDescription, canonicalUrl, focusKeyword, keywords, ogImage, author, published,
+          publishedAt, views, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?)`,
+        [
+          newId(),
+          title,
+          body.slug,
+          content,
+          excerpt,
+          body.featuredImage || null,
+          body.category || 'Blog',
+          jsonCol(body.tags, []),
+          body.metaTitle || null,
+          body.metaDescription || null,
+          body.canonicalUrl || null,
+          body.focusKeyword || null,
+          jsonCol(body.keywords, []),
+          body.ogImage || body.featuredImage || null,
+          body.author || 'AR Group',
+          publishedAt || now,
+          now,
+          now,
+        ]
+      );
+    }
+    return { ok: true, via: 'mysql:BlogPost' };
+  } finally {
+    await conn.end();
+  }
+}
+
 async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush } = {}) {
   const kind = type === 'page' ? 'page' : 'post';
+  log(strapi, 'info', `start kind=${kind} published=${published !== false} action-notify=${!!notifyPush}`);
+
   try {
     const syncUrl = process.env.MARKETING_SYNC_URL;
     const secret = process.env.PAYLOAD_SYNC_SECRET || process.env.REVALIDATE_SECRET;
-    if (!syncUrl || !secret) {
-      strapi.log.error(
-        `[marketing-sync] skipped (${kind}): set MARKETING_SYNC_URL + PAYLOAD_SYNC_SECRET on Hostinger env`
+    const hasDb = Boolean((process.env.MARKETING_DATABASE_URL || '').trim());
+
+    if (!syncUrl && !hasDb) {
+      log(
+        strapi,
+        'error',
+        'skipped: set MARKETING_SYNC_URL + PAYLOAD_SYNC_SECRET and/or MARKETING_DATABASE_URL'
       );
       return { ok: false, reason: 'env' };
     }
-    try {
-      assertMarketingSyncTarget(syncUrl);
-    } catch (err) {
-      strapi.log.error(
-        `[marketing-sync] blocked (${kind}): ${err.message} — set STRAPI_ALLOW_LIVE_SYNC=1 on Hostinger`
-      );
-      return { ok: false, reason: 'allow-live' };
+
+    if (syncUrl) {
+      try {
+        assertMarketingSyncTarget(syncUrl);
+      } catch (err) {
+        log(
+          strapi,
+          'error',
+          `blocked: ${err.message} — set STRAPI_ALLOW_LIVE_SYNC=1`
+        );
+        if (!hasDb) return { ok: false, reason: 'allow-live' };
+      }
     }
 
     const body = buildPayloadSyncBody(kind, entry || {}, {
@@ -107,18 +320,16 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
       notifyPush: notifyPush === true,
     });
     if (!body.slug) {
-      strapi.log.warn(`[marketing-sync] skip ${kind}: missing slug`);
+      log(strapi, 'warn', `skip ${kind}: missing slug`);
       return { ok: false, reason: 'slug' };
     }
-    // Refuse spaced / Title-Case slugs — break public URLs + sitemap
     if (/\s/.test(body.slug) || /[A-Z]/.test(body.slug)) {
-      strapi.log.error(
-        `[marketing-sync] refuse bad slug (use lowercase-hyphens): "${body.slug}"`
-      );
+      log(strapi, 'error', `refuse bad slug: "${body.slug}"`);
       return { ok: false, reason: 'bad-slug' };
     }
 
-    // Prefer Media Library bytes so live never depends on Hostinger /uploads HTTP.
+    log(strapi, 'info', `slug=${body.slug} contentLen=${(body.content || '').length}`);
+
     if (kind === 'post' && published !== false) {
       const media =
         entry?.featuredMedia ||
@@ -126,7 +337,6 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
         body.featuredMedia ||
         null;
       let local = readLocalUpload(strapi, media);
-      // If disk miss (redeploy wiped public/uploads), try HTTP from this Strapi host
       if (!local?.buffer?.length && media?.url) {
         try {
           const abs = mediaFileAbsolute(strapi, media.url);
@@ -144,101 +354,107 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
             }
           }
         } catch (err) {
-          strapi.log.warn(
-            `[marketing-sync] fetch media failed: ${err?.message || err}`
-          );
+          log(strapi, 'warn', `fetch media failed: ${err?.message || err}`);
         }
       }
       if (local?.buffer?.length) {
         body.featuredImageBase64 = local.buffer.toString('base64');
         body.featuredImageMime = local.mime;
-        // Clear stale URL so www uses persisted /api/cms/media/{id}
         body.featuredImage = body.featuredImage || null;
-        strapi.log.info(
-          `[marketing-sync] attached upload ${local.name} (${local.buffer.length} bytes) for ${body.slug}`
-        );
-      } else if (!body.featuredImage) {
-        strapi.log.warn(
-          `[marketing-sync] ${body.slug}: no featured media bytes — re-upload Featured media then Publish`
+        log(
+          strapi,
+          'info',
+          `attached upload ${local.name} (${local.buffer.length} bytes)`
         );
       }
     }
 
-    // Prefer direct Hostinger origin IP (bypass Cloudflare ECONNRESET), then public www.
-    // Example: MARKETING_SYNC_ORIGIN=https://195.35.44.199
-    //          MARKETING_SYNC_HOST=www.argroupofeducation.com
-    const originIp = (process.env.MARKETING_SYNC_ORIGIN_IP || '').trim();
-    const bases = [
-      process.env.MARKETING_SYNC_ORIGIN,
-      originIp
-        ? originIp.startsWith('http')
-          ? originIp
-          : `https://${originIp}`
-        : null,
-      syncUrl,
-      ...(String(process.env.MARKETING_SYNC_URLS || '')
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)),
-    ]
-      .filter(Boolean)
-      .map((u) => String(u).replace(/\/$/, ''));
-    const uniqueBases = [...new Set(bases)];
+    // 1) HTTP attempts (may fail on Hostinger hairpin / Cloudflare)
+    let httpOk = false;
+    if (syncUrl && secret) {
+      const originIp = (process.env.MARKETING_SYNC_ORIGIN_IP || '').trim();
+      const bases = [
+        process.env.MARKETING_SYNC_ORIGIN,
+        originIp
+          ? originIp.startsWith('http')
+            ? originIp
+            : `https://${originIp}`
+          : null,
+        syncUrl,
+      ]
+        .filter(Boolean)
+        .map((u) => String(u).replace(/\/$/, ''));
+      const uniqueBases = [...new Set(bases)];
+      const payload = JSON.stringify(body);
 
-    const payload = JSON.stringify(body);
-    let result;
-    let lastErr;
-    let usedBase = uniqueBases[0];
-
-    outer: for (const base of uniqueBases) {
-      for (let attempt = 1; attempt <= 4; attempt++) {
-        try {
-          result = await postPayloadSync(base, secret, payload);
-          lastErr = null;
-          usedBase = result.via || base;
-          break outer;
-        } catch (err) {
-          lastErr = err;
-          const code = err?.cause?.code || err?.code || '';
-          const msg = String(err?.message || err);
-          const retryable =
-            code === 'ECONNRESET' ||
-            code === 'ETIMEDOUT' ||
-            code === 'ECONNREFUSED' ||
-            code === 'UND_ERR_CONNECT_TIMEOUT' ||
-            /ECONNRESET|ETIMEDOUT|fetch failed|aborted|timeout/i.test(msg);
-          strapi.log.warn(
-            `[marketing-sync] ${kind} ${body.slug} via ${base} attempt ${attempt} ${code || msg}`
-          );
-          if (retryable && attempt < 4) {
-            await new Promise((r) => setTimeout(r, 600 * attempt));
-            continue;
+      for (const base of uniqueBases) {
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            log(strapi, 'info', `HTTP try ${base} attempt ${attempt}`);
+            const result = await postPayloadSync(base, secret, payload);
+            if (result.ok) {
+              log(
+                strapi,
+                'info',
+                `HTTP ok via ${result.via} slug=${body.slug}`
+              );
+              httpOk = true;
+              break;
+            }
+            log(
+              strapi,
+              'warn',
+              `HTTP ${result.status} via ${result.via}: ${String(result.text).slice(0, 200)}`
+            );
+          } catch (err) {
+            log(
+              strapi,
+              'warn',
+              `HTTP error via ${base}: ${err?.code || err?.message || err}`
+            );
+            if (attempt < 2) {
+              await new Promise((r) => setTimeout(r, 500 * attempt));
+            }
           }
-          break;
         }
+        if (httpOk) break;
       }
     }
-    if (lastErr) throw lastErr;
 
-    if (!result?.ok) {
-      strapi.log.error(
-        `[marketing-sync] ${kind} ${body.slug} via ${usedBase} → ${result?.status} ${String(result?.text || '').slice(0, 300)}`
+    if (httpOk) return { ok: true };
+
+    // 2) Direct MySQL fallback (reliable on Hostinger)
+    if (hasDb) {
+      try {
+        // featuredImageBase64 not usable in raw MySQL path — keep URL if any
+        const dbBody = { ...body };
+        delete dbBody.featuredImageBase64;
+        const dbRes = await upsertMarketingMysql(strapi, kind, dbBody);
+        if (dbRes.ok) {
+          log(strapi, 'info', `MySQL ok via ${dbRes.via} slug=${body.slug}`);
+          return { ok: true, via: dbRes.via };
+        }
+        log(strapi, 'error', `MySQL failed: ${dbRes.reason}`);
+      } catch (err) {
+        log(strapi, 'error', `MySQL error: ${err.message}`);
+      }
+    } else {
+      log(
+        strapi,
+        'error',
+        'HTTP failed and MARKETING_DATABASE_URL not set — add marketing DATABASE_URL as MARKETING_DATABASE_URL'
       );
-      return { ok: false, reason: 'http', status: result?.status };
     }
-    strapi.log.info(
-      `[marketing-sync] ${kind} ${body.slug} via ${usedBase} published=${published !== false} notifyPush=${!!notifyPush} ok`
-    );
-    return { ok: true };
+
+    return { ok: false, reason: 'all-failed' };
   } catch (err) {
-    strapi.log.error(`[marketing-sync] ${kind} error: ${err.message}`);
+    log(strapi, 'error', `${kind} error: ${err.message}`);
     return { ok: false, reason: 'error' };
   }
 }
 
-/** @deprecated use syncEntryToMarketing(strapi, 'post', …) */
 async function syncPostToMarketing(strapi, entry, opts) {
   return syncEntryToMarketing(strapi, 'post', entry, opts);
 }
 
-module.exports = { syncEntryToMarketing, syncPostToMarketing };
+module.exports = { syncEntryToMarketing, syncPostToMarketing, upsertMarketingMysql };

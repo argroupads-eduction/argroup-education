@@ -36,6 +36,12 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
   strapi.documents.use(async (context: any, next: any) => {
     const kind = UID_MAP[context?.uid as string];
     const params = (context?.params || {}) as { documentId?: string; slug?: string };
+    if (kind) {
+      // Hostinger Runtime Logs pick up console.* reliably
+      console.log(
+        `[marketing-sync] documents action=${context?.action} uid=${context?.uid}`
+      );
+    }
     let preDeleteSlug: string | null = null;
     let preDeleteTitle: string | null = null;
 
@@ -146,12 +152,15 @@ export default {
     const syncUrl = process.env.MARKETING_SYNC_URL || '';
     const secret = process.env.PAYLOAD_SYNC_SECRET || process.env.REVALIDATE_SECRET || '';
     const allow = process.env.STRAPI_ALLOW_LIVE_SYNC || '';
-    strapi.log.info(
-      `[marketing-sync] boot check url=${syncUrl ? 'set' : 'MISSING'} secret=${secret ? 'set' : 'MISSING'} STRAPI_ALLOW_LIVE_SYNC=${allow || 'MISSING'}`
-    );
-    if (!syncUrl || !secret || allow !== '1') {
-      strapi.log.error(
-        '[marketing-sync] Publish will NOT reach www until Hostinger env has MARKETING_SYNC_URL, PAYLOAD_SYNC_SECRET, STRAPI_ALLOW_LIVE_SYNC=1'
+    const origin = process.env.MARKETING_SYNC_ORIGIN || '';
+    const host = process.env.MARKETING_SYNC_HOST || '';
+    const db = process.env.MARKETING_DATABASE_URL || '';
+    const line = `[marketing-sync] boot url=${syncUrl ? 'set' : 'MISSING'} secret=${secret ? 'set' : 'MISSING'} allow=${allow || 'MISSING'} origin=${origin ? 'set' : 'MISSING'} host=${host || 'MISSING'} marketingDb=${db ? 'set' : 'MISSING'}`;
+    console.log(line);
+    strapi.log.info(line);
+    if ((!syncUrl || !secret || allow !== '1') && !db) {
+      console.error(
+        '[marketing-sync] Publish will NOT reach www — set MARKETING_DATABASE_URL (marketing DATABASE_URL) OR sync URL+secret+allow=1'
       );
     }
   },
