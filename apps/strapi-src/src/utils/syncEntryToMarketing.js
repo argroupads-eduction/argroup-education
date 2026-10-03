@@ -7,7 +7,78 @@ const {
   assertMarketingSyncTarget,
   buildPayloadSyncBody,
 } = require('./marketingSyncSafety');
-const { readLocalUpload } = require('./readLocalUpload');
+const { readLocalUpload, fetchUploadBuffer } = require('./readLocalUpload');
+
+function isDeadStrapiUploadsUrl(url) {
+  return typeof url === 'string' && /hostingersite\.com\/uploads\//i.test(url);
+}
+
+function isUsableMarketingImageUrl(url) {
+  if (typeof url !== 'string' || !url.trim()) return false;
+  if (isDeadStrapiUploadsUrl(url)) return false;
+  return (
+    /^\/images\//i.test(url) ||
+    /\/api\/cms\/media\//i.test(url) ||
+    /^https?:\/\/(www\.)?argroupofeducation\.com\//i.test(url)
+  );
+}
+
+/** Prefer previous BlogPost image when Publish cannot attach media bytes. */
+async function loadPreviousBlogImage(strapi, slug) {
+  if (!slug) return null;
+  const raw = (process.env.MARKETING_DATABASE_URL || '').trim();
+  if (!raw) return null;
+  let mysql;
+  try {
+    mysql = require('mysql2/promise');
+  } catch {
+    return null;
+  }
+  try {
+    const u = new URL(raw);
+    const conn = await mysql.createConnection({
+      host: u.hostname,
+      port: Number(u.port || 3306),
+      user: decodeURIComponent(u.username),
+      password: decodeURIComponent(u.password),
+      database: u.pathname.replace(/^\//, ''),
+      connectTimeout: 12000,
+    });
+    try {
+      const [[prev]] = await conn.query(
+        'SELECT featuredImage, ogImage FROM BlogPost WHERE slug = ? LIMIT 1',
+        [slug]
+      );
+      const img = prev?.featuredImage || '';
+      if (isUsableMarketingImageUrl(img)) {
+        return { featuredImage: img, ogImage: prev?.ogImage || img };
+      }
+    } finally {
+      await conn.end();
+    }
+  } catch (err) {
+    log(strapi, 'warn', `prev image lookup failed: ${err?.message || err}`);
+  }
+  return null;
+}
+
+async function resolveUploadFile(strapi, media) {
+  if (!media || typeof media !== 'object') return null;
+  const hasUrl = typeof (media.url || media?.attributes?.url) === 'string';
+  const hasHash = !!(media.hash || media?.attributes?.hash);
+  if (hasUrl || hasHash) return media;
+
+  const id = media.id ?? media.documentId ?? media?.attributes?.id;
+  if (id == null || id === '') return media;
+  try {
+    const full = await strapi.db.query('plugin::upload.file').findOne({
+      where: typeof id === 'number' || /^\d+$/.test(String(id)) ? { id: Number(id) } : { documentId: String(id) },
+    });
+    return full || media;
+  } catch {
+    return media;
+  }
+}
 
 function log(strapi, level, msg) {
   // Hostinger Runtime logs reliably show console.*; strapi.log can be quieter.
@@ -263,25 +334,27 @@ async function upsertMarketingMysql(strapi, kind, body) {
         .trim()
         .slice(0, 500);
 
-    // Never replace a working www image with a dead Strapi /uploads hotlink.
+    // Never replace a working www image with a dead Strapi /uploads hotlink or null wipe.
     let featuredImage = body.featuredImage || null;
     let ogImage = body.ogImage || featuredImage || null;
-    if (featuredImage && /hostingersite\.com\/uploads\//i.test(featuredImage)) {
-      if (rows.length) {
-        const [[prev]] = await conn.query(
-          'SELECT featuredImage, ogImage FROM BlogPost WHERE slug = ? LIMIT 1',
-          [body.slug]
+    if (rows.length && (!featuredImage || isDeadStrapiUploadsUrl(featuredImage))) {
+      const [[prev]] = await conn.query(
+        'SELECT featuredImage, ogImage FROM BlogPost WHERE slug = ? LIMIT 1',
+        [body.slug]
+      );
+      const prevImg = prev?.featuredImage || '';
+      if (isUsableMarketingImageUrl(prevImg)) {
+        featuredImage = prevImg;
+        ogImage = prev?.ogImage || prevImg;
+        log(
+          strapi,
+          'warn',
+          `keep existing featuredImage (skip ${body.featuredImage ? 'dead Strapi uploads URL' : 'null wipe'})`
         );
-        const prevImg = prev?.featuredImage || '';
-        if (
-          prevImg &&
-          !/hostingersite\.com\/uploads\//i.test(prevImg) &&
-          (/^\/images\//i.test(prevImg) || /\/api\/cms\/media\//i.test(prevImg))
-        ) {
-          featuredImage = prevImg;
-          ogImage = prev?.ogImage || prevImg;
-          log(strapi, 'warn', `keep existing featuredImage (skip dead Strapi uploads URL)`);
-        }
+      } else if (isDeadStrapiUploadsUrl(featuredImage)) {
+        // No prior good image — still avoid writing a broken hostingersite /uploads hotlink.
+        featuredImage = null;
+        if (isDeadStrapiUploadsUrl(ogImage)) ogImage = null;
       }
     }
 
@@ -403,30 +476,35 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
     log(strapi, 'info', `slug=${body.slug} contentLen=${(body.content || '').length}`);
 
     if (kind === 'post' && published !== false) {
-      const media =
+      let media = await resolveUploadFile(
+        strapi,
         entry?.featuredMedia ||
-        entry?.featuredMedia?.data ||
-        body.featuredMedia ||
-        null;
+          entry?.featuredMedia?.data ||
+          body.featuredMedia ||
+          null
+      );
       let local = readLocalUpload(strapi, media);
-      if (!local?.buffer?.length && media?.url) {
-        try {
-          const abs = mediaFileAbsolute(strapi, media.url);
-          if (abs) {
-            const res = await fetch(abs);
-            if (res.ok) {
-              const buf = Buffer.from(await res.arrayBuffer());
-              if (buf.length > 32) {
-                local = {
-                  buffer: buf,
-                  mime: media.mime || res.headers.get('content-type') || 'image/webp',
-                  name: media.name || 'featured.webp',
-                };
+      if (!local?.buffer?.length) {
+        local = await fetchUploadBuffer(strapi, media);
+        if (!local?.buffer?.length && media?.url) {
+          try {
+            const abs = mediaFileAbsolute(strapi, media.url);
+            if (abs) {
+              const res = await fetch(abs);
+              if (res.ok) {
+                const buf = Buffer.from(await res.arrayBuffer());
+                if (buf.length > 32) {
+                  local = {
+                    buffer: buf,
+                    mime: media.mime || res.headers.get('content-type') || 'image/webp',
+                    name: media.name || 'featured.webp',
+                  };
+                }
               }
             }
+          } catch (err) {
+            log(strapi, 'warn', `fetch media failed: ${err?.message || err}`);
           }
-        } catch (err) {
-          log(strapi, 'warn', `fetch media failed: ${err?.message || err}`);
         }
       }
       if (local?.buffer?.length) {
@@ -437,6 +515,12 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
           strapi,
           'info',
           `attached upload ${local.name} (${local.buffer.length} bytes)`
+        );
+      } else if (media) {
+        log(
+          strapi,
+          'warn',
+          `no media bytes for ${body.slug} (url=${media.url || media?.attributes?.url || 'none'})`
         );
       }
     }
@@ -489,20 +573,28 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
             }
           }
         }
-        // Never write dead Strapi /uploads hotlinks — live shows broken img
+        // Dead Strapi /uploads hotlinks break live <img>. Keep prior CmsMedia/`/images/` instead of null-wipe.
         if (
-          dbBody.featuredImage &&
-          /hostingersite\.com\/uploads\//i.test(String(dbBody.featuredImage)) &&
-          !dbBody.featuredImageBase64
+          !dbBody.featuredImageBase64 &&
+          (isDeadStrapiUploadsUrl(dbBody.featuredImage) || !dbBody.featuredImage)
         ) {
-          log(
-            strapi,
-            'warn',
-            `clearing dead Strapi uploads URL for ${dbBody.slug} (no media bytes)`
-          );
-          dbBody.featuredImage = null;
-          if (dbBody.ogImage && /hostingersite\.com\/uploads\//i.test(String(dbBody.ogImage))) {
-            dbBody.ogImage = null;
+          const prev = await loadPreviousBlogImage(strapi, dbBody.slug);
+          if (prev?.featuredImage) {
+            dbBody.featuredImage = prev.featuredImage;
+            dbBody.ogImage = prev.ogImage || prev.featuredImage;
+            log(
+              strapi,
+              'warn',
+              `preserve existing featuredImage for ${dbBody.slug} (no media bytes; skip wipe)`
+            );
+          } else if (isDeadStrapiUploadsUrl(dbBody.featuredImage)) {
+            log(
+              strapi,
+              'warn',
+              `drop dead Strapi uploads URL for ${dbBody.slug} (no prior CmsMedia)`
+            );
+            dbBody.featuredImage = null;
+            if (isDeadStrapiUploadsUrl(dbBody.ogImage)) dbBody.ogImage = null;
           }
         }
         delete dbBody.featuredImageBase64;
