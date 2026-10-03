@@ -73,67 +73,130 @@ export default factories.createCoreController('api::post.post', ({ strapi }) => 
         return ctx.unauthorized('Unauthorized');
       }
 
-      const slug =
-        (typeof ctx.request.body?.slug === 'string' && ctx.request.body.slug.trim()) ||
+      const body = ctx.request.body || {};
+      const slugIn =
+        (typeof body.slug === 'string' && body.slug.trim()) ||
         (typeof ctx.query?.slug === 'string' && String(ctx.query.slug).trim()) ||
         '';
-      if (!slug) {
-        return ctx.badRequest('slug is required');
+      const documentIdIn =
+        (typeof body.documentId === 'string' && body.documentId.trim()) ||
+        (typeof ctx.query?.documentId === 'string' && String(ctx.query.documentId).trim()) ||
+        '';
+      const titleContains =
+        (typeof body.titleContains === 'string' && body.titleContains.trim()) ||
+        (typeof ctx.query?.titleContains === 'string' && String(ctx.query.titleContains).trim()) ||
+        '';
+      const syncRecent = Math.min(
+        10,
+        Math.max(0, Number(body.syncRecent || ctx.query?.syncRecent || 0) || 0)
+      );
+
+      console.log(
+        `[marketing-sync] force-marketing-sync start slug=${slugIn || '-'} documentId=${documentIdIn || '-'} titleContains=${titleContains || '-'} recent=${syncRecent} cwd=${process.cwd()}`
+      );
+
+      let rows: Record<string, unknown>[] = [];
+      if (documentIdIn) {
+        rows = await strapi.db.query('api::post.post').findMany({
+          where: { documentId: documentIdIn },
+          orderBy: { updatedAt: 'desc' },
+          limit: 5,
+          populate: ['featuredMedia'],
+        });
+      } else if (slugIn) {
+        rows = await strapi.db.query('api::post.post').findMany({
+          where: { slug: slugIn },
+          orderBy: { updatedAt: 'desc' },
+          limit: 5,
+          populate: ['featuredMedia'],
+        });
+      } else if (titleContains) {
+        // Strapi db layer: $containsi on title
+        rows = await strapi.db.query('api::post.post').findMany({
+          where: { title: { $containsi: titleContains } },
+          orderBy: { updatedAt: 'desc' },
+          limit: 8,
+          populate: ['featuredMedia'],
+        });
+      } else if (syncRecent > 0) {
+        rows = await strapi.db.query('api::post.post').findMany({
+          where: { publishedAt: { $notNull: true } },
+          orderBy: { updatedAt: 'desc' },
+          limit: syncRecent,
+          populate: ['featuredMedia'],
+        });
+      } else {
+        return ctx.badRequest('slug, documentId, titleContains, or syncRecent is required');
       }
-
-      console.log(`[marketing-sync] force-marketing-sync start slug=${slug} cwd=${process.cwd()}`);
-
-      const rows = await strapi.db.query('api::post.post').findMany({
-        where: { slug },
-        orderBy: { updatedAt: 'desc' },
-        limit: 5,
-        populate: ['featuredMedia'],
-      });
 
       if (!rows?.length) {
-        console.error(`[marketing-sync] force: no rows for slug=${slug}`);
-        return ctx.notFound(`No post for slug=${slug}`);
+        console.error(`[marketing-sync] force: no rows matched`);
+        return ctx.notFound('No matching post');
       }
-
-      const published = rows.find((r: { publishedAt?: string | null }) => r.publishedAt != null);
-      const entry = published || rows[0];
-      const documentId =
-        typeof entry.documentId === 'string' ? entry.documentId : null;
 
       const { prepareMod, syncMod } = loadSyncUtils();
+      const synced: Array<Record<string, unknown>> = [];
 
-      let prepared =
-        documentId != null
-          ? await prepareMod.loadPreparedPost(strapi, documentId, {
-              preferPublished: true,
-            })
-          : null;
-      if (!prepared) {
-        prepared = prepareMod.preparePostEntry(strapi, entry);
-      }
-      if (!prepared || typeof prepared !== 'object') {
-        return ctx.notFound(`Could not prepare post slug=${slug}`);
+      // Dedupe by documentId / slug — prefer published row
+      const byKey = new Map<string, Record<string, unknown>>();
+      for (const r of rows) {
+        const key = String(r.documentId || r.slug || '');
+        if (!key) continue;
+        const prev = byKey.get(key);
+        if (!prev || (r.publishedAt && !prev.publishedAt)) byKey.set(key, r);
       }
 
-      const preparedObj = prepared as { publishedAt?: string; content?: string };
-      if (!preparedObj.publishedAt) {
-        preparedObj.publishedAt =
-          (entry as { publishedAt?: string }).publishedAt || new Date().toISOString();
+      for (const entry of byKey.values()) {
+        const documentId =
+          typeof entry.documentId === 'string' ? entry.documentId : null;
+        const slug = typeof entry.slug === 'string' ? entry.slug : '';
+
+        let prepared =
+          documentId != null
+            ? await prepareMod.loadPreparedPost(strapi, documentId, {
+                preferPublished: true,
+              })
+            : null;
+        if (!prepared) {
+          prepared = prepareMod.preparePostEntry(strapi, entry);
+        }
+        if (!prepared || typeof prepared !== 'object') {
+          synced.push({ slug, documentId, ok: false, error: 'prepare failed' });
+          continue;
+        }
+
+        const preparedObj = prepared as {
+          publishedAt?: string;
+          content?: string;
+          slug?: string;
+          featuredImage?: string | null;
+        };
+        if (!preparedObj.publishedAt) {
+          preparedObj.publishedAt =
+            (typeof entry.publishedAt === 'string' && entry.publishedAt) ||
+            new Date().toISOString();
+        }
+
+        const result = await syncMod.syncEntryToMarketing(strapi, 'post', preparedObj, {
+          published: true,
+          notifyPush: false,
+        });
+
+        synced.push({
+          ok: !!result?.ok,
+          slug: preparedObj.slug || slug,
+          documentId,
+          publishedAt: preparedObj.publishedAt,
+          contentLen: String(preparedObj.content || '').length,
+          hasImage: Boolean(preparedObj.featuredImage),
+          result,
+        });
       }
 
-      const result = await syncMod.syncEntryToMarketing(strapi, 'post', preparedObj, {
-        published: true,
-        notifyPush: false,
-      });
-
-      console.log(`[marketing-sync] force result`, JSON.stringify(result));
+      console.log(`[marketing-sync] force result`, JSON.stringify(synced));
       ctx.body = {
-        ok: !!result?.ok,
-        slug,
-        documentId,
-        publishedAt: preparedObj.publishedAt,
-        contentLen: String(preparedObj.content || '').length,
-        result,
+        ok: synced.some((s) => s.ok),
+        synced,
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

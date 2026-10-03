@@ -384,9 +384,20 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
       log(strapi, 'warn', `skip ${kind}: missing slug`);
       return { ok: false, reason: 'slug' };
     }
+    // Auto-fix Title-Case / spaced slugs so Publish never silently skips live sync
     if (/\s/.test(body.slug) || /[A-Z]/.test(body.slug)) {
-      log(strapi, 'error', `refuse bad slug: "${body.slug}"`);
-      return { ok: false, reason: 'bad-slug' };
+      const fixed = String(body.slug)
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      if (!fixed) {
+        log(strapi, 'error', `refuse empty slug after normalize: "${body.slug}"`);
+        return { ok: false, reason: 'bad-slug' };
+      }
+      log(strapi, 'warn', `normalized slug "${body.slug}" → "${fixed}"`);
+      body.slug = fixed;
     }
 
     log(strapi, 'info', `slug=${body.slug} contentLen=${(body.content || '').length}`);

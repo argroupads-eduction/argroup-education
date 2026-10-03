@@ -10,7 +10,10 @@ const {
   applyMetaAutofill,
 } = require('../../../utils/buildPostSchemaJson');
 const { syncEntryToMarketing } = require('../../../utils/syncEntryToMarketing');
-const { preparePostEntry } = require('../../../utils/preparePostForMarketingSync');
+const {
+  preparePostEntry,
+  loadPreparedPost,
+} = require('../../../utils/preparePostForMarketingSync');
 
 /** URL-safe slug: lowercase, hyphens, no spaces (live /blog/[slug] + sitemap). */
 function sanitizeSlug(raw) {
@@ -170,13 +173,19 @@ module.exports = {
   },
   async afterCreate(event) {
     const published = isPublished(event.result);
-    if (published) {
-      const prepared = preparePostEntry(strapi, event.result) || event.result;
-      await syncEntryToMarketing(strapi, 'post', prepared, {
-        published: true,
-        notifyPush: true,
-      });
-    }
+    if (!published) return;
+    const documentId =
+      typeof event.result?.documentId === 'string' ? event.result.documentId : null;
+    const prepared =
+      (documentId
+        ? await loadPreparedPost(strapi, documentId, { preferPublished: true })
+        : null) ||
+      preparePostEntry(strapi, event.result) ||
+      event.result;
+    await syncEntryToMarketing(strapi, 'post', prepared, {
+      published: true,
+      notifyPush: true,
+    });
   },
   async afterUpdate(event) {
     const published = isPublished(event.result);
@@ -185,7 +194,15 @@ module.exports = {
     if (!published && !wasPublished) return;
     // First publish → notifyPush; later edits → sync only (IndexNow still runs server-side)
     const notifyPush = published && !wasPublished;
-    const prepared = preparePostEntry(strapi, event.result) || event.result;
+    const documentId =
+      typeof event.result?.documentId === 'string' ? event.result.documentId : null;
+    // Always reload + featuredMedia + HTML normalize — event.result is often media-thin
+    const prepared =
+      (documentId
+        ? await loadPreparedPost(strapi, documentId, { preferPublished: published })
+        : null) ||
+      preparePostEntry(strapi, event.result) ||
+      event.result;
     await syncEntryToMarketing(strapi, 'post', prepared, { published, notifyPush });
   },
   async beforeDelete(event) {
