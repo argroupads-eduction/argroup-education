@@ -127,9 +127,19 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
       }
 
       const notifyPush = kind === 'post' && action === 'publish';
-      await syncEntryToMarketing(strapi, kind, syncPayload, { published: true, notifyPush });
+      console.log(
+        `[marketing-sync] ${action} → live sync slug=${syncPayload.slug} published=true`
+      );
+      const syncRes = await syncEntryToMarketing(strapi, kind, syncPayload, {
+        published: true,
+        notifyPush,
+      });
+      console.log(
+        `[marketing-sync] ${action} result slug=${syncPayload.slug} ${JSON.stringify(syncRes)}`
+      );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
+      console.error(`[marketing-sync] documents middleware: ${message}`);
       strapi.log.error(`[marketing-sync] documents middleware: ${message}`);
     }
     return result;

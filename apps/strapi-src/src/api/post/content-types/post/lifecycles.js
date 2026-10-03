@@ -9,11 +9,6 @@ const {
   buildPostSchemaJson,
   applyMetaAutofill,
 } = require('../../../utils/buildPostSchemaJson');
-const { syncEntryToMarketing } = require('../../../utils/syncEntryToMarketing');
-const {
-  preparePostEntry,
-  loadPreparedPost,
-} = require('../../../utils/preparePostForMarketingSync');
 
 /** URL-safe slug: lowercase, hyphens, no spaces (live /blog/[slug] + sitemap). */
 function sanitizeSlug(raw) {
@@ -78,63 +73,52 @@ function applyContentSchemaDefaults(event, prior) {
   if (typeof data.slug === 'string' && data.slug.trim()) {
     const clean = sanitizeSlug(data.slug);
     if (clean) data.slug = clean;
-  } else if (!data.slug && prior?.slug) {
-    // leave prior
-  } else if (typeof data.title === 'string' && data.title.trim() && !prior?.slug) {
-    const fromTitle = sanitizeSlug(data.title);
-    if (fromTitle) data.slug = fromTitle;
   }
 
-  if (typeof data.content === 'string' && data.content.trim()) {
-    data.content = normalizePostContentToHtml(data.content);
-  }
+  const title = data.title != null ? data.title : prior?.title;
+  const slug = data.slug != null ? data.slug : prior?.slug;
+  const rawContent = data.content != null ? data.content : prior?.content;
+  if (title == null || slug == null || rawContent == null) return;
 
-  const title = data.title ?? prior?.title;
-  const slug = data.slug ?? prior?.slug;
-  const content = data.content ?? prior?.content;
-  const featuredImage = data.featuredImage ?? prior?.featuredImage;
-  const ogImage = data.ogImage ?? prior?.ogImage;
-  const author = data.author ?? prior?.author;
+  const content = normalizePostContentToHtml(rawContent);
+  data.content = content;
 
-  const mergedForMeta = {
+  const prepared = {
     title,
-    excerpt: data.excerpt ?? prior?.excerpt,
-    metaTitle: data.metaTitle ?? prior?.metaTitle,
-    metaDescription: data.metaDescription ?? prior?.metaDescription,
-    ogTitle: data.ogTitle ?? prior?.ogTitle,
-    ogDescription: data.ogDescription ?? prior?.ogDescription,
-    ogImage: data.ogImage ?? ogImage,
-    featuredImage,
+    slug,
+    content,
+    excerpt: data.excerpt != null ? data.excerpt : prior?.excerpt,
+    metaTitle: data.metaTitle != null ? data.metaTitle : prior?.metaTitle,
+    metaDescription:
+      data.metaDescription != null ? data.metaDescription : prior?.metaDescription,
+    featuredImage:
+      data.featuredImage != null ? data.featuredImage : prior?.featuredImage,
+    ogImage: data.ogImage != null ? data.ogImage : prior?.ogImage,
+    author: data.author != null ? data.author : prior?.author,
+    publishedAt: data.publishedAt != null ? data.publishedAt : prior?.publishedAt,
+    legacyPublishedAt:
+      data.legacyPublishedAt != null
+        ? data.legacyPublishedAt
+        : prior?.legacyPublishedAt,
   };
-  applyMetaAutofill(mergedForMeta, content);
-  for (const key of [
-    'excerpt',
-    'metaTitle',
-    'metaDescription',
-    'ogTitle',
-    'ogDescription',
-    'ogImage',
-  ]) {
-    if (!String(data[key] ?? '').trim() && mergedForMeta[key]) {
-      data[key] = mergedForMeta[key];
-    }
-  }
 
-  if (title && slug && content) {
-    const schema = buildPostSchemaJson({
-      title,
-      slug,
-      content,
-      excerpt: data.excerpt ?? mergedForMeta.excerpt,
-      metaDescription: data.metaDescription ?? mergedForMeta.metaDescription,
-      featuredImage,
-      ogImage: data.ogImage ?? ogImage,
-      publishedAt: data.publishedAt ?? prior?.publishedAt,
-      legacyPublishedAt: data.legacyPublishedAt ?? prior?.legacyPublishedAt,
-      author: author || 'AR Group of Education',
-    });
-    if (schema) data.schemaJson = schema;
-  }
+  applyMetaAutofill(prepared, content);
+  if (prepared.metaTitle) data.metaTitle = prepared.metaTitle;
+  if (prepared.metaDescription) data.metaDescription = prepared.metaDescription;
+  if (prepared.excerpt && data.excerpt == null) data.excerpt = prepared.excerpt;
+
+  data.schemaJson = buildPostSchemaJson({
+    title: prepared.title,
+    slug: prepared.slug,
+    content,
+    excerpt: prepared.excerpt,
+    metaDescription: prepared.metaDescription,
+    featuredImage: prepared.featuredImage,
+    ogImage: prepared.ogImage,
+    publishedAt: prepared.publishedAt,
+    legacyPublishedAt: prepared.legacyPublishedAt,
+    author: prepared.author || 'AR Group of Education',
+  });
 }
 
 async function loadPrior(event) {
@@ -157,10 +141,6 @@ async function loadPrior(event) {
   }
 }
 
-function isPublished(entry) {
-  return entry?.publishedAt != null;
-}
-
 module.exports = {
   async beforeCreate(event) {
     await applyFeaturedMediaUrl(event);
@@ -171,52 +151,12 @@ module.exports = {
     await applyFeaturedMediaUrl(event);
     applyContentSchemaDefaults(event, prior);
   },
-  async afterCreate(event) {
-    const published = isPublished(event.result);
-    if (!published) return;
-    const documentId =
-      typeof event.result?.documentId === 'string' ? event.result.documentId : null;
-    const prepared =
-      (documentId
-        ? await loadPreparedPost(strapi, documentId, { preferPublished: true })
-        : null) ||
-      preparePostEntry(strapi, event.result) ||
-      event.result;
-    await syncEntryToMarketing(strapi, 'post', prepared, {
-      published: true,
-      notifyPush: true,
-    });
-  },
-  async afterUpdate(event) {
-    const published = isPublished(event.result);
-    const wasPublished = event.state?.wasPublished === true;
-    // Draft edits on never-published docs: skip
-    if (!published && !wasPublished) return;
-    // First publish → notifyPush; later edits → sync only (IndexNow still runs server-side)
-    const notifyPush = published && !wasPublished;
-    const documentId =
-      typeof event.result?.documentId === 'string' ? event.result.documentId : null;
-    // Always reload + featuredMedia + HTML normalize — event.result is often media-thin
-    const prepared =
-      (documentId
-        ? await loadPreparedPost(strapi, documentId, { preferPublished: published })
-        : null) ||
-      preparePostEntry(strapi, event.result) ||
-      event.result;
-    await syncEntryToMarketing(strapi, 'post', prepared, { published, notifyPush });
-  },
+  // Marketing sync ONLY in documents middleware (apps/strapi/src/index.ts).
+  // Do not sync here — draft afterUpdate was setting live published=0.
+  async afterCreate() {},
+  async afterUpdate() {},
   async beforeDelete(event) {
     await loadPrior(event);
   },
-  async afterDelete(event) {
-    const entry = event.result || {};
-    const slug = entry.slug || event.state?.prior?.slug;
-    if (!slug) return;
-    await syncEntryToMarketing(
-      strapi,
-      'post',
-      { slug, title: entry.title || event.state?.prior?.title || slug, content: '' },
-      { published: false, notifyPush: false }
-    );
-  },
+  async afterDelete() {},
 };

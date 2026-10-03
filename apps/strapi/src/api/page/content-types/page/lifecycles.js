@@ -1,7 +1,5 @@
 'use strict';
 
-const { syncEntryToMarketing } = require('../../../utils/syncEntryToMarketing');
-
 async function loadPrior(event) {
   event.state = event.state || {};
   try {
@@ -20,10 +18,6 @@ async function loadPrior(event) {
     event.state.prior = null;
     return null;
   }
-}
-
-function isPublished(entry) {
-  return entry?.publishedAt != null;
 }
 
 function sanitizeSlug(raw) {
@@ -55,36 +49,11 @@ module.exports = {
     await loadPrior(event);
     applySlugSanitize(event);
   },
-  async afterCreate(event) {
-    const published = isPublished(event.result);
-    if (published) {
-      await syncEntryToMarketing(strapi, 'page', event.result, {
-        published: true,
-        notifyPush: false,
-      });
-    }
-  },
-  async afterUpdate(event) {
-    const published = isPublished(event.result);
-    const wasPublished = event.state?.wasPublished === true;
-    if (!published && !wasPublished) return;
-    await syncEntryToMarketing(strapi, 'page', event.result, {
-      published,
-      notifyPush: false,
-    });
-  },
+  // Marketing sync only via documents middleware — avoid draft afterUpdate unpublish race.
+  async afterCreate() {},
+  async afterUpdate() {},
   async beforeDelete(event) {
     await loadPrior(event);
   },
-  async afterDelete(event) {
-    const entry = event.result || {};
-    const slug = entry.slug || event.state?.prior?.slug;
-    if (!slug) return;
-    await syncEntryToMarketing(
-      strapi,
-      'page',
-      { slug, title: entry.title || event.state?.prior?.title || slug, content: '' },
-      { published: false, notifyPush: false }
-    );
-  },
+  async afterDelete() {},
 };
