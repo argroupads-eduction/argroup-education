@@ -534,15 +534,17 @@ function normalizePostContentToHtml(content) {
   let html;
   if (looksLikeHtml(raw)) {
     html = polishHtmlFormatting(raw);
-    // Always promote mashed Title-Case / question headings out of long <p> blobs.
-    // FAQ accordion alone can already add many h3s — do not skip on heading count.
-    const longPara = /<p\b[^>]*>[\s\S]{400,}?<\/p>/i.test(html);
-    const bodyH2 = (html.match(/<h2\b/gi) || []).length;
-    if (longPara || bodyH2 < 3) {
-      html = promoteEmbeddedHeadingsInParagraphs(html);
-    }
   } else {
+    // Plain Strapi paste → p tags first, then promote headlines out of blobs
     html = markdownToHtml(raw);
+  }
+
+  // Always promote mashed Title-Case / question headlines (plain or HTML paste).
+  // FAQ accordion alone can already add many h3s — do not skip on heading count.
+  const longPara = /<p\b[^>]*>[\s\S]{400,}?<\/p>/i.test(html);
+  const bodyH2 = (html.match(/<h2\b/gi) || []).length;
+  if (longPara || bodyH2 < 3) {
+    html = promoteEmbeddedHeadingsInParagraphs(html);
   }
 
   html = enhanceHtmlFaqs(html);

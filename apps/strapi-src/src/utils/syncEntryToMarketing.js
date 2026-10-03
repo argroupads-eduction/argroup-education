@@ -441,65 +441,10 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
       }
     }
 
-    // 1) HTTP attempts (may fail on Hostinger hairpin / Cloudflare)
-    let httpOk = false;
-    if (syncUrl && secret) {
-      const originIp = (process.env.MARKETING_SYNC_ORIGIN_IP || '').trim();
-      const bases = [
-        process.env.MARKETING_SYNC_ORIGIN,
-        originIp
-          ? originIp.startsWith('http')
-            ? originIp
-            : `https://${originIp}`
-          : null,
-        syncUrl,
-      ]
-        .filter(Boolean)
-        .map((u) => String(u).replace(/\/$/, ''));
-      const uniqueBases = [...new Set(bases)];
-      const payload = JSON.stringify(body);
-
-      for (const base of uniqueBases) {
-        for (let attempt = 1; attempt <= 2; attempt++) {
-          try {
-            log(strapi, 'info', `HTTP try ${base} attempt ${attempt}`);
-            const result = await postPayloadSync(base, secret, payload);
-            if (result.ok) {
-              log(
-                strapi,
-                'info',
-                `HTTP ok via ${result.via} slug=${body.slug}`
-              );
-              httpOk = true;
-              break;
-            }
-            log(
-              strapi,
-              'warn',
-              `HTTP ${result.status} via ${result.via}: ${String(result.text).slice(0, 200)}`
-            );
-          } catch (err) {
-            log(
-              strapi,
-              'warn',
-              `HTTP error via ${base}: ${err?.code || err?.message || err}`
-            );
-            if (attempt < 2) {
-              await new Promise((r) => setTimeout(r, 500 * attempt));
-            }
-          }
-        }
-        if (httpOk) break;
-      }
-    }
-
-    if (httpOk) return { ok: true };
-
-    // 2) Direct MySQL fallback (reliable on Hostinger)
+    // Prefer MySQL when set — Hostinger→www HTTP often ECONNRESET (Cloudflare/hairpin).
     if (hasDb) {
       try {
         const dbBody = { ...body };
-        // Persist upload bytes into CmsMedia when HTTP payload-sync failed
         if (
           kind === 'post' &&
           published !== false &&
@@ -533,7 +478,6 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
               if (mediaPath) {
                 const site = (
                   process.env.MARKETING_PUBLIC_URL ||
-                  process.env.PUBLIC_URL ||
                   'https://www.argroupofeducation.com'
                 ).replace(/\/$/, '');
                 dbBody.featuredImage = `${site}${mediaPath}`;
@@ -545,25 +489,94 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
             }
           }
         }
+        // Never write dead Strapi /uploads hotlinks — live shows broken img
+        if (
+          dbBody.featuredImage &&
+          /hostingersite\.com\/uploads\//i.test(String(dbBody.featuredImage)) &&
+          !dbBody.featuredImageBase64
+        ) {
+          log(
+            strapi,
+            'warn',
+            `clearing dead Strapi uploads URL for ${dbBody.slug} (no media bytes)`
+          );
+          dbBody.featuredImage = null;
+          if (dbBody.ogImage && /hostingersite\.com\/uploads\//i.test(String(dbBody.ogImage))) {
+            dbBody.ogImage = null;
+          }
+        }
         delete dbBody.featuredImageBase64;
         delete dbBody.featuredImageMime;
         const dbRes = await upsertMarketingMysql(strapi, kind, dbBody);
         if (dbRes.ok) {
           log(strapi, 'info', `MySQL ok via ${dbRes.via} slug=${body.slug}`);
+          // Best-effort revalidate/notify via HTTP (ignore ECONNRESET)
+          if (syncUrl && secret) {
+            try {
+              const origin = (process.env.MARKETING_SYNC_ORIGIN || syncUrl)
+                .replace(/\/$/, '');
+              await postPayloadSync(origin, secret, JSON.stringify(body), {
+                timeoutMs: 8000,
+              });
+            } catch {
+              /* MySQL already wrote — HTTP is optional */
+            }
+          }
           return { ok: true, via: dbRes.via };
         }
         log(strapi, 'error', `MySQL failed: ${dbRes.reason}`);
       } catch (err) {
         log(strapi, 'error', `MySQL error: ${err.message}`);
       }
-    } else {
+    }
+
+    // HTTP fallback when MySQL not configured / failed
+    if (syncUrl && secret) {
+      const originIp = (process.env.MARKETING_SYNC_ORIGIN_IP || '').trim();
+      const bases = [
+        process.env.MARKETING_SYNC_ORIGIN,
+        originIp
+          ? originIp.startsWith('http')
+            ? originIp
+            : `https://${originIp}`
+          : null,
+        syncUrl,
+      ]
+        .filter(Boolean)
+        .map((u) => String(u).replace(/\/$/, ''));
+      const uniqueBases = [...new Set(bases)];
+      const payload = JSON.stringify(body);
+
+      for (const base of uniqueBases) {
+        try {
+          log(strapi, 'info', `HTTP try ${base}`);
+          const result = await postPayloadSync(base, secret, payload);
+          if (result.ok) {
+            log(strapi, 'info', `HTTP ok via ${result.via} slug=${body.slug}`);
+            return { ok: true, via: result.via };
+          }
+          log(
+            strapi,
+            'warn',
+            `HTTP ${result.status} via ${result.via}: ${String(result.text).slice(0, 200)}`
+          );
+        } catch (err) {
+          log(
+            strapi,
+            'warn',
+            `HTTP error via ${base}: ${err?.code || err?.message || err}`
+          );
+        }
+      }
+    }
+
+    if (!hasDb) {
       log(
         strapi,
         'error',
-        'HTTP failed and MARKETING_DATABASE_URL not set — add marketing DATABASE_URL as MARKETING_DATABASE_URL'
+        'sync failed — set MARKETING_DATABASE_URL (marketing DATABASE_URL) to avoid ECONNRESET'
       );
     }
-
     return { ok: false, reason: 'all-failed' };
   } catch (err) {
     log(strapi, 'error', `${kind} error: ${err.message}`);
