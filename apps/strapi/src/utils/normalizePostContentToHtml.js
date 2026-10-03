@@ -443,35 +443,53 @@ function polishHtmlFormatting(html) {
   return s;
 }
 
+const QUESTION_HEADING_RE =
+  /(?:^|(?<=[.!?]["']?\s+))((?:\d{1,2}[.)]?\s+|\(\d{1,2}\)\s+)?(?:What|Why|How|Is|Can|Which|When|Where|Who|Do|Does|Are|Should|Will|Before)\b[^.!?]{3,110}\?)/g;
+
+const KNOWN_SECTION_RE =
+  /(?:^|(?<=[.!?]["']?\s+))((?:What is|What are|Why is|Why are|How to|How does|Eligibility Criteria|Admission Process|Counselling Process|Fee Structure|Documents Required|Key Highlights|Final Takeaway|Conclusion|Important Points|NEET PG Required For NRI And Management Quota|Is NEET PG Score Required for (?:NRI|Management) Quota\??|Difference between NEET PG|Role of NEET PG|Mistakes to avoid|How can AR Group)[^.!?]{0,90}(?:\?|(?=\s+[A-Z("])))/gi;
+
+const TAKEAWAY_HEADING_RE =
+  /(?:^|(?<=[.!?]["']?\s+))((?:Final Takeaway|Final Thoughts|Key Takeaways?|Quick Summary|Conclusion))(?=\s+[A-Z("]|$)/g;
+
+/** Title-Case sections mashed into prose (e.g. "Top MD/MS Colleges In Uttar Pradesh Uttar Pradesh has…") */
+const TITLE_CASE_SECTION_RE =
+  /(?:^|(?<=[.!?]["']?\s+))((?:[A-Z][A-Za-z0-9/'&(),-]*)(?:\s+(?:[A-Z0-9(/][A-Za-z0-9/'&(),.-]*|for|of|in|on|to|and|vs|Vs|with|without|after|before|the|a|an|MD\/MS|NEET|PG|MBBS|BAMS|BHMS)){2,12})(?=\s+(?:The|This|These|Those|Candidates?|Students?|Competition|You|It|In|If|For|After|Before|A|An|There|Clearing|Actual|Just|Therefore|Note|However|One|Some|Government|Private)\b)/g;
+
+const TITLE_CASE_TOPIC_RE =
+  /\b(Eligibility|Admission|Process|Counselling|Counseling|Cutoff|Cut-?off|Marks?|Rank|Percentile|Fee|Fees|Cost|Documents?|Preparation|Career|Scope|Requirements?|Criteria|Strategy|Tips|Benefits?|Quota|Seat|Syllabus|Hostel|Visa|Takeaway|Overview|Highlights?|Speciali[sz]ations?|College|University|NEET|MBBS|MD|MS|BAMS|BHMS|Russia|Abroad|Qualifying|Improve|Score|Private|Government|Deemed|Mistakes?|Importance|Difference|Comparison|Expense|Tuition|Thoughts|Consider|Choose)\b/i;
+
 /**
  * Split mashed blog paragraphs into h2/h3 + p (Strapi paste often has no real headings).
- * Mirrors live-site promoteEmbeddedHeadings patterns at publish time so DB stores structure.
+ * Runs at Publish so marketing MySQL stores structured HTML (live may not re-promote).
  */
 function promoteEmbeddedHeadingsInParagraphs(html) {
-  const QUESTION_RE =
-    /(?:^|(?<=[.!?]["']?\s+))((?:\d{1,2}[.)]?\s+|\(\d{1,2}\)\s+)?(?:What|Why|How|Is|Can|Which|When|Where|Who|Do|Does|Are|Should|Will|Before)\b[^.!?]{3,110}\?)/g;
-  const SECTION_RE =
-    /(?:^|(?<=[.!?]["']?\s+))((?:What is|What are|Why is|Why are|How to|How does|Eligibility Criteria|Admission Process|Counselling Process|Fee Structure|Documents Required|Key Highlights|Final Takeaway|Conclusion|Important Points|NEET PG Required For NRI And Management Quota|Is NEET PG Score Required for (?:NRI|Management) Quota\??|Difference between NEET PG|Role of NEET PG|Mistakes to avoid|How can AR Group)[^.!?]{0,90}(?:\?|(?=\s+[A-Z("])))/gi;
-
   return String(html || '').replace(/<p(\b[^>]*)>([\s\S]*?)<\/p>/gi, (full, attrs, inner) => {
     if (/<(?:ul|ol|table|img|h[1-6]|div|figure|blockquote|details)\b/i.test(inner)) return full;
     const plain = stripTags(inner);
-    if (plain.length < 80) return full;
+    if (plain.length < 60) return full;
 
     /** @type {{ start: number, end: number, text: string, level: 'h2'|'h3' }[]} */
     const hits = [];
     const push = (start, end, text, level) => {
       const cleaned = stripFaqQuestionNumberPrefix(text).replace(/\s+/g, ' ').trim();
-      if (cleaned.length < 12 || cleaned.length > 110) return;
+      if (cleaned.length < 10 || cleaned.length > 110) return;
       if (/^(for example|note|important|tip)$/i.test(cleaned)) return;
       hits.push({ start, end, text: cleaned, level });
     };
 
-    for (const re of [QUESTION_RE, SECTION_RE]) {
+    for (const re of [
+      QUESTION_HEADING_RE,
+      TAKEAWAY_HEADING_RE,
+      KNOWN_SECTION_RE,
+      TITLE_CASE_SECTION_RE,
+    ]) {
       re.lastIndex = 0;
       let m;
       while ((m = re.exec(plain)) !== null) {
-        push(m.index, m.index + m[1].length, m[1], 'h2');
+        const raw = m[1].trim();
+        if (re === TITLE_CASE_SECTION_RE && !TITLE_CASE_TOPIC_RE.test(raw)) continue;
+        push(m.index, m.index + m[1].length, raw, 'h2');
       }
     }
     if (!hits.length) return full;
@@ -516,9 +534,11 @@ function normalizePostContentToHtml(content) {
   let html;
   if (looksLikeHtml(raw)) {
     html = polishHtmlFormatting(raw);
-    // Only a few heading tags → promote questions/sections out of paragraph blobs
-    const headingCount = (html.match(/<h[1-6]\b/gi) || []).length;
-    if (headingCount < 3) {
+    // Always promote mashed Title-Case / question headings out of long <p> blobs.
+    // FAQ accordion alone can already add many h3s — do not skip on heading count.
+    const longPara = /<p\b[^>]*>[\s\S]{400,}?<\/p>/i.test(html);
+    const bodyH2 = (html.match(/<h2\b/gi) || []).length;
+    if (longPara || bodyH2 < 3) {
       html = promoteEmbeddedHeadingsInParagraphs(html);
     }
   } else {

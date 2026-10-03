@@ -100,6 +100,45 @@ function jsonCol(v, fallback) {
 }
 
 /**
+ * Persist Media Library bytes into marketing CmsMedia (same table payload-sync uses).
+ * Returns public path /api/cms/media/{id} so www never hotlinks Hostinger /uploads.
+ */
+async function storeCmsMediaMysql(conn, base64, mime) {
+  const cleaned = String(base64 || '')
+    .replace(/^data:[^;]+;base64,/i, '')
+    .trim();
+  if (!cleaned || cleaned.length < 32) return null;
+  let buf;
+  try {
+    buf = Buffer.from(cleaned, 'base64');
+  } catch {
+    return null;
+  }
+  if (buf.length < 32 || buf.length > 8_000_000) return null;
+
+  const safeMime =
+    typeof mime === 'string' && /^image\/(webp|png|jpeg|jpg|gif)$/i.test(mime)
+      ? mime.toLowerCase().replace('image/jpg', 'image/jpeg')
+      : 'image/webp';
+  const id = crypto.createHash('sha256').update(buf).digest('hex').slice(0, 40);
+
+  await conn.query(`
+    CREATE TABLE IF NOT EXISTS CmsMedia (
+      id VARCHAR(64) NOT NULL PRIMARY KEY,
+      mime VARCHAR(120) NOT NULL,
+      data LONGBLOB NOT NULL,
+      createdAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+  await conn.query(
+    `INSERT INTO CmsMedia (id, mime, data) VALUES (?, ?, ?)
+     ON DUPLICATE KEY UPDATE mime = VALUES(mime), data = VALUES(data)`,
+    [id, safeMime, buf]
+  );
+  return `/api/cms/media/${id}`;
+}
+
+/**
  * Direct write to marketing MySQL BlogPost/SitePage — bypasses HTTP/Cloudflare/hairpin.
  * Set MARKETING_DATABASE_URL to the same value as marketing site DATABASE_URL.
  */
@@ -224,6 +263,28 @@ async function upsertMarketingMysql(strapi, kind, body) {
         .trim()
         .slice(0, 500);
 
+    // Never replace a working www image with a dead Strapi /uploads hotlink.
+    let featuredImage = body.featuredImage || null;
+    let ogImage = body.ogImage || featuredImage || null;
+    if (featuredImage && /hostingersite\.com\/uploads\//i.test(featuredImage)) {
+      if (rows.length) {
+        const [[prev]] = await conn.query(
+          'SELECT featuredImage, ogImage FROM BlogPost WHERE slug = ? LIMIT 1',
+          [body.slug]
+        );
+        const prevImg = prev?.featuredImage || '';
+        if (
+          prevImg &&
+          !/hostingersite\.com\/uploads\//i.test(prevImg) &&
+          (/^\/images\//i.test(prevImg) || /\/api\/cms\/media\//i.test(prevImg))
+        ) {
+          featuredImage = prevImg;
+          ogImage = prev?.ogImage || prevImg;
+          log(strapi, 'warn', `keep existing featuredImage (skip dead Strapi uploads URL)`);
+        }
+      }
+    }
+
     if (rows.length) {
       await conn.query(
         `UPDATE BlogPost SET title=?, content=?, excerpt=?, featuredImage=?, category=?,
@@ -234,7 +295,7 @@ async function upsertMarketingMysql(strapi, kind, body) {
           title,
           content,
           excerpt,
-          body.featuredImage || null,
+          featuredImage,
           body.category || 'Blog',
           jsonCol(body.tags, []),
           body.metaTitle || null,
@@ -242,7 +303,7 @@ async function upsertMarketingMysql(strapi, kind, body) {
           body.canonicalUrl || null,
           body.focusKeyword || null,
           jsonCol(body.keywords, []),
-          body.ogImage || body.featuredImage || null,
+          ogImage,
           body.author || 'AR Group',
           publishedAt,
           now,
@@ -262,7 +323,7 @@ async function upsertMarketingMysql(strapi, kind, body) {
           body.slug,
           content,
           excerpt,
-          body.featuredImage || null,
+          featuredImage,
           body.category || 'Blog',
           jsonCol(body.tags, []),
           body.metaTitle || null,
@@ -270,7 +331,7 @@ async function upsertMarketingMysql(strapi, kind, body) {
           body.canonicalUrl || null,
           body.focusKeyword || null,
           jsonCol(body.keywords, []),
-          body.ogImage || body.featuredImage || null,
+          ogImage,
           body.author || 'AR Group',
           publishedAt || now,
           now,
@@ -426,9 +487,55 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
     // 2) Direct MySQL fallback (reliable on Hostinger)
     if (hasDb) {
       try {
-        // featuredImageBase64 not usable in raw MySQL path — keep URL if any
         const dbBody = { ...body };
+        // Persist upload bytes into CmsMedia when HTTP payload-sync failed
+        if (
+          kind === 'post' &&
+          published !== false &&
+          typeof dbBody.featuredImageBase64 === 'string' &&
+          dbBody.featuredImageBase64.trim()
+        ) {
+          const raw = (process.env.MARKETING_DATABASE_URL || '').trim();
+          const u = new URL(raw);
+          let mysql;
+          try {
+            mysql = require('mysql2/promise');
+          } catch (err) {
+            log(strapi, 'error', `mysql2 missing for media: ${err.message}`);
+            mysql = null;
+          }
+          if (mysql) {
+            const mediaConn = await mysql.createConnection({
+              host: u.hostname,
+              port: Number(u.port || 3306),
+              user: decodeURIComponent(u.username),
+              password: decodeURIComponent(u.password),
+              database: u.pathname.replace(/^\//, ''),
+              connectTimeout: 15000,
+            });
+            try {
+              const mediaPath = await storeCmsMediaMysql(
+                mediaConn,
+                dbBody.featuredImageBase64,
+                dbBody.featuredImageMime
+              );
+              if (mediaPath) {
+                const site = (
+                  process.env.MARKETING_PUBLIC_URL ||
+                  process.env.PUBLIC_URL ||
+                  'https://www.argroupofeducation.com'
+                ).replace(/\/$/, '');
+                dbBody.featuredImage = `${site}${mediaPath}`;
+                dbBody.ogImage = dbBody.featuredImage;
+                log(strapi, 'info', `CmsMedia stored ${mediaPath} for ${dbBody.slug}`);
+              }
+            } finally {
+              await mediaConn.end();
+            }
+          }
+        }
         delete dbBody.featuredImageBase64;
+        delete dbBody.featuredImageMime;
         const dbRes = await upsertMarketingMysql(strapi, kind, dbBody);
         if (dbRes.ok) {
           log(strapi, 'info', `MySQL ok via ${dbRes.via} slug=${body.slug}`);
