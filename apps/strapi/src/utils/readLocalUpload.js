@@ -82,30 +82,34 @@ function readLocalUpload(strapi, file) {
 }
 
 /**
- * HTTP fetch fallbacks for Media Library file (public URL, localhost, format variants).
+ * HTTP fetch fallbacks for Media Library file.
+ * Only localhost — Hostinger→own PUBLIC_URL hairpins as ECONNRESET in Runtime Logs.
  */
 async function fetchUploadBuffer(strapi, file) {
   if (!file || typeof file !== 'object') return null;
   const urls = [];
-  const basePublic = String(process.env.PUBLIC_URL || '').replace(/\/$/, '');
   const port = process.env.PORT || '1337';
 
-  const add = (u) => {
+  const addLocal = (u) => {
     if (typeof u !== 'string' || !u.trim()) return;
+    let pathPart = u;
     if (/^https?:\/\//i.test(u)) {
-      pushUnique(urls, u);
-      return;
+      try {
+        pathPart = new URL(u).pathname;
+      } catch {
+        return;
+      }
     }
-    const pathPart = u.startsWith('/') ? u : `/${u}`;
-    if (basePublic) pushUnique(urls, `${basePublic}${pathPart}`);
+    if (!pathPart.startsWith('/')) pathPart = `/${pathPart}`;
+    if (!pathPart.startsWith('/uploads/')) return;
     pushUnique(urls, `http://127.0.0.1:${port}${pathPart}`);
     pushUnique(urls, `http://localhost:${port}${pathPart}`);
   };
 
-  add(file.url || file?.attributes?.url);
+  addLocal(file.url || file?.attributes?.url);
   const formats = file.formats || file?.attributes?.formats || {};
   for (const key of ['large', 'medium', 'small']) {
-    add(formats?.[key]?.url);
+    addLocal(formats?.[key]?.url);
   }
 
   for (const url of urls) {
@@ -124,7 +128,7 @@ async function fetchUploadBuffer(strapi, file) {
         name: file.name || file?.attributes?.name || 'featured.webp',
       };
     } catch {
-      /* try next */
+      /* try next — never log ECONNRESET noise */
     }
   }
   return null;

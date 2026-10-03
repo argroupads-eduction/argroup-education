@@ -103,10 +103,12 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
 
       const published = entry.publishedAt != null || action === 'publish';
       if (!published) {
-        await syncEntryToMarketing(strapi, kind, entry, {
-          published: false,
-          notifyPush: false,
-        });
+        // Draft create/update must NEVER unpublish live BlogPost.
+        // Strapi 5 often fires draft `update` after Publish; syncing published:false
+        // wiped new posts (force-sync worked, Publish looked "dead").
+        console.log(
+          `[marketing-sync] skip draft ${action} for ${entry.slug} (live untouched)`
+        );
         return result;
       }
 

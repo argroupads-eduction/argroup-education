@@ -26,8 +26,8 @@ function isUsableMarketingImageUrl(url) {
 /** Prefer previous BlogPost image when Publish cannot attach media bytes. */
 async function loadPreviousBlogImage(strapi, slug) {
   if (!slug) return null;
-  const raw = (process.env.MARKETING_DATABASE_URL || '').trim();
-  if (!raw) return null;
+  const cfg = marketingMysqlConfig();
+  if (!cfg) return null;
   let mysql;
   try {
     mysql = require('mysql2/promise');
@@ -35,15 +35,7 @@ async function loadPreviousBlogImage(strapi, slug) {
     return null;
   }
   try {
-    const u = new URL(raw);
-    const conn = await mysql.createConnection({
-      host: u.hostname,
-      port: Number(u.port || 3306),
-      user: decodeURIComponent(u.username),
-      password: decodeURIComponent(u.password),
-      database: u.pathname.replace(/^\//, ''),
-      connectTimeout: 12000,
-    });
+    const conn = await mysql.createConnection(cfg);
     try {
       const [[prev]] = await conn.query(
         'SELECT featuredImage, ogImage FROM BlogPost WHERE slug = ? LIMIT 1',
@@ -210,13 +202,31 @@ async function storeCmsMediaMysql(conn, base64, mime) {
 }
 
 /**
- * Direct write to marketing MySQL BlogPost/SitePage — bypasses HTTP/Cloudflare/hairpin.
- * Set MARKETING_DATABASE_URL to the same value as marketing site DATABASE_URL.
+ * Marketing MySQL connection options.
+ * On Hostinger, srv*.hstgr.io from the same Node app hairpins → ECONNRESET / Access denied.
+ * Rewrite to localhost (same pattern as server.js DATABASE_HOST).
  */
-async function upsertMarketingMysql(strapi, kind, body) {
+function marketingMysqlConfig() {
   const raw = (process.env.MARKETING_DATABASE_URL || '').trim();
-  if (!raw) return { ok: false, reason: 'no-db-url' };
+  if (!raw) return null;
+  const u = new URL(raw);
+  let host = u.hostname;
+  if (/\.hstgr\.io$/i.test(host) || /^mysql\d*\./i.test(host)) {
+    host = 'localhost';
+  }
+  return {
+    host,
+    port: Number(u.port || 3306),
+    user: decodeURIComponent(u.username),
+    password: decodeURIComponent(u.password),
+    database: u.pathname.replace(/^\//, ''),
+    connectTimeout: 15000,
+  };
+}
 
+async function withMarketingMysql(strapi, fn) {
+  const cfg = marketingMysqlConfig();
+  if (!cfg) return { ok: false, reason: 'no-db-url' };
   let mysql;
   try {
     mysql = require('mysql2/promise');
@@ -225,17 +235,109 @@ async function upsertMarketingMysql(strapi, kind, body) {
     return { ok: false, reason: 'no-mysql2' };
   }
 
-  const u = new URL(raw);
-  const conn = await mysql.createConnection({
-    host: u.hostname,
-    port: Number(u.port || 3306),
-    user: decodeURIComponent(u.username),
-    password: decodeURIComponent(u.password),
-    database: u.pathname.replace(/^\//, ''),
-    connectTimeout: 15000,
-  });
+  let lastErr;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    let conn;
+    try {
+      conn = await mysql.createConnection(cfg);
+      const result = await fn(conn);
+      return result;
+    } catch (err) {
+      lastErr = err;
+      const code = err?.code || '';
+      const retryable = /ECONNRESET|ECONNREFUSED|PROTOCOL_CONNECTION_LOST|ETIMEDOUT/i.test(
+        `${code} ${err?.message || ''}`
+      );
+      log(
+        strapi,
+        retryable && attempt < 3 ? 'warn' : 'error',
+        `MySQL attempt ${attempt}/3 host=${cfg.host} db=${cfg.database}: ${code || err?.message || err}`
+      );
+      if (!retryable || attempt === 3) break;
+      await new Promise((r) => setTimeout(r, 400 * attempt));
+    } finally {
+      if (conn) {
+        try {
+          await conn.end();
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+  }
+  return { ok: false, reason: lastErr?.message || 'mysql-failed' };
+}
 
-  try {
+/** Best-effort ISR bust — never throws, never logs ECONNRESET as fatal. */
+async function pingMarketingRevalidate(strapi, slug) {
+  const secret = process.env.PAYLOAD_SYNC_SECRET || process.env.REVALIDATE_SECRET;
+  if (!secret || !slug) return;
+  const originIp = (process.env.MARKETING_SYNC_ORIGIN_IP || '').trim();
+  const origin = (process.env.MARKETING_SYNC_ORIGIN || '').trim();
+  const bases = [];
+  if (origin) bases.push(origin.replace(/\/$/, ''));
+  if (originIp) {
+    bases.push(originIp.startsWith('http') ? originIp.replace(/\/$/, '') : `http://${originIp}`);
+  }
+  // Prefer origin IP / sync host — never www Cloudflare from Hostinger (ECONNRESET).
+  for (const base of [...new Set(bases)]) {
+    try {
+      const url = new URL(`${base}/api/revalidate`);
+      const hostHeader =
+        (process.env.MARKETING_SYNC_HOST || '').trim() || 'www.argroupofeducation.com';
+      const lib = url.protocol === 'https:' ? https : http;
+      await new Promise((resolve) => {
+        const req = lib.request(
+          {
+            protocol: url.protocol,
+            hostname: url.hostname,
+            port: url.port || (url.protocol === 'https:' ? 443 : 80),
+            path: url.pathname,
+            method: 'POST',
+            servername: hostHeader,
+            rejectUnauthorized: false,
+            timeout: 8000,
+            headers: {
+              Host: hostHeader,
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${secret}`,
+              Connection: 'close',
+            },
+          },
+          (res) => {
+            res.resume();
+            res.on('end', () => {
+              if (res.statusCode >= 200 && res.statusCode < 300) {
+                log(strapi, 'info', `revalidate ok ${slug} via ${url.hostname}`);
+              }
+              resolve();
+            });
+          }
+        );
+        req.on('error', () => resolve());
+        req.on('timeout', () => {
+          try {
+            req.destroy();
+          } catch {
+            /* ignore */
+          }
+          resolve();
+        });
+        req.end(JSON.stringify({ slug, type: 'post' }));
+      });
+      return;
+    } catch {
+      /* try next */
+    }
+  }
+}
+
+/**
+ * Direct write to marketing MySQL BlogPost/SitePage — bypasses HTTP/Cloudflare/hairpin.
+ * Set MARKETING_DATABASE_URL to the same value as marketing site DATABASE_URL.
+ */
+async function upsertMarketingMysql(strapi, kind, body) {
+  return withMarketingMysql(strapi, async (conn) => {
     const published = body.published !== false;
     const publishedAt = body.publishedAt
       ? new Date(body.publishedAt)
@@ -412,10 +514,8 @@ async function upsertMarketingMysql(strapi, kind, body) {
         ]
       );
     }
-    return { ok: true, via: 'mysql:BlogPost' };
-  } finally {
-    await conn.end();
-  }
+    return { ok: true, via: `mysql:BlogPost@${marketingMysqlConfig()?.host || 'db'}` };
+  });
 }
 
 async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush } = {}) {
@@ -535,8 +635,7 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
           typeof dbBody.featuredImageBase64 === 'string' &&
           dbBody.featuredImageBase64.trim()
         ) {
-          const raw = (process.env.MARKETING_DATABASE_URL || '').trim();
-          const u = new URL(raw);
+          const cfg = marketingMysqlConfig();
           let mysql;
           try {
             mysql = require('mysql2/promise');
@@ -544,15 +643,8 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
             log(strapi, 'error', `mysql2 missing for media: ${err.message}`);
             mysql = null;
           }
-          if (mysql) {
-            const mediaConn = await mysql.createConnection({
-              host: u.hostname,
-              port: Number(u.port || 3306),
-              user: decodeURIComponent(u.username),
-              password: decodeURIComponent(u.password),
-              database: u.pathname.replace(/^\//, ''),
-              connectTimeout: 15000,
-            });
+          if (mysql && cfg) {
+            const mediaConn = await mysql.createConnection(cfg);
             try {
               const mediaPath = await storeCmsMediaMysql(
                 mediaConn,
@@ -601,9 +693,11 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
         delete dbBody.featuredImageMime;
         const dbRes = await upsertMarketingMysql(strapi, kind, dbBody);
         if (dbRes.ok) {
-          // Do NOT call www HTTP after MySQL — Hostinger hairpin causes ECONNRESET noise.
-          // Content is already live in marketing DB; Next revalidates on next request / cron.
+          // Do NOT call www payload-sync HTTP — Hostinger/Cloudflare hairpin → ECONNRESET.
           log(strapi, 'info', `MySQL ok via ${dbRes.via} slug=${body.slug} (skip HTTP)`);
+          if (kind === 'post' && published !== false) {
+            await pingMarketingRevalidate(strapi, body.slug);
+          }
           return { ok: true, via: dbRes.via };
         }
         log(strapi, 'error', `MySQL failed: ${dbRes.reason}`);
@@ -612,8 +706,14 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
       }
     }
 
-    // HTTP fallback when MySQL not configured / failed
-    if (syncUrl && secret) {
+    // HTTP fallback ONLY when MySQL is not configured.
+    // Hostinger→www / Cloudflare always ECONNRESET — never spam Runtime Logs if DB path exists.
+    const allowHttp =
+      !hasDb &&
+      syncUrl &&
+      secret &&
+      String(process.env.MARKETING_SYNC_HTTP || '0') === '1';
+    if (allowHttp) {
       const originIp = (process.env.MARKETING_SYNC_ORIGIN_IP || '').trim();
       const bases = [
         process.env.MARKETING_SYNC_ORIGIN,
@@ -650,6 +750,8 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
           );
         }
       }
+    } else if (hasDb && syncUrl) {
+      log(strapi, 'info', `skip HTTP fallback (MySQL path configured) slug=${body.slug}`);
     }
 
     if (!hasDb) {

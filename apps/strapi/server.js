@@ -93,9 +93,27 @@ server.listen(port, '0.0.0.0', () => {
   );
 });
 
-// Hostinger proxy / health probes often reset idle sockets — not a real app failure
+
+function isBenignSocketErr(err) {
+  const code = err && err.code;
+  return (
+    code === 'ECONNRESET' ||
+    code === 'EPIPE' ||
+    code === 'ERR_STREAM_DESTROYED' ||
+    code === 'ECONNABORTED' ||
+    code === 'ETIMEDOUT'
+  );
+}
+
+server.on('connection', (socket) => {
+  socket.on('error', (err) => {
+    if (isBenignSocketErr(err)) return;
+    console.error('[hostinger-strapi] socket error', err && err.message ? err.message : err);
+  });
+});
+
 server.on('clientError', (err, socket) => {
-  if (err && (err.code === 'ECONNRESET' || err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED')) {
+  if (isBenignSocketErr(err)) {
     try {
       socket.destroy();
     } catch {
@@ -109,6 +127,17 @@ server.on('clientError', (err, socket) => {
   } catch {
     /* ignore */
   }
+});
+
+// Node / Hostinger sometimes surfaces aborted client sockets as uncaughtException
+process.on('uncaughtException', (err) => {
+  if (isBenignSocketErr(err)) return;
+  console.error('[hostinger-strapi] uncaughtException', err);
+});
+process.on('unhandledRejection', (reason) => {
+  const err = reason instanceof Error ? reason : null;
+  if (err && isBenignSocketErr(err)) return;
+  console.error('[hostinger-strapi] unhandledRejection', reason);
 });
 
 server.on('error', (err) => {
