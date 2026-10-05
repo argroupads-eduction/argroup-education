@@ -24,8 +24,11 @@ function isUsableMarketingImageUrl(url) {
 }
 
 /** Prefer previous BlogPost image when Publish cannot attach media bytes. */
-async function loadPreviousBlogImage(strapi, slug) {
-  if (!slug) return null;
+async function loadPreviousBlogImage(strapi, slugs) {
+  const list = (Array.isArray(slugs) ? slugs : [slugs]).filter(
+    (s) => typeof s === 'string' && s.trim()
+  );
+  if (!list.length) return null;
   const cfg = marketingMysqlConfig();
   if (!cfg) return null;
   let mysql;
@@ -37,13 +40,15 @@ async function loadPreviousBlogImage(strapi, slug) {
   try {
     const conn = await mysql.createConnection(cfg);
     try {
-      const [[prev]] = await conn.query(
-        'SELECT featuredImage, ogImage FROM BlogPost WHERE slug = ? LIMIT 1',
-        [slug]
-      );
-      const img = prev?.featuredImage || '';
-      if (isUsableMarketingImageUrl(img)) {
-        return { featuredImage: img, ogImage: prev?.ogImage || img };
+      for (const slug of [...new Set(list)]) {
+        const [[prev]] = await conn.query(
+          'SELECT featuredImage, ogImage FROM BlogPost WHERE slug = ? LIMIT 1',
+          [slug]
+        );
+        const img = prev?.featuredImage || '';
+        if (isUsableMarketingImageUrl(img)) {
+          return { featuredImage: img, ogImage: prev?.ogImage || img, fromSlug: slug };
+        }
       }
     } finally {
       await conn.end();
@@ -452,25 +457,28 @@ async function upsertMarketingMysql(strapi, kind, body) {
         .trim()
         .slice(0, 500);
 
-    // Prefer image from new slug row, else from previousSlug row (rename), never dead uploads.
+    // Prefer image from new slug, then previousSlug (rename), never dead uploads / null wipe.
     let featuredImage = body.featuredImage || null;
     let ogImage = body.ogImage || featuredImage || null;
-    const imageLookupSlug = rows.length ? newSlug : previousSlug;
-    if (imageLookupSlug && (!featuredImage || isDeadStrapiUploadsUrl(featuredImage))) {
-      const [[prev]] = await conn.query(
-        'SELECT featuredImage, ogImage FROM BlogPost WHERE slug = ? LIMIT 1',
-        [imageLookupSlug]
-      );
-      const prevImg = prev?.featuredImage || '';
-      if (isUsableMarketingImageUrl(prevImg)) {
-        featuredImage = prevImg;
-        ogImage = prev?.ogImage || prevImg;
-        log(
-          strapi,
-          'warn',
-          `keep existing featuredImage (skip ${body.featuredImage ? 'dead Strapi uploads URL' : 'null wipe'})`
+    if (!featuredImage || isDeadStrapiUploadsUrl(featuredImage)) {
+      for (const lookupSlug of [newSlug, previousSlug].filter(Boolean)) {
+        const [[prev]] = await conn.query(
+          'SELECT featuredImage, ogImage FROM BlogPost WHERE slug = ? LIMIT 1',
+          [lookupSlug]
         );
-      } else if (isDeadStrapiUploadsUrl(featuredImage)) {
+        const prevImg = prev?.featuredImage || '';
+        if (isUsableMarketingImageUrl(prevImg)) {
+          featuredImage = prevImg;
+          ogImage = prev?.ogImage || prevImg;
+          log(
+            strapi,
+            'warn',
+            `keep featuredImage from ${lookupSlug} (skip ${body.featuredImage ? 'dead Strapi uploads URL' : 'null wipe'})`
+          );
+          break;
+        }
+      }
+      if (isDeadStrapiUploadsUrl(featuredImage)) {
         featuredImage = null;
         if (isDeadStrapiUploadsUrl(ogImage)) ogImage = null;
       }
@@ -584,22 +592,40 @@ async function upsertMarketingMysql(strapi, kind, body) {
       );
     }
     // Exact-title duplicates (slug rename without previousSlug on force-sync) → keep newest slug only.
+    // Also adopt their CmsMedia image if the new row still has none.
     if (title) {
       const [dupes] = await conn.query(
-        'SELECT slug FROM BlogPost WHERE title = ? AND slug != ? AND published = 1 LIMIT 10',
+        'SELECT slug, featuredImage, ogImage FROM BlogPost WHERE title = ? AND slug != ? LIMIT 10',
         [title, newSlug]
       );
       for (const d of dupes) {
-        await conn.query(
-          'UPDATE BlogPost SET published = 0, updatedAt = ? WHERE slug = ?',
-          [now, d.slug]
-        );
-        log(
-          strapi,
-          'info',
-          `retired duplicate-title slug ${d.slug} (kept ${newSlug})`
-        );
-        if (!previousSlug) previousSlug = d.slug;
+        if (!featuredImage && isUsableMarketingImageUrl(d.featuredImage || '')) {
+          featuredImage = d.featuredImage;
+          ogImage = d.ogImage || d.featuredImage;
+          await conn.query(
+            'UPDATE BlogPost SET featuredImage=?, ogImage=?, updatedAt=? WHERE slug=?',
+            [featuredImage, ogImage, now, newSlug]
+          );
+          log(
+            strapi,
+            'info',
+            `copied featuredImage from ${d.slug} → ${newSlug}`
+          );
+        }
+        if (d.slug) {
+          await conn.query(
+            'UPDATE BlogPost SET published = 0, updatedAt = ? WHERE slug = ? AND published = 1',
+            [now, d.slug]
+          );
+          if (d.slug !== previousSlug) {
+            log(
+              strapi,
+              'info',
+              `retired duplicate-title slug ${d.slug} (kept ${newSlug})`
+            );
+          }
+          if (!previousSlug) previousSlug = d.slug;
+        }
       }
     }
 
@@ -763,14 +789,17 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
           !dbBody.featuredImageBase64 &&
           (isDeadStrapiUploadsUrl(dbBody.featuredImage) || !dbBody.featuredImage)
         ) {
-          const prev = await loadPreviousBlogImage(strapi, dbBody.slug);
+          const prev = await loadPreviousBlogImage(strapi, [
+            dbBody.slug,
+            dbBody.previousSlug,
+          ]);
           if (prev?.featuredImage) {
             dbBody.featuredImage = prev.featuredImage;
             dbBody.ogImage = prev.ogImage || prev.featuredImage;
             log(
               strapi,
               'warn',
-              `preserve existing featuredImage for ${dbBody.slug} (no media bytes; skip wipe)`
+              `preserve featuredImage for ${dbBody.slug} from ${prev.fromSlug || 'prior'} (no media bytes; skip wipe)`
             );
           } else if (isDeadStrapiUploadsUrl(dbBody.featuredImage)) {
             log(
