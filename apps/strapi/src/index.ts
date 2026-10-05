@@ -44,18 +44,34 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
     }
     let preDeleteSlug: string | null = null;
     let preDeleteTitle: string | null = null;
+    let previousPublishedSlug: string | null = null;
 
-    if (kind && (context.action === 'delete' || context.action === 'unpublish')) {
+    // Capture live slug BEFORE publish/update so slug renames can retire the old URL.
+    if (
+      kind &&
+      params.documentId &&
+      (context.action === 'delete' ||
+        context.action === 'unpublish' ||
+        context.action === 'publish' ||
+        context.action === 'update')
+    ) {
       try {
-        if (params.documentId) {
-          const prior = asEntry(
+        let prior = asEntry(
+          await strapi.documents(context.uid).findOne({
+            documentId: params.documentId,
+            status: 'published',
+          })
+        );
+        if (!prior) {
+          prior = asEntry(
             await strapi.db.query(context.uid).findOne({
               where: { documentId: params.documentId },
             })
           );
-          preDeleteSlug = typeof prior?.slug === 'string' ? prior.slug : null;
-          preDeleteTitle = typeof prior?.title === 'string' ? prior.title : null;
         }
+        preDeleteSlug = typeof prior?.slug === 'string' ? prior.slug : null;
+        preDeleteTitle = typeof prior?.title === 'string' ? prior.title : null;
+        previousPublishedSlug = preDeleteSlug;
       } catch {
         /* ignore */
       }
@@ -83,19 +99,23 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
           strapi.log.warn(`[marketing-sync] ${kind} ${action}: no slug to unpublish`);
           return result;
         }
-        await syncEntryToMarketing(
-          strapi,
-          kind,
-          {
-            slug,
-            title:
-              (typeof entry?.title === 'string' && entry.title) ||
-              preDeleteTitle ||
-              slug,
-            content: typeof entry?.content === 'string' ? entry.content : '',
-          },
-          { published: false, notifyPush: false }
-        );
+        // Unpublish both current + previous slug if they differ (rename then unpublish).
+        const slugs = [...new Set([slug, previousPublishedSlug].filter(Boolean))] as string[];
+        for (const s of slugs) {
+          await syncEntryToMarketing(
+            strapi,
+            kind,
+            {
+              slug: s,
+              title:
+                (typeof entry?.title === 'string' && entry.title) ||
+                preDeleteTitle ||
+                s,
+              content: typeof entry?.content === 'string' ? entry.content : '',
+            },
+            { published: false, notifyPush: false }
+          );
+        }
         return result;
       }
 
@@ -124,6 +144,17 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
           ? await loadPreparedPost(strapi, documentId, { preferPublished: true })
           : preparePostEntry(strapi, entry);
         if (prepared) syncPayload = prepared;
+      }
+
+      if (
+        previousPublishedSlug &&
+        typeof syncPayload.slug === 'string' &&
+        previousPublishedSlug !== syncPayload.slug
+      ) {
+        syncPayload.previousSlug = previousPublishedSlug;
+        console.log(
+          `[marketing-sync] slug rename ${previousPublishedSlug} → ${syncPayload.slug}`
+        );
       }
 
       const notifyPush = kind === 'post' && action === 'publish';

@@ -89,9 +89,16 @@ function buildPayloadSyncBody(type, entry, { published, notifyPush } = {}) {
     fromMedia ||
     featuredImage;
 
+  const previousSlug =
+    typeof data.previousSlug === 'string' && data.previousSlug.trim()
+      ? data.previousSlug.trim()
+      : undefined;
+
   return {
     type,
     slug: data.slug,
+    previousSlug:
+      previousSlug && previousSlug !== data.slug ? previousSlug : undefined,
     title: data.title,
     content: data.content || '',
     excerpt: data.excerpt || undefined,

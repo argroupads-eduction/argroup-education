@@ -268,11 +268,14 @@ async function withMarketingMysql(strapi, fn) {
   return { ok: false, reason: lastErr?.message || 'mysql-failed' };
 }
 
-/** Best-effort ISR bust — opt-in only (MARKETING_REVALIDATE=1). Default off = zero outbound noise. */
-async function pingMarketingRevalidate(strapi, slug) {
-  if (String(process.env.MARKETING_REVALIDATE || '').trim() !== '1') return;
+/** Best-effort ISR bust via sync origin only (never www — avoids Cloudflare ECONNRESET). */
+async function pingMarketingRevalidate(strapi, slugs) {
+  if (String(process.env.MARKETING_REVALIDATE || '1').trim() === '0') return;
   const secret = process.env.PAYLOAD_SYNC_SECRET || process.env.REVALIDATE_SECRET;
-  if (!secret || !slug) return;
+  const list = (Array.isArray(slugs) ? slugs : [slugs]).filter(
+    (s) => typeof s === 'string' && s.trim()
+  );
+  if (!secret || !list.length) return;
   const originIp = (process.env.MARKETING_SYNC_ORIGIN_IP || '').trim();
   const origin = (process.env.MARKETING_SYNC_ORIGIN || '').trim();
   const bases = [];
@@ -280,55 +283,58 @@ async function pingMarketingRevalidate(strapi, slug) {
   if (originIp) {
     bases.push(originIp.startsWith('http') ? originIp.replace(/\/$/, '') : `http://${originIp}`);
   }
-  // Prefer origin IP / sync host — never www Cloudflare from Hostinger (ECONNRESET).
-  for (const base of [...new Set(bases)]) {
-    try {
-      const url = new URL(`${base}/api/revalidate`);
-      const hostHeader =
-        (process.env.MARKETING_SYNC_HOST || '').trim() || 'www.argroupofeducation.com';
-      const lib = url.protocol === 'https:' ? https : http;
-      await new Promise((resolve) => {
-        const req = lib.request(
-          {
-            protocol: url.protocol,
-            hostname: url.hostname,
-            port: url.port || (url.protocol === 'https:' ? 443 : 80),
-            path: url.pathname,
-            method: 'POST',
-            servername: hostHeader,
-            rejectUnauthorized: false,
-            timeout: 8000,
-            headers: {
-              Host: hostHeader,
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${secret}`,
-              Connection: 'close',
+  if (!bases.length) return;
+
+  for (const slug of [...new Set(list)]) {
+    for (const base of [...new Set(bases)]) {
+      try {
+        const url = new URL(`${base}/api/revalidate`);
+        const hostHeader =
+          (process.env.MARKETING_SYNC_HOST || '').trim() || 'www.argroupofeducation.com';
+        const lib = url.protocol === 'https:' ? https : http;
+        await new Promise((resolve) => {
+          const req = lib.request(
+            {
+              protocol: url.protocol,
+              hostname: url.hostname,
+              port: url.port || (url.protocol === 'https:' ? 443 : 80),
+              path: url.pathname,
+              method: 'POST',
+              servername: hostHeader,
+              rejectUnauthorized: false,
+              timeout: 8000,
+              headers: {
+                Host: hostHeader,
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${secret}`,
+                Connection: 'close',
+              },
             },
-          },
-          (res) => {
-            res.resume();
-            res.on('end', () => {
-              if (res.statusCode >= 200 && res.statusCode < 300) {
-                log(strapi, 'info', `revalidate ok ${slug} via ${url.hostname}`);
-              }
-              resolve();
-            });
-          }
-        );
-        req.on('error', () => resolve());
-        req.on('timeout', () => {
-          try {
-            req.destroy();
-          } catch {
-            /* ignore */
-          }
-          resolve();
+            (res) => {
+              res.resume();
+              res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                  log(strapi, 'info', `revalidate ok ${slug} via ${url.hostname}`);
+                }
+                resolve();
+              });
+            }
+          );
+          req.on('error', () => resolve());
+          req.on('timeout', () => {
+            try {
+              req.destroy();
+            } catch {
+              /* ignore */
+            }
+            resolve();
+          });
+          req.end(JSON.stringify({ slug, type: 'post' }));
         });
-        req.end(JSON.stringify({ slug, type: 'post' }));
-      });
-      return;
-    } catch {
-      /* try next */
+        break;
+      } catch {
+        /* try next base */
+      }
     }
   }
 }
@@ -414,20 +420,29 @@ async function upsertMarketingMysql(strapi, kind, body) {
     }
 
     // post → BlogPost
+    const newSlug = body.slug;
+    let previousSlug =
+      typeof body.previousSlug === 'string' &&
+      body.previousSlug.trim() &&
+      body.previousSlug.trim() !== newSlug
+        ? body.previousSlug.trim()
+        : null;
+
     const [rows] = await conn.query('SELECT id FROM BlogPost WHERE slug = ? LIMIT 1', [
-      body.slug,
+      newSlug,
     ]);
     if (!published) {
-      if (rows.length) {
+      const unpublishSlugs = [...new Set([newSlug, previousSlug].filter(Boolean))];
+      for (const s of unpublishSlugs) {
         await conn.query(
           'UPDATE BlogPost SET published = 0, updatedAt = ? WHERE slug = ?',
-          [now, body.slug]
+          [now, s]
         );
       }
       return { ok: true, via: 'mysql:BlogPost:unpublish' };
     }
 
-    const title = body.title || body.slug;
+    const title = body.title || newSlug;
     const content = body.content || '';
     const excerpt =
       body.excerpt ||
@@ -437,13 +452,14 @@ async function upsertMarketingMysql(strapi, kind, body) {
         .trim()
         .slice(0, 500);
 
-    // Never replace a working www image with a dead Strapi /uploads hotlink or null wipe.
+    // Prefer image from new slug row, else from previousSlug row (rename), never dead uploads.
     let featuredImage = body.featuredImage || null;
     let ogImage = body.ogImage || featuredImage || null;
-    if (rows.length && (!featuredImage || isDeadStrapiUploadsUrl(featuredImage))) {
+    const imageLookupSlug = rows.length ? newSlug : previousSlug;
+    if (imageLookupSlug && (!featuredImage || isDeadStrapiUploadsUrl(featuredImage))) {
       const [[prev]] = await conn.query(
         'SELECT featuredImage, ogImage FROM BlogPost WHERE slug = ? LIMIT 1',
-        [body.slug]
+        [imageLookupSlug]
       );
       const prevImg = prev?.featuredImage || '';
       if (isUsableMarketingImageUrl(prevImg)) {
@@ -455,11 +471,28 @@ async function upsertMarketingMysql(strapi, kind, body) {
           `keep existing featuredImage (skip ${body.featuredImage ? 'dead Strapi uploads URL' : 'null wipe'})`
         );
       } else if (isDeadStrapiUploadsUrl(featuredImage)) {
-        // No prior good image — still avoid writing a broken hostingersite /uploads hotlink.
         featuredImage = null;
         if (isDeadStrapiUploadsUrl(ogImage)) ogImage = null;
       }
     }
+
+    const updateFields = [
+      title,
+      content,
+      excerpt,
+      featuredImage,
+      body.category || 'Blog',
+      jsonCol(body.tags, []),
+      body.metaTitle || null,
+      body.metaDescription || null,
+      body.canonicalUrl || null,
+      body.focusKeyword || null,
+      jsonCol(body.keywords, []),
+      ogImage,
+      body.author || 'AR Group',
+      publishedAt,
+      now,
+    ];
 
     if (rows.length) {
       await conn.query(
@@ -467,25 +500,60 @@ async function upsertMarketingMysql(strapi, kind, body) {
          tags=?, metaTitle=?, metaDescription=?, canonicalUrl=?, focusKeyword=?, keywords=?,
          ogImage=?, author=?, published=1, publishedAt=COALESCE(?, publishedAt), updatedAt=?
          WHERE slug=?`,
-        [
-          title,
-          content,
-          excerpt,
-          featuredImage,
-          body.category || 'Blog',
-          jsonCol(body.tags, []),
-          body.metaTitle || null,
-          body.metaDescription || null,
-          body.canonicalUrl || null,
-          body.focusKeyword || null,
-          jsonCol(body.keywords, []),
-          ogImage,
-          body.author || 'AR Group',
-          publishedAt,
-          now,
-          body.slug,
-        ]
+        [...updateFields, newSlug]
       );
+      // Slug renamed in Strapi: retire old live URL so only the new slug stays published.
+      if (previousSlug) {
+        await conn.query(
+          'UPDATE BlogPost SET published = 0, updatedAt = ? WHERE slug = ?',
+          [now, previousSlug]
+        );
+        log(strapi, 'info', `retired old slug ${previousSlug} → ${newSlug}`);
+      }
+    } else if (previousSlug) {
+      const [oldRows] = await conn.query(
+        'SELECT id FROM BlogPost WHERE slug = ? LIMIT 1',
+        [previousSlug]
+      );
+      if (oldRows.length) {
+        // Rename in place — keeps views/id, switches live URL to the new slug.
+        await conn.query(
+          `UPDATE BlogPost SET slug=?, title=?, content=?, excerpt=?, featuredImage=?, category=?,
+           tags=?, metaTitle=?, metaDescription=?, canonicalUrl=?, focusKeyword=?, keywords=?,
+           ogImage=?, author=?, published=1, publishedAt=COALESCE(?, publishedAt), updatedAt=?
+           WHERE slug=?`,
+          [newSlug, ...updateFields, previousSlug]
+        );
+        log(strapi, 'info', `renamed BlogPost slug ${previousSlug} → ${newSlug}`);
+      } else {
+        await conn.query(
+          `INSERT INTO BlogPost
+           (id, title, slug, content, excerpt, featuredImage, category, tags, metaTitle,
+            metaDescription, canonicalUrl, focusKeyword, keywords, ogImage, author, published,
+            publishedAt, views, createdAt, updatedAt)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, ?, ?)`,
+          [
+            newId(),
+            title,
+            newSlug,
+            content,
+            excerpt,
+            featuredImage,
+            body.category || 'Blog',
+            jsonCol(body.tags, []),
+            body.metaTitle || null,
+            body.metaDescription || null,
+            body.canonicalUrl || null,
+            body.focusKeyword || null,
+            jsonCol(body.keywords, []),
+            ogImage,
+            body.author || 'AR Group',
+            publishedAt || now,
+            now,
+            now,
+          ]
+        );
+      }
     } else {
       await conn.query(
         `INSERT INTO BlogPost
@@ -496,7 +564,7 @@ async function upsertMarketingMysql(strapi, kind, body) {
         [
           newId(),
           title,
-          body.slug,
+          newSlug,
           content,
           excerpt,
           featuredImage,
@@ -515,7 +583,31 @@ async function upsertMarketingMysql(strapi, kind, body) {
         ]
       );
     }
-    return { ok: true, via: `mysql:BlogPost@${marketingMysqlConfig()?.host || 'db'}` };
+    // Exact-title duplicates (slug rename without previousSlug on force-sync) → keep newest slug only.
+    if (title) {
+      const [dupes] = await conn.query(
+        'SELECT slug FROM BlogPost WHERE title = ? AND slug != ? AND published = 1 LIMIT 10',
+        [title, newSlug]
+      );
+      for (const d of dupes) {
+        await conn.query(
+          'UPDATE BlogPost SET published = 0, updatedAt = ? WHERE slug = ?',
+          [now, d.slug]
+        );
+        log(
+          strapi,
+          'info',
+          `retired duplicate-title slug ${d.slug} (kept ${newSlug})`
+        );
+        if (!previousSlug) previousSlug = d.slug;
+      }
+    }
+
+    return {
+      ok: true,
+      via: `mysql:BlogPost@${marketingMysqlConfig()?.host || 'db'}`,
+      previousSlug: previousSlug || undefined,
+    };
   });
 }
 
@@ -697,9 +789,13 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
           // Do NOT call www payload-sync HTTP — Hostinger/Cloudflare hairpin → ECONNRESET.
           log(strapi, 'info', `MySQL ok via ${dbRes.via} slug=${body.slug} (skip HTTP)`);
           if (kind === 'post' && published !== false) {
-            await pingMarketingRevalidate(strapi, body.slug);
+            await pingMarketingRevalidate(strapi, [
+              body.slug,
+              body.previousSlug,
+              dbRes.previousSlug,
+            ]);
           }
-          return { ok: true, via: dbRes.via };
+          return { ok: true, via: dbRes.via, previousSlug: dbRes.previousSlug };
         }
         log(strapi, 'error', `MySQL failed: ${dbRes.reason}`);
       } catch (err) {
