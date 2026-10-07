@@ -174,6 +174,40 @@ function sectionHeadingLevel(text) {
 }
 
 /**
+ * "AIIMS New Delhi – description…" / college rows → ordered list items (doc-style).
+ */
+function splitNamedListItem(text) {
+  const t = String(text || '').trim();
+  const m = t.match(/^(.{10,140}?)\s+[–—]\s+(.{30,})$/);
+  if (!m) return null;
+  const lead = m[1].trim();
+  const rest = m[2].trim();
+  if (/[.!?]$/.test(lead)) return null;
+  if (!/^[A-Z0-9("]/.test(lead)) return null;
+  const looksLikeOrg =
+    /\([A-Z][A-Za-z0-9.&-]{1,20}\)/.test(lead) ||
+    /,\s*[A-Z]/.test(lead) ||
+    /\b(College|University|Institute|Hospital|Academy|School|Centre|Center|Medical)\b/i.test(
+      lead
+    );
+  if (!looksLikeOrg) return null;
+  return { lead, rest };
+}
+
+function formatNamedListHtml(items) {
+  const lis = items
+    .map((item, idx) => {
+      const n = idx + 1;
+      return (
+        `<li><strong>${n}. ${inlineFormat(item.lead)} –</strong> ${inlineFormat(item.rest)}</li>`
+      );
+    })
+    .join('\n');
+  // Inline list-style so live looks correct even before frontend CSS redeploy
+  return `<ol class="blog-named-list" style="list-style:none;margin:1.15rem 0 1.5rem;padding-left:0">\n${lis}\n</ol>`;
+}
+
+/**
  * Parse markdown/plain lines → HTML with h2/h3/p + FAQ accordion(s).
  */
 function parseLinesToHtmlAndFaqs(src) {
@@ -299,6 +333,29 @@ function parseLinesToHtmlAndFaqs(src) {
       out.push(`<h${level}>${inlineFormat(level === 3 ? label : trimmed)}</h${level}>`);
       i++;
       continue;
+    }
+
+    // College / institute rows: "Name, City – description" → numbered <ol> like the brief doc
+    if (splitNamedListItem(trimmed)) {
+      flushPara();
+      const items = [];
+      while (i < lines.length) {
+        const row = splitNamedListItem(lines[i].trim());
+        if (!row) break;
+        items.push(row);
+        i++;
+      }
+      if (items.length >= 2) {
+        out.push(formatNamedListHtml(items));
+        continue;
+      }
+      // Single row — bold lead + paragraph
+      if (items.length === 1) {
+        out.push(
+          `<p><strong>${inlineFormat(items[0].lead)} –</strong> ${inlineFormat(items[0].rest)}</p>`
+        );
+        continue;
+      }
     }
 
     if (/^[-*+]\s+/.test(trimmed)) {

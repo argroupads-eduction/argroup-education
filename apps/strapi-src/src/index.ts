@@ -89,6 +89,12 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
       const raw = Array.isArray(result) ? result[0] : result;
       const entry = asEntry(raw);
 
+      const documentId =
+        (typeof (entry as { documentId?: string } | null)?.documentId === 'string' &&
+          (entry as { documentId?: string }).documentId) ||
+        params.documentId ||
+        null;
+
       if (action === 'delete' || action === 'unpublish') {
         const slug =
           (typeof entry?.slug === 'string' && entry.slug) ||
@@ -119,31 +125,50 @@ function registerMarketingDocumentSync(strapi: Core.Strapi) {
         return result;
       }
 
-      if (!entry || typeof entry.slug !== 'string' || !entry.slug) return result;
+      // Strapi 5 Publish often returns a thin payload (no slug / no publishedAt).
+      // Never skip publish just because result is incomplete — reload by documentId.
+      const published =
+        action === 'publish' ||
+        (entry != null && entry.publishedAt != null);
 
-      const published = entry.publishedAt != null || action === 'publish';
       if (!published) {
         // Draft create/update must NEVER unpublish live BlogPost.
-        // Strapi 5 often fires draft `update` after Publish; syncing published:false
-        // wiped new posts (force-sync worked, Publish looked "dead").
         console.log(
-          `[marketing-sync] skip draft ${action} for ${entry.slug} (live untouched)`
+          `[marketing-sync] skip draft ${action} for ${entry?.slug || documentId || '-'} (live untouched)`
         );
         return result;
       }
 
-      // Posts: re-load with featuredMedia + normalize HTML/h2/h3/FAQ before sync
-      let syncPayload: MarketingEntry = entry;
+      // Posts: always re-load with featuredMedia + normalize HTML/h2/h3/FAQ before sync
+      let syncPayload: MarketingEntry | null = entry;
       if (kind === 'post') {
-        const documentId =
-          (typeof (entry as { documentId?: string }).documentId === 'string' &&
-            (entry as { documentId?: string }).documentId) ||
-          params.documentId ||
-          null;
         const prepared = documentId
           ? await loadPreparedPost(strapi, documentId, { preferPublished: true })
-          : preparePostEntry(strapi, entry);
+          : entry
+            ? preparePostEntry(strapi, entry)
+            : null;
         if (prepared) syncPayload = prepared;
+      } else if ((!syncPayload || typeof syncPayload.slug !== 'string') && documentId) {
+        try {
+          syncPayload = asEntry(
+            await strapi.documents(context.uid).findOne({
+              documentId,
+              status: 'published',
+            })
+          );
+        } catch {
+          /* keep entry */
+        }
+      }
+
+      if (!syncPayload || typeof syncPayload.slug !== 'string' || !syncPayload.slug) {
+        console.error(
+          `[marketing-sync] ${action}: no slug after prepare documentId=${documentId || '-'} — live NOT updated`
+        );
+        strapi.log.error(
+          `[marketing-sync] ${action}: no slug after prepare documentId=${documentId || '-'}`
+        );
+        return result;
       }
 
       if (
