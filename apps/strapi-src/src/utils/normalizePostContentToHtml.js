@@ -579,9 +579,13 @@ const KNOWN_SECTION_RE =
 const TAKEAWAY_HEADING_RE =
   /(?:^|(?<=[.!?]["']?\s+))((?:Final Takeaway|Final Thoughts|Key Takeaways?|Quick Summary|Conclusion))(?=\s+[A-Z("]|$)/g;
 
-/** Title-Case sections mashed into prose (e.g. "Top MD/MS Colleges In Uttar Pradesh Uttar Pradesh has…") */
+/**
+ * Title-Case sections mashed into prose.
+ * Lookahead must be a real sentence starter — NOT "In/Of/For …" (those continue phrases
+ * like "Top MD/MS Colleges In Uttar Pradesh will not…").
+ */
 const TITLE_CASE_SECTION_RE =
-  /(?:^|(?<=[.!?]["']?\s+))((?:[A-Z][A-Za-z0-9/'&(),-]*)(?:\s+(?:[A-Z0-9(/][A-Za-z0-9/'&(),.-]*|for|of|in|on|to|and|vs|Vs|with|without|after|before|the|a|an|MD\/MS|NEET|PG|MBBS|BAMS|BHMS)){2,12})(?=\s+(?:The|This|These|Those|Candidates?|Students?|Competition|You|It|In|If|For|After|Before|A|An|There|Clearing|Actual|Just|Therefore|Note|However|One|Some|Government|Private)\b)/g;
+  /(?:^|(?<=[.!?]["']?\s+))((?:[A-Z][A-Za-z0-9/'&(),-]*)(?:\s+(?:[A-Z0-9(/][A-Za-z0-9/'&(),.-]*|for|of|in|on|to|and|vs|Vs|with|without|after|before|the|a|an|MD\/MS|NEET|PG|MBBS|BAMS|BHMS)){2,12})(?=\s+(?:The|This|These|Those|Candidates?|Students?|Competition|You|It|If|After|Before|There|Clearing|Actual|Just|Therefore|Note|However|One|Some|Government|Private)\b)/g;
 
 const TITLE_CASE_TOPIC_RE =
   /\b(Eligibility|Admission|Process|Counselling|Counseling|Cutoff|Cut-?off|Marks?|Rank|Percentile|Fee|Fees|Cost|Documents?|Preparation|Career|Scope|Requirements?|Criteria|Strategy|Tips|Benefits?|Quota|Seat|Syllabus|Hostel|Visa|Takeaway|Overview|Highlights?|Speciali[sz]ations?|Colleges?|Universit(?:y|ies)|NEET|MBBS|MD|MS|BAMS|BHMS|Russia|Abroad|Qualifying|Improve|Score|Private|Government|Deemed|Mistakes?|Importance|Difference|Comparison|Expense|Tuition|Thoughts|Consider|Choose|Guide|Aspirants|Exposure|Faculty)\b/i;
@@ -615,8 +619,23 @@ function promoteEmbeddedHeadingsInParagraphs(html) {
       let m;
       while ((m = re.exec(plain)) !== null) {
         const raw = m[1].trim();
-        if (re === TITLE_CASE_SECTION_RE && !TITLE_CASE_TOPIC_RE.test(raw)) continue;
-        push(m.index, m.index + m[1].length, raw, 'h2');
+        const end = m.index + m[1].length;
+        const after = plain.slice(end).replace(/^\s+/, '');
+        if (re === TITLE_CASE_SECTION_RE) {
+          if (!TITLE_CASE_TOPIC_RE.test(raw)) continue;
+          // "Top MD/MS Colleges In Uttar Pradesh will…" — not a section break
+          if (/^(?:In|Of|For|On|At|From|To)\s+[A-Z]/.test(after)) continue;
+          // Leftover must look like a new sentence, not a mid-clause fragment
+          if (
+            after &&
+            !/^(?:The|This|These|Those|Candidates?|Students?|Competition|You|It|If|After|Before|There|Clearing|Actual|Just|Therefore|Note|However|One|Some|Government|Private)\b/.test(
+              after
+            )
+          ) {
+            continue;
+          }
+        }
+        push(m.index, end, raw, 'h2');
       }
     }
     if (!hits.length) return full;
