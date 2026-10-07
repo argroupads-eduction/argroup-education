@@ -16,7 +16,7 @@ function escapeHtml(s) {
 
 function looksLikeHtml(content) {
   if (!content || typeof content !== 'string') return false;
-  return /<(p|h[1-6]|ul|ol|li|table|div|blockquote|details|pre|hr)\b/i.test(content);
+  return /<(p|h[1-6]|ul|ol|li|table|div|blockquote|details|pre|hr|a)\b/i.test(content);
 }
 
 function stripTags(html) {
@@ -44,10 +44,17 @@ function firstParagraphText(html, maxLen = 220) {
 
 function inlineFormat(text) {
   let s = escapeHtml(text);
+  // Markdown links (absolute or site-relative /blog/...)
   s = s.replace(
-    /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
-    '<a href="$2" rel="noopener noreferrer">$1</a>'
+    /\[([^\]]+)\]\((https?:\/\/[^)\s]+|\/blog\/[a-z0-9-]+)\)/gi,
+    '<a href="$2">$1</a>'
   );
+  // Bare internal blog URLs pasted in plain text
+  s = s.replace(
+    /(^|[^">])(https?:\/\/(?:www\.)?argroupofeducation\.com\/blog\/[a-z0-9-]+)/gi,
+    '$1<a href="$2">$2</a>'
+  );
+  s = s.replace(/(^|[^">])(\/blog\/[a-z0-9-]+)/gi, '$1<a href="$2">$2</a>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/__([^_]+)__/g, '<strong>$1</strong>');
   s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');

@@ -8,6 +8,48 @@ const {
   buildPayloadSyncBody,
 } = require('./marketingSyncSafety');
 const { readLocalUpload, fetchUploadBuffer } = require('./readLocalUpload');
+const { applyBlogInterlinks } = require('./applyBlogInterlinks');
+
+/** Load published BlogPost catalog and weave internal /blog links into HTML. */
+async function enrichContentWithInterlinks(strapi, content, currentSlug) {
+  const html = String(content || '');
+  if (!html.trim() || !currentSlug) return html;
+  const cfg = marketingMysqlConfig();
+  if (!cfg) return html;
+  let mysql;
+  try {
+    mysql = require('mysql2/promise');
+  } catch {
+    return html;
+  }
+  try {
+    const conn = await mysql.createConnection(cfg);
+    try {
+      const [posts] = await conn.query(
+        'SELECT slug, title, focusKeyword FROM BlogPost WHERE published = 1 ORDER BY updatedAt DESC LIMIT 900'
+      );
+      const next = applyBlogInterlinks(html, posts, {
+        currentSlug,
+        maxLinks: 16,
+      });
+      const before = (html.match(/<a\b/gi) || []).length;
+      const after = (next.match(/<a\b/gi) || []).length;
+      if (after > before) {
+        log(
+          strapi,
+          'info',
+          `interlinks +${after - before} for ${currentSlug} (total anchors=${after})`
+        );
+      }
+      return next;
+    } finally {
+      await conn.end();
+    }
+  } catch (err) {
+    log(strapi, 'warn', `interlink enrich failed: ${err?.message || err}`);
+    return html;
+  }
+}
 
 function isDeadStrapiUploadsUrl(url) {
   return typeof url === 'string' && /hostingersite\.com\/uploads\//i.test(url);
@@ -693,6 +735,11 @@ async function syncEntryToMarketing(strapi, type, entry, { published, notifyPush
     }
 
     log(strapi, 'info', `slug=${body.slug} contentLen=${(body.content || '').length}`);
+
+    // Plain Strapi paste often has SEO phrases without <a> — weave /blog links from live catalog.
+    if (kind === 'post' && published !== false && body.content) {
+      body.content = await enrichContentWithInterlinks(strapi, body.content, body.slug);
+    }
 
     if (kind === 'post' && published !== false) {
       let media = await resolveUploadFile(
