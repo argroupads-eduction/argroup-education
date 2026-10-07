@@ -111,7 +111,10 @@ function buildFaqHtml(faqs) {
 
 function isFaqSectionHeading(text) {
   const t = stripTags(text).trim();
-  return /^(frequently\s+asked\s+questions(\s*\([^)]*\))?|faqs?|faq'?s?)\s*$/i.test(t);
+  // Allow "FAQs", "FAQs:", "FAQ's", "Frequently Asked Questions (…)"
+  return /^(frequently\s+asked\s+questions(\s*\([^)]*\))?|faqs?|faq'?s?)\s*:?\s*$/i.test(
+    t
+  );
 }
 
 function looksLikeQuestion(text) {
@@ -486,29 +489,59 @@ function extractFaqsFromHtmlChunk(chunk) {
   return faqs.filter((f) => f.q && f.a && f.a.length > 8);
 }
 
-/** Convert standalone h2 questions (ending ?) + following p into FAQ if ≥2 pairs. */
+/**
+ * Convert standalone h2 questions (ending ?) + following p into FAQ if ≥2 pairs.
+ * Only converts contiguous runs — never deletes body h2/p between scattered questions.
+ */
 function enhanceLooseQuestionBlocks(html) {
   const src = String(html || '');
   if (/wp-premium-faq/.test(src)) return src;
 
-  const faqs = [];
   const re = /<h2\b[^>]*>([\s\S]*?)<\/h2>\s*((?:<p\b[^>]*>[\s\S]*?<\/p>\s*)+)/gi;
+  /** @type {{ q: string, a: string, start: number, end: number }[]} */
+  const pairs = [];
   let m;
-  const ranges = [];
-  while ((m = re.exec(src)) && faqs.length < 40) {
+  while ((m = re.exec(src)) && pairs.length < 40) {
     const q = stripTags(m[1]).trim();
     if (!looksLikeQuestion(q)) continue;
     const a = stripTags(m[2]).trim();
     if (a.length < 12) continue;
-    faqs.push({ q: stripFaqQuestionNumberPrefix(q), a });
-    ranges.push([m.index, m.index + m[0].length]);
+    pairs.push({
+      q: stripFaqQuestionNumberPrefix(q),
+      a,
+      start: m.index,
+      end: m.index + m[0].length,
+    });
   }
-  if (faqs.length < 2) return src;
+  if (pairs.length < 2) return src;
 
-  // Replace from first FAQ pair through last with one accordion block
-  const start = ranges[0][0];
-  const end = ranges[ranges.length - 1][1];
-  return src.slice(0, start) + buildFaqHtml(faqs) + src.slice(end);
+  // Cluster into contiguous runs (only whitespace between pairs)
+  /** @type {{ q: string, a: string, start: number, end: number }[][]} */
+  const runs = [];
+  let run = [pairs[0]];
+  for (let i = 1; i < pairs.length; i++) {
+    const between = src.slice(run[run.length - 1].end, pairs[i].start);
+    if (!between.trim()) {
+      run.push(pairs[i]);
+    } else {
+      runs.push(run);
+      run = [pairs[i]];
+    }
+  }
+  runs.push(run);
+
+  // Prefer the longest trailing run with ≥2 Q/A (real FAQ block at end of article)
+  let chosen = null;
+  for (let i = runs.length - 1; i >= 0; i--) {
+    if (runs[i].length >= 2) {
+      chosen = runs[i];
+      break;
+    }
+  }
+  if (!chosen) return src;
+
+  const faqs = chosen.map(({ q, a }) => ({ q, a }));
+  return src.slice(0, chosen[0].start) + buildFaqHtml(faqs) + src.slice(chosen[chosen.length - 1].end);
 }
 
 /** Light heading/paragraph cleanup for Strapi richtext HTML. */
