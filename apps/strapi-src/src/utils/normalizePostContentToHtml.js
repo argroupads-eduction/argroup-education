@@ -104,7 +104,7 @@ function buildFaqHtml(faqs) {
 
 function isFaqSectionHeading(text) {
   const t = stripTags(text).trim();
-  return /^(frequently\s+asked\s+questions|faqs?|faq'?s?)\s*$/i.test(t);
+  return /^(frequently\s+asked\s+questions(\s*\([^)]*\))?|faqs?|faq'?s?)\s*$/i.test(t);
 }
 
 function looksLikeQuestion(text) {
@@ -114,8 +114,60 @@ function looksLikeQuestion(text) {
   return /^(?:Ques(?:tion)?\s*\d+|Q\s*\d+)\s*[-–—:.)\]]/i.test(t);
 }
 
+/** Numbered FAQ line: "1. What is …?" */
+function isNumberedFaqQuestion(text) {
+  const t = stripTags(text).trim();
+  return /^(?:Ques(?:tion)?\s*)?(?:Q\s*)?\d+[.)\]:\-–—]?\s+.+\?\s*$/i.test(t);
+}
+
 /**
- * Parse markdown/plain lines → { html without FAQ, faqs[] }
+ * Plain-text section title (h2/h3). Detects even without a blank line before it.
+ * Numbered FAQ questions are excluded — those belong in the FAQ accordion.
+ */
+function isPlainSectionHeading(text) {
+  const t = stripTags(text).trim();
+  if (!t || t.length < 8 || t.length > 120) return false;
+  if (isFaqSectionHeading(t)) return false;
+  if (isNumberedFaqQuestion(t)) return false;
+
+  // "1. Course and Specialization" / "1. AIIMS New Delhi"
+  if (/^\d+[.)]\s+[A-Z0-9].{2,80}$/.test(t)) {
+    const body = t.replace(/^\d+[.)]\s+/, '');
+    if (!/[.!]/.test(body) && body.length <= 80) return true;
+  }
+
+  if (looksLikeQuestion(t) && t.length <= 110) return true;
+
+  if (!/^[A-Z0-9]/.test(t) || /[,;]$/.test(t)) return false;
+  // Body sentences usually end with . ! — titles often use : or ?
+  if (/[.!]$/.test(t)) return false;
+  if (t.length > 100) return false;
+
+  if (/:\s*.+/.test(t) || /\?$/.test(t)) return true;
+  if (
+    /\b(Universities|University|Colleges?|Admission|Process|Education|Aspirants|Consider|Guide|Exposure|Conclusion|Help|Factors?|Fees?|Route|Faculty|Checklist|Counselling|Counseling|Eligibility|Overview|Highlights?|Takeaway|Thoughts)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+
+  const words = t.split(/\s+/);
+  if (words.length < 3) return false;
+  const titleish = words.filter(
+    (w) =>
+      /^[A-Z0-9(/]/.test(w) ||
+      /^(for|of|in|on|to|and|vs|the|a|an|with|without|after|before)$/i.test(w)
+  ).length;
+  return titleish >= Math.ceil(words.length * 0.75);
+}
+
+function sectionHeadingLevel(text) {
+  return /^\d+[.)]\s+/.test(stripTags(text).trim()) ? 3 : 2;
+}
+
+/**
+ * Parse markdown/plain lines → HTML with h2/h3/p + FAQ accordion(s).
  */
 function parseLinesToHtmlAndFaqs(src) {
   const lines = String(src || '')
@@ -124,7 +176,7 @@ function parseLinesToHtmlAndFaqs(src) {
     .split('\n');
 
   const out = [];
-  const faqs = [];
+  let faqs = [];
   let i = 0;
   let para = [];
   let inFaq = false;
@@ -134,10 +186,13 @@ function parseLinesToHtmlAndFaqs(src) {
     const text = para.join(' ').replace(/\s+/g, ' ').trim();
     para = [];
     if (!text) return;
-    if (inFaq && looksLikeQuestion(text) && !faqs.length) {
-      // lone question without answer yet — keep as heading outside
-    }
     out.push(`<p>${inlineFormat(text)}</p>`);
+  };
+
+  const flushFaqs = () => {
+    if (!faqs.length) return;
+    out.push(buildFaqHtml(faqs));
+    faqs = [];
   };
 
   while (i < lines.length) {
@@ -149,21 +204,19 @@ function parseLinesToHtmlAndFaqs(src) {
       continue;
     }
 
-    if (isFaqSectionHeading(trimmed) || /^#{1,3}\s+(FAQs?|Frequently Asked Questions)\s*$/i.test(trimmed)) {
+    const bare = trimmed.replace(/^#{1,6}\s+/, '');
+
+    if (isFaqSectionHeading(bare)) {
       flushPara();
+      flushFaqs();
       inFaq = true;
       i++;
       continue;
     }
 
     if (inFaq) {
-      const faqLine = trimmed.replace(/^#+\s+/, '');
-      const qm = faqLine.match(
-        /^(?:Ques(?:tion)?\s*)?(?:Q\s*)?(\d+)[.)\]:\-–—]?\s+(.+\?)\s*$/i
-      );
-      const qm2 = looksLikeQuestion(faqLine) ? faqLine : null;
-      if (qm || qm2) {
-        const q = stripFaqQuestionNumberPrefix(qm ? qm[2] : qm2);
+      if (isNumberedFaqQuestion(bare) || /^(?:Ques(?:tion)?|Q)\s*\d+\s*[-–—:.)\]]/i.test(bare)) {
+        const q = stripFaqQuestionNumberPrefix(bare);
         const ans = [];
         i++;
         while (i < lines.length) {
@@ -173,11 +226,12 @@ function parseLinesToHtmlAndFaqs(src) {
             if (ans.length) break;
             continue;
           }
+          const tb = t.replace(/^#{1,6}\s+/, '');
           if (
-            isFaqSectionHeading(t) ||
-            /^(?:Ques(?:tion)?\s*)?(?:Q\s*)?\d+[.)\]:\-–—]?\s+/.test(t) ||
-            (looksLikeQuestion(t) && ans.length) ||
-            /^#{1,3}\s+/.test(t)
+            isFaqSectionHeading(tb) ||
+            isNumberedFaqQuestion(tb) ||
+            /^(?:Ques(?:tion)?|Q)\s*\d+\s*[-–—:.)\]]/i.test(tb) ||
+            (isPlainSectionHeading(tb) && !isNumberedFaqQuestion(tb))
           ) {
             break;
           }
@@ -188,11 +242,14 @@ function parseLinesToHtmlAndFaqs(src) {
         if (q && a) faqs.push({ q, a });
         continue;
       }
-      // non-Q line inside FAQ — treat as body until a question appears
-      if (/^#{1,3}\s+/.test(trimmed) && !looksLikeQuestion(trimmed.replace(/^#+\s+/, ''))) {
+
+      // Body section after FAQ block (second article / unnumbered heading) — leave FAQ mode
+      if (isPlainSectionHeading(bare)) {
+        flushFaqs();
         inFaq = false;
-        // fall through to normal heading handling below
+        // fall through
       } else {
+        // stray FAQ line — skip
         i++;
         continue;
       }
@@ -214,14 +271,25 @@ function parseLinesToHtmlAndFaqs(src) {
     const heading = trimmed.match(/^(#{1,6})\s+(.+)$/);
     if (heading) {
       flushPara();
-      const level = Math.min(heading[1].length, 6);
       const ht = heading[2].trim();
       if (isFaqSectionHeading(ht)) {
+        flushFaqs();
         inFaq = true;
         i++;
         continue;
       }
+      const level = Math.min(heading[1].length, 6);
       out.push(`<h${level}>${inlineFormat(ht)}</h${level}>`);
+      i++;
+      continue;
+    }
+
+    // Section titles → h2/h3 (works even when previous para had no blank line)
+    if (isPlainSectionHeading(trimmed)) {
+      flushPara();
+      const level = sectionHeadingLevel(trimmed);
+      const label = trimmed.replace(/^\d+[.)]\s+/, '');
+      out.push(`<h${level}>${inlineFormat(level === 3 ? label : trimmed)}</h${level}>`);
       i++;
       continue;
     }
@@ -235,19 +303,6 @@ function parseLinesToHtmlAndFaqs(src) {
       }
       out.push(`<ul>${items.map((t) => `<li>${inlineFormat(t)}</li>`).join('')}</ul>`);
       continue;
-    }
-
-    if (/^\d+[.)]\s+/.test(trimmed) && !looksLikeQuestion(trimmed)) {
-      flushPara();
-      const items = [];
-      while (i < lines.length && /^\d+[.)]\s+/.test(lines[i].trim()) && !looksLikeQuestion(lines[i].trim())) {
-        items.push(lines[i].trim().replace(/^\d+[.)]\s+/, ''));
-        i++;
-      }
-      if (items.length) {
-        out.push(`<ol>${items.map((t) => `<li>${inlineFormat(t)}</li>`).join('')}</ol>`);
-        continue;
-      }
     }
 
     if (/^>\s?/.test(trimmed)) {
@@ -268,38 +323,13 @@ function parseLinesToHtmlAndFaqs(src) {
       continue;
     }
 
-    // Short title line → h2
-    if (
-      !inFaq &&
-      trimmed.length < 90 &&
-      !/[.!]/.test(trimmed) &&
-      /^[A-Z0-9]/.test(trimmed) &&
-      !/[,;]$/.test(trimmed) &&
-      para.length === 0
-    ) {
-      const next = (lines[i + 1] || '').trim();
-      if (!next || /[.?!]/.test(next) || next.length > 60 || /^[-*+\d#]/.test(next)) {
-        if (trimmed.endsWith('?') || /^[A-Z]/.test(trimmed)) {
-          flushPara();
-          if (isFaqSectionHeading(trimmed)) {
-            inFaq = true;
-          } else {
-            out.push(`<h2>${inlineFormat(trimmed)}</h2>`);
-          }
-          i++;
-          continue;
-        }
-      }
-    }
-
     para.push(trimmed);
     i++;
   }
   flushPara();
+  flushFaqs();
 
-  let html = out.join('\n');
-  if (faqs.length) html += (html ? '\n' : '') + buildFaqHtml(faqs);
-  return html;
+  return out.join('\n');
 }
 
 /**
@@ -457,7 +487,7 @@ const TITLE_CASE_SECTION_RE =
   /(?:^|(?<=[.!?]["']?\s+))((?:[A-Z][A-Za-z0-9/'&(),-]*)(?:\s+(?:[A-Z0-9(/][A-Za-z0-9/'&(),.-]*|for|of|in|on|to|and|vs|Vs|with|without|after|before|the|a|an|MD\/MS|NEET|PG|MBBS|BAMS|BHMS)){2,12})(?=\s+(?:The|This|These|Those|Candidates?|Students?|Competition|You|It|In|If|For|After|Before|A|An|There|Clearing|Actual|Just|Therefore|Note|However|One|Some|Government|Private)\b)/g;
 
 const TITLE_CASE_TOPIC_RE =
-  /\b(Eligibility|Admission|Process|Counselling|Counseling|Cutoff|Cut-?off|Marks?|Rank|Percentile|Fee|Fees|Cost|Documents?|Preparation|Career|Scope|Requirements?|Criteria|Strategy|Tips|Benefits?|Quota|Seat|Syllabus|Hostel|Visa|Takeaway|Overview|Highlights?|Speciali[sz]ations?|College|University|NEET|MBBS|MD|MS|BAMS|BHMS|Russia|Abroad|Qualifying|Improve|Score|Private|Government|Deemed|Mistakes?|Importance|Difference|Comparison|Expense|Tuition|Thoughts|Consider|Choose)\b/i;
+  /\b(Eligibility|Admission|Process|Counselling|Counseling|Cutoff|Cut-?off|Marks?|Rank|Percentile|Fee|Fees|Cost|Documents?|Preparation|Career|Scope|Requirements?|Criteria|Strategy|Tips|Benefits?|Quota|Seat|Syllabus|Hostel|Visa|Takeaway|Overview|Highlights?|Speciali[sz]ations?|Colleges?|Universit(?:y|ies)|NEET|MBBS|MD|MS|BAMS|BHMS|Russia|Abroad|Qualifying|Improve|Score|Private|Government|Deemed|Mistakes?|Importance|Difference|Comparison|Expense|Tuition|Thoughts|Consider|Choose|Guide|Aspirants|Exposure|Faculty)\b/i;
 
 /**
  * Split mashed blog paragraphs into h2/h3 + p (Strapi paste often has no real headings).
