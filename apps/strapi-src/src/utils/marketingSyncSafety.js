@@ -94,11 +94,21 @@ function buildPayloadSyncBody(type, entry, { published, notifyPush } = {}) {
       ? data.previousSlug.trim()
       : undefined;
 
+  const slug =
+    typeof data.slug === 'string'
+      ? data.slug
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+      : data.slug;
+
   return {
     type,
-    slug: data.slug,
+    slug,
     previousSlug:
-      previousSlug && previousSlug !== data.slug ? previousSlug : undefined,
+      previousSlug && previousSlug !== slug ? previousSlug : undefined,
     title: data.title,
     content: data.content || '',
     excerpt: data.excerpt || undefined,
