@@ -130,6 +130,44 @@ function isNumberedFaqQuestion(text) {
   return /^(?:Ques(?:tion)?\s*)?(?:Q\s*)?\d+[.)\]:\-–—]?\s+.+\?\s*$/i.test(t);
 }
 
+const MONTH_RE =
+  /(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)/i;
+
+function looksLikeDateOrRange(text) {
+  const t = stripTags(text).trim();
+  if (!t || t.length > 60) return false;
+  // "24 October 2026" / "26 Oct–2 Nov" / "12–21 Oct" / "21 December 2026"
+  if (new RegExp(`^\\d{1,2}\\s+${MONTH_RE.source}(?:\\s+\\d{4})?$`, 'i').test(t)) {
+    return true;
+  }
+  if (
+    new RegExp(
+      `^\\d{1,2}\\s*[–—-]\\s*\\d{1,2}\\s+${MONTH_RE.source}(?:\\s+\\d{4})?$`,
+      'i'
+    ).test(t)
+  ) {
+    return true;
+  }
+  if (
+    new RegExp(
+      `^\\d{1,2}\\s+${MONTH_RE.source}\\s*[–—-]\\s*\\d{1,2}\\s+${MONTH_RE.source}(?:\\s+\\d{4})?$`,
+      'i'
+    ).test(t)
+  ) {
+    return true;
+  }
+  if (/^\d{1,2}\s*[–—-]\s*\d{1,2}\s+[A-Za-z]{3,9}$/i.test(t)) return true;
+  return false;
+}
+
+/** "Seat Matrix Verification: 10–12 October 2026" — schedule row, not a section title. */
+function isScheduleStageLine(text) {
+  const t = stripTags(text).trim();
+  const m = t.match(/^(.{6,70}?):\s*(.+)$/);
+  if (!m) return false;
+  return looksLikeDateOrRange(m[2]);
+}
+
 /**
  * Plain-text section title (h2/h3). Detects even without a blank line before it.
  * Numbered FAQ questions are excluded — those belong in the FAQ accordion.
@@ -139,6 +177,14 @@ function isPlainSectionHeading(text) {
   if (!t || t.length < 8 || t.length > 120) return false;
   if (isFaqSectionHeading(t)) return false;
   if (isNumberedFaqQuestion(t)) return false;
+  // Dates / schedule cells must never become h2 (destroys counselling tables)
+  if (looksLikeDateOrRange(t)) return false;
+  if (isScheduleStageLine(t)) return false;
+  // "Round 4 (Stray Vacancy)" alone as a short table cell — not a body heading
+  if (/^Round\s+\d+\b/i.test(t) && t.length <= 40 && !/[.!?]$/.test(t)) {
+    // Allow longer round section titles like "Round 4: Online Stray Vacancy Round"
+    if (!/:\s+/.test(t)) return false;
+  }
 
   // "1. Course and Specialization" / "1. AIIMS New Delhi"
   if (/^\d+[.)]\s+[A-Z0-9].{2,80}$/.test(t)) {
@@ -153,9 +199,15 @@ function isPlainSectionHeading(text) {
   if (/[.!]$/.test(t)) return false;
   if (t.length > 100) return false;
 
-  if (/:\s*.+/.test(t) || /\?$/.test(t)) return true;
+  // "Label: prose" can be a heading; "Label: 12–21 Oct" is a schedule row (handled above)
+  if (/:\s*.+/.test(t)) {
+    const after = t.replace(/^[^:]+:\s*/, '');
+    if (looksLikeDateOrRange(after)) return false;
+    return true;
+  }
+  if (/\?$/.test(t)) return true;
   if (
-    /\b(Universities|University|Colleges?|Admission|Process|Education|Aspirants|Consider|Guide|Exposure|Conclusion|Help|Factors?|Fees?|Route|Faculty|Checklist|Counselling|Counseling|Eligibility|Overview|Highlights?|Takeaway|Thoughts)\b/i.test(
+    /\b(Universities|University|Colleges?|Admission|Process|Education|Aspirants|Consider|Guide|Exposure|Conclusion|Help|Factors?|Fees?|Route|Faculty|Checklist|Counselling|Counseling|Eligibility|Overview|Highlights?|Takeaway|Thoughts|Schedule|Deadlines?|Article)\b/i.test(
       t
     )
   ) {
@@ -326,6 +378,52 @@ function parseLinesToHtmlAndFaqs(src) {
       out.push(`<h${level}>${inlineFormat(ht)}</h${level}>`);
       i++;
       continue;
+    }
+
+    // Markdown pipe tables
+    if (/^\|.+\|$/.test(trimmed) && i + 1 < lines.length && /^\|?\s*:?-{3,}/.test(lines[i + 1].trim())) {
+      flushPara();
+      const tableLines = [];
+      while (i < lines.length && /^\|/.test(lines[i].trim())) {
+        tableLines.push(lines[i].trim());
+        i++;
+      }
+      const rows = tableLines
+        .filter((l) => !/^\|[\s\-:|]+\|$/.test(l))
+        .map((l) =>
+          l
+            .replace(/^\|/, '')
+            .replace(/\|$/, '')
+            .split('|')
+            .map((c) => c.trim())
+        );
+      if (rows.length >= 2) {
+        const [header, ...body] = rows;
+        const thead = `<thead><tr>${header.map((c) => `<th>${inlineFormat(c)}</th>`).join('')}</tr></thead>`;
+        const tbody = `<tbody>${body
+          .map((r) => `<tr>${r.map((c) => `<td>${inlineFormat(c)}</td>`).join('')}</tr>`)
+          .join('')}</tbody>`;
+        out.push(`<div class="wp-table-scroll"><table>${thead}${tbody}</table></div>`);
+        continue;
+      }
+    }
+
+    // Schedule stage rows: "Registration and Payment: 12–21 October 2026"
+    if (isScheduleStageLine(trimmed)) {
+      flushPara();
+      const items = [];
+      while (i < lines.length && isScheduleStageLine(lines[i].trim())) {
+        const line = lines[i].trim();
+        const m = line.match(/^(.+?):\s*(.+)$/);
+        items.push(
+          `<li><strong>${inlineFormat(m[1].trim())}:</strong> ${inlineFormat(m[2].trim())}</li>`
+        );
+        i++;
+      }
+      if (items.length) {
+        out.push(`<ul class="blog-schedule-list">${items.join('\n')}</ul>`);
+        continue;
+      }
     }
 
     // Section titles → h2/h3 (works even when previous para had no blank line)
@@ -551,7 +649,6 @@ function polishHtmlFormatting(html) {
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-  // Unwrap useless single-line <p><strong>Title</strong></p> → h2 when short
   s = s.replace(
     /<p>\s*<strong>([^<]{8,90})<\/strong>\s*<\/p>/gi,
     (_, t) => {
@@ -665,6 +762,41 @@ function markdownToHtml(src) {
   return parseLinesToHtmlAndFaqs(src);
 }
 
+/** Demote date / "Stage: date" lines that were wrongly turned into h2. */
+function demoteScheduleFalseHeadings(html) {
+  let s = String(html || '');
+  s = s.replace(/(?:<h2\b[^>]*>\s*([^<]{6,90}?)\s*<\/h2>\s*){2,}/gi, (block) => {
+    const items = [...block.matchAll(/<h2\b[^>]*>\s*([^<]+?)\s*<\/h2>/gi)].map((m) =>
+      m[1].trim()
+    );
+    if (!items.length || !items.every((t) => isScheduleStageLine(t) || looksLikeDateOrRange(t))) {
+      return block;
+    }
+    if (items.every((t) => isScheduleStageLine(t))) {
+      const lis = items
+        .map((t) => {
+          const m = t.match(/^(.+?):\s*(.+)$/);
+          return `<li><strong>${escapeHtml(m[1].trim())}:</strong> ${escapeHtml(
+            m[2].trim()
+          )}</li>`;
+        })
+        .join('\n');
+      return `<ul class="blog-schedule-list">\n${lis}\n</ul>\n`;
+    }
+    return block;
+  });
+  s = s.replace(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi, (full, inner) => {
+    const t = stripTags(inner).trim();
+    if (looksLikeDateOrRange(t)) return `<p>${inner}</p>`;
+    if (isScheduleStageLine(t)) {
+      const m = t.match(/^(.+?):\s*(.+)$/);
+      return `<p><strong>${escapeHtml(m[1].trim())}:</strong> ${escapeHtml(m[2].trim())}</p>`;
+    }
+    return full;
+  });
+  return s;
+}
+
 /**
  * @param {string} content
  * @returns {string}
@@ -677,6 +809,7 @@ function normalizePostContentToHtml(content) {
   let html;
   if (looksLikeHtml(raw)) {
     html = polishHtmlFormatting(raw);
+    html = demoteScheduleFalseHeadings(html);
   } else {
     // Plain Strapi paste → p tags first, then promote headlines out of blobs
     html = markdownToHtml(raw);
@@ -688,6 +821,10 @@ function normalizePostContentToHtml(content) {
   const bodyH2 = (html.match(/<h2\b/gi) || []).length;
   if (longPara || bodyH2 < 3) {
     html = promoteEmbeddedHeadingsInParagraphs(html);
+    html = demoteScheduleFalseHeadings(html);
+  } else if (bodyH2 > 20) {
+    // Over-heading from schedule tables — demote date/stage h2s
+    html = demoteScheduleFalseHeadings(html);
   }
 
   html = enhanceHtmlFaqs(html);
