@@ -105,6 +105,8 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
       if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
         return null;
       }
+      // WordPress (headless CMS) media: keep the absolute https URL as-is.
+      if (host === 'cms.argroupofeducation.com') return trimmed.replace(/^http:\/\//i, 'https://');
       if (host === 'argroupofeducation.com' || host.endsWith('hostingersite.com')) {
         const u = new URL(trimmed.replace(/^http:\/\//i, 'https://'));
         if (u.pathname.includes('/wp-content/')) {

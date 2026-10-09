@@ -87,6 +87,8 @@ function isTrustedCmsFeaturedUrl(url: string): boolean {
   // Site-owned absolute media (not the old broken WP CDN guesses)
   if (/argroupofeducation\.com\/uploads\//i.test(url)) return true;
   if (/argroupofeducation\.com\/api\/cms\/media\//i.test(url)) return true;
+  // WordPress (headless CMS) media
+  if (/cms\.argroupofeducation\.com\/wp-content\/uploads\//i.test(url)) return true;
   return false;
 }
 
