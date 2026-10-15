@@ -152,17 +152,20 @@ function isLabeledDataTable(table: string): boolean {
   return eaelTableHasThead(table);
 }
 
+function countCellsInRow(rowHtml: string): number {
+  return (rowHtml.match(/<t[dh]\b/gi) || []).length;
+}
+
+/** Column count follows the WordPress row, not a fixed 2-column layout. */
 function countEaelTableColumns(table: string): number {
-  const thead = table.match(/<thead\b[^>]*>[\s\S]*?<\/thead>/i)?.[0] ?? '';
-  const thCount = (thead.match(/<th\b/gi) || []).length;
-  if (thCount >= 2) return thCount;
-  const tbody = table.match(/<tbody\b[^>]*>([\s\S]*?)<\/tbody>/i)?.[1] ?? '';
-  let max = 0;
-  for (const row of tbody.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)) {
-    const n = (row[1].match(/<td\b/gi) || []).length;
-    if (n > max) max = n;
-  }
-  return Math.max(2, max);
+  const headRow = table.match(/<thead\b[^>]*>[\s\S]*?<tr\b[^>]*>([\s\S]*?)<\/tr>/i)?.[1] ?? '';
+  const headCount = countCellsInRow(headRow);
+  if (headCount >= 1) return headCount;
+  const bodyRow =
+    table.match(/<tbody\b[^>]*>[\s\S]*?<tr\b[^>]*>([\s\S]*?)<\/tr>/i)?.[1] ??
+    table.match(/<tr\b[^>]*>([\s\S]*?)<\/tr>/i)?.[1] ??
+    '';
+  return Math.max(1, countCellsInRow(bodyRow));
 }
 
 function addTableClass(table: string, className: string): string {
@@ -177,8 +180,8 @@ function addTableClass(table: string, className: string): string {
 
 function eaelColumnClass(cols: number): string {
   if (cols >= 6) return 'wp-table-cols-many';
-  if (cols === 5) return 'wp-table-cols-5';
-  return `wp-table-cols-${Math.min(Math.max(cols, 2), 4)}`;
+  if (cols <= 1) return 'wp-table-cols-1';
+  return `wp-table-cols-${cols}`;
 }
 
 /** WP exports often put header cells in the first tbody row instead of thead. */
@@ -254,12 +257,14 @@ function cellPlainText(html: string): string {
   return html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim();
 }
 
-/** First column is a serial / rank, so it can stay narrow and centered. */
+/** First column is a serial number, so it can stay narrow and centered. */
 function firstColumnIsIndex(table: string): boolean {
   const head = table.match(/<thead\b[^>]*>[\s\S]*?<\/thead>/i)?.[0] ?? '';
   const firstHead = head.match(/<th\b[^>]*>([\s\S]*?)<\/th>/i)?.[1] ?? '';
   const label = cellPlainText(firstHead);
-  if (/^(s\.?\s*no\.?|sr\.?\s*no\.?|serial(?:\s*no\.?)?|rank|#|no\.?)$/i.test(label)) return true;
+  if (label) {
+    return /^(s\.?\s*no\.?|sr\.?\s*no\.?|serial(?:\s*no\.?)?|rank|#|no\.?)$/i.test(label);
+  }
 
   const body = table.match(/<tbody\b[^>]*>[\s\S]*?<\/tbody>/i)?.[0] ?? '';
   const rows = [...body.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)].slice(0, 4);

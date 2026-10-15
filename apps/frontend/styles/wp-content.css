@@ -4681,3 +4681,153 @@ html:has(.wp-content-affinity) {
 .wp-content-root .wp-content-body .table-wrapper :is(th, td):last-child {
   min-width: 260px !important;
 }
+
+/* Desktop: keep the whole table inside the column. Mobile scroll layout is unchanged. */
+@media (min-width: 1024px) {
+  .blog-article .table-wrapper,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper,
+  .wp-content-root .wp-content-body .eael-data-table-wrap.table-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    overflow-x: visible !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper.wp-block-table > table,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table,
+  .wp-content-root .wp-content-body .eael-data-table-wrap.table-wrapper > table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper :is(th, td),
+  .wp-content-root .wp-content-body .table-wrapper :is(th, td),
+  .wp-content-root .table-wrapper :is(th, td):nth-child(2),
+  .wp-content-root .table-wrapper :is(th, td):nth-child(3),
+  .wp-content-root .table-wrapper :is(th, td):last-child,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper :is(th, td):nth-child(2),
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper :is(th, td):nth-child(3),
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper :is(th, td):last-child,
+  .wp-content-root .wp-table-scroll table.wp-labeled-data-table.wp-table-cols-2 :is(th, td):last-child {
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    white-space: normal !important;
+    text-align: left !important;
+    overflow: visible !important;
+  }
+}
+
+/* Phone and tablet: every WordPress blog and page table uses one grid.
+   Column count stays whatever the content has. Wider tables scroll inside the box. */
+@media (max-width: 1023px) {
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper,
+  .wp-content-root .wp-content-body .table-wrapper,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper,
+  .wp-content-root .wp-content-body .eael-data-table-wrap.table-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper.wp-block-table > table,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table,
+  .wp-content-root .wp-content-body .eael-data-table-wrap.table-wrapper > table,
+  .wp-content-root .wp-content-body .table-wrapper table {
+    display: table !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    table-layout: auto !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper.wp-block-table > table.wp-table-cols-3,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table.wp-table-cols-3,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper table.wp-table-cols-3,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-table-cols-3,
+  .wp-content-root .wp-content-body .table-wrapper table.wp-table-cols-3 {
+    min-width: 36rem !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper.wp-block-table > table.wp-table-cols-4,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table.wp-table-cols-4,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper table.wp-table-cols-4,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-table-cols-4,
+  .wp-content-root .wp-content-body .table-wrapper table.wp-table-cols-4 {
+    min-width: 44rem !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper.wp-block-table > table.wp-table-cols-5,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper.wp-block-table > table.wp-table-cols-many,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table.wp-table-cols-5,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table.wp-table-cols-many,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper table.wp-table-cols-5,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper table.wp-table-cols-many,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-table-cols-5,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-table-cols-many,
+  .wp-content-root .wp-content-body .table-wrapper table.wp-table-cols-5,
+  .wp-content-root .wp-content-body .table-wrapper table.wp-table-cols-many {
+    min-width: 56rem !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper table thead,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table thead,
+  .wp-content-root .wp-content-body .table-wrapper table thead {
+    display: table-header-group !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper table tbody,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table tbody,
+  .wp-content-root .wp-content-body .table-wrapper table tbody {
+    display: table-row-group !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper table tr,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table tr,
+  .wp-content-root .wp-content-body .table-wrapper table tr {
+    display: table-row !important;
+    width: auto !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper table :is(th, td),
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-labeled-data-table :is(th, td),
+  .wp-content-root .wp-content-body .table-wrapper table :is(th, td) {
+    display: table-cell !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    white-space: normal !important;
+    text-align: left !important;
+    vertical-align: top !important;
+    margin: 0 !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper.wp-block-table > table > thead,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table > thead {
+    display: table-header-group !important;
+    width: auto !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper.wp-block-table > table > tbody,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table > tbody {
+    display: table-row-group !important;
+    width: auto !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper.wp-block-table > table > thead > tr,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.table-wrapper.wp-block-table > table > tbody > tr,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table > thead > tr,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table > tbody > tr {
+    display: table-row !important;
+  }
+}
