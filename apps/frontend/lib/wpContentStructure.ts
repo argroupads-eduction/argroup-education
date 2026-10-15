@@ -245,7 +245,42 @@ function tagTableStructure(table: string): string {
     tagged = addTableClass(tagged, 'wp-labeled-data-table');
   }
 
+  if (firstColumnIsIndex(tagged)) tagged = addTableClass(tagged, 'table-index-col');
+
   return injectDataLabels(tagged);
+}
+
+function cellPlainText(html: string): string {
+  return html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/** First column is a serial / rank, so it can stay narrow and centered. */
+function firstColumnIsIndex(table: string): boolean {
+  const head = table.match(/<thead\b[^>]*>[\s\S]*?<\/thead>/i)?.[0] ?? '';
+  const firstHead = head.match(/<th\b[^>]*>([\s\S]*?)<\/th>/i)?.[1] ?? '';
+  const label = cellPlainText(firstHead);
+  if (/^(s\.?\s*no\.?|sr\.?\s*no\.?|serial(?:\s*no\.?)?|rank|#|no\.?)$/i.test(label)) return true;
+
+  const body = table.match(/<tbody\b[^>]*>[\s\S]*?<\/tbody>/i)?.[0] ?? '';
+  const rows = [...body.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)].slice(0, 4);
+  if (rows.length < 2) return false;
+  let numeric = 0;
+  for (const row of rows) {
+    const cell = row[1].match(/<td\b[^>]*>([\s\S]*?)<\/td>/i)?.[1] ?? '';
+    if (/^\d{1,3}$/.test(cellPlainText(cell))) numeric += 1;
+  }
+  return numeric >= Math.min(2, rows.length);
+}
+
+function withTableWrapperClass(attrs: string): string {
+  if (/\btable-wrapper\b/.test(attrs)) return attrs;
+  if (/class\s*=\s*"/i.test(attrs)) {
+    return attrs.replace(/class\s*=\s*"/i, 'class="table-wrapper ');
+  }
+  if (/class\s*=\s*'/i.test(attrs)) {
+    return attrs.replace(/class\s*=\s*'/i, "class='table-wrapper ");
+  }
+  return `${attrs} class="table-wrapper"`;
 }
 
 function tagEaelDataTable(table: string): string {
@@ -259,27 +294,35 @@ export function wrapContentTables(html: string): string {
     /<div\b([^>]*\beael-data-table-wrap\b[^>]*)>\s*(<table\b[\s\S]*?<\/table>)\s*<\/div>/gi,
     (_match, attrs: string, table: string) => {
       const tagged = tagEaelDataTable(table);
-      if (/\bwp-table-scroll\b/.test(attrs)) {
-        return `<div${attrs}>${tagged}</div>`;
-      }
-      if (/class\s*=\s*"/i.test(attrs)) {
-        return `<div${attrs.replace(/class\s*=\s*"/i, 'class="wp-table-scroll ')}>${tagged}</div>`;
-      }
-      if (/class\s*=\s*'/i.test(attrs)) {
-        return `<div${attrs.replace(/class\s*=\s*'/i, "class='wp-table-scroll ")}>${tagged}</div>`;
-      }
-      return `<div class="eael-data-table-wrap wp-table-scroll">${tagged}</div>`;
+      const wrappedAttrs = withTableWrapperClass(
+        /\bwp-table-scroll\b/.test(attrs)
+          ? attrs
+          : /class\s*=\s*"/i.test(attrs)
+            ? attrs.replace(/class\s*=\s*"/i, 'class="wp-table-scroll ')
+            : /class\s*=\s*'/i.test(attrs)
+              ? attrs.replace(/class\s*=\s*'/i, "class='wp-table-scroll ")
+              : `${attrs} class="eael-data-table-wrap wp-table-scroll"`
+      );
+      return `<div${wrappedAttrs}>${tagged}</div>`;
     }
   );
 
-  return withEaelMerged.replace(/<table\b[\s\S]*?<\/table>/gi, (table, offset, source) => {
+  const withBareTables = withEaelMerged.replace(/<table\b[\s\S]*?<\/table>/gi, (table, offset, source) => {
     const tagged = tagTableStructure(table);
-    const before = source.slice(Math.max(0, offset - 160), offset);
-    if (/\bwp-table-scroll\b[^>]*>\s*$/i.test(before) || /\beael-data-table-wrap\b[^>]*>\s*$/i.test(before)) {
+    const before = source.slice(Math.max(0, offset - 180), offset);
+    if (/\b(?:wp-table-scroll|table-wrapper|eael-data-table-wrap)\b[^>]*>\s*$/i.test(before)) {
       return tagged;
     }
-    return `<div class="wp-table-scroll">${tagged}</div>`;
+    return `<div class="wp-table-scroll table-wrapper">${tagged}</div>`;
   });
+
+  return withBareTables.replace(
+    /<([a-z0-9]+)\b([^>]*\bwp-table-scroll\b[^>]*)>/gi,
+    (full, tag: string, attrs: string) => {
+      if (/\btable-wrapper\b/.test(attrs)) return full;
+      return `<${tag}${withTableWrapperClass(attrs)}>`;
+    }
+  );
 }
 
 export type ParseContentStructureOptions = {

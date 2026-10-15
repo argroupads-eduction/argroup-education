@@ -625,6 +625,7 @@
  */
 html:has(.lead-capture-scroll-shell),
 body:has(.lead-capture-scroll-shell) {
+  overflow: hidden !important;
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
 }
@@ -634,6 +635,14 @@ body:has(.lead-capture-scroll-shell)::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
+}
+
+@media (max-width: 1279px) {
+  .lead-capture-scroll-shell {
+    overflow: hidden !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
 }
 
 .lead-capture-scroll-shell,
@@ -654,4 +663,11 @@ body:has(.lead-capture-scroll-shell)::-webkit-scrollbar {
   background: transparent !important;
   appearance: none !important;
   -webkit-appearance: none !important;
+}
+
+/* Clear the floating chat button on phones. */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
+  }
 }

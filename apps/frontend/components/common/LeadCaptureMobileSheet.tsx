@@ -18,8 +18,8 @@ export type LeadCaptureMobileSheetProps = {
 };
 
 /**
- * Mobile / tablet lead capture: card sizes to content (no internal scroll / no gold scrollbar).
- * If the viewport is shorter than the card, only the outer shell scrolls — scrollbar forced hidden.
+ * Mobile / tablet lead capture. The card fits the screen: no form scrollbar,
+ * and the rounded corners stay inside the viewport.
  */
 const DEFAULT_TITLE = 'MBBS in India or abroad, expert counselling';
 
@@ -40,8 +40,8 @@ export function LeadCaptureMobileSheet({
         <Dialog.Overlay className="fixed inset-0 z-[100] bg-navy-900/80 backdrop-blur-[3px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
 
         <Dialog.Content
-          className="lead-capture-scroll-shell fixed inset-0 z-[101] flex items-start justify-center overflow-y-auto overflow-x-hidden border-0 bg-transparent px-4 py-[max(0.75rem,env(safe-area-inset-top,0px))] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-none outline-none focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 sm:items-center"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="lead-capture-scroll-shell fixed inset-0 z-[101] box-border flex items-center justify-center overflow-hidden border-0 bg-transparent pl-[max(0.75rem,env(safe-area-inset-left,0px))] pr-[max(0.75rem,env(safe-area-inset-right,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-none outline-none focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', overflow: 'hidden' }}
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <Dialog.Title className="sr-only">{title}</Dialog.Title>
@@ -50,7 +50,7 @@ export function LeadCaptureMobileSheet({
           </Dialog.Description>
 
           <motion.div
-            className="relative my-auto flex h-auto w-full max-w-[min(100%,22.5rem)] flex-col overflow-visible rounded-2xl border border-navy-200/20 bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5 sm:max-w-[min(100%,28rem)]"
+            className="relative flex h-auto max-h-full w-full max-w-[min(100%,22.5rem)] flex-col overflow-hidden rounded-2xl border border-navy-200/20 bg-white shadow-2xl shadow-navy-900/35 ring-1 ring-navy-900/5 sm:max-w-[min(100%,28rem)]"
             initial={motionOff ? false : { opacity: 0, y: 28, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={
@@ -59,7 +59,7 @@ export function LeadCaptureMobileSheet({
                 : { type: 'spring', stiffness: 420, damping: 34, mass: 0.85 }
             }
           >
-            <div className="relative shrink-0 overflow-visible bg-navy-900 text-white">
+            <div className="relative shrink-0 overflow-hidden rounded-t-2xl bg-navy-900 text-white">
               <Dialog.Close asChild>
                 <button
                   type="button"
@@ -77,7 +77,7 @@ export function LeadCaptureMobileSheet({
               aria-hidden
             />
 
-            <div className="flex shrink-0 flex-col overflow-visible bg-gradient-to-b from-white to-slate-50/40">
+            <div className="flex min-h-0 shrink flex-col overflow-hidden bg-gradient-to-b from-white to-slate-50/40">
               {children}
             </div>
           </motion.div>
