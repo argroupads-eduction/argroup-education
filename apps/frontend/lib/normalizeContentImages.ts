@@ -38,10 +38,8 @@ function pickImageSrc(
   }
 
   if (isStaleWpUpload(fromCurrent)) {
-    if (isBundledHeroImage(fromSlug)) return fromSlug;
-    if (isBundledHeroImage(fromFeatured)) return fromFeatured;
-    // Drop broken WP/Hostinger body images rather than leave a broken <img>.
-    return null;
+    // Keep each article photo. Do not replace the whole page with the state landmark.
+    return fromCurrent;
   }
 
   if (
@@ -81,11 +79,7 @@ export function normalizeContentImagesInHtml(
     const srcMatch = attrs.match(/\bsrc=["']([^"']*)["']/i);
     const currentSrc = srcMatch?.[1];
     const resolved = pickImageSrc(currentSrc, options?.pageSlug, options?.featuredImage);
-    if (!resolved) {
-      // Remove broken WP images entirely when no local replacement exists.
-      if (currentSrc && isStaleWpUpload(currentSrc)) return '';
-      return match;
-    }
+    if (!resolved) return match;
 
     let clean = attrs
       .replace(/\ssrcset=["'][^"']*["']/gi, '')
