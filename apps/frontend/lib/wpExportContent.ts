@@ -34,6 +34,7 @@ let loadPromise: Promise<Map<string, SiteContent>> | null = null;
 function wpExportDirs(): string[] {
   return [
     path.resolve(process.cwd(), 'data/wp-export-bundle'),
+    path.resolve(process.cwd(), 'apps/frontend/data/wp-export-bundle'),
     path.resolve(process.cwd(), '../../data/wp-export'),
   ];
 }

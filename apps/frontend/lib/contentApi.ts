@@ -781,23 +781,26 @@ export const getContentBySlug = cache(async function getContentBySlug(
   }
 
   const bundled = await loadBundledContent(slug);
+  const synthetic = Boolean(bundled?.id?.startsWith('fallback-'));
 
   // Return the local WordPress body before any database call.
   // A timed-out Neon query still holds the Next response open until it settles.
-  if (hasRenderableBody(bundled)) {
+  // The short generated college stub must not block the real page.
+  if (hasRenderableBody(bundled) && !synthetic) {
     return bundled;
   }
 
   if (await withServerTimeout(isContentSuppressedInBackend(slug), 400, false)) {
-    return null;
+    return synthetic ? bundled : null;
   }
 
   const synced = await fetchSyncedContentBySlug(slug);
-  if (synced || bundled) {
+  if (synced && hasRenderableBody(synced)) {
+    if (synthetic) return synced;
     return mergeSiteContent(bundled, synced);
   }
 
-  return null;
+  return bundled;
 });
 
 /**

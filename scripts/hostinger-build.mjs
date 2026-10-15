@@ -90,6 +90,16 @@ if (existsSync(publicSrc)) {
   console.log('[hostinger-build] copied public → standalone');
 }
 
+const exportSrc = path.join(frontendDir, 'data', 'wp-export-bundle');
+const exportDest = path.join(serverDir, 'data', 'wp-export-bundle');
+mkdirSync(exportDest, { recursive: true });
+for (const name of ['pages.json', 'posts.json']) {
+  const from = path.join(exportSrc, name);
+  if (!existsSync(from)) continue;
+  cpSync(from, path.join(exportDest, name));
+  console.log('[hostinger-build] copied', name, '→ standalone data/wp-export-bundle');
+}
+
 // Relative path from apps/frontend/.next so Output-dir-only deploys still work
 const relFromNext = path.relative(path.join(frontendDir, '.next'), serverJs).replace(/\\/g, '/');
 const launcher = `#!/usr/bin/env node
