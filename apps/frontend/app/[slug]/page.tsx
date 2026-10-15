@@ -92,14 +92,14 @@ export default async function WpSlugPage({ params }: PageProps) {
 
   const title = plainTitle(content.title);
   // Keep a single on-page H1 from the page title; metaTitle is used only for <title>/OG.
-  const heroTitle = title;
+  const heroTitle = decoded === 'bams-in-india' ? 'BAMS' : title;
   const heroSubtitle = content.metaDescription?.trim() || undefined;
   const program = findProgramContextBySlug(decoded);
   const featuredImage = resolveCollegeFeaturedImage(decoded, content.featuredImage);
   const heroImageFit = isLocalCollegeBanner(featuredImage) ? 'state' : 'default';
 
   const breadcrumbs = program?.breadcrumbs ?? [
-    { label: title },
+    { label: heroTitle },
   ];
 
   const theme = program?.theme ?? 'default';

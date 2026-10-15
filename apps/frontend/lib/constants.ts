@@ -208,9 +208,9 @@ export const SERVICES = [
 // Statistics
 export const STATISTICS = [
   { label: 'Students Guided', value: '4000+', icon: 'Users' },
-  { label: 'Years of Experience', value: '19+', icon: 'Award' },
-  { label: 'Universities Partnered', value: '500+', icon: 'Building2' },
-  { label: 'Visa Success Rate', value: '98%', icon: 'TrendingUp' },
+  { label: 'Years of Experience', value: '21+', icon: 'Award' },
+  { label: 'Countries (MBBS abroad)', value: '15+', icon: 'Building2' },
+  { label: 'States (MBBS India)', value: '17', icon: 'TrendingUp' },
 ] as const;
 
 // FAQ Data

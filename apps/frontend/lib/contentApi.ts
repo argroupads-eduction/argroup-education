@@ -780,21 +780,16 @@ export const getContentBySlug = cache(async function getContentBySlug(
     return null;
   }
 
-  const suppressedPromise = withServerTimeout(
-    isContentSuppressedInBackend(slug),
-    400,
-    false
-  );
-
   const bundled = await loadBundledContent(slug);
-  if (await suppressedPromise) {
-    return null;
-  }
 
-  // Bundle-first: skip Neon/Payload entirely when local WP export is enough.
-  // Starting a timed-out fetch still holds the Next request open until it settles.
+  // Return the local WordPress body before any database call.
+  // A timed-out Neon query still holds the Next response open until it settles.
   if (hasRenderableBody(bundled)) {
     return bundled;
+  }
+
+  if (await withServerTimeout(isContentSuppressedInBackend(slug), 400, false)) {
+    return null;
   }
 
   const synced = await fetchSyncedContentBySlug(slug);
@@ -815,12 +810,6 @@ export const getPageContentBySlug = cache(async function getPageContentBySlug(
     return null;
   }
 
-  const suppressedPromise = withServerTimeout(
-    isContentSuppressedInBackend(slug),
-    400,
-    false
-  );
-
   const { getWpExportPageBySlug } = await import('@/lib/wpExportContent');
   const bundledRaw = await getWpExportPageBySlug(slug);
   const bundled = bundledRaw
@@ -830,12 +819,12 @@ export const getPageContentBySlug = cache(async function getPageContentBySlug(
         return lean ? normalizeContent(lean) : null;
       })();
 
-  if (await suppressedPromise) {
-    return null;
-  }
-
   if (hasRenderableBody(bundled)) {
     return bundled;
+  }
+
+  if (await withServerTimeout(isContentSuppressedInBackend(slug), 400, false)) {
+    return null;
   }
 
   const synced = await fetchSyncedContentBySlug(slug, 'page');

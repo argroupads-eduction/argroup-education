@@ -4,10 +4,10 @@ import { ArrowRight, GraduationCap, MapPin, Sparkles, Trophy } from 'lucide-reac
 /** Home teaser for /college-predictor — server component (no client bundle). */
 export function CollegePredictorHomeSection() {
   const bullets = [
-    'Personalized Medical college list based on your rank',
+    'Personalised college list based on your rank',
     'Compare fees, cut-offs, and state-wise options',
     'Get a free counselling session from AR Group of Education',
-    'Explore MBBS, MD/MS, BDS, BAMS, AYUSH, and Study Abroad opportunities',
+    'Explore MBBS, MD/MS (India), BDS, BAMS and MBBS abroad options',
   ] as const;
 
   const previewStats = [
@@ -47,8 +47,8 @@ export function CollegePredictorHomeSection() {
             </h2>
 
             <p className="mt-4 text-sm leading-relaxed text-slate-600 md:text-base">
-              Just enter your NEET AIR and category to instantly discover colleges where you have the
-              best admission chances.
+              Enter your NEET AIR and category to see colleges that may fit your rank. Final seats
+              depend on official counselling.
             </p>
 
             <ul className="mt-6 space-y-2.5 text-sm text-navy-800">
@@ -66,7 +66,7 @@ export function CollegePredictorHomeSection() {
                 Check my colleges
                 <ArrowRight className="h-5 w-5" aria-hidden />
               </Link>
-              <p className="text-xs font-medium text-slate-600">Instant shortlist · Trusted by AR Group</p>
+              <p className="text-xs font-medium text-slate-600">Instant shortlist · By AR Group of Education</p>
             </div>
           </div>
 

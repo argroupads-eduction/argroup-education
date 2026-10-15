@@ -6,9 +6,9 @@ export type CuratedPageSeo = {
 
 export const CURATED_PAGE_SEO: Record<string, CuratedPageSeo> = {
   '/': {
-    metaTitle: 'Medical Admission Guidance | MBBS Admission Consultancy',
+    metaTitle: 'AR Group of Education: MBBS, MD/MS & NEET Counselling Guidance',
     metaDescription:
-      "Secure your seat with India's trusted MBBS admission consultancy. Get expert medical admission guidance for top colleges in India and abroad. Call today!",
+      'Counselling for MBBS in India & abroad, MD/MS in India and NEET UG/PG options. Share your NEET score and book a free session with AR Group of Education.',
   },
   '/about': {
     metaTitle: 'Best MBBS And Medical Admission Consultants in India',
@@ -26,9 +26,9 @@ export const CURATED_PAGE_SEO: Record<string, CuratedPageSeo> = {
       'Want to Study MBBS Abroad? Connect with trusted MBBS Abroad Consultants to explore NMC-approved medical universities with transparent fees. Apply now!',
   },
   '/md-ms': {
-    metaTitle: 'MD MS Admission in India | PG Medical Admission Counseling',
+    metaTitle: 'MD MS Admission in India | AR Group of Education',
     metaDescription:
-      'Secure your seat via MD MS Admission in India. Get expert PG Medical Admission Counseling for top clinical and non-clinical branches. Contact us today!',
+      'Get guidance on MD MS admission in India. Understand NEET PG counselling, college options, fees and documents for clinical and non-clinical branches.',
   },
   '/mbbs': {
     metaTitle: 'MBBS Admission Guidance | Top Medical Colleges for MBBS',

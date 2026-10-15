@@ -47,7 +47,7 @@ const SITE = getSiteUrl();
 /** ISR — warmer Amplify HTML for homepage (field TTFB support). */
 export const revalidate = 300;
 
-const HOME_SEO_TITLE = 'Medical Admission Guidance | MBBS Admission Consultancy';
+const HOME_SEO_TITLE = 'AR Group of Education: MBBS, MD/MS & NEET Counselling Guidance';
 const HOME_SEO_DESCRIPTION = HOME_PAGE_META_DESCRIPTION;
 
 export const metadata: Metadata = {

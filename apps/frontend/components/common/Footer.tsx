@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { BrandLogoLink } from '@/components/common/BrandLogoLink';
@@ -42,6 +43,7 @@ function telHref(phone: string): string {
 }
 
 export const Footer = () => {
+  const pathname = usePathname();
   const year = new Date().getFullYear();
   const navPages = useDynamicNavPages();
   const siteGlobals = useSiteGlobals();
@@ -68,7 +70,7 @@ export const Footer = () => {
 
   return (
     <footer className="bg-navy-900 text-white">
-      <FooterAirportDiaries />
+      {pathname.startsWith('/md-ms') ? null : <FooterAirportDiaries />}
 
       <div className="site-footer-main">
         <div className="site-footer-main__inner">
@@ -88,11 +90,8 @@ export const Footer = () => {
                 />
               </BrandLogoLink>
               <p className="site-footer-main__desc">
-                <span className="font-semibold text-slate-200">AR Group of Education</span> is your
-                trusted partner for{' '}
-                <span className="font-bold text-gold-400">MBBS INDIA</span> &amp;{' '}
-                <span className="font-bold text-gold-400">MBBS ABROAD</span> admissions, NEET
-                counselling &amp; end-to-end visa support.
+                <span className="font-semibold text-slate-200">AR Group of Education</span> provides
+                MBBS India and MBBS abroad admission counselling, NEET counselling and visa support.
               </p>
               <Link href="/contact" className="mt-4 inline-block">
                 <Button variant="primary" size="md">

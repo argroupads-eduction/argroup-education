@@ -22,12 +22,12 @@ const COUNSELLING_POINTS = [
   {
     icon: Globe2,
     title: 'MBBS Abroad',
-    text: 'Admission assistance across 15+ countries in WHO-listed and NMC-compliant universities.',
+    text: 'Admission guidance for MBBS abroad, with university checks against current NMC rules.',
   },
   {
     icon: Stethoscope,
-    title: 'MD/MS & Career Guidance',
-    text: 'Medical career planning, postgraduate pathways and transparent fee counselling.',
+    title: 'MD/MS in India & Career Guidance',
+    text: 'Medical career planning, postgraduate pathways in India and transparent fee counselling.',
   },
   {
     icon: Building2,
@@ -38,9 +38,9 @@ const COUNSELLING_POINTS = [
 
 const STATS = [
   { value: '4,000+', label: 'Students guided' },
-  { value: '500+', label: 'Universities' },
-  { value: '98%', label: 'Visa success' },
-  { value: '19+', label: 'Years trust' },
+  { value: '15+', label: 'Countries (MBBS abroad)' },
+  { value: '17', label: 'States (MBBS India)' },
+  { value: '21+', label: 'Years trust' },
 ] as const
 
 export const CounsellingFormSection = () => {
@@ -77,10 +77,9 @@ export const CounsellingFormSection = () => {
               </h2>
 
               <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
-                For over two decades, we&apos;ve helped aspiring doctors to get admission in top
-                medical colleges and universities India and Abroad. We not only provide counselling
-                but are also with you at every step of your MBBS journey—from NEET counselling to
-                campus reporting.
+                For over two decades, we have helped aspiring doctors with admission guidance for
+                medical colleges and universities in India and abroad. We stay with you at every step
+                of your MBBS journey, from NEET counselling to campus reporting.
               </p>
 
               <p className="mt-5 text-sm font-semibold uppercase tracking-wide text-navy-800 md:text-base">
@@ -104,8 +103,8 @@ export const CounsellingFormSection = () => {
               </ul>
 
               <p className="mt-5 text-sm font-medium leading-relaxed text-navy-800 md:text-base">
-                Your dream is to become a doctor, and it&apos;s our responsibility to make your dream
-                into reality.
+                Your dream is to become a doctor. Our responsibility is to guide you honestly at every
+                step.
               </p>
 
               <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">

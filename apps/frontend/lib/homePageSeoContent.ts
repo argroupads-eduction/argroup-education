@@ -4,7 +4,7 @@ export const HOME_PAGE_H1 =
   'Medical Admission Guidance & MBBS Admission Consultancy for Future Medical Professionals';
 
 export const HOME_PAGE_META_DESCRIPTION =
-  'Professional Medical Admission Guidance and trusted MBBS Admission Consultancy for NEET aspirants. Expert admission counselling, MBBS in India & abroad, and MD/MS planning with AR Group of Education.';
+  'Counselling for MBBS in India & abroad, MD/MS in India and NEET UG/PG options. Share your NEET score and book a free session with AR Group of Education.';
 
 export const HOME_INTERNAL_PATHS = {
   medicalAdmissionGuidance: '/',
@@ -40,58 +40,55 @@ export const HOME_PAGE_FAQS = [
     id: 'faq-2',
     question: 'What makes AR Group of Education different from other consultants?',
     answer:
-      'We provide end-to-end admission assistance, honest advice, and dedicated support for MBBS admissions in India and abroad.',
+      'We focus on clear counselling, honest fee information and personalised college shortlisting. We do not guarantee admission; we help you understand your options and complete the process correctly.',
   },
   {
     id: 'faq-3',
     question: 'Why do students trust AR Group of Education?',
     answer:
-      'Thousands of students trust us for our proven track record, experienced counselors, and commitment to helping them achieve their medical career goals.',
+      'Students and parents have counselled with us since 2005, and we share information openly. Please verify any consultancy, including us, before making a payment.',
   },
   {
     id: 'faq-4',
     question: 'Does AR Group of Education support students after admission?',
     answer:
-      'Yes, we provide post-admission support, including documentation assistance, visa guidance, travel support, and student assistance services.',
+      'Yes. For MBBS abroad we support documentation, visa and pre-departure briefing, and we stay in touch with parents after admission.',
   },
   {
     id: 'faq-5',
     question: 'Is NEET required to study MBBS abroad?',
     answer:
-      'Yes, Indian students must qualify NEET to pursue MBBS abroad and become eligible for medical licensing requirements in India.',
+      'Under NMC rules, Indian students who plan to practise in India after MBBS abroad generally need to qualify NEET. Please check the latest NMC notice before applying.',
   },
   {
     id: 'faq-6',
     question: 'Can I practice in India after completing MBBS abroad?',
     answer:
-      'Yes, graduates from NMC-approved foreign medical universities can practice in India after fulfilling the applicable licensing requirements.',
+      'Yes, if you meet NMC eligibility conditions and pass the screening exam NMC requires (currently FMGE). Please check the NMC website for the latest rules.',
   },
   {
     id: 'faq-7',
     question: 'How can AR Group of Education help with MBBS abroad admissions?',
     answer:
-      'We provide complete MBBS Abroad Consultancy services, including university selection, admission processing, visa assistance, accommodation guidance, and pre-departure support.',
+      'We guide you on country and university options, eligibility, documents, visa and pre-departure steps. Final admission depends on the university’s rules and your eligibility.',
   },
   {
     id: 'faq-8',
     question: 'How can AR Group of Education help with MBBS admission in India?',
     answer:
-      'Our experts provide Medical Admission Guidance, NEET counselling support, college shortlisting, documentation assistance, and admission support for medical colleges across India.',
+      'We guide you through NEET UG counselling, college shortlisting by rank and category, and documents. Seats are allotted only through MCC and state counselling.',
   },
   {
     id: 'faq-9',
     question: 'How can I get MD/MS admission in India?',
     answer:
-      'Candidates must qualify NEET PG and participate in the counselling process. AR Group of Education helps with college selection, counselling guidance, and admission support for MD/MS Admission in India.',
+      'MD/MS admission in India is through NEET PG counselling by MCC and state authorities. We guide you on scores, college options and counselling steps. Our MD/MS guidance is for India only.',
   },
   {
     id: 'faq-10',
     question: 'What is the NEET Rank Predictor Tool?',
     answer:
-      'estimates your expected rank based on your NEET score and helps you plan your admission strategy.',
-    linkHref: HOME_INTERNAL_PATHS.neetRankPredictor,
-    linkLabel: 'NEET Rank Predictor Tool',
-    linkLeadIn: 'The',
+      'It estimates your possible rank from your NEET score. It is only an estimate; the official rank is issued by NTA.',
   },
 ] as const;
 
@@ -142,14 +139,14 @@ export const HOME_AR_SERVICES = [
 ] as const;
 
 export const HOME_DIFFERENTIATORS = [
-  '21+ Years of Experience – Trusted guidance backed by decades of expertise in medical admissions.',
+  '21+ Years of Experience – Guidance built over two decades of medical admission counselling.',
   'Personalized Admission Support – Tailored solutions based on your profile, goals, and budget.',
-  'Expert Medical Admission Guidance – Professional counseling for MBBS, BDS, MD, and MS admissions.',
-  'Trusted MBBS Admission Consultancy – Reliable support throughout the admission journey.',
-  'Comprehensive MBBS Abroad Consultancy – Complete assistance for admissions in top international medical universities.',
+  'BAMS and BDS Counselling – Guidance on eligibility, NEET score and college options for BAMS and BDS.',
+  'Support Through the Journey – Help with shortlisting, counselling steps and documents.',
+  'MBBS Abroad Guidance – Help with university selection, documents and visa for Indian students.',
   'Transparent Counseling Process – Honest advice with clear information and no hidden commitments.',
   'Dedicated Student Assistance – Continuous support from counselling to final admission.',
-  'Support for MBBS, BDS, MD & MS Admissions – Guidance for undergraduate and postgraduate medical programs.',
-  'NEET UG Counselling Expertise – Strategic support for choice filling, counselling, and seat allocation.',
-  'Proven Track Record of Student Success – Thousands of successful admissions across India and abroad.',
+  'MBBS and MD/MS in India – Guidance for MBBS admission and MD/MS admission through NEET PG counselling in India.',
+  'NEET UG Counselling Guidance – Support with choice filling, counselling rounds and seat allotment rules.',
+  'Support From Counselling to Reporting – Admission depends on NEET score, eligibility and seat availability. We do not guarantee any seat.',
 ] as const;

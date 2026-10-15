@@ -7,6 +7,7 @@ import { Clapperboard, ExternalLink, Play, Radio, Youtube } from 'lucide-react';
 import type { YoutubeChannelPayload, YoutubeVideo } from '@/lib/youtube/types';
 import { YOUTUBE_FEED_REVALIDATE_SECONDS } from '@/lib/youtube/fetchChannelVideos';
 import { SOCIAL_LINKS } from '@/lib/constants';
+import '@/styles/youtube-channel-section.css';
 
 const FALLBACK_CHANNEL_URL =
   SOCIAL_LINKS.find((s) => s.platform === 'youtube')?.url ?? 'https://www.youtube.com/@argroupofeducation';

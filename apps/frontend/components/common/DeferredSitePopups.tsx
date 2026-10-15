@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
-import { openLeadCapturePopup } from '@/lib/openLeadCapture';
+import { LEAD_CAPTURE_OPEN_EVENT, openLeadCapturePopup } from '@/lib/openLeadCapture';
 import {
   clearLegacyLeadPopupBlocks,
   isLeadPopupOpen,
@@ -23,14 +23,43 @@ const LeadCapturePopup = dynamic(
  */
 export function DeferredSitePopups() {
   const pathname = usePathname() || '/';
-  const [mounted, setMounted] = useState(false);
+  const [ready, setReady] = useState(false);
+  const pendingOpen = useRef(false);
 
   useEffect(() => {
-    setMounted(true);
+    const arm = () => {
+      pendingOpen.current = true;
+      setReady(true);
+    };
+    window.addEventListener(LEAD_CAPTURE_OPEN_EVENT, arm);
+
+    let idleId: number | undefined;
+    const preload = () => {
+      void import('@/components/common/LeadCapturePopup');
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      idleId = window.requestIdleCallback(preload, { timeout: 4000 });
+    }
+    const mountLater = window.setTimeout(() => setReady(true), 18000);
+
+    return () => {
+      window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, arm);
+      window.clearTimeout(mountLater);
+      if (idleId != null && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(idleId);
+      }
+    };
   }, []);
 
   useEffect(() => {
-    if (!mounted) return undefined;
+    if (!ready || !pendingOpen.current) return;
+    pendingOpen.current = false;
+    const id = window.requestAnimationFrame(() => openLeadCapturePopup());
+    return () => window.cancelAnimationFrame(id);
+  }, [ready]);
+
+  useEffect(() => {
+    if (!ready) return undefined;
 
     if (pathname === '/thank-you' || pathname.startsWith('/thank-you')) {
       return undefined;
@@ -48,9 +77,9 @@ export function DeferredSitePopups() {
     }, LEAD_POPUP_AUTO_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [pathname, mounted]);
+  }, [pathname, ready]);
 
-  if (!mounted) return null;
+  if (!ready) return null;
 
   return <LeadCapturePopup />;
 }

@@ -52,7 +52,7 @@ export const MBBSIndiaStateSection = () => {
             MBBS in India
           </span>
           <h2 className="mt-5 text-3xl font-bold text-navy-900 md:text-5xl">
-            State-wise top medical colleges
+            State-wise medical colleges
           </h2>
           <p className="mt-4 text-sm text-slate-600 md:text-base">
             Every college links to detailed fees, eligibility, and admission information.

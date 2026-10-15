@@ -25,10 +25,10 @@ export const PROGRAM_HUB_SEO = {
     badge: 'MBBS Abroad',
   },
   mdms: {
-    title: 'MD MS Admission in India | PG Medical Admission Counseling',
+    title: 'MD MS Admission in India | AR Group of Education',
     description:
-      'Secure your seat via MD MS Admission in India. Get expert PG Medical Admission Counseling for top clinical and non-clinical branches. Contact us today!',
-    keywords: ['MD MS Admission in India', 'PG Medical Admission Counseling'] as const,
+      'Get guidance on MD MS admission in India. Understand NEET PG counselling, college options, fees and documents for clinical and non-clinical branches.',
+    keywords: ['MD MS Admission in India', 'NEET PG counselling'] as const,
     path: '/md-ms',
     badge: 'MD / MS',
   },

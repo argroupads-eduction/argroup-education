@@ -3,7 +3,7 @@ import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { MdMsHubExplorer } from '@/components/program-hub/MdMsHubExplorer';
 import { ProgramHubCta } from '@/components/program-hub/ProgramHubCta';
 import { ProgramHubHero } from '@/components/program-hub/ProgramHubHero';
-import { ProgramHubTrustBar } from '@/components/program-hub/ProgramHubTrustBar';
+import { MD_MS_TRUST_ITEMS, ProgramHubTrustBar } from '@/components/program-hub/ProgramHubTrustBar';
 import type { SiteContent } from '@/lib/contentApi';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
@@ -45,19 +45,18 @@ export function MdMsHub({ wpContent }: MdMsHubProps) {
         breadcrumbs={breadcrumbs}
         title={
           <>
-            Postgraduate{' '}
-            <span className="program-hub-title-accent">MD/MS admissions</span>
+            MD/MS Admission <span className="program-hub-title-accent">in India</span>
           </>
         }
         lead={seo.description}
         stats={[
           { label: 'States', value: String(MD_MS_NAV_ITEMS.length) },
-          { label: 'Guidance', value: 'Expert' },
-          { label: 'Counselling', value: 'Expert' },
+          { label: 'Guidance', value: 'NEET PG' },
+          { label: 'Counselling', value: 'MCC + State' },
         ]}
       />
 
-      <ProgramHubTrustBar />
+      <ProgramHubTrustBar items={MD_MS_TRUST_ITEMS} />
       <MdMsHubExplorer />
 
       {wpContent?.content ? (

@@ -27,13 +27,13 @@ const VALUE_PROPS = [
     icon: GraduationCap,
     title: 'Expert Team',
     description:
-      '19+ years guiding students with dedicated MBBS admission counsellors across India and abroad.',
+      '21+ years guiding students with dedicated MBBS admission counsellors for India and abroad.',
   },
   {
     icon: Building2,
-    title: 'Top Universities',
+    title: 'College & University Options',
     description:
-      'Partnerships with 500+ accredited medical colleges, vetted for NMC and WHO alignment.',
+      'Options across Indian medical colleges and universities abroad, checked against current NMC rules.',
   },
   {
     icon: Plane,
@@ -499,7 +499,7 @@ export const AchievementsSection = () => {
             </span>
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
-            Helping aspiring doctors secure admissions, visa, and successful MBBS journeys across
+            Helping aspiring doctors with admission guidance, visa support and MBBS planning across
             India and abroad since 2005.
           </p>
         </div>

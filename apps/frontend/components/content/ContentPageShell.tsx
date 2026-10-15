@@ -166,7 +166,19 @@ export function ContentPageShell({
           {showSidebar ? (
             <aside className="space-y-4 sm:space-y-5 lg:sticky lg:top-24 lg:self-start">
               <ContentTableOfContents headings={headings} variant="sidebar" />
-              <ContentSidebar />
+              <ContentSidebar
+                {...(articleProps.pageSlug === 'md-ms'
+                  ? {
+                      helpText:
+                        'Get expert help with college shortlisting, NEET PG counselling, fees, and documentation.',
+                      quickLinks: [
+                        { href: '/mbbs-india', label: 'MBBS in India →' },
+                        { href: '/neet-pg-counselling', label: 'NEET PG Counselling →' },
+                        { href: '/blog', label: 'Latest guides →' },
+                      ],
+                    }
+                  : {})}
+              />
               {sidebarExtra}
             </aside>
           ) : null}

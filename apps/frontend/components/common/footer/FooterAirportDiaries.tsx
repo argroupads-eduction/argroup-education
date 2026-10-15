@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import {
   AIRPORT_DIARIES,
@@ -95,6 +94,8 @@ export function FooterAirportDiaries() {
   const { title, subtitle, hubHref, images } = AIRPORT_DIARIES;
   const [activeId, setActiveId] = useState(images[0]?.id ?? '');
   const [paused, setPaused] = useState(false);
+  const [inView, setInView] = useState(false);
+  const rootRef = useRef<HTMLElement>(null);
 
   const activeIndex = images.findIndex((img) => img.id === activeId);
   const active = images[activeIndex >= 0 ? activeIndex : 0] ?? images[0];
@@ -106,7 +107,21 @@ export function FooterAirportDiaries() {
   }, []);
 
   useEffect(() => {
-    if (paused || images.length <= 1) return;
+    const el = rootRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setInView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
+      { rootMargin: '240px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!inView || paused || images.length <= 1) return;
     const timer = window.setInterval(() => {
       setActiveId((current) => {
         const idx = images.findIndex((img) => img.id === current);
@@ -115,7 +130,7 @@ export function FooterAirportDiaries() {
       });
     }, AUTO_MS);
     return () => window.clearInterval(timer);
-  }, [images, paused]);
+  }, [images, paused, inView]);
 
   const tickerItems = useMemo(
     () => [...AIRPORT_DIARIES_DESTINATIONS, ...AIRPORT_DIARIES_DESTINATIONS],
@@ -127,7 +142,7 @@ export function FooterAirportDiaries() {
   if (!images.length) return null;
 
   return (
-    <section className="airport-diaries" aria-labelledby="airport-diaries-heading">
+    <section ref={rootRef} className="airport-diaries" aria-labelledby="airport-diaries-heading">
       <div className="airport-diaries__runway" aria-hidden="true" />
       <div className="airport-diaries__glow" aria-hidden="true" />
 
@@ -166,7 +181,7 @@ export function FooterAirportDiaries() {
               </div>
               <div className="airport-diaries__stat">
                 <strong>4000+</strong>
-                Students placed
+                Students guided
               </div>
             </div>
 
@@ -187,19 +202,10 @@ export function FooterAirportDiaries() {
 
             <div className="airport-diaries__spotlight">
               <div className="airport-diaries__spotlight-scan" aria-hidden="true" />
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={active.id}
-                  className="airport-diaries__spotlight-img"
-                  initial={{ opacity: 0, scale: 1.04, filter: 'blur(6px)' }}
-                  animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, scale: 0.98, filter: 'blur(4px)' }}
-                  transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={active.src} alt={active.alt} loading="lazy" decoding="async" />
-                </motion.div>
-              </AnimatePresence>
+              <div key={active.id} className="airport-diaries__spotlight-img">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={active.src} alt={active.alt} loading="lazy" decoding="async" />
+              </div>
               <div className="airport-diaries__boarding-pass">
                 <span>AR GROUP</span>
                 <span>

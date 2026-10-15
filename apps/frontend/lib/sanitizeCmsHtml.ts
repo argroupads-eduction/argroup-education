@@ -43,8 +43,8 @@ export function sanitizeCmsHtml(html: string): string {
       a: ['href', 'name', 'target', 'rel', 'class', 'id', 'title'],
       img: ['src', 'alt', 'width', 'height', 'loading', 'decoding', 'class', 'srcset', 'sizes'],
       iframe: ['src', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen', 'title'],
-      td: ['colspan', 'rowspan', 'width', 'height'],
-      th: ['colspan', 'rowspan', 'width', 'height'],
+      td: ['colspan', 'rowspan', 'width', 'height', 'data-label', 'class'],
+      th: ['colspan', 'rowspan', 'width', 'height', 'data-label', 'class'],
     },
     allowedSchemes: ['http', 'https', 'mailto', 'tel', 'data'],
     allowedSchemesByTag: {
