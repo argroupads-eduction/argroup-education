@@ -129,16 +129,41 @@ export async function getWpExportContentBySlug(slug: string): Promise<SiteConten
   }
 }
 
+let pageCache: Map<string, SiteContent> | null = null;
+let pageLoadPromise: Promise<Map<string, SiteContent>> | null = null;
+
+async function loadPageIndex(): Promise<Map<string, SiteContent>> {
+  if (pageCache) return pageCache;
+  if (pageLoadPromise) return pageLoadPromise;
+
+  pageLoadPromise = (async () => {
+    const index = new Map<string, SiteContent>();
+    const dir = await resolveWpExportDir();
+    if (!dir) {
+      pageCache = index;
+      return index;
+    }
+    const pagesRaw = await readFile(path.join(dir, 'pages.json'), 'utf8').catch(() => '[]');
+    const pages = JSON.parse(pagesRaw) as WpExportDoc[];
+    for (const doc of pages) {
+      if (doc.slug) index.set(doc.slug, toSiteContent(doc, 'page'));
+    }
+    pageCache = index;
+    return index;
+  })();
+
+  return pageLoadPromise;
+}
+
 /** Page-only lookup (ignores blog posts that reused the same WP slug). */
 export async function getWpExportPageBySlug(slug: string): Promise<SiteContent | null> {
   try {
-    const dir = await resolveWpExportDir();
-    if (!dir) return null;
-    const pagesRaw = await readFile(path.join(dir, 'pages.json'), 'utf8').catch(() => '[]');
-    const pages = JSON.parse(pagesRaw) as WpExportDoc[];
-    const doc = pages.find((p) => p.slug === slug);
-    return doc ? toSiteContent(doc, 'page') : null;
-  } catch {
+    const index = await loadPageIndex();
+    return index.get(slug) ?? null;
+  } catch (err) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[wpExportContent] page lookup unavailable:', err);
+    }
     return null;
   }
 }

@@ -164,9 +164,9 @@ export function MbbsAbroadScrollSection() {
       <div className="abroad-atlas__inner">
         <p className="abroad-atlas__eyebrow">{EYEBROW}</p>
         <p className="abroad-atlas__lede">
-          <strong>AR Group of Education</strong> helps Indian students secure MBBS seats at WHO-listed
-          universities in <span className="abroad-atlas__lede-accent">{count}+ countries</span>, with
-          end-to-end support for counselling, admissions, scholarships, documentation, and visa.
+          <strong>AR Group of Education</strong> guides Indian students on MBBS admission in Russia,
+          Nepal, Uzbekistan, Kazakhstan, Georgia and other countries, with support for counselling,
+          admission, scholarships, documentation and visa.
         </p>
 
         <nav className="abroad-atlas__seo-links" aria-label="MBBS abroad country pages">

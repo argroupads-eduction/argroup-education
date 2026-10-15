@@ -1,4 +1,5 @@
 import { ContentJsonLd } from '@/components/content/ContentJsonLd';
+import { ContentPageShell } from '@/components/content/ContentPageShell';
 import { MbbsAbroadCountryOrbit } from '@/components/mbbs-abroad/MbbsAbroadCountryOrbit';
 import { MbbsAbroadDocumentsVault } from '@/components/mbbs-abroad/MbbsAbroadDocumentsVault';
 import { MbbsAbroadIntakeRibbon } from '@/components/mbbs-abroad/MbbsAbroadIntakeRibbon';
@@ -10,10 +11,11 @@ import { ProgramHubTrustBar } from '@/components/program-hub/ProgramHubTrustBar'
 import type { SiteContent } from '@/lib/contentApi';
 import { MBBS_ABROAD_COUNTRIES, abroadCollegeCount } from '@/lib/mbbsAbroadTree';
 import { MBBS_ABROAD_HUB } from '@/lib/mbbsAbroadHubContent';
-import { PROGRAM_HUB_SEO } from '@/lib/programHubContent';
+import { resolveMbbsAbroadFeaturedImage } from '@/lib/mbbsAbroadCountryImages';
+import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
+import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type MbbsAbroadHubProps = {
-  /** Yoast / DB metadata only, body HTML is not rendered on the hub. */
   seoContent?: SiteContent | null;
 };
 
@@ -67,6 +69,29 @@ export function MbbsAbroadHub({ seoContent }: MbbsAbroadHubProps) {
       <MbbsAbroadHubDirectory />
       <MbbsAbroadHubGuide variant="extended" />
       <MbbsAbroadDocumentsVault />
+
+      {seoContent?.content ? (
+        <section className="program-hub-section bg-white">
+          <div className="mx-auto max-w-7xl px-4">
+            <div className="program-hub-section-head">
+              <p className="program-hub-section-kicker">Complete guide</p>
+              <h2 className="program-hub-section-title">
+                {plainTitle(seoContent.title || seo.title)}
+              </h2>
+            </div>
+          </div>
+          <ContentPageShell
+            html={seoContent.content}
+            featuredImage={resolveMbbsAbroadFeaturedImage(
+              PROGRAM_HUB_WP_SLUG.abroad,
+              seoContent.featuredImage
+            )}
+            title={plainTitle(seoContent.title || seo.title)}
+            showFeaturedImage
+            pageSlug={PROGRAM_HUB_WP_SLUG.abroad}
+          />
+        </section>
+      ) : null}
 
       <ProgramHubCta
         title="Planning MBBS abroad this intake?"

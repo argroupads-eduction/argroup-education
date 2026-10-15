@@ -22,25 +22,25 @@ const YEARS_EXPERIENCE = new Date().getFullYear() - ESTABLISHED_YEAR
 const HIGHLIGHTS = [
   {
     icon: ShieldCheck,
-    title: 'WHO & NMC aligned guidance',
-    text: 'Shortlisted universities that meet Indian medical council norms.',
+    title: 'Guidance on NMC rules',
+    text: 'We help you check each university against current NMC requirements.',
   },
   {
     icon: GraduationCap,
     title: 'India + Abroad pathways',
-    text: 'MBBS in India, MBBS abroad, and MD/MS counselling under one roof.',
+    text: 'MBBS in India, MBBS abroad and MD/MS counselling (India) in one place.',
   },
   {
     icon: Award,
     title: 'Transparent admissions',
-    text: 'No hidden capitation, clear fees, documentation, and visa support.',
+    text: 'Clear fee information from each college’s official fee structure, plus documentation and visa support.',
   },
 ] as const
 
 const PROMISES = [
   'Personalised college shortlisting',
   'NEET & eligibility counselling',
-  'Documentation & visa end-to-end',
+  'Documentation & visa support',
   'Pre-departure & parent updates',
   'English-medium university options',
   'Alumni & student support network',
@@ -146,10 +146,10 @@ export const AboutSection = () => {
             </h2>
 
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
-              The MBBS admission journey can be confusing, but with the right mentor, everything becomes
-              easier. With over {YEARS_EXPERIENCE} years of experience, AR Group of Education has helped
-              thousands of aspiring doctors access top medical colleges in India and abroad. Our priority is
-              honest guidance, a transparent process, and personalized support for every student.
+              The MBBS admission journey can be confusing, but the right guidance makes each step clearer.
+              With over 21 years of experience, AR Group of Education has guided thousands of aspiring doctors
+              on MBBS options in India and abroad. Our priority is honest guidance and a transparent process.
+              We are a counselling service, not a college or official counselling authority.
             </p>
 
             {/* Highlight cards */}
@@ -193,7 +193,7 @@ export const AboutSection = () => {
               <div className="flex-1 min-w-[12rem]">
                 <p className="text-sm text-blue-100/90">
                   From a single counselling desk in 2005 to a full-service medical admission partner for India
-                  and global universities, built on results, not promises.
+                  and global universities, built on honest guidance and clear information.
                 </p>
               </div>
               <div className="rounded-xl bg-white/10 px-4 py-2 text-center">

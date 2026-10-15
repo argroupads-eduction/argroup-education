@@ -714,9 +714,10 @@ export const Navbar = () => {
         href={CONTACT_INFO.whatsapp}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 text-white rounded-full shadow-lg flex items-center justify-center z-40 hover:bg-green-600 hover:scale-105 active:scale-95 transition-transform duration-200"
+        aria-label="Chat on WhatsApp"
+        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition-transform duration-200 hover:bg-green-600 hover:scale-105 active:scale-95"
       >
-        <MessageCircle className="w-6 h-6" />
+        <MessageCircle className="h-6 w-6" aria-hidden />
       </a>
     </>
   );

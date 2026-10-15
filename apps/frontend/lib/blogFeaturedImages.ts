@@ -77,13 +77,16 @@ function curatedFeaturedImage(slug: string): string | null {
 
 /** CMS/Strapi URLs that must win over local curated fallbacks. */
 function isTrustedCmsFeaturedUrl(url: string): boolean {
-  if (/hostingersite\.com/i.test(url)) return true;
-  if (/\/uploads\//i.test(url)) return true;
+  // Persisted Media Library bytes on www — always preferred
+  if (/\/api\/cms\/media\/[a-f0-9]+/i.test(url)) return true;
+  // Strapi Hostinger /uploads often 404 after redeploy — do NOT trust as hero source
+  if (/hostingersite\.com/i.test(url)) return false;
   if (/blob\.vercel-storage\.com/i.test(url)) return true;
   if (/res\.cloudinary\.com/i.test(url)) return true;
   if (/githubusercontent\.com|github\.com/i.test(url)) return true;
   // Site-owned absolute media (not the old broken WP CDN guesses)
   if (/argroupofeducation\.com\/uploads\//i.test(url)) return true;
+  if (/argroupofeducation\.com\/api\/cms\/media\//i.test(url)) return true;
   return false;
 }
 

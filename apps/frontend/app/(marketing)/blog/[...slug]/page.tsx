@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { after } from 'next/server';
+import { notifyNewWordpressPosts } from '@/lib/wpBlogPush.server';
 import { BlogPostLayout } from '@/components/blog/BlogPostLayout';
 import { ContentJsonLd } from '@/components/content/ContentJsonLd';
 import { buildSiteMetadata } from '@/lib/buildSiteMetadata';
@@ -68,6 +70,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BlogSlugPage({ params }: PageProps) {
+  after(() => {
+    notifyNewWordpressPosts().catch((err) => console.error('[wp-push] blog post', err));
+  });
   const { slug: segments } = await params;
   const decoded = slugFromBlogRouteSegments(segments ?? []);
   if (!decoded) notFound();

@@ -1,7 +1,3 @@
-/**
- * Budget field for lead/counselling forms (not Rank/College predictors).
- * Digits only; minimum 3 digits.
- */
 
 export const BUDGET_MIN_DIGITS = 3;
 export const BUDGET_MAX_DIGITS = 12;

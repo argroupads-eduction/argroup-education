@@ -2,7 +2,21 @@ import Link from 'next/link';
 import { Phone, MessageCircle, GraduationCap } from 'lucide-react';
 import { CONTACT_INFO } from '@/lib/constants';
 
-export function ContentSidebar() {
+type ContentSidebarProps = {
+  helpText?: string;
+  quickLinks?: { href: string; label: string }[];
+};
+
+const DEFAULT_QUICK_LINKS = [
+  { href: '/mbbs-india', label: 'MBBS in India →' },
+  { href: '/mbbs-abroad', label: 'MBBS Abroad →' },
+  { href: '/blog', label: 'Latest guides →' },
+];
+
+export function ContentSidebar({
+  helpText = 'Get expert help with college shortlisting, NEET counselling, fees, and documentation.',
+  quickLinks = DEFAULT_QUICK_LINKS,
+}: ContentSidebarProps = {}) {
   return (
     <div className="wp-content-sidebar space-y-5">
       <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-gradient-to-br from-navy-900 to-navy-800 p-4 text-white shadow-xl sm:rounded-2xl sm:p-6">
@@ -11,7 +25,7 @@ export function ContentSidebar() {
         </div>
         <p className="font-serif text-lg font-bold">Expert admission counselling</p>
         <p className="mt-2 text-sm leading-relaxed text-blue-100/85">
-          Get expert help with college shortlisting, NEET counselling, fees, and documentation.
+          {helpText}
         </p>
         <div className="mt-5 space-y-2.5">
           <Link
@@ -34,21 +48,13 @@ export function ContentSidebar() {
       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
         <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Quick links</p>
         <ul className="mt-3 space-y-2 text-sm">
-          <li>
-            <Link href="/mbbs-india" className="font-medium text-navy-900 hover:text-gold-600">
-              MBBS in India →
-            </Link>
-          </li>
-          <li>
-            <Link href="/mbbs-abroad" className="font-medium text-navy-900 hover:text-gold-600">
-              MBBS Abroad →
-            </Link>
-          </li>
-          <li>
-            <Link href="/blog" className="font-medium text-navy-900 hover:text-gold-600">
-              Latest guides →
-            </Link>
-          </li>
+          {quickLinks.map((link) => (
+            <li key={link.href}>
+              <Link href={link.href} className="font-medium text-navy-900 hover:text-gold-600">
+                {link.label}
+              </Link>
+            </li>
+          ))}
         </ul>
       </div>
     </div>

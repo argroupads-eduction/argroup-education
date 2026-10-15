@@ -34,15 +34,16 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
-  weight: ['400', '600', '700'],
+  weight: ['400', '700'],
 });
 
-/** Serif headings, Lora uses a standard “&” (Playfair’s default & has decorative swashes). */
+/** Serif headings. Not preloaded — the hero image must win the mobile bandwidth race. */
 const playfair = Lora({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-playfair',
-  weight: ['600', '700'],
+  weight: ['700'],
+  preload: false,
 });
 
 export const metadata: Metadata = {

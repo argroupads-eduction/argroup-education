@@ -1,16 +1,9 @@
 const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
-
-/**
- * Prefer bundled colleges + /images + /mbbs-* heroes (Hostinger deploy omits most wp-content).
- * Do NOT hotlink Hostinger Node for /wp-content (often returns HTML). Keep same-origin paths so
- * next.config can rewrite misses to /api/wp-media when WP_MEDIA_ORIGIN is configured.
- */
 export function getWpMediaOrigin(): string | null {
   const raw = (process.env.WP_MEDIA_ORIGIN || process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN || '')
     .trim()
     .replace(/\/$/, '');
   if (!raw) return null;
-  // khaki-mole Node app is the marketing site, not a WP media host.
   if (/hostingersite\.com/i.test(raw)) return null;
   return raw;
 }
@@ -104,6 +97,10 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
         if (u.pathname.includes('/wp-content/')) {
           return toLocalWpContentPath(u.pathname);
         }
+      }
+      // Headless WordPress media host: keep the absolute URL as-is (https).
+      if (host === 'cms.argroupofeducation.com') {
+        return trimmed.replace(/^http:\/\//i, 'https://');
       }
       if (
         host.endsWith('githubusercontent.com') ||

@@ -282,12 +282,18 @@
 .blog-image-frame--hero {
   position: relative;
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   height: auto;
   border-radius: 1rem;
-  overflow: hidden;
-  box-shadow: 0 12px 40px rgba(12, 31, 63, 0.12);
+  overflow: visible;
+  box-shadow: none;
   background: transparent;
+  padding: 0;
+}
+
+.blog-image-frame--hero .blog-image-frame__fit {
+  border-radius: 0.85rem;
+  box-shadow: 0 12px 40px rgba(12, 31, 63, 0.12);
 }
 
 .blog-image-frame__fit {
@@ -1048,6 +1054,24 @@
   margin-bottom: 0.5rem;
 }
 
+/* Doc-style university / college rows: "1. Name –" bold + description */
+.wp-content-blog ol.blog-named-list {
+  list-style: none;
+  margin: 1.15rem 0 1.5rem;
+  padding-left: 0;
+}
+
+.wp-content-blog ol.blog-named-list li {
+  margin-bottom: 0.9rem;
+  padding-left: 0;
+  line-height: 1.7;
+}
+
+.wp-content-blog ol.blog-named-list li strong {
+  font-weight: 700;
+  color: #152a52;
+}
+
 .wp-content-blog table {
   width: 100%;
   min-width: 0;
@@ -1100,99 +1124,34 @@
   line-height: 1.45;
 }
 
-.wp-content-blog th {
+.wp-content-blog thead th {
   background: var(--blog-navy);
   color: #fff;
   font-weight: 600;
 }
 
-.wp-content-blog table tbody tr:first-child td {
+.wp-content-blog tbody th,
+.wp-content-blog tbody td {
+  color: #0f172a;
+  background: #fff;
+}
+
+/* Whole first row stays a header only when WordPress omitted <thead>. */
+.wp-content-blog table:not(:has(thead)) tbody tr:first-child > :is(td, th) {
   background: linear-gradient(135deg, #1a365d 0%, #234e82 100%);
   color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
   font-weight: 700;
   border-bottom: 2px solid #d97706;
 }
 
-.wp-content-blog table tbody tr:first-child td strong {
+.wp-content-blog table:not(:has(thead)) tbody tr:first-child > :is(td, th) :is(strong, b, span, p, a) {
   color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
-.wp-content-blog tr:nth-child(even) td {
+.wp-content-blog tbody tr:nth-child(even) > :is(td, th) {
   background: #f8fafc;
-}
-
-/* Mobile: 3-column comparison tables stack as readable cards */
-@media (max-width: 639px) {
-  .wp-content-blog figure.wp-block-table:has(table tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) {
-    overflow-x: visible;
-  }
-
-  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) {
-    border: 0;
-    min-width: 0;
-  }
-
-  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:first-child {
-    display: none;
-  }
-
-  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) {
-    display: block;
-    margin-bottom: 0.85rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: 0 1px 4px rgba(12, 31, 63, 0.06);
-  }
-
-  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) td {
-    display: block;
-    width: 100% !important;
-    border: none;
-    border-bottom: 1px solid #f1f5f9;
-    padding: 0.5rem 0.85rem;
-    background: transparent;
-  }
-
-  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) td:last-child {
-    border-bottom: none;
-  }
-
-  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) td:first-child {
-    background: var(--blog-navy);
-    color: #fff;
-    font-weight: 700;
-    padding-top: 0.65rem;
-    padding-bottom: 0.65rem;
-  }
-
-  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) td:nth-child(2)::before {
-    content: 'Top Colleges: ';
-    font-weight: 600;
-    color: #64748b;
-  }
-
-  .wp-content-blog figure.wp-block-table table:has(tbody tr > td:nth-child(3):last-child):not(:has(td:nth-child(4))) tbody tr:not(:first-child) td:nth-child(3)::before {
-    content: 'Average Colleges: ';
-    font-weight: 600;
-    color: #64748b;
-  }
-
-  /* 4-column data tables — swipe horizontally */
-  .wp-content-blog figure.wp-block-table:has(table td:nth-child(4)) {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .wp-content-blog figure.wp-block-table table:has(td:nth-child(4)) {
-    min-width: 34rem;
-    font-size: 0.8125rem;
-  }
-
-  .wp-content-blog figure.wp-block-table table:has(td:nth-child(4)) td {
-    padding: 0.5rem 0.65rem;
-  }
 }
 
 .wp-content-blog img {
@@ -1425,105 +1384,6 @@
   .blog-article.wp-content-root .wp-content-blog h3,
   .wp-content-root .wp-content-blog h3 {
     font-size: 1.12rem;
-  }
-
-  /* Mobile: stack 2-col / 3-col data tables as labeled cards */
-  .wp-content-blog .wp-table-scroll,
-  .wp-content-blog .eael-data-table-wrap {
-    overflow-x: visible;
-    border: none;
-    box-shadow: none;
-    background: transparent;
-  }
-
-  .wp-content-blog table.wp-facts-kv-table,
-  .wp-content-blog table.wp-blog-data-table,
-  .wp-content-blog table.wp-table-cols-2,
-  .wp-content-blog table.wp-table-cols-3,
-  .wp-content-blog .wp-table-scroll table:not(:has(td:nth-child(4))),
-  .wp-content-blog .eael-data-table-wrap table:not(:has(td:nth-child(4))) {
-    min-width: 0 !important;
-    border: 0;
-  }
-
-  .wp-content-blog table.wp-facts-kv-table thead,
-  .wp-content-blog table.wp-blog-data-table thead,
-  .wp-content-blog table.wp-table-cols-2 thead,
-  .wp-content-blog table.wp-table-cols-3 thead,
-  .wp-content-blog .wp-table-scroll table:not(:has(td:nth-child(4))) thead,
-  .wp-content-blog .eael-data-table-wrap table:not(:has(td:nth-child(4))) thead {
-    display: none;
-  }
-
-  .wp-content-blog table.wp-facts-kv-table tbody,
-  .wp-content-blog table.wp-blog-data-table tbody,
-  .wp-content-blog table.wp-table-cols-2 tbody,
-  .wp-content-blog table.wp-table-cols-3 tbody,
-  .wp-content-blog .wp-table-scroll table:not(:has(td:nth-child(4))) tbody,
-  .wp-content-blog .eael-data-table-wrap table:not(:has(td:nth-child(4))) tbody {
-    display: block;
-  }
-
-  .wp-content-blog table.wp-facts-kv-table tr,
-  .wp-content-blog table.wp-blog-data-table tr,
-  .wp-content-blog table.wp-table-cols-2 tr,
-  .wp-content-blog table.wp-table-cols-3 tr,
-  .wp-content-blog .wp-table-scroll table:not(:has(td:nth-child(4))) tr,
-  .wp-content-blog .eael-data-table-wrap table:not(:has(td:nth-child(4))) tr {
-    display: block;
-    margin: 0 0 0.75rem;
-    padding: 0.75rem 0.9rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    background: #fff;
-    box-shadow: 0 1px 3px rgba(12, 31, 63, 0.05);
-  }
-
-  .wp-content-blog table.wp-facts-kv-table td,
-  .wp-content-blog table.wp-blog-data-table td,
-  .wp-content-blog table.wp-table-cols-2 td,
-  .wp-content-blog table.wp-table-cols-3 td,
-  .wp-content-blog .wp-table-scroll table:not(:has(td:nth-child(4))) td,
-  .wp-content-blog .eael-data-table-wrap table:not(:has(td:nth-child(4))) td {
-    display: block;
-    border: 0;
-    padding: 0.2rem 0;
-    width: 100% !important;
-    word-break: break-word;
-  }
-
-  .wp-content-blog table.wp-facts-kv-table td:first-child,
-  .wp-content-blog table.wp-blog-data-table td:first-child,
-  .wp-content-blog table.wp-table-cols-2 td:first-child,
-  .wp-content-blog table.wp-table-cols-3 td:first-child,
-  .wp-content-blog .wp-table-scroll table:not(:has(td:nth-child(4))) td:first-child,
-  .wp-content-blog .eael-data-table-wrap table:not(:has(td:nth-child(4))) td:first-child {
-    font-weight: 700;
-    color: var(--blog-navy);
-    margin-bottom: 0.15rem;
-  }
-
-  .wp-content-blog table.wp-blog-data-table.wp-table-cols-3 td:nth-child(2)::before {
-    content: 'Area: ';
-    font-weight: 600;
-    color: #64748b;
-  }
-
-  .wp-content-blog table.wp-blog-data-table.wp-table-cols-3 td:nth-child(3)::before {
-    content: 'Setting: ';
-    font-weight: 600;
-    color: #64748b;
-  }
-
-  /* Wide 4+ column tables: keep horizontal swipe */
-  .wp-content-blog .wp-table-scroll:has(td:nth-child(4)),
-  .wp-content-blog .eael-data-table-wrap:has(td:nth-child(4)),
-  .wp-content-blog figure.wp-block-table:has(td:nth-child(4)) {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    background: #fff;
   }
 
   .wp-content-blog img,

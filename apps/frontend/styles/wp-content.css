@@ -4020,3 +4020,162 @@ html:has(.wp-content-affinity) {
     min-width: 36rem;
   }
 }
+
+/*
+ * Every WordPress blog table: header text is white only on the navy header.
+ * Body cells, including the first label, stay dark. Phones keep the same grid,
+ * shrunk to the screen, with no sideways scroll and no card restack.
+ */
+.blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table.wp-labeled-data-table thead th,
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table.wp-labeled-data-table thead th,
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .eael-data-table-wrap > table thead th,
+.blog-post-root .blog-article.wp-content-root .wp-content-blog table thead th {
+  background: #1a365d !important;
+  background-image: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table.wp-labeled-data-table thead th :is(p, span, strong, b, a, div),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table.wp-labeled-data-table thead th :is(p, span, strong, b, a, div),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog table thead th :is(p, span, strong, b, a, div) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+
+.blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table.wp-labeled-data-table tbody tr > :is(td, th),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table.wp-labeled-data-table tbody tr > :is(td, th),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table.wp-facts-kv-table tbody tr > :is(td, th),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .eael-data-table-wrap > table tbody tr > :is(td, th),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog table tbody tr > :is(td, th) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  background: #fff !important;
+  background-image: none !important;
+}
+
+.blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table.wp-labeled-data-table tbody tr:nth-child(even) > :is(td, th),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table.wp-labeled-data-table tbody tr:nth-child(even) > :is(td, th),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table.wp-facts-kv-table tbody tr:nth-child(even) > :is(td, th),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog table tbody tr:nth-child(even) > :is(td, th) {
+  background: #fffbeb !important;
+  background-image: none !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table.wp-labeled-data-table tbody tr > :is(td, th) :is(p, span, strong, b, a, div),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table.wp-labeled-data-table tbody tr > :is(td, th) :is(p, span, strong, b, a, div),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table.wp-facts-kv-table tbody tr > :is(td, th) :is(p, span, strong, b, a, div),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog table tbody tr > :is(td, th) :is(p, span, strong, b, a, div) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+
+.blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table.wp-labeled-data-table:not(:has(thead)) tbody tr:first-child > :is(td, th),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table:not(:has(thead)) tbody tr:first-child > :is(td, th),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog table:not(:has(thead)) tbody tr:first-child > :is(td, th),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table.wp-labeled-data-table:not(:has(thead)) tbody tr:first-child > :is(td, th) :is(p, span, strong, b, a, div),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table:not(:has(thead)) tbody tr:first-child > :is(td, th) :is(p, span, strong, b, a, div),
+.blog-post-root .blog-article.wp-content-root .wp-content-blog table:not(:has(thead)) tbody tr:first-child > :is(td, th) :is(p, span, strong, b, a, div) {
+  background: #1a365d !important;
+  background-image: linear-gradient(135deg, #1a365d 0%, #234e82 100%) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+@media (max-width: 767px) {
+  .blog-post-root .blog-article.wp-content-root,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog {
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .eael-data-table-wrap,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-block-table,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .elementor-widget-container:has(table) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .eael-data-table-wrap > table,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table.wp-table-cols-2,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table.wp-table-cols-3,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table.wp-table-cols-4,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table.wp-table-cols-5,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table.wp-table-cols-many,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table.wp-labeled-data-table,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table.wp-facts-kv-table,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table.eael-data-table {
+    display: table !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table thead {
+    display: table-header-group !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table tbody {
+    display: table-row-group !important;
+    width: auto !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table tr {
+    display: table-row !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table.wp-labeled-data-table :is(thead th, tbody td, tbody th),
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table :is(thead th, tbody td, tbody th),
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .eael-data-table-wrap > table :is(thead th, tbody td, tbody th),
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table :is(thead th, tbody td, tbody th) {
+    display: table-cell !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    hyphens: manual !important;
+    text-align: left !important;
+    font-size: 0.7rem !important;
+    line-height: 1.3 !important;
+    padding: 0.4rem 0.3rem !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table.wp-labeled-data-table thead th:first-child,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-table-scroll.wp-block-table > table.wp-labeled-data-table tbody td:first-child,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table thead th:first-child,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll > table tbody :is(td, th):first-child,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table thead th:first-child,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table tbody :is(td, th):first-child {
+    width: 34% !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog table :is(td, th)[data-label]::before {
+    content: none !important;
+    display: none !important;
+  }
+}

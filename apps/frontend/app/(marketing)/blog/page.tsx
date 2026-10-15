@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { after } from 'next/server';
 import { getBlogIndexListing } from '@backend/handlers/blogs';
+import { notifyNewWordpressPosts } from '@/lib/wpBlogPush.server';
 import { BlogIndexLayout } from '@/components/blog/BlogIndexLayout';
 import { BLOG_EXCLUDED_LIST_SLUGS, dedupeBlogPosts, sortBlogPostsByNewest } from '@/lib/blogUtils';
 
@@ -36,6 +38,9 @@ type BlogPageProps = {
 };
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
+  after(() => {
+    notifyNewWordpressPosts().catch((err) => console.error('[wp-push] blog index', err));
+  });
   const { page: pageParam } = await searchParams;
   const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
   const excludeSlugs = [...BLOG_EXCLUDED_LIST_SLUGS];

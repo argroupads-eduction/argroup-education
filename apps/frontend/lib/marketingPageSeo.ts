@@ -34,9 +34,9 @@ export const MARKETING_PAGE_SEO: Record<string, MarketingSeoEntry> = {
   'md-ms': {
     focusKeyword: 'MD MS Admission in India',
     keywords: ['MD MS Admission in India', 'PG Medical Admission Counseling'],
-    metaTitle: 'MD MS Admission in India | PG Medical Admission Counseling',
+    metaTitle: 'MD MS Admission in India | AR Group of Education',
     metaDescription:
-      'Secure your seat via MD MS Admission in India. Get expert PG Medical Admission Counseling for top clinical and non-clinical branches. Contact us today!',
+      'Get guidance on MD MS admission in India. Understand NEET PG counselling, college options, fees and documents for clinical and non-clinical branches.',
   },
   mbbs: {
     focusKeyword: 'MBBS Admission Guidance',

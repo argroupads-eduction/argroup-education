@@ -1,34 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { CheckCircle2, HeartHandshake, Stethoscope } from 'lucide-react';
-import { HOME_DIFFERENTIATORS, HOME_INTERNAL_PATHS, HOME_PAGE_H1 } from '@/lib/homePageSeoContent';
-
-const reveal = {
-  initial: { opacity: 0, y: 28 },
-  whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as const },
-  viewport: { once: true, margin: '-80px' as const },
-};
-
-function HeroBodyLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="!text-inherit font-normal underline decoration-white/35 underline-offset-[3px] transition-[text-decoration-color] hover:!text-inherit hover:decoration-white/65 focus-visible:!text-inherit"
-    >
-      {children}
-    </Link>
-  );
-}
+import { HOME_DIFFERENTIATORS, HOME_PAGE_H1 } from '@/lib/homePageSeoContent';
 
 function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
     <div className="mb-8 flex items-center gap-3">
       <span className="h-px w-10 bg-gradient-to-r from-gold-500 to-transparent" aria-hidden />
-      <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-gold-800">{children}</p>
+      <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-navy-800">{children}</p>
     </div>
   );
 }
@@ -73,7 +53,7 @@ export function HomeSeoContentSections() {
         />
 
         <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 lg:grid-cols-12 lg:gap-12 lg:px-6 lg:py-18 xl:gap-14">
-          <motion.div {...reveal} className="relative lg:col-span-5">
+          <div className="relative lg:col-span-5">
             <div
               className="absolute -bottom-4 -right-4 hidden h-[88%] w-[88%] rounded-[2rem] border-2 border-gold-400/40 md:block"
               aria-hidden
@@ -90,13 +70,9 @@ export function HomeSeoContentSections() {
                 loading="lazy"
               />
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            {...reveal}
-            transition={{ ...reveal.transition, delay: 0.1 }}
-            className="flex flex-col lg:col-span-7"
-          >
+          <div className="flex flex-col lg:col-span-7">
             <div className="max-w-2xl border-l-2 border-gold-500/80 pl-5 md:pl-6">
               <h1 className="text-[1.65rem] font-bold leading-[1.3] tracking-tight text-white sm:text-[1.85rem] md:text-[2rem] lg:text-[2.15rem] lg:leading-[1.32]">
                 {HOME_PAGE_H1}
@@ -110,7 +86,7 @@ export function HomeSeoContentSections() {
               <div className="relative rounded-[1.25rem] border border-white/15 bg-navy-950/55 p-5 text-white shadow-[0_20px_60px_-24px_rgba(0,0,0,0.55)] backdrop-blur-xl md:p-7">
                 <div className="mb-4 flex items-center gap-2" aria-hidden>
                   <span className="h-px flex-1 max-w-[3rem] bg-gradient-to-r from-gold-400/80 to-transparent" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-gold-300">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-white">
                     Your admission partner
                   </span>
                 </div>
@@ -123,26 +99,22 @@ export function HomeSeoContentSections() {
                     to make informed decisions about their medical careers.
                   </p>
                   <p>
-                    This is where professional Medical Admission Guidance, trusted{' '}
-                    <HeroBodyLink href={HOME_INTERNAL_PATHS.mbbsAdmissionConsultancy}>
-                      MBBS Admission Consultancy
-                    </HeroBodyLink>
-                    , expert Admission Counselling for Medical Students, and reliable Medical
-                    College Admission Assistance become essential. Whether you want to pursue{' '}
-                    <HeroBodyLink href={HOME_INTERNAL_PATHS.studyMbbsInIndia}>MBBS in India</HeroBodyLink>
-                    {' '}or explore global opportunities through MBBS Abroad Consultancy, the right support can
-                    help you achieve your career goals with confidence.
+                    AR Group of Education is a private counselling and admission-guidance service. We help
+                    students and parents understand their NEET options, shortlist suitable medical colleges
+                    in India or abroad, and complete the process correctly. We are not a college or an
+                    official counselling authority; seats in India are allotted only through MCC and state
+                    counselling.
                   </p>
                   <p>
-                    At AR Group of Education, we have been helping aspiring doctors secure admissions in
-                    leading medical colleges across India and abroad for over 21 years. Our mission is to
+                    At AR Group of Education, we have been helping aspiring doctors with admission guidance
+                    for medical colleges across India and abroad for over 21 years. Our mission is to
                     provide transparent counseling, personalized support, and complete admission assistance
-                    that empowers students to make the best choices for their future.
+                    that empowers students to make informed choices for their future.
                   </p>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -151,10 +123,7 @@ export function HomeSeoContentSections() {
         <div className="mx-auto max-w-7xl px-4 lg:px-6">
           <SectionEyebrow>Expert guidance</SectionEyebrow>
           <div className="grid gap-8 lg:grid-cols-2">
-            <motion.article
-              {...reveal}
-              className="rounded-3xl border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-8 shadow-[0_20px_60px_-30px_rgba(26,54,93,0.15)] md:p-10"
-            >
+            <article className="rounded-3xl border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-8 shadow-[0_20px_60px_-30px_rgba(26,54,93,0.15)] md:p-10">
               <div className="mb-5 inline-flex rounded-2xl bg-navy-900 p-3.5 text-gold-400 shadow-lg shadow-navy-900/20">
                 <Stethoscope className="h-6 w-6" aria-hidden />
               </div>
@@ -176,16 +145,13 @@ export function HomeSeoContentSections() {
                 <p>
                   Our specialized Admission Guidance for NEET Aspirants helps students understand counseling
                   rounds, cutoff trends, seat allocation processes, and admission opportunities. With proper
-                  planning and expert support, students can significantly improve their chances of securing
-                  admission to reputed medical institutions.
+                  planning and expert support, students can compare their options more clearly. Admission
+                  still depends on NEET score, eligibility and official counselling rules.
                 </p>
               </div>
-            </motion.article>
+            </article>
 
-            <motion.article
-              {...reveal}
-              className="rounded-3xl border border-gold-200/60 bg-gradient-to-br from-gold-50/80 via-white to-white p-8 shadow-[0_20px_60px_-30px_rgba(255,167,38,0.2)] md:p-10"
-            >
+            <article className="rounded-3xl border border-gold-200/60 bg-gradient-to-br from-gold-50/80 via-white to-white p-8 shadow-[0_20px_60px_-30px_rgba(255,167,38,0.2)] md:p-10">
               <div className="mb-5 inline-flex rounded-2xl bg-gradient-to-br from-gold-500 to-gold-600 p-3.5 text-white shadow-lg shadow-gold-500/25">
                 <HeartHandshake className="h-6 w-6" aria-hidden />
               </div>
@@ -205,12 +171,12 @@ export function HomeSeoContentSections() {
                   best match their academic goals and financial capabilities.
                 </p>
                 <p>
-                  Our experienced counselors provide Admission Counselling for Medical Students seeking
-                  admission to government medical colleges, private medical colleges, deemed universities,
-                  and international medical institutions.
+                  Our counsellors guide students exploring government, private and deemed medical colleges
+                  in India and medical universities abroad. Government seats are allotted only through
+                  official counselling.
                 </p>
               </div>
-            </motion.article>
+            </article>
           </div>
         </div>
       </section>
@@ -219,19 +185,18 @@ export function HomeSeoContentSections() {
       <section id="what-makes-us-different" className="py-16 md:py-24">
         <div className="mx-auto max-w-7xl px-4 lg:px-6">
           <SectionEyebrow>Why AR Group</SectionEyebrow>
-          <motion.h2 {...reveal} className="text-2xl font-bold text-navy-900 md:text-3xl">
+          <h2 className="text-2xl font-bold text-navy-900 md:text-3xl">
             What Makes Us Different?
-          </motion.h2>
+          </h2>
           <ul className="mt-10 grid gap-4 sm:grid-cols-2">
             {HOME_DIFFERENTIATORS.map((item) => (
-              <motion.li
+              <li
                 key={item}
-                {...reveal}
                 className="flex gap-3 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:border-gold-300/50 hover:shadow-md"
               >
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-gold-500" aria-hidden />
                 <span className="text-slate-700 leading-snug">{item}</span>
-              </motion.li>
+              </li>
             ))}
           </ul>
         </div>

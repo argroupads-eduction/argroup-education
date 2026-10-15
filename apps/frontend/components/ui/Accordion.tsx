@@ -1,7 +1,6 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import clsx from 'clsx';
 
@@ -38,21 +37,14 @@ export const Accordion = ({ items, defaultOpen, variant = 'premium' }: Accordion
 
   return (
     <div className="site-premium-faq-group flex flex-col gap-3">
-      {items.map((item, index) => (
-        <motion.div
+      {items.map((item) => (
+        <AccordionRow
           key={item.id}
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: index * 0.05 }}
-          viewport={{ once: true, margin: '-40px' }}
-        >
-          <AccordionRow
-            item={item}
-            isOpen={openId === item.id}
-            onToggle={() => setOpenId(openId === item.id ? null : item.id)}
-            premium
-          />
-        </motion.div>
+          item={item}
+          isOpen={openId === item.id}
+          onToggle={() => setOpenId(openId === item.id ? null : item.id)}
+          premium
+        />
       ))}
     </div>
   );
@@ -115,28 +107,25 @@ function AccordionRow({
           </svg>
         </span>
       </button>
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-            className="overflow-hidden"
-          >
-            <div
-              className={clsx(
-                'border-t text-sm leading-relaxed md:text-[0.95rem]',
-                premium
-                  ? 'border-gold-200/40 bg-slate-50/80 px-5 py-4 text-slate-600 md:px-6 md:py-5'
-                  : 'border-gray-200 bg-gray-50 px-6 py-4 text-gray-700'
-              )}
-            >
-              {item.content}
-            </div>
-          </motion.div>
+      <div
+        className={clsx(
+          'grid transition-[grid-template-rows] duration-300 ease-out',
+          isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
         )}
-      </AnimatePresence>
+      >
+        <div className="overflow-hidden" hidden={!isOpen ? true : undefined}>
+          <div
+            className={clsx(
+              'border-t text-sm leading-relaxed md:text-[0.95rem]',
+              premium
+                ? 'border-gold-200/40 bg-slate-50/80 px-5 py-4 text-slate-600 md:px-6 md:py-5'
+                : 'border-gray-200 bg-gray-50 px-6 py-4 text-gray-700'
+            )}
+          >
+            {item.content}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

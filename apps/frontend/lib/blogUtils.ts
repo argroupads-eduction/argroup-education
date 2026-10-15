@@ -30,7 +30,7 @@ export const BLOG_REMOVED_PUBLIC_SLUGS = new Set([
 export const BLOG_SLUG_CANONICAL: Record<string, string> = {
   'neet-re-exam-2026-vs-original-exam':
     'neet-re-exam-2026-vs-original-exam-which-is-tougher',
-  'top-medical-colleges-india': 'top-medical-colleges-in-india',
+  'top-medical-colleges-india': 'top-medical-colleges-in-india-2026',
   // Blog CMS slug is `mbbs-in-russia` (page hub is `/mbbs-in-russia`, blog is `/blog/mbbs-in-russia`).
   'how-much-neet-score-is-required-for-mbbs-in-russia-complete-guide-2026':
     'mbbs-in-russia',
@@ -50,6 +50,13 @@ export const BLOG_SLUG_CANONICAL: Record<string, string> = {
   '400-marks-in-neet-rank': '400-marks-in-neet-2026',
   'score-is-needed-in-neet': 'score-needed-in-neet-2026',
   'neet-paper-analysis': 'neet-2026-paper-analysis',
+  'top-medical-colleges-in-india': 'top-medical-colleges-in-india-2026',
+  'neet-ug-2026-result-cutoff': 'neet-ug-2026-result-and-cutoff',
+  'semi-government-medical-colleges-in-up': 'semi-government-medical-colleges-up',
+  'deemed-medical-colleges-in-haryana': 'deemed-mbbs-colleges-in-haryana',
+  'deemed-medical-colleges-in-mp': 'deemed-mbbs-colleges-in-mp',
+  'neet-marks-required-for-maulana-azad-medical-college': 'maulana-azad-medical-college',
+  'how-much-neet-score-is-required-for-kasturba-medical-college': 'kasturba-medical-college',
   // Space / legacy variants still seen in Search Console / sitemap
   'study mbbs in india': 'study-mbbs-in-india',
 };

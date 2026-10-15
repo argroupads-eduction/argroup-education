@@ -24,9 +24,9 @@ export const MBBS_ABROAD_SCROLL_COUNTRIES: MbbsAbroadScrollCountry[] = [
   {
     name: 'Russia',
     slug: 'russia',
-    tagline: 'WHO-listed universities · English & bilingual programs',
+    tagline: 'English & bilingual programs',
     description:
-      'Study at established Russian medical universities with affordable tuition, modern labs, and pathways recognised for FMGE/NExT preparation.',
+      'Study at Russian medical universities with English and bilingual programs. Check NMC eligibility rules and each university’s fees before applying.',
     gradient: 'from-[#1e3a5f] via-[#2563eb] to-[#0f172a]',
     accent: '#60a5fa',
     imageSrc: '/mbbs-abroad-scroll/russia.webp',

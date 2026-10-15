@@ -1,5 +1,4 @@
 @import './ui-buttons.css';
-@import './youtube-channel-section.css';
 
 @tailwind base;
 @tailwind components;
@@ -10,12 +9,18 @@
     --font-site: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
-  * {
-    @apply scroll-smooth;
+  html {
+    /* Instant scroll keeps tap response under the INP “good” line on long pages. */
+    scroll-behavior: auto;
   }
 
-  html {
-    scroll-behavior: smooth;
+  /* Phone hero is a tall crop of a wide banner — zoom onto the student so the sky is not a blue band. */
+  @media (max-width: 767px) {
+    .home-hero-photo {
+      object-position: 22% 40%;
+      transform: scale(1.34);
+      transform-origin: 24% 34%;
+    }
   }
 
   body {
