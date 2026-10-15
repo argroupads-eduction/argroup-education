@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { CONTACT_INFO } from '@/lib/constants';
 import { HOME_PAGE_FAQS } from '@/lib/homePageSeoContent';
 import { Accordion } from '@/components/ui/Accordion';
@@ -9,21 +8,7 @@ export const FAQSection = () => {
   const accordionItems = HOME_PAGE_FAQS.map((faq) => ({
     id: faq.id,
     title: faq.question,
-    content:
-      'linkHref' in faq && faq.linkHref && faq.linkLabel ? (
-        <>
-          {'linkLeadIn' in faq && faq.linkLeadIn ? `${faq.linkLeadIn} ` : null}
-          <Link
-            href={faq.linkHref}
-            className="font-semibold text-navy-800 underline decoration-navy-800/40 underline-offset-2 hover:text-navy-900"
-          >
-            {faq.linkLabel}
-          </Link>{' '}
-          {faq.answer}
-        </>
-      ) : (
-        faq.answer
-      ),
+    content: faq.answer,
   }));
 
   return (
