@@ -76,6 +76,12 @@ function needsImageInject(src: string): boolean {
   return false;
 }
 
+/** Year-folder CMS uploads 404 on Hostinger (only public/wp-content/uploads/colleges is deployed). */
+function isStaleCmsUpload(src: string): boolean {
+  if (!src || /\/uploads\/colleges\//i.test(src)) return false;
+  return /\/wp-content\/uploads\/|\/api\/wp-media\/uploads\//i.test(src);
+}
+
 function slugFromPlainTitle(title: string): string | null {
   const key = title
     .toLowerCase()
@@ -132,7 +138,8 @@ export function injectCollegeCardImagesInHtml(html: string, pageSlug?: string | 
       if (!image) return card;
 
       return card.replace(/<img\b([^>]*?)>/i, (match, imgRest) => {
-        if (!needsImageInject(currentSrc(match))) return match;
+        const src = currentSrc(match);
+        if (!needsImageInject(src) && !isStaleCmsUpload(src)) return match;
         if (!/\ssrc=/i.test(match)) return `<img src="${image}"${cleanImgAttrs(imgRest)}>`;
         return match.replace(/\ssrc=["'][^"']*["']/i, ` src="${image}"`).replace(/\ssrcset=["'][^"']*["']/gi, '');
       });
@@ -142,7 +149,8 @@ export function injectCollegeCardImagesInHtml(html: string, pageSlug?: string | 
       /(<a href=["']([^"']+)["'][^>]*>\s*<div class="image-box-header[^"]*">\s*)<img([^>]*?)>/gi,
       (match, prefix, href, imgRest) => {
         const fullImg = `<img${imgRest}>`;
-        if (!needsImageInject(currentSrc(fullImg))) return match;
+        const src = currentSrc(fullImg);
+        if (!needsImageInject(src) && !isStaleCmsUpload(src)) return match;
         const slug = slugFromHref(href);
         const image = imageForCollegeCard(slug);
         if (!image) return match;
