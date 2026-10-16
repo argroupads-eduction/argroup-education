@@ -1,5 +1,20 @@
 const WP_MEDIA_HOST = /^(?:https?:)?\/\/(?:www\.)?argroupofeducation\.com/i;
 
+/** Image uploaded on the live WordPress CMS, not a local college pack. */
+export function isLiveCmsMediaUrl(url: string | null | undefined): boolean {
+  if (!url?.trim()) return false;
+  try {
+    const host = new URL(url.trim()).hostname.replace(/^www\./i, '').toLowerCase();
+    return host === 'cms.argroupofeducation.com';
+  } catch {
+    return false;
+  }
+}
+
+export function liveCmsMediaUrl(url: string): string {
+  return url.trim().replace(/^http:\/\//i, 'https://');
+}
+
 /**
  * Amplify omits most of public/wp-content. Prefer bundled colleges + /images + /mbbs-* heroes.
  * Do NOT hotlink Hostinger Node (returns HTML for /wp-content). Keep same-origin paths so

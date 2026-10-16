@@ -25,9 +25,12 @@ async function wpFetchWithMeta(
   tags: string[]
 ): Promise<{ json: unknown; totalPages: number } | null> {
   try {
+    const dev = process.env.NODE_ENV === 'development';
     const res = await fetch(`${WP_BASE}/wp-json/wp/v2/${pathAndQuery}`, {
-      next: { revalidate: REVALIDATE_SECONDS, tags },
       signal: AbortSignal.timeout(8000),
+      ...(dev
+        ? { cache: 'no-store' as const }
+        : { next: { revalidate: REVALIDATE_SECONDS, tags } }),
     });
     if (!res.ok) return null;
     const totalPages = parseInt(res.headers.get('x-wp-totalpages') || '1', 10) || 1;

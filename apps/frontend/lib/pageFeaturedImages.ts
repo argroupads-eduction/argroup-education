@@ -1,3 +1,5 @@
+import { isLiveCmsMediaUrl, liveCmsMediaUrl } from '@/lib/wpMediaUrl';
+
 /**
  * Bundled page hero images for Amplify (public/wp-content is mostly excluded from deploy).
  * Keys are SitePage / route slugs.
@@ -26,6 +28,7 @@ export function resolvePageFeaturedImage(
 
   const trimmed = fallback?.trim();
   if (!trimmed) return null;
+  if (isLiveCmsMediaUrl(trimmed)) return liveCmsMediaUrl(trimmed);
   if (trimmed.startsWith('/images/')) return trimmed;
   // College packs are present on Amplify; other /wp-content paths usually 404.
   if (/^\/wp-content\/uploads\/colleges\//i.test(trimmed)) return trimmed;

@@ -1,4 +1,5 @@
 import { MBBS_INDIA_STATES } from '@/lib/mbbsIndiaTree';
+import { isLiveCmsMediaUrl, liveCmsMediaUrl } from '@/lib/wpMediaUrl';
 
 /** Local state landmark heroes — full image visible, no crop (see public/states/). */
 export const MBBS_INDIA_STATE_FEATURED_IMAGES: Record<string, string> = {
@@ -32,6 +33,8 @@ export function resolveMbbsIndiaFeaturedImage(
   fallback: string | null | undefined,
   collegeFallback?: string | null
 ): string | null {
+  if (isLiveCmsMediaUrl(fallback)) return liveCmsMediaUrl(fallback!);
+
   const curated = getMbbsIndiaStateFeaturedImage(wpSlug);
   if (curated) return curated;
 
@@ -89,6 +92,7 @@ function isCollegeThumbSrc(src: string): boolean {
 
 function isReplaceableStateContentImage(attrs: string, src: string): boolean {
   if (!src || src.startsWith('/states/')) return false;
+  if (isLiveCmsMediaUrl(src)) return false;
   if (/\.svg(\?|$)/i.test(src)) return false;
   if (/icon|logo|emoji|avatar/i.test(src)) return false;
   if (isCollegeThumbSrc(src)) return false;

@@ -8,10 +8,13 @@ import { getPageContentBySlug } from '@/lib/contentApi';
 import { getMdMsNavItemById, MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
+import { isLiveCmsMediaUrl, liveCmsMediaUrl } from '@/lib/wpMediaUrl';
 
 type PageProps = {
   params: Promise<{ slug: string[] }>;
 };
+
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -56,9 +59,9 @@ export default async function MdMsStatePage({ params }: PageProps) {
     { label: 'MD / MS', href: '/md-ms' },
     { label: item.label.replace('MD/MS in ', '') },
   ];
-  // Prefer curated coverImage — CMS featuredImage alone often rewrites to a
-  // missing relative /wp-content path and shows a broken hero.
-  const featuredImage = item.coverImage || wpContent?.featuredImage || null;
+  const featuredImage = isLiveCmsMediaUrl(wpContent?.featuredImage)
+    ? liveCmsMediaUrl(wpContent!.featuredImage!)
+    : item.coverImage || wpContent?.featuredImage || null;
 
   return (
     <>

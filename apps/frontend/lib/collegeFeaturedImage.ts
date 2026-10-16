@@ -1,7 +1,7 @@
 import { resolveCollegeImageUrl } from '@/lib/collegeImageIndex';
 import { findCollegeProgramEntry } from '@/lib/collegeProgramLookup';
 import { resolvePageFeaturedImage } from '@/lib/pageFeaturedImages';
-import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
+import { isLiveCmsMediaUrl, liveCmsMediaUrl, resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 
 const LOCAL_COLLEGE_IMAGE = /^\/wp-content\/uploads\/colleges\//;
 
@@ -11,11 +11,13 @@ export function findCollegeInProgramTrees(slug: string): { image?: string | null
   return { image: entry.image, name: entry.name };
 }
 
-/** Prefer bundled college images from program tree; fall back to CMS featured image. */
+/** Live WordPress featured image wins. Local college packs are only a fallback. */
 export function resolveCollegeFeaturedImage(
   slug: string,
   cmsFeaturedImage: string | null | undefined
 ): string | null {
+  if (isLiveCmsMediaUrl(cmsFeaturedImage)) return liveCmsMediaUrl(cmsFeaturedImage!);
+
   const pageCurated = resolvePageFeaturedImage(slug, cmsFeaturedImage);
   if (pageCurated?.startsWith('/images/')) return pageCurated;
 

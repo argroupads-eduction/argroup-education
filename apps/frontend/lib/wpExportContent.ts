@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { BlogListItem, SiteContent } from '@/lib/contentApi';
 import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
@@ -42,7 +42,7 @@ function wpExportDirs(): string[] {
 async function resolveWpExportDir(): Promise<string | null> {
   for (const dir of wpExportDirs()) {
     try {
-      await readFile(path.join(dir, 'pages.json'));
+      await access(path.join(dir, 'pages.json'));
       return dir;
     } catch {
       /* try next */

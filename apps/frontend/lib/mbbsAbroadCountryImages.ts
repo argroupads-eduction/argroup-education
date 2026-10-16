@@ -1,4 +1,5 @@
 import { MBBS_ABROAD_SCROLL_COUNTRIES } from '@/lib/mbbsAbroadScrollCountries';
+import { isLiveCmsMediaUrl, liveCmsMediaUrl } from '@/lib/wpMediaUrl';
 import { MBBS_ABROAD_COUNTRIES } from '@/lib/mbbsAbroadTree';
 
 /** Home scroll section heroes — reused on country hub/detail pages. */
@@ -63,7 +64,9 @@ export function resolveMbbsAbroadFeaturedImage(
   fallback: string | null | undefined,
   collegeFallback?: string | null
 ): string | null {
-  // Always prefer bundled Amplify-safe heroes over WP/Hostinger URLs (hotlink → HTML).
+  if (isLiveCmsMediaUrl(fallback)) return liveCmsMediaUrl(fallback!);
+
+  // Bundled heroes stay when WordPress has no featured image.
   const curated = getMbbsAbroadCountryFeaturedImage(wpSlug);
   if (curated) return curated;
 
@@ -115,6 +118,7 @@ function isCollegeThumbSrc(src: string): boolean {
 
 function isReplaceableCountryContentImage(attrs: string, src: string): boolean {
   if (!src || src.startsWith('/mbbs-')) return false;
+  if (isLiveCmsMediaUrl(src)) return false;
   if (/\.svg(\?|$)/i.test(src)) return false;
   if (/icon|logo|emoji|avatar/i.test(src)) return false;
   if (isCollegeThumbSrc(src)) return false;

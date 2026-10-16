@@ -11,7 +11,7 @@ import { plainTextFromHtml } from '@/lib/decodeHtmlEntities';
 import { applyMarketingPageSeo } from '@/lib/marketingPageSeo';
 import { resolveBlogFeaturedImage, resolveBlogPublishedAt } from '@/lib/blogFeaturedImages';
 import { resolvePageFeaturedImage } from '@/lib/pageFeaturedImages';
-import { resolveWpMediaUrl } from '@/lib/wpMediaUrl';
+import { isLiveCmsMediaUrl, liveCmsMediaUrl, resolveWpMediaUrl } from '@/lib/wpMediaUrl';
 import { extractFirstContentImage } from '@/lib/wpHtmlPrepare';
 import { readPayloadCms } from '@/lib/payloadCmsRead';
 import { getApiBaseUrl } from '@/lib/apiBase';
@@ -66,7 +66,8 @@ function normalizeContent(doc: SiteContent): SiteContent {
   const fallbackImg = wpResolved ?? (fromContent ? resolveWpMediaUrl(fromContent) : null);
   const featuredImage =
     doc.type === 'page'
-      ? resolvePageFeaturedImage(doc.slug, fallbackImg) ??
+      ? (isLiveCmsMediaUrl(doc.featuredImage) ? liveCmsMediaUrl(doc.featuredImage!) : null) ??
+        resolvePageFeaturedImage(doc.slug, fallbackImg) ??
         (fallbackImg?.startsWith('/images/') ||
         fallbackImg?.includes('blob.vercel-storage.com') ||
         /^\/wp-content\/uploads\/colleges\//i.test(fallbackImg || '')
@@ -767,8 +768,8 @@ async function fetchSyncedContentBySlug(
 async function fetchPublishedWpPage(slug: string): Promise<SiteContent | null> {
   try {
     const { getWpPageBySlug } = await import('@/lib/wpApi');
-    const page = await withServerTimeout(getWpPageBySlug(slug), 8000, null);
-    if (!page?.content) return null;
+    const page = await withServerTimeout(getWpPageBySlug(slug), 5000, null);
+    if (!page?.title && !page?.content) return null;
     return normalizeContent({
       id: page.id,
       type: 'page',
@@ -806,6 +807,11 @@ export const getContentBySlug = cache(async function getContentBySlug(
     return null;
   }
 
+  // Published WordPress page wins over the static export, so CMS edits and new
+  // pages show without a rebuild. The bundle is only a backup if WordPress is down.
+  const fromWp = await fetchPublishedWpPage(slug);
+  if (fromWp && hasRenderableBody(fromWp)) return fromWp;
+
   const bundled = await loadBundledContent(slug);
   const synthetic = Boolean(bundled?.id?.startsWith('fallback-'));
 
@@ -826,11 +832,6 @@ export const getContentBySlug = cache(async function getContentBySlug(
     return mergeSiteContent(bundled, synced);
   }
 
-  const fromWp = await fetchPublishedWpPage(slug);
-  if (fromWp && hasRenderableBody(fromWp)) {
-    return synthetic ? fromWp : mergeSiteContent(bundled, fromWp);
-  }
-
   return bundled;
 });
 
@@ -843,6 +844,9 @@ export const getPageContentBySlug = cache(async function getPageContentBySlug(
   if (BLOG_REMOVED_PUBLIC_SLUGS.has(slug)) {
     return null;
   }
+
+  const fromWp = await fetchPublishedWpPage(slug);
+  if (fromWp && hasRenderableBody(fromWp)) return fromWp;
 
   const { getWpExportPageBySlug } = await import('@/lib/wpExportContent');
   const bundledRaw = await getWpExportPageBySlug(slug);

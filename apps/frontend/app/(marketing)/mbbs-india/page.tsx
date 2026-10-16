@@ -5,7 +5,7 @@ import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
 import { resolveMbbsIndiaFeaturedImage } from '@/lib/mbbsIndiaStateImages';
 import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = PROGRAM_HUB_SEO.india;

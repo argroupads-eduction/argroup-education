@@ -29,6 +29,26 @@ export function FitImage({
 }: FitImageProps) {
   const resolvedSrc = resolveWpMediaUrl(src) ?? src;
   const isCover = fit === 'cover';
+  const isRemote = /^https?:\/\//i.test(resolvedSrc);
+
+  if (isRemote) {
+    return (
+      <div
+        className={`fit-image-frame ${isCover ? 'fit-image-frame--cover' : ''} ${frameClassName}`.trim()}
+        style={maxHeight ? { maxHeight } : undefined}
+      >
+        {/* CMS uploads stay on cms.argroupofeducation.com — a plain img avoids the image optimizer allow-list. */}
+        <img
+          src={resolvedSrc}
+          alt={alt}
+          className={`fit-image-frame__img ${isCover ? 'fit-image-frame__img--cover' : ''} ${className}`.trim()}
+          decoding="async"
+          fetchPriority={priority ? 'high' : 'auto'}
+          onError={onError}
+        />
+      </div>
+    );
+  }
 
   return (
     <div

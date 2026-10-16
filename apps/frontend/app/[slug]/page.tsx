@@ -33,8 +33,8 @@ const LEGACY_HUB_SLUG_REDIRECTS: Record<string, string> = {
   'mbbs-in-abroad': PROGRAM_HUB_SEO.abroad.path,
 };
 
-/** Cache published pages; bust on Payload sync via /api/revalidate */
-export const revalidate = 300;
+/** Published WordPress pages refresh about once a minute. */
+export const revalidate = 60;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
