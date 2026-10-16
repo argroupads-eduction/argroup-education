@@ -1134,66 +1134,23 @@ function normalizeFaqQuestionKey(question: string): string {
     .trim();
 }
 
-function faqQuestionTokens(question: string): Set<string> {
-  const stop =
-    /^(?:the|a|an|in|for|of|to|is|are|does|do|did|what|how|much|many|from|can|i|we|you|our|your|it)$/;
-  return new Set(
-    normalizeFaqQuestionKey(question)
-      .split(' ')
-      .filter((t) => t && !stop.test(t))
-  );
-}
-
-function faqQuestionTokenOverlap(a: string, b: string): number {
-  const ta = faqQuestionTokens(a);
-  const tb = faqQuestionTokens(b);
-  if (!ta.size || !tb.size) return 0;
-  let inter = 0;
-  for (const t of ta) if (tb.has(t)) inter += 1;
-  return inter / Math.max(ta.size, tb.size);
-}
-
-/** True when both ask about MBBS tuition/fees (not living cost / country comparisons). */
-function isMbbsTuitionCostQuestion(question: string): boolean {
-  const q = normalizeFaqQuestionKey(question);
-  if (/\bliving\b/.test(q)) return false;
-  if (/\b(?:country|countries)\b/.test(q)) return false;
-  return (
-    /\bmbbs\b/.test(q) &&
-    /\b(?:cost|costs|fee|fees|money|tuition|expensive|cheap|cheapest|price|budget)\b/.test(q)
-  );
-}
-
 function isDuplicateFaqQuestion(a: string, b: string): boolean {
   const ka = normalizeFaqQuestionKey(a);
   const kb = normalizeFaqQuestionKey(b);
   if (!ka || !kb) return false;
   if (ka === kb) return true;
 
-  // "…safe…?" vs "…safe… now?"
+  // Same question with a tiny tail ("now", "today") only.
+  // "…qualifying marks?" and "…qualifying marks for OBC candidates?" are different.
   if (ka.includes(kb) || kb.includes(ka)) {
-    const shorter = Math.min(ka.length, kb.length);
-    const longer = Math.max(ka.length, kb.length);
-    if (shorter / longer >= 0.78) return true;
+    const extra = Math.abs(ka.length - kb.length);
+    if (extra > 0 && extra <= 8) return true;
   }
 
-  // "Is Russia good for MBBS?" vs "…for Indian students?"
-  const ta = faqQuestionTokens(a);
-  const tb = faqQuestionTokens(b);
-  const [smaller, larger] = ta.size <= tb.size ? [ta, tb] : [tb, ta];
-  if (smaller.size >= 3) {
-    let hit = 0;
-    for (const t of smaller) if (larger.has(t)) hit += 1;
-    if (hit / smaller.size >= 0.9 && smaller.size / larger.size >= 0.5) return true;
-  }
-
-  // Repeated tuition/fee phrasings ("how much cost" / "fees" / "money required")
-  if (isMbbsTuitionCostQuestion(a) && isMbbsTuitionCostQuestion(b)) return true;
-
-  return faqQuestionTokenOverlap(a, b) >= 0.88;
+  return false;
 }
 
-/** Drop near-duplicate questions (e.g. cost / safety variants); keep longer answer. */
+/** Drop the same question if a page repeats it; keep the longer answer. */
 function dedupeFaqItems(items: FaqItem[]): FaqItem[] {
   const kept: FaqItem[] = [];
   for (const item of items) {
@@ -1208,7 +1165,7 @@ function dedupeFaqItems(items: FaqItem[]): FaqItem[] {
     }
     const existing = kept[dupIdx];
     if (stripHtml(item.answer).length > stripHtml(existing.answer).length) {
-      kept[dupIdx] = { ...item, question: q, num: existing.num };
+      kept[dupIdx] = { ...existing, answer: item.answer };
     }
   }
   return kept.map((item, i) => ({ ...item, num: String(i + 1) }));
@@ -1366,20 +1323,42 @@ function isAnswerParagraph(inner: string): boolean {
   return text.length > 0;
 }
 
-function parseNumberedQuestionParagraph(inner: string): { num: string; question: string } | null {
-  const text = stripHtml(inner);
-  const m = text.match(/^(\d+)\.\s+(.+)$/);
+function looksLikeFaqQuestionText(question: string): boolean {
+  return (
+    /\?/.test(question) ||
+    /^(?:what|how|why|when|where|who|which|is|are|do|does|did|can|could|will|would|should|has|have|may|if|was|were)\b/i.test(
+      question
+    )
+  );
+}
+
+/**
+ * Numbered FAQ line ("1. What is …?").
+ * Answers that open with a figure ("720. NEET PG…") are not questions.
+ * expectedNum keeps plain labels ("1. MBBS fees in Russia") when they follow the count.
+ */
+function parseNumberedQuestionParagraph(
+  inner: string,
+  expectedNum?: number
+): { num: string; question: string } | null {
+  const text = stripHtml(inner).replace(/\s+/g, ' ').trim();
+  const m = text.match(/^(\d{1,2})\.\s+(\S.*)$/);
   if (!m) return null;
+  const num = Number(m[1]);
+  if (!Number.isFinite(num) || num < 1 || num > 40) return null;
   const question = m[2].trim();
   if (question.length < 3) return null;
-  return { num: m[1], question };
+  if (looksLikeFaqQuestionText(question)) return { num: m[1], question };
+  if (expectedNum != null && num === expectedNum) return { num: m[1], question };
+  return null;
 }
 
 function parseNumberedFaqItemsFromLines(lines: string[]): FaqItem[] {
   const items: FaqItem[] = [];
   let i = 0;
   while (i < lines.length) {
-    const q = parseNumberedQuestionParagraph(lines[i]);
+    const expected = items.length + 1;
+    const q = parseNumberedQuestionParagraph(lines[i], expected);
     if (!q) {
       i += 1;
       continue;
@@ -1388,7 +1367,12 @@ function parseNumberedFaqItemsFromLines(lines: string[]): FaqItem[] {
     const answerParts: string[] = [];
     let j = i + 1;
     while (j < lines.length) {
-      if (parseNumberedQuestionParagraph(lines[j]) || parseQuestionParagraph(lines[j])) break;
+      if (
+        parseNumberedQuestionParagraph(lines[j], expected + 1) ||
+        parseQuestionParagraph(lines[j])
+      ) {
+        break;
+      }
       const text = stripHtml(lines[j]);
       if (!text) {
         j += 1;
@@ -1531,7 +1515,12 @@ function parseFaqItemsFromHtml(block: string): FaqItem[] {
     let answer: string | null = null;
     let j = i + 1;
     while (j < lines.length) {
-      if (parseQuestionParagraph(lines[j]) || parseNumberedQuestionParagraph(lines[j])) break;
+      if (
+        parseQuestionParagraph(lines[j]) ||
+        parseNumberedQuestionParagraph(lines[j], items.length + 2)
+      ) {
+        break;
+      }
       if (isAnswerParagraph(lines[j])) {
         answer = cleanAnswerHtml(lines[j]);
         i = j + 1;
