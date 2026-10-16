@@ -1,19 +1,28 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { getWpPostBySlug, getWpLatestPosts } from '@/lib/wpApi';
+import { blogSlugLookupCandidates, canonicalBlogSlug } from '@/lib/blogUtils';
 import {
   getBlogPostBySlug as loadDbPostBySlug,
   getLatestBlogSidebar as loadDbSidebar,
 } from '@backend/handlers/blogs';
 
 // WordPress-first. WordPress mein post na mile (ya WordPress down ho) to purana DB handler.
+// Renamed public slugs still resolve the original WordPress post.
 const cachedPostBySlug = unstable_cache(
   async (slug: string) => {
-    const wp = await getWpPostBySlug(slug);
-    if (wp) return wp;
-    return loadDbPostBySlug(slug);
+    const publicSlug = canonicalBlogSlug(slug);
+    for (const candidate of blogSlugLookupCandidates(slug)) {
+      const wp = await getWpPostBySlug(candidate);
+      if (wp) return { ...wp, slug: publicSlug };
+    }
+    for (const candidate of blogSlugLookupCandidates(slug)) {
+      const db = await loadDbPostBySlug(candidate);
+      if (db) return { ...db, slug: publicSlug };
+    }
+    return null;
   },
-  ['blog-post-by-slug-v7-wp-first'],
+  ['blog-post-by-slug-v8-legacy-alias'],
   { revalidate: 60, tags: ['blog-posts', 'blog-post'] }
 );
 

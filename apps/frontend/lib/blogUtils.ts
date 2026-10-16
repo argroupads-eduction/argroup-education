@@ -393,6 +393,25 @@ export function readingTimeMinutes(html: string): number {
   return Math.max(1, Math.ceil(words / 200));
 }
 
+/** SEO slug the public site should use. Old WordPress slugs stay as aliases. */
+export function canonicalBlogSlug(slug: string): string {
+  return BLOG_SLUG_CANONICAL[slug] ?? slug;
+}
+
+/**
+ * WordPress still stores some posts under the old slug. Look up the public slug
+ * first, then every legacy alias, so a renamed URL does not 404.
+ */
+export function blogSlugLookupCandidates(slug: string): string[] {
+  const canonical = canonicalBlogSlug(slug);
+  const candidates = [canonical];
+  for (const [legacy, target] of Object.entries(BLOG_SLUG_CANONICAL)) {
+    if (target === canonical) candidates.push(legacy);
+  }
+  if (!candidates.includes(slug)) candidates.push(slug);
+  return [...new Set(candidates)];
+}
+
 /** Public URL for a blog post (supports nested WP slugs like `neet/doctor`). */
 export function blogPostPath(slug: string): string {
   const parts = slug.split('/').filter(Boolean).map((s) => encodeURIComponent(s));

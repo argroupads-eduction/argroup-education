@@ -2,7 +2,13 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getBlogIndexListing } from '@backend/handlers/blogs';
 import { BlogIndexLayout } from '@/components/blog/BlogIndexLayout';
-import { BLOG_EXCLUDED_LIST_SLUGS, dedupeBlogPosts, sortBlogPostsByNewest } from '@/lib/blogUtils';
+import {
+  BLOG_EXCLUDED_LIST_SLUGS,
+  BLOG_SLUG_CANONICAL,
+  canonicalBlogSlug,
+  dedupeBlogPosts,
+  sortBlogPostsByNewest,
+} from '@/lib/blogUtils';
 import { getWpBlogCatalog } from '@/lib/wpApi';
 import { resolveBlogFeaturedImage } from '@/lib/blogFeaturedImages';
 
@@ -60,9 +66,25 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   type ListItem = NonNullable<typeof wpRaw>[number];
   const bySlug = new Map<string, ListItem>();
-  for (const p of dbListing?.catalog ?? []) bySlug.set(p.slug, p as ListItem);
-  for (const p of wpRaw ?? []) {
+  for (const p of dbListing?.catalog ?? []) {
+    const slug = canonicalBlogSlug(p.slug);
+    if (excluded.has(slug)) continue;
+    if (!bySlug.has(slug)) bySlug.set(slug, { ...p, slug } as ListItem);
+  }
+  const wpItems = wpRaw ?? [];
+  // Real WordPress slug wins. A renamed post that still uses the old slug fills the new URL.
+  for (const p of wpItems) {
+    if (p.slug in BLOG_SLUG_CANONICAL) continue;
     bySlug.set(p.slug, { ...p, featuredImage: resolveBlogFeaturedImage(p.slug, p.featuredImage) });
+  }
+  for (const p of wpItems) {
+    const slug = BLOG_SLUG_CANONICAL[p.slug];
+    if (!slug || excluded.has(slug) || bySlug.has(slug)) continue;
+    bySlug.set(slug, {
+      ...p,
+      slug,
+      featuredImage: resolveBlogFeaturedImage(slug, p.featuredImage),
+    });
   }
 
   const merged = Array.from(bySlug.values()).filter((p) => !excluded.has(p.slug));
