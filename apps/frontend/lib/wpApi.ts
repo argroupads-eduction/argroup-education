@@ -124,6 +124,22 @@ export async function getWpPostBySlug(slug: string) {
   return wpPostToDetail(json[0] as WpPost);
 }
 
+/** Published WordPress page, so a new CMS page can render before the next full export. */
+export async function getWpPageBySlug(slug: string) {
+  const json = await wpFetch(
+    `pages?slug=${encodeURIComponent(slug)}&status=publish&${EMBED}`,
+    ['wp-pages', 'wp-page']
+  );
+  if (!Array.isArray(json) || json.length === 0) return null;
+  const detail = wpPostToDetail(json[0] as WpPost);
+  return {
+    ...detail,
+    type: 'page' as const,
+    publishedAt: detail.publishedAt.toISOString(),
+    updatedAt: detail.updatedAt.toISOString(),
+  };
+}
+
 export async function getWpLatestPosts(limit = 8) {
   const json = await wpFetch(
     `posts?per_page=${Math.min(50, Math.max(1, limit))}&orderby=date&order=desc&status=publish&${EMBED}`,

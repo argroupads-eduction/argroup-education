@@ -764,6 +764,32 @@ async function fetchSyncedContentBySlug(
   return null;
 }
 
+async function fetchPublishedWpPage(slug: string): Promise<SiteContent | null> {
+  try {
+    const { getWpPageBySlug } = await import('@/lib/wpApi');
+    const page = await withServerTimeout(getWpPageBySlug(slug), 8000, null);
+    if (!page?.content) return null;
+    return normalizeContent({
+      id: page.id,
+      type: 'page',
+      title: page.title,
+      slug: page.slug,
+      content: page.content,
+      excerpt: page.excerpt,
+      featuredImage: page.featuredImage,
+      metaTitle: page.metaTitle,
+      metaDescription: page.metaDescription,
+      canonicalUrl: page.canonicalUrl,
+      keywords: page.keywords,
+      schemaJson: page.schemaJson,
+      publishedAt: page.publishedAt,
+      updatedAt: page.updatedAt,
+    });
+  } catch {
+    return null;
+  }
+}
+
 function hasRenderableBody(doc: SiteContent | null): boolean {
   if (!doc) return false;
   const text = (doc.content || '')
@@ -798,6 +824,11 @@ export const getContentBySlug = cache(async function getContentBySlug(
   if (synced && hasRenderableBody(synced)) {
     if (synthetic) return synced;
     return mergeSiteContent(bundled, synced);
+  }
+
+  const fromWp = await fetchPublishedWpPage(slug);
+  if (fromWp && hasRenderableBody(fromWp)) {
+    return synthetic ? fromWp : mergeSiteContent(bundled, fromWp);
   }
 
   return bundled;
