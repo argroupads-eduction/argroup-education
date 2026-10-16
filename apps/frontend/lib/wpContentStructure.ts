@@ -293,9 +293,28 @@ function tagEaelDataTable(table: string): string {
   return tagTableStructure(table);
 }
 
+function withScrollClass(attrs: string): string {
+  if (/\bwp-table-scroll\b/.test(attrs)) return attrs;
+  if (/class\s*=\s*"/i.test(attrs)) {
+    return attrs.replace(/class\s*=\s*"/i, 'class="wp-table-scroll ');
+  }
+  if (/class\s*=\s*'/i.test(attrs)) {
+    return attrs.replace(/class\s*=\s*'/i, "class='wp-table-scroll ");
+  }
+  return `${attrs} class="wp-table-scroll"`;
+}
+
 /** Wrap tables for aligned layout + horizontal scroll on mobile (content unchanged). */
 export function wrapContentTables(html: string): string {
-  const withEaelMerged = html.replace(
+  const withFigureScroll = html.replace(
+    /<(figure|div)\b([^>]*\b(?:wp-block-table|eael-data-table-wrap)\b[^>]*)>/gi,
+    (full, tag: string, attrs: string) => {
+      if (/\bwp-table-scroll\b/.test(attrs)) return full;
+      return `<${tag}${withScrollClass(attrs)}>`;
+    },
+  );
+
+  const withEaelMerged = withFigureScroll.replace(
     /<div\b([^>]*\beael-data-table-wrap\b[^>]*)>\s*(<table\b[\s\S]*?<\/table>)\s*<\/div>/gi,
     (_match, attrs: string, table: string) => {
       const tagged = tagEaelDataTable(table);
@@ -314,7 +333,7 @@ export function wrapContentTables(html: string): string {
 
   const withBareTables = withEaelMerged.replace(/<table\b[\s\S]*?<\/table>/gi, (table, offset, source) => {
     const tagged = tagTableStructure(table);
-    const before = source.slice(Math.max(0, offset - 180), offset);
+    const before = source.slice(Math.max(0, offset - 400), offset);
     if (/\b(?:wp-table-scroll|table-wrapper|eael-data-table-wrap)\b[^>]*>\s*$/i.test(before)) {
       return tagged;
     }

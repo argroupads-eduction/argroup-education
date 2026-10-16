@@ -4830,4 +4830,62 @@ html:has(.wp-content-affinity) {
   .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table > tbody > tr {
     display: table-row !important;
   }
+
+  /* Beat the old phone card/flex rules for both wrapper shapes. */
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table:not(.eael-data-table),
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-block-table > .wp-table-scroll.table-wrapper > table:not(.eael-data-table),
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table:not(.eael-data-table) {
+    display: table !important;
+    width: 100% !important;
+    max-width: none !important;
+    table-layout: auto !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table.wp-table-cols-2:not(.eael-data-table),
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-block-table > .wp-table-scroll.table-wrapper > table.wp-table-cols-2:not(.eael-data-table),
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-table-cols-2:not(.eael-data-table) {
+    min-width: 0 !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > thead,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-block-table > .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > thead,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > thead {
+    display: table-header-group !important;
+    width: auto !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > tbody,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-block-table > .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > tbody,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > tbody {
+    display: table-row-group !important;
+    width: auto !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > thead > tr,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > tbody > tr,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-block-table > .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > thead > tr,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-block-table > .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > tbody > tr,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > thead > tr,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > tbody > tr {
+    display: table-row !important;
+    width: auto !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > thead > tr > th,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > tbody > tr > td,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-block-table > .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > thead > tr > th,
+  .blog-post-root .blog-article.wp-content-root .wp-content-blog figure.wp-block-table > .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > tbody > tr > td,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > thead > tr > th,
+  .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table:not(.eael-data-table) > tbody > tr > td {
+    display: table-cell !important;
+    flex: none !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    white-space: normal !important;
+    text-align: left !important;
+    vertical-align: top !important;
+    margin: 0 !important;
+  }
 }
