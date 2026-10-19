@@ -355,6 +355,9 @@ const nextConfig = {
 
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
+    // Hostinger shared hosting kills the build (spawn EAGAIN) if Next forks
+    // several static-page workers. One worker stays under the process limit.
+    ...(process.env.HOSTINGER === '1' ? { cpus: 1 } : {}),
   },
 
   productionBrowserSourceMaps: false,
