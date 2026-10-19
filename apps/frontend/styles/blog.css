@@ -1328,3 +1328,52 @@
     max-width: none;
   }
 }
+
+/* Enquire / Explore / Expert / Get lines become one enquiry button. */
+.blog-article .wp-lead-cta-wrap {
+  margin: 1.15rem 0 1.6rem;
+}
+
+.blog-article .wp-lead-cta {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 3rem;
+  margin: 0;
+  padding: 0.85rem 1.35rem;
+  border: 0;
+  border-radius: 0.8rem;
+  background: linear-gradient(135deg, #f6b51a, #d4a012) !important;
+  color: #0c1f3f !important;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(212, 160, 18, 0.28);
+}
+
+.blog-article .wp-lead-cta:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #ffc53d, #e0ac1a) !important;
+  color: #0c1f3f !important;
+}
+
+.blog-article .wp-lead-cta:focus-visible {
+  outline: 3px solid rgba(12, 31, 63, 0.35);
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .blog-article .wp-lead-cta {
+    display: flex;
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.95rem 1rem;
+  }
+}

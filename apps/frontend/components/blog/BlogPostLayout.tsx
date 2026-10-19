@@ -6,6 +6,7 @@ import { parseContentStructure } from '@/lib/wpContentStructure';
 import { ContentTableOfContents } from '@/components/content/ContentTableOfContents';
 import { QuickFactsGrid } from '@/components/content/QuickFactsGrid';
 import { WpFaqEnhancer } from '@/components/content/WpFaqEnhancer';
+import { WpLeadCta } from '@/components/content/WpLeadCta';
 import { WpLazyReveal } from '@/components/content/WpLazyReveal';
 import { BlogImage } from './BlogImage';
 import { BlogPostStickySearch } from './BlogPostStickySearch';
@@ -28,6 +29,7 @@ export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLa
     title: content.title,
     pageSlug: content.slug,
     dedupeFeaturedInBody: false,
+    leadCtaButtons: true,
   });
   const { html: structuredHtml, headings, quickFacts } = parseContentStructure(prepared, {
     extractQuickFacts: false,
@@ -95,6 +97,7 @@ export function BlogPostLayout({ content, latestPosts, breadcrumbs }: BlogPostLa
         <article className="blog-article wp-content-root wp-content-affinity min-w-0">
           <WpLazyReveal />
           <WpFaqEnhancer />
+          <WpLeadCta />
           <ContentTableOfContents headings={headings} variant="mobile" />
 
           <QuickFactsGrid facts={quickFacts} />

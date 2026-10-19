@@ -36,11 +36,13 @@ export function sanitizeCmsHtml(html: string): string {
       'main',
       'details',
       'summary',
+      'button',
     ]),
     allowedAttributes: {
       ...sanitizeHtml.defaults.allowedAttributes,
       '*': ['class', 'id', 'title', 'role', 'aria-*', 'data-*'],
       a: ['href', 'name', 'target', 'rel', 'class', 'id', 'title'],
+      button: ['type', 'class', 'data-open-lead-capture'],
       img: ['src', 'alt', 'width', 'height', 'loading', 'decoding', 'class', 'srcset', 'sizes'],
       iframe: ['src', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen', 'title'],
       td: ['colspan', 'rowspan', 'width', 'height', 'data-label', 'class'],

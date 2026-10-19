@@ -811,6 +811,34 @@ export function enhanceContactIconLists(html: string): string {
   return html;
 }
 
+/**
+ * Short blog lines that start with Enquire / Explore / Expert / Get become one
+ * button. A trailing "Button" word is only a CMS marker and is not shown.
+ * Longer sentences stay as paragraphs.
+ */
+const BLOG_LEAD_CTA_START =
+  /^(?:enquir(?:e|y)|explor(?:e|ing)|expert|get)\b/i;
+
+export function transformBlogLeadCtaLines(html: string): string {
+  return html.replace(/<p\b([^>]*)>([\s\S]*?)<\/p>/gi, (full, attrs: string, inner: string) => {
+    if (/wp-premium-faq|wp-lead-cta|wp-address-highlight/i.test(`${attrs} ${inner}`)) return full;
+    const plain = stripHtml(inner).replace(/\s+/g, ' ').trim();
+    if (!plain || plain.length > 110 || /[?]/.test(plain)) return full;
+    const markedButton = /\bbutton\s*$/i.test(plain);
+    const label = plain.replace(/\s*button\s*$/i, '').replace(/[:.!\s]+$/g, '').trim();
+    if (!label || label.length < 8 || !BLOG_LEAD_CTA_START.test(label)) return full;
+    const words = label.split(/\s+/).length;
+    if (!markedButton && words > 12) return full;
+    if (!markedButton && /[.!]/.test(label)) return full;
+    return (
+      `<p class="wp-lead-cta-wrap">` +
+      `<button type="button" class="wp-lead-cta" data-open-lead-capture="1">` +
+      `${escapeHtml(label)}` +
+      `</button></p>`
+    );
+  });
+}
+
 /** WP Elementor buttons exported without href (popups) → live contact route. */
 export function wireCtaButtonsToContact(html: string): string {
   return html.replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (full, attrs, inner) => {
@@ -1957,6 +1985,8 @@ export function prepareWpHtml(
     pageSlug?: string | null;
     /** When false, keep body images that match the hero featured image (separate ProgramPageHero). */
     dedupeFeaturedInBody?: boolean;
+    /** Blog lines such as "Enquire … Button" open the enquiry popup. */
+    leadCtaButtons?: boolean;
   }
 ): string {
   let out = html.trim();
@@ -1997,6 +2027,7 @@ export function prepareWpHtml(
   out = replaceBrokenEmbeddedForms(out);
   out = constrainInlineSvgs(out);
   out = wireCtaButtonsToContact(out);
+  if (options?.leadCtaButtons) out = transformBlogLeadCtaLines(out);
   out = mergeCollegeCardGridSections(out);
   out = markEditorialSplitContainers(out);
   out = markCollapsedSpacerSplits(out);
