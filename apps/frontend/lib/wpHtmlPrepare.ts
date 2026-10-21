@@ -812,6 +812,149 @@ export function enhanceContactIconLists(html: string): string {
 }
 
 /**
+ * Many older WordPress blogs are one giant <p> with <br> between sections.
+ * Promote short title-like lines to h2 and wrap the rest in <p>.
+ */
+function isBrSeparatedHeadingLine(plain: string): boolean {
+  const text = plain.replace(/\s+/g, ' ').trim();
+  if (text.length < 4 || text.length > 110) return false;
+
+  if (
+    /^(?:faqs?:?|frequently\s+asked\s+questions|conclusion|final\s+thoughts|introduction|summary)$/i.test(
+      text
+    )
+  ) {
+    return true;
+  }
+
+  // Table leftovers / single cells from pasted fee tables.
+  if (
+    /^(?:college|location|type|pg\s+courses|government|private|md\/?ms|lucknow|varanasi|kanpur|prayagraj|greater\s+noida|noida|delhi|faridabad|chennai|manipal|coimbatore|puducherry|chandigarh|vellore|new\s+delhi)$/i.test(
+      text
+    )
+  ) {
+    return false;
+  }
+
+  // "Specialization: Check whether…" is a tip line, not a heading.
+  const colonIdx = text.indexOf(':');
+  if (colonIdx > 0 && text.length - colonIdx > 45) return false;
+
+  // Question used as a section title.
+  if (/\?$/.test(text) && !/[.!].+\?$/.test(text) && text.split(/\s+/).length <= 16) {
+    return true;
+  }
+
+  // Full sentence → keep as paragraph.
+  if (/[.!]$/.test(text)) return false;
+  if ((text.match(/[.!]/g) || []).length >= 1) return false;
+
+  const words = text.split(/\s+/);
+  if (words.length < 3 || words.length > 14) return false;
+  if (!/^[A-Z0-9“"']/.test(text)) return false;
+
+  // Bare college/university names from pasted tables stay as text.
+  if (
+    /\b(?:college|university|institute|hospital|academy|school)\b/i.test(text) &&
+    !/\b(?:how|what|why|which|when|fees?|admission|counsell?ing|choose|choosing|compare|check|best|top|popular|consider|vs|neet|md\/?ms|pg)\b/i.test(
+      text
+    )
+  ) {
+    return false;
+  }
+
+  const startsLikeHeading =
+    /^(?:how|what|why|which|when|where|who|don'?t|compare|check|calculate|consider|selecting|important|top\b|best\b|popular|government|private|md\/?ms|neet)\b/i.test(
+      text
+    );
+  const hasSectionCue =
+    startsLikeHeading ||
+    /\b(?:vs|admission|fees?|counsell?ing|rank|branch(?:es)?|speciali[sz]ation|process|guidance|options?|exposure|budget|choose|choosing|compare|check|neet|md\/?ms)\b/i.test(
+      text
+    );
+
+  if (!hasSectionCue) return false;
+  // "Don't just look…" / "Check the clinical…" are valid even in sentence case.
+  if (startsLikeHeading) return true;
+
+  const titleWords = words.filter((w) => /^[A-Z0-9]/.test(w)).length;
+  return titleWords / words.length >= 0.4;
+}
+
+function splitBrParts(inner: string): string[] {
+  return inner
+    .split(/<br\s*\/?>/i)
+    .map((part) => part.trim())
+    .filter((part) => stripHtml(part).replace(/\s+/g, ' ').trim().length > 0);
+}
+
+function brPartsToBlocks(parts: string[]): string {
+  return parts
+    .map((part) => {
+      const plain = stripHtml(part).replace(/\s+/g, ' ').trim();
+      if (isBrSeparatedHeadingLine(plain)) {
+        const cleaned = part
+          .replace(/^<(?:strong|b)\b[^>]*>/i, '')
+          .replace(/<\/(?:strong|b)>\s*$/i, '')
+          .trim();
+        return `<h2>${cleaned || escapeHtml(plain)}</h2>`;
+      }
+      return `<p>${part}</p>`;
+    })
+    .join('\n');
+}
+
+/** One <p>…text<br>Heading<br>text…</p> → real h2 + p blocks. */
+export function formatBrSeparatedParagraphs(html: string): string {
+  return html.replace(/<p\b([^>]*)>([\s\S]*?)<\/p>/gi, (full, _attrs: string, inner: string) => {
+    if (!/<br\s*\/?>/i.test(inner)) return full;
+    if (/<(?:h[1-6]|ul|ol|table|blockquote|div|section)\b/i.test(inner)) return full;
+    if (/wp-lead-cta|wp-premium-faq|wp-address-highlight/i.test(full)) return full;
+
+    const parts = splitBrParts(inner);
+    if (parts.length < 3) return full;
+
+    const headingCount = parts.filter((part) =>
+      isBrSeparatedHeadingLine(stripHtml(part))
+    ).length;
+    if (headingCount === 0) return full;
+
+    return brPartsToBlocks(parts);
+  });
+}
+
+/**
+ * Some WP lists swallow the rest of the article inside the last <li> with <br>s.
+ * Keep the college blurb in the list, then continue the article as h2/p blocks.
+ */
+export function extractBrArticleTailFromLastListItem(html: string): string {
+  return html.replace(
+    /<li\b([^>]*)>([\s\S]*?)<\/li>(\s*)(<\/(?:ol|ul)>)/gi,
+    (full, attrs: string, inner: string, sp: string, listClose: string) => {
+      if (!/<br\s*\/?>/i.test(inner)) return full;
+      if (/<(?:ul|ol|table|div)\b/i.test(inner)) return full;
+
+      const parts = splitBrParts(inner);
+      if (parts.length < 6) return full;
+
+      const firstHeadingIdx = parts.findIndex((part) =>
+        isBrSeparatedHeadingLine(stripHtml(part))
+      );
+      if (firstHeadingIdx < 1) return full;
+
+      const headingCount = parts
+        .slice(firstHeadingIdx)
+        .filter((part) => isBrSeparatedHeadingLine(stripHtml(part))).length;
+      if (headingCount < 2) return full;
+
+      const liBody = parts.slice(0, firstHeadingIdx).join('<br />\n');
+      const tail = brPartsToBlocks(parts.slice(firstHeadingIdx));
+      return `<li${attrs}>${liBody}</li>${sp}${listClose}\n${tail}`;
+    }
+  );
+}
+
+/**
  * Short blog lines that start with Enquire / Explore / Expert / Get become one
  * button. A trailing "Button" word is only a CMS marker and is not shown.
  * Longer sentences stay as paragraphs.
@@ -2002,6 +2145,8 @@ export function prepareWpHtml(
     out = removeDuplicateImages(out, options.featuredImage);
   }
   if (options?.title) out = removeDuplicateTitleHeading(out, options.title);
+  out = formatBrSeparatedParagraphs(out);
+  out = extractBrArticleTailFromLastListItem(out);
   out = demoteBodyH1ToH2(out);
   out = fixHeadingLevelSkips(out);
   out = stripElementorHiddenSections(out);
