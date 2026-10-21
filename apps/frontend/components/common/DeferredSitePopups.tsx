@@ -7,8 +7,8 @@ import { LEAD_CAPTURE_OPEN_EVENT, openLeadCapturePopup } from '@/lib/openLeadCap
 import {
   clearLegacyLeadPopupBlocks,
   isLeadPopupOpen,
-  isLeadPopupSubmitted,
   LEAD_POPUP_AUTO_DELAY_MS,
+  shouldSkipLeadPopupAutoOpen,
 } from '@/lib/sitePopupCoordination';
 
 const LeadCapturePopup = dynamic(
@@ -18,8 +18,8 @@ const LeadCapturePopup = dynamic(
 );
 
 /**
- * Deferred lead capture popup (auto-open after delay).
- * Heavy form/dialog code loads only after mount — keeps homepage INP cleaner.
+ * Lead capture popup — mounts after the page is ready, then auto-opens at once
+ * so visitors see the enquiry form as soon as the site is open.
  */
 export function DeferredSitePopups() {
   const pathname = usePathname() || '/';
@@ -33,21 +33,23 @@ export function DeferredSitePopups() {
     };
     window.addEventListener(LEAD_CAPTURE_OPEN_EVENT, arm);
 
-    let idleId: number | undefined;
-    const preload = () => {
-      void import('@/components/common/LeadCapturePopup');
-    };
-    if (typeof window.requestIdleCallback === 'function') {
-      idleId = window.requestIdleCallback(preload, { timeout: 4000 });
+    const markReady = () => setReady(true);
+    // Page already loaded (client navigation / cached) → show immediately.
+    if (document.readyState === 'complete') {
+      markReady();
+    } else {
+      window.addEventListener('load', markReady, { once: true });
+      // Fallback if `load` is slow (long assets) — still open soon after paint.
+      const fallback = window.setTimeout(markReady, 1200);
+      return () => {
+        window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, arm);
+        window.removeEventListener('load', markReady);
+        window.clearTimeout(fallback);
+      };
     }
-    const mountLater = window.setTimeout(() => setReady(true), 18000);
 
     return () => {
       window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, arm);
-      window.clearTimeout(mountLater);
-      if (idleId != null && typeof window.cancelIdleCallback === 'function') {
-        window.cancelIdleCallback(idleId);
-      }
     };
   }, []);
 
@@ -67,15 +69,21 @@ export function DeferredSitePopups() {
 
     clearLegacyLeadPopupBlocks();
 
-    if (isLeadPopupSubmitted()) {
+    if (shouldSkipLeadPopupAutoOpen()) {
       return undefined;
     }
 
-    const timer = window.setTimeout(() => {
-      if (isLeadPopupSubmitted() || isLeadPopupOpen()) return;
+    const open = () => {
+      if (shouldSkipLeadPopupAutoOpen() || isLeadPopupOpen()) return;
       openLeadCapturePopup();
-    }, LEAD_POPUP_AUTO_DELAY_MS);
+    };
 
+    if (LEAD_POPUP_AUTO_DELAY_MS <= 0) {
+      const id = window.requestAnimationFrame(() => open());
+      return () => window.cancelAnimationFrame(id);
+    }
+
+    const timer = window.setTimeout(open, LEAD_POPUP_AUTO_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [pathname, ready]);
 

@@ -1,7 +1,7 @@
 /** Shared timing helpers for site popups (lead + college predictor). */
 
-/** Lead enquiry auto-opens shortly after first site load — once per session. */
-export const LEAD_POPUP_AUTO_DELAY_MS = 15_000;
+/** Lead enquiry opens as soon as the page has loaded — once per session. */
+export const LEAD_POPUP_AUTO_DELAY_MS = 0;
 export const LEAD_POPUP_SUBMITTED_KEY = 'ar-lead-popup-submitted';
 /** Set when user closes the lead popup — blocks auto-reopen for the rest of the session. */
 export const LEAD_POPUP_DISMISSED_KEY = 'ar-lead-popup-dismissed';
