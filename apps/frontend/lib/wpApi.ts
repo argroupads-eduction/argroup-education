@@ -178,3 +178,30 @@ export async function getWpBlogCatalog(max = 500) {
   return all.slice(0, max).map(wpPostToListItem);
 }
 
+/** All published WordPress pages (light fields) for sitemap indexing. */
+export async function getWpPageCatalog(max = 500) {
+  const perPage = 100;
+  const fields = 'id,slug,date_gmt,modified_gmt,title';
+  const tags = ['wp-pages', 'wp-page-list'];
+  const url = (p: number) =>
+    `pages?per_page=${perPage}&page=${p}&orderby=modified&order=desc&status=publish&_fields=${fields}`;
+
+  const first = await wpFetchWithMeta(url(1), tags);
+  if (!first || !Array.isArray(first.json)) return null;
+
+  const lastPage = Math.min(first.totalPages, Math.ceil(max / perPage));
+  const restPages: number[] = [];
+  for (let p = 2; p <= lastPage; p++) restPages.push(p);
+
+  const rest = await Promise.all(restPages.map((p) => wpFetchWithMeta(url(p), tags)));
+  if (rest.some((r) => !r || !Array.isArray(r.json))) return null;
+
+  const all = [first.json as WpPost[], ...rest.map((r) => (r as { json: unknown }).json as WpPost[])].flat();
+  return all.slice(0, max).map((page) => ({
+    id: String(page.id),
+    slug: page.slug,
+    title: plainTextFromHtml(page.title?.rendered || page.slug),
+    updatedAt: toDate(page.modified_gmt || page.date_gmt).toISOString(),
+  }));
+}
+

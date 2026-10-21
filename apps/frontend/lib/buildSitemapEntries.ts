@@ -1,5 +1,10 @@
 import { buildDynamicSitemap, type SitemapEntry } from '@backend/handlers/siteSearch';
-import { BLOG_EXCLUDED_LIST_SLUGS, BLOG_SLUG_CANONICAL, blogPostPath } from '@/lib/blogUtils';
+import {
+  BLOG_EXCLUDED_LIST_SLUGS,
+  BLOG_SLUG_CANONICAL,
+  blogPostPath,
+  canonicalBlogSlug,
+} from '@/lib/blogUtils';
 import { hasUsableDatabase } from '@/lib/databaseEnv';
 import {
   getPayloadCmsServerFetchUrl,
@@ -246,18 +251,66 @@ async function getDatabaseSitemapEntries(baseUrl: string): Promise<SitemapEntry[
   }
 }
 
+/** Live WordPress posts + pages — keeps Google indexing in sync with the CMS. */
+async function getWordPressSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
+  const entries: SitemapEntry[] = [];
+  const now = new Date().toISOString();
+
+  try {
+    const { getWpBlogCatalog, getWpPageCatalog } = await import('@/lib/wpApi');
+    const [posts, pages] = await Promise.all([
+      withServerTimeout(getWpBlogCatalog(500), 20000, null),
+      withServerTimeout(getWpPageCatalog(500), 20000, null),
+    ]);
+
+    if (posts) {
+      for (const post of posts) {
+        const slug = canonicalBlogSlug(post.slug);
+        if (!slug || BLOG_EXCLUDED_LIST_SLUGS.has(slug) || slug in BLOG_SLUG_CANONICAL) continue;
+        entries.push({
+          loc: absoluteUrl(baseUrl, blogPostPath(slug)),
+          lastmod: post.publishedAt || now,
+          changefreq: 'weekly',
+          priority: 0.7,
+        });
+      }
+    }
+
+    if (pages) {
+      for (const page of pages) {
+        const slug = page.slug?.trim();
+        if (!slug || SITEMAP_EXCLUDED_SLUGS.has(slug)) continue;
+        const path = resolveInternalPath(slug);
+        const firstSeg = path.replace(/^\/+/, '').split('/')[0] ?? '';
+        if (path === '/' || SITEMAP_EXCLUDED_SLUGS.has(firstSeg)) continue;
+        entries.push({
+          loc: absoluteUrl(baseUrl, path),
+          lastmod: page.updatedAt || now,
+          changefreq: 'weekly',
+          priority: 0.65,
+        });
+      }
+    }
+  } catch (error) {
+    console.warn('[sitemap] WordPress entries skipped:', error);
+  }
+
+  return filterSitemapEntries(entries, baseUrl);
+}
+
 /**
  * Build the full public sitemap from all sources:
- * structured hubs (MBBS/MD-MS), WP bundle, live Payload CMS, and Neon/DB content.
- * Any newly published page, college page, or blog is picked up automatically.
+ * structured hubs, WP bundle, live WordPress, Payload CMS, and DB content.
+ * Newly published pages and blogs are picked up automatically.
  */
 export async function buildSitemapEntries(baseUrl: string): Promise<SitemapEntry[]> {
   const supplemental = getSupplementalSitemapEntries(baseUrl);
-  const [bundle, payload, database] = await Promise.all([
+  const [bundle, wordpress, payload, database] = await Promise.all([
     getBundleSitemapEntries(baseUrl),
+    getWordPressSitemapEntries(baseUrl),
     getPayloadCmsSitemapEntries(baseUrl),
     getDatabaseSitemapEntries(baseUrl),
   ]);
 
-  return mergeSitemapEntries(supplemental, bundle, payload, database);
+  return mergeSitemapEntries(supplemental, bundle, wordpress, payload, database);
 }

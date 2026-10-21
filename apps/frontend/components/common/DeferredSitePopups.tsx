@@ -5,9 +5,9 @@ import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import { LEAD_CAPTURE_OPEN_EVENT, openLeadCapturePopup } from '@/lib/openLeadCapture';
 import {
+  armLeadPopupAutoOpen,
   clearLegacyLeadPopupBlocks,
   isLeadPopupOpen,
-  LEAD_POPUP_AUTO_DELAY_MS,
   shouldSkipLeadPopupAutoOpen,
 } from '@/lib/sitePopupCoordination';
 
@@ -18,8 +18,8 @@ const LeadCapturePopup = dynamic(
 );
 
 /**
- * Lead capture popup — mounts after the page is ready, then auto-opens at once
- * so visitors see the enquiry form as soon as the site is open.
+ * Enquiry popup mounts as soon as the site is ready, then opens immediately
+ * (listener is armed first so the open event is never missed).
  */
 export function DeferredSitePopups() {
   const pathname = usePathname() || '/';
@@ -34,13 +34,12 @@ export function DeferredSitePopups() {
     window.addEventListener(LEAD_CAPTURE_OPEN_EVENT, arm);
 
     const markReady = () => setReady(true);
-    // Page already loaded (client navigation / cached) → show immediately.
     if (document.readyState === 'complete') {
       markReady();
     } else {
       window.addEventListener('load', markReady, { once: true });
-      // Fallback if `load` is slow (long assets) — still open soon after paint.
-      const fallback = window.setTimeout(markReady, 1200);
+      // Don't wait forever on slow assets — open soon after first paint.
+      const fallback = window.setTimeout(markReady, 800);
       return () => {
         window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, arm);
         window.removeEventListener('load', markReady);
@@ -56,6 +55,7 @@ export function DeferredSitePopups() {
   useEffect(() => {
     if (!ready || !pendingOpen.current) return;
     pendingOpen.current = false;
+    armLeadPopupAutoOpen();
     const id = window.requestAnimationFrame(() => openLeadCapturePopup());
     return () => window.cancelAnimationFrame(id);
   }, [ready]);
@@ -73,17 +73,16 @@ export function DeferredSitePopups() {
       return undefined;
     }
 
+    // Arm before open so a still-mounting popup picks it up on mount.
+    armLeadPopupAutoOpen();
+
     const open = () => {
       if (shouldSkipLeadPopupAutoOpen() || isLeadPopupOpen()) return;
       openLeadCapturePopup();
     };
 
-    if (LEAD_POPUP_AUTO_DELAY_MS <= 0) {
-      const id = window.requestAnimationFrame(() => open());
-      return () => window.cancelAnimationFrame(id);
-    }
-
-    const timer = window.setTimeout(open, LEAD_POPUP_AUTO_DELAY_MS);
+    // Small delay lets the dynamic LeadCapturePopup attach its listener.
+    const timer = window.setTimeout(open, 350);
     return () => window.clearTimeout(timer);
   }, [pathname, ready]);
 

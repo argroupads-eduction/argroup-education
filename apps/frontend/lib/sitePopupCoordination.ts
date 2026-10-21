@@ -11,6 +11,19 @@ const LEGACY_SESSION_START_KEY = 'ar-lead-popup-session-start';
 
 let leadPopupOpen = false;
 let collegePopupOpen = false;
+/** Set before the popup mounts so the first open is not lost to a race. */
+let leadPopupAutoOpenArmed = false;
+
+export function armLeadPopupAutoOpen(): void {
+  leadPopupAutoOpenArmed = true;
+}
+
+/** Returns true once, then clears — used when LeadCapturePopup finishes mounting. */
+export function consumeLeadPopupAutoOpen(): boolean {
+  if (!leadPopupAutoOpenArmed) return false;
+  leadPopupAutoOpenArmed = false;
+  return true;
+}
 
 export function setLeadPopupOpen(open: boolean): void {
   leadPopupOpen = open;

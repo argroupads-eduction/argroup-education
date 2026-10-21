@@ -27,6 +27,7 @@ import { submitWebsiteLead } from '@/lib/submitWebsiteLead';
 import { EmailOtpVerification } from '@/components/forms/EmailOtpVerification';
 import { emailOtpInitiallyVerified, isEmailOtpEnabled } from '@/lib/emailOtp/isEmailOtpEnabled';
 import {
+  consumeLeadPopupAutoOpen,
   markLeadPopupSubmitted,
   setLeadPopupOpen,
 } from '@/lib/sitePopupCoordination';
@@ -675,6 +676,10 @@ export function LeadCapturePopup() {
     const onCloseRequest = () => dismiss();
     window.addEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
     window.addEventListener(LEAD_CAPTURE_CLOSE_EVENT, onCloseRequest);
+    // Auto-open armed before this mount — open now so the event is not missed.
+    if (consumeLeadPopupAutoOpen()) {
+      openLeadPopup();
+    }
     return () => {
       window.removeEventListener(LEAD_CAPTURE_OPEN_EVENT, onOpenRequest);
       window.removeEventListener(LEAD_CAPTURE_CLOSE_EVENT, onCloseRequest);
