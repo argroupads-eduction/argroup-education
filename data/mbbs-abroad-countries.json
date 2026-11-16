@@ -1,0 +1,480 @@
+[
+  {
+    "id": "russia",
+    "name": "Russia",
+    "navLabel": "Russia",
+    "href": "/mbbs-abroad/russia",
+    "colleges": [
+      {
+        "name": "North Caucasian State Academy, Russia"
+      },
+      {
+        "name": "Privolzhsky Research Medical University"
+      },
+      {
+        "name": "Yaroslav-the-wise Novgorod State Medical University"
+      },
+      {
+        "name": "Smolensk State Medical University"
+      },
+      {
+        "name": "Siberian State Medical University"
+      },
+      {
+        "name": "Kemerovo State Medical University"
+      },
+      {
+        "name": "Tula State Medical University"
+      },
+      {
+        "name": "Volgograd State Medical University"
+      },
+      {
+        "name": "Pskov State Medical University, Russia"
+      },
+      {
+        "name": "Crimea Federal Medical University"
+      },
+      {
+        "name": "Bashkir State Medical University"
+      },
+      {
+        "name": "Kazan Federal University"
+      },
+      {
+        "name": "Kazan State Medical University, Russia"
+      },
+      {
+        "name": "Saint Petersburg State Medical University Russia"
+      },
+      {
+        "name": "Orel State University, Russia"
+      },
+      {
+        "name": "Belgorod State University, Russia"
+      },
+      {
+        "name": "Altai State University, Russia"
+      },
+      {
+        "name": "Kursk State Medical University, Russia"
+      },
+      {
+        "name": "First Moscow State Medical University"
+      },
+      {
+        "name": "Kabardino Balkarian State University Russia"
+      },
+      {
+        "name": "OMSK State Medical University"
+      },
+      {
+        "name": "Peoples Friendship University Russia"
+      },
+      {
+        "name": "Pirogov Russian National Medical University"
+      },
+      {
+        "name": "Samara State Medical University"
+      },
+      {
+        "name": "Voronezh State Medical University Russia"
+      },
+      {
+        "name": "Chuvash State Medical University Russia"
+      }
+    ]
+  },
+  {
+    "id": "nepal",
+    "name": "Nepal",
+    "navLabel": "Nepal",
+    "href": "/mbbs-abroad/nepal",
+    "universities": [
+      {
+        "id": "kathmandu-university",
+        "name": "Kathmandu University Nepal",
+        "href": "/mbbs-abroad/nepal/kathmandu-university",
+        "colleges": [
+          {
+            "name": "College of Medical Science"
+          },
+          {
+            "name": "Manipal College of Medical Science"
+          },
+          {
+            "name": "Kathmandu University School of Medical Sciences"
+          },
+          {
+            "name": "Birat Medical College"
+          },
+          {
+            "name": "Kathmandu Medical College"
+          },
+          {
+            "name": "Nepal Medical College"
+          },
+          {
+            "name": "Nepalgunj Medical College"
+          },
+          {
+            "name": "Lumbini Medical College"
+          }
+        ]
+      },
+      {
+        "id": "tribhuvan-university",
+        "name": "Tribhuvan University",
+        "href": "/mbbs-abroad/nepal/tribhuvan-university",
+        "colleges": [
+          {
+            "name": "Nepal Army Institute of Health Sciences"
+          },
+          {
+            "name": "KIST Medical College Kathmandu"
+          },
+          {
+            "name": "Chitwan Medical College"
+          },
+          {
+            "name": "Institute of Medicine"
+          },
+          {
+            "name": "Gandaki Medical College"
+          },
+          {
+            "name": "Universal Medical College"
+          }
+        ]
+      },
+      {
+        "id": "bp-koirala-institute",
+        "name": "Autonomous College - B.P. Koirala Institute of Health Sciences",
+        "href": "/mbbs-abroad/nepal/bp-koirala-institute"
+      },
+      {
+        "id": "patan-academy",
+        "name": "Autonomous College - Patan Academy of Health Science",
+        "href": "/mbbs-abroad/nepal/patan-academy"
+      }
+    ]
+  },
+  {
+    "id": "bangladesh",
+    "name": "Bangladesh",
+    "navLabel": "Bangladesh",
+    "href": "/mbbs-abroad/bangladesh",
+    "colleges": [
+      {
+        "name": "Dhaka National Medical College"
+      },
+      {
+        "name": "Medical College For Women and Hospital"
+      },
+      {
+        "name": "Bangladesh Medical College"
+      },
+      {
+        "name": "Holy Family Red Crescent Medical"
+      },
+      {
+        "name": "Tairunnessa Medical College"
+      },
+      {
+        "name": "International Medical College"
+      },
+      {
+        "name": "Uttara Adhunik Medical College"
+      },
+      {
+        "name": "TMSS Medical College"
+      },
+      {
+        "name": "North East Medical College & Hospital"
+      },
+      {
+        "name": "Popular Medical College Hospital"
+      },
+      {
+        "name": "Sylhet Women's Medical College and Hospital"
+      },
+      {
+        "name": "Central Medical College & Hospital"
+      },
+      {
+        "name": "Mainamoti Medical College"
+      },
+      {
+        "name": "Gonoshasthaya Samaj Vittik Medical College"
+      },
+      {
+        "name": "Jahurul Islam Medical College"
+      },
+      {
+        "name": "Anwer Khan Modern Medical"
+      },
+      {
+        "name": "Southern Medical College"
+      },
+      {
+        "name": "Ad-din Women's Medical College"
+      },
+      {
+        "name": "Delta Medical College & Hospital"
+      },
+      {
+        "name": "Green Life Medical College"
+      },
+      {
+        "name": "Enam Medical College"
+      },
+      {
+        "name": "Z H Sikder Women's Medical College"
+      },
+      {
+        "name": "Universal Medical College"
+      },
+      {
+        "name": "MH Samorita Medical College"
+      }
+    ]
+  },
+  {
+    "id": "uzbekistan",
+    "name": "Uzbekistan",
+    "navLabel": "Uzbekistan",
+    "href": "/mbbs-abroad/uzbekistan",
+    "colleges": [
+      {
+        "name": "Tashkent Pediatric Medical Institute"
+      },
+      {
+        "name": "Andijan State Medical Institute"
+      },
+      {
+        "name": "Bukhara State Medical Institute"
+      },
+      {
+        "name": "Tashkent State Medical Academy"
+      },
+      {
+        "name": "Samarkand State Medical University"
+      },
+      {
+        "name": "Urgench branch of Tashkent Medical Academy"
+      }
+    ]
+  },
+  {
+    "id": "kazakhstan",
+    "name": "Kazakhstan",
+    "navLabel": "Kazakhstan",
+    "href": "/mbbs-abroad/kazakhstan",
+    "colleges": [
+      {
+        "name": "Kazakh National Medical University"
+      },
+      {
+        "name": "Astana Medical University"
+      },
+      {
+        "name": "Al-Farabi Kazakh National University"
+      },
+      {
+        "name": "South Kazakhstan Medical Academy"
+      },
+      {
+        "name": "Karaganda State Medical University"
+      },
+      {
+        "name": "Semey State Medical University"
+      }
+    ]
+  },
+  {
+    "id": "serbia",
+    "name": "Serbia",
+    "navLabel": "Serbia",
+    "href": "/mbbs-abroad/serbia",
+    "colleges": [
+      {
+        "name": "University of Kragujevac, Serbia"
+      }
+    ]
+  },
+  {
+    "id": "iran",
+    "name": "Iran",
+    "navLabel": "Iran",
+    "href": "/mbbs-abroad/iran",
+    "colleges": []
+  },
+  {
+    "id": "bosnia",
+    "name": "Bosnia",
+    "navLabel": "Bosnia",
+    "href": "/mbbs-abroad/bosnia",
+    "colleges": [
+      {
+        "name": "University of East Sarajevo, Bosnia"
+      }
+    ]
+  },
+  {
+    "id": "egypt",
+    "name": "Egypt",
+    "navLabel": "Egypt",
+    "href": "/mbbs-abroad/egypt",
+    "colleges": []
+  },
+  {
+    "id": "vietnam",
+    "name": "Vietnam",
+    "navLabel": "Vietnam",
+    "href": "/mbbs-abroad/vietnam",
+    "colleges": []
+  },
+  {
+    "id": "kyrgyzstan",
+    "name": "Kyrgyzstan",
+    "navLabel": "Kyrgyzstan",
+    "href": "/mbbs-abroad/kyrgyzstan",
+    "colleges": [
+      {
+        "name": "International School Of Medicine"
+      },
+      {
+        "name": "Jalal-Abad International University"
+      },
+      {
+        "name": "Osh International Medical University"
+      },
+      {
+        "name": "Asian Medical Institute"
+      },
+      {
+        "name": "Kyrgyz State Medical Academy"
+      },
+      {
+        "name": "Osh State Medical University"
+      },
+      {
+        "name": "Jalal-Abad State University"
+      }
+    ]
+  },
+  {
+    "id": "philippines",
+    "name": "Philippines",
+    "navLabel": "Philippines",
+    "href": "/mbbs-abroad/philippines",
+    "colleges": [
+      {
+        "name": "AMA Medical College"
+      },
+      {
+        "name": "Davao Medical School Foundation"
+      },
+      {
+        "name": "Bicol Christian College Of Medicine"
+      },
+      {
+        "name": "Our Lady of Fatima University"
+      },
+      {
+        "name": "University Of Perpetual Help System Dalta"
+      },
+      {
+        "name": "Lyceum North Western University"
+      },
+      {
+        "name": "Emilio Aguinaldo College"
+      }
+    ]
+  },
+  {
+    "id": "georgia",
+    "name": "Georgia",
+    "navLabel": "Georgia",
+    "href": "/mbbs-abroad/georgia",
+    "colleges": [
+      {
+        "name": "Batumi Shota Rustaveli State University"
+      },
+      {
+        "name": "East European University"
+      },
+      {
+        "name": "New Vision University"
+      },
+      {
+        "name": "Petre Shotadze Tbilisi Medical Academy"
+      }
+    ]
+  },
+  {
+    "id": "china",
+    "name": "China",
+    "navLabel": "China",
+    "href": "/mbbs-abroad/china",
+    "colleges": [
+      {
+        "name": "Tianjin Medical University"
+      },
+      {
+        "name": "Jilin Medical University"
+      },
+      {
+        "name": "Fudan University"
+      },
+      {
+        "name": "Qingdao University"
+      },
+      {
+        "name": "Fujian Medical University"
+      },
+      {
+        "name": "Jiangsu University"
+      },
+      {
+        "name": "Nanjing Medical University"
+      },
+      {
+        "name": "China Medical University"
+      },
+      {
+        "name": "China Three Gorges Medical University"
+      },
+      {
+        "name": "Anhui Medical University"
+      },
+      {
+        "name": "Beihua University"
+      },
+      {
+        "name": "Dalian Medical University"
+      },
+      {
+        "name": "Soochow Medical University"
+      }
+    ]
+  },
+  {
+    "id": "romania",
+    "name": "Romania",
+    "navLabel": "Romania",
+    "href": "/mbbs-abroad/romania",
+    "colleges": []
+  },
+  {
+    "id": "asia",
+    "name": "Asia",
+    "navLabel": "Asia",
+    "href": "/mbbs-abroad/asia",
+    "colleges": [
+      {
+        "name": "Universidade Católica Timorense"
+      }
+    ]
+  }
+]

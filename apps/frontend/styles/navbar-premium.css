@@ -1,0 +1,399 @@
+/* Site navbar — single-line alignment, premium CTAs */
+
+.site-topbar {
+  background: #fff;
+  border-bottom: 1px solid rgb(226 232 240);
+}
+
+.site-topbar-inner {
+  display: flex;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.site-topbar-contacts {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.site-topbar-contact {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  height: 2rem;
+  align-items: center;
+  gap: 0.45rem;
+  overflow: hidden;
+  white-space: nowrap;
+  border-radius: 9999px;
+  padding: 0 0.85rem;
+  font-family: var(--font-site);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1),
+    box-shadow 0.28s ease,
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease;
+}
+
+/* Same shine sweep as site buttons */
+.site-topbar-contact::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.35) 45%,
+    transparent 90%
+  );
+  transform: translateX(-130%) skewX(-14deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.site-topbar-contact:hover::before {
+  opacity: 1;
+  animation: ui-btn-shine 0.7s ease forwards;
+}
+
+.site-topbar-contact > * {
+  position: relative;
+  z-index: 1;
+}
+
+.site-topbar-contact:hover {
+  transform: translateY(-2px);
+}
+
+.site-topbar-contact:active {
+  transform: translateY(0);
+}
+
+/* High-contrast call CTA — brand navy */
+.site-topbar-contact--phone {
+  color: #ffffff !important;
+  background: #1a365d;
+  border: 1px solid #142d4c;
+  box-shadow: 0 1px 2px rgb(5 18 25 / 0.18);
+}
+
+.site-topbar-contact--phone:hover {
+  background: #142d4c;
+  color: #ffffff !important;
+  box-shadow: 0 14px 28px -12px rgb(15 23 42 / 0.35);
+}
+
+.site-topbar-contact--phone:hover svg {
+  color: #ffffff !important;
+}
+
+.site-topbar-contact--phone:active {
+  box-shadow: 0 6px 14px -8px rgb(15 23 42 / 0.3);
+}
+
+.site-topbar-contact--phone:focus-visible {
+  outline: 2px solid #1a365d;
+  outline-offset: 2px;
+}
+
+/* Brand gold — matches site palette */
+.site-topbar-contact--email {
+  color: #051219 !important;
+  background: #ffa726;
+  border: 1px solid #ff9800;
+  box-shadow: 0 1px 2px rgb(255 167 38 / 0.28);
+}
+
+.site-topbar-contact--email:hover {
+  background: #ff9800;
+  color: #051219 !important;
+  border-color: #f57c00;
+  box-shadow: 0 14px 28px -12px rgb(245 158 11 / 0.45);
+}
+
+.site-topbar-contact--email:hover svg {
+  color: #051219 !important;
+}
+
+.site-topbar-contact--email:active {
+  box-shadow: 0 6px 14px -8px rgb(245 158 11 / 0.35);
+}
+
+.site-topbar-contact--email:focus-visible {
+  outline: 2px solid #ffa726;
+  outline-offset: 2px;
+}
+
+.site-topbar-contact svg {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.site-topbar-social {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.site-topbar-social-link {
+  display: inline-flex;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.site-topbar-social-link:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.site-topbar-social-link--facebook,
+.site-topbar-social-link--facebook svg {
+  color: #1877f2 !important;
+}
+
+.site-topbar-social-link--instagram,
+.site-topbar-social-link--instagram svg {
+  color: #e4405f !important;
+}
+
+.site-topbar-social-link--youtube,
+.site-topbar-social-link--youtube svg {
+  color: #ff0000 !important;
+}
+
+.site-navbar-inner {
+  display: flex;
+  height: 4.25rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Tablet & mobile: logo + hamburger only (desktop nav at xl / 1280px+) */
+@media (max-width: 1279px) {
+  .site-navbar-inner {
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .site-navbar-nav,
+  .site-navbar-cta {
+    display: none !important;
+  }
+}
+
+.site-navbar-logo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  align-self: center;
+  height: 100%;
+}
+
+.site-navbar-nav {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-navbar-nav-list {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+}
+
+.site-nav-plain-link {
+  display: inline-flex;
+  height: 2.5rem;
+  align-items: center;
+  white-space: nowrap;
+  padding: 0 0.65rem;
+  font-family: var(--font-site);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1;
+  color: rgb(15 23 42);
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.site-nav-plain-link:hover {
+  color: rgb(180 83 9);
+  background: rgb(255 251 235 / 0.9);
+}
+
+.site-navbar-cta {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  align-self: center;
+  gap: 0.625rem;
+}
+
+.site-navbar-cta .ui-btn {
+  height: 2.5rem;
+  min-height: 2.5rem;
+  max-height: 2.5rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* NEET CTA — LIVE floats above; button stays on same baseline as Expert Counselling */
+.nav-neet-cta-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 2.5rem;
+}
+
+.nav-live-pill {
+  position: absolute;
+  top: -0.7rem;
+  right: -0.05rem;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  border-radius: 9999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.5625rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: #fff;
+  background: linear-gradient(135deg, #f87171, #dc2626 55%, #b91c1c);
+  border: 1.5px solid #fff;
+  pointer-events: none;
+  animation: nav-live-blink 1s ease-in-out infinite;
+  box-shadow:
+    0 0 0 2px rgb(239 68 68 / 0.35),
+    0 4px 14px rgb(220 38 38 / 0.55);
+}
+
+.nav-live-pill__ping {
+  position: absolute;
+  left: 0.35rem;
+  top: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-top: -0.225rem;
+  border-radius: 9999px;
+  background: rgb(254 202 202);
+  animation: nav-live-ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.nav-live-pill__dot {
+  position: relative;
+  z-index: 1;
+  width: 0.35rem;
+  height: 0.35rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 0 6px rgb(255 255 255 / 0.9);
+  animation: nav-live-dot 1s ease-in-out infinite;
+}
+
+@keyframes nav-live-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  75%,
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+@keyframes nav-live-blink {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1.1);
+    box-shadow:
+      0 0 0 2px rgb(239 68 68 / 0.45),
+      0 4px 16px rgb(220 38 38 / 0.65),
+      0 0 20px rgb(248 113 113 / 0.5);
+  }
+  50% {
+    transform: scale(1.06);
+    filter: brightness(1.35);
+    box-shadow:
+      0 0 0 3px rgb(239 68 68 / 0.6),
+      0 6px 22px rgb(220 38 38 / 0.8),
+      0 0 28px rgb(248 113 113 / 0.75);
+  }
+}
+
+@keyframes nav-live-dot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.75);
+    opacity: 0.85;
+  }
+}
+
+.nav-neet-cta-btn {
+  display: inline-flex;
+  height: 2.5rem;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  border-radius: 9999px;
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%);
+  border: 1px solid rgb(45 212 191 / 0.45);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.08),
+    0 4px 14px rgb(13 148 136 / 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-neet-cta-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 6px rgb(15 23 42 / 0.1),
+    0 8px 22px rgb(13 148 136 / 0.45);
+}
+
+.nav-neet-cta-btn__badge {
+  border-radius: 0.25rem;
+  background: #fcd34d;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.5rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #0f172a;
+}

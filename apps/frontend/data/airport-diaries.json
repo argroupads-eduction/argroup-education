@@ -1,0 +1,72 @@
+{
+  "title": "Airport Diaries",
+  "subtitle": "Real moments when our MBBS abroad students begin their global medical journey",
+  "hubHref": "/mbbs-abroad",
+  "images": [
+    {
+      "id": "airport-diary-1",
+      "src": "/images/airport-diaries/01.webp",
+      "alt": "AR Group student departure — Airport Diaries 1"
+    },
+    {
+      "id": "airport-diary-2",
+      "src": "/images/airport-diaries/02.webp",
+      "alt": "AR Group student departure — Airport Diaries 2"
+    },
+    {
+      "id": "airport-diary-3",
+      "src": "/images/airport-diaries/03.webp",
+      "alt": "AR Group student departure — Airport Diaries 3"
+    },
+    {
+      "id": "airport-diary-4",
+      "src": "/images/airport-diaries/04.webp",
+      "alt": "AR Group student departure — Airport Diaries 4"
+    },
+    {
+      "id": "airport-diary-5",
+      "src": "/images/airport-diaries/05.webp",
+      "alt": "AR Group student departure — Airport Diaries 5"
+    },
+    {
+      "id": "airport-diary-6",
+      "src": "/images/airport-diaries/06.webp",
+      "alt": "AR Group student departure — Airport Diaries 6"
+    },
+    {
+      "id": "airport-diary-7",
+      "src": "/images/airport-diaries/07.webp",
+      "alt": "AR Group student departure — Airport Diaries 7"
+    },
+    {
+      "id": "airport-diary-8",
+      "src": "/images/airport-diaries/08.webp",
+      "alt": "AR Group student departure — Airport Diaries 8"
+    },
+    {
+      "id": "airport-diary-9",
+      "src": "/images/airport-diaries/09.webp",
+      "alt": "AR Group student departure — Airport Diaries 9"
+    },
+    {
+      "id": "airport-diary-10",
+      "src": "/images/airport-diaries/10.webp",
+      "alt": "AR Group student departure — Airport Diaries 10"
+    },
+    {
+      "id": "airport-diary-11",
+      "src": "/images/airport-diaries/11.webp",
+      "alt": "AR Group student departure — Airport Diaries 11"
+    },
+    {
+      "id": "airport-diary-12",
+      "src": "/images/airport-diaries/12.webp",
+      "alt": "AR Group student departure — Airport Diaries 12"
+    },
+    {
+      "id": "airport-diary-13",
+      "src": "/images/airport-diaries/13.webp",
+      "alt": "AR Group student departure — Airport Diaries 13"
+    }
+  ]
+}

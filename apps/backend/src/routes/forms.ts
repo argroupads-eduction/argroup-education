@@ -1,0 +1,196 @@
+import { Router, Request, Response } from 'express';
+import { body, validationResult } from 'express-validator';
+import { submitWebsiteLead, isDuplicateWebsiteLead, DUPLICATE_LEAD_MESSAGE } from '../handlers/websiteLead';
+import { prisma, withPrismaRetry } from '../lib/prisma';
+
+const router = Router();
+
+const PERSON_NAME_REGEX = /^[A-Za-z]+(?:\s+[A-Za-z]+)*$/;
+const INDIAN_PHONE_REGEX = /^[6-9]\d{9}$/;
+
+const personNameValidator = body('name')
+  .trim()
+  .notEmpty()
+  .withMessage('Name is required')
+  .matches(PERSON_NAME_REGEX)
+  .withMessage('Name can only contain letters (no numbers or special characters).');
+
+// POST /api/forms/counselling - Submit counselling form
+router.post(
+  '/counselling',
+  [
+    personNameValidator,
+    body('email').isEmail().withMessage('Please enter a valid email address.'),
+    body('phone').matches(INDIAN_PHONE_REGEX).withMessage('Please enter a valid Indian mobile number.'),
+    body('course').notEmpty().withMessage('Course is required'),
+    body('countryPreference').notEmpty().withMessage('Country preference is required'),
+  ],
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const {
+        name,
+        email,
+        phone,
+        course,
+        neetScore,
+        countryPreference,
+        budget,
+      } = req.body;
+
+      const result = await submitWebsiteLead({
+        source: 'counselling-form',
+        formName: 'Counselling enquiry',
+        fields: {
+          name,
+          email,
+          phone,
+          course,
+          neetScore: neetScore ?? '',
+          countryPreference,
+          budget: budget ?? '',
+        },
+        pageUrl: typeof req.body.pageUrl === 'string' ? req.body.pageUrl : undefined,
+        userAgent: req.get('user-agent') ?? undefined,
+      });
+
+      if (!result.ok) {
+        return res.status(result.status).json({ success: false, message: result.message });
+      }
+
+      res.json({
+        success: true,
+        message: 'Thank you! We will contact you soon.',
+      });
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'Error submitting form' });
+    }
+  }
+);
+
+// POST /api/forms/contact - Submit contact form
+router.post(
+  '/contact',
+  [
+    personNameValidator,
+    body('email').isEmail().withMessage('Please enter a valid email address.'),
+    body('subject').trim().notEmpty().withMessage('Subject is required'),
+    body('message').trim().notEmpty().withMessage('Message is required'),
+  ],
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const { name, email, subject, message, phone } = req.body;
+
+      const result = await submitWebsiteLead({
+        source: 'contact-form',
+        formName: 'Contact form',
+        fields: { name, email, phone: phone ?? '', subject, message },
+        pageUrl: typeof req.body.pageUrl === 'string' ? req.body.pageUrl : undefined,
+        userAgent: req.get('user-agent') ?? undefined,
+      });
+
+      if (!result.ok) {
+        return res.status(result.status).json({ success: false, message: result.message });
+      }
+
+      res.json({
+        success: true,
+        message: 'Thank you for your message. We will get back to you soon.',
+      });
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'Error submitting form' });
+    }
+  }
+);
+
+// POST /api/forms/neet-rank-predictor — NEET rank predictor lead (server-side prediction)
+router.post(
+  '/neet-rank-predictor',
+  [
+    personNameValidator,
+    body('email').isEmail().withMessage('Please enter a valid email address.'),
+    body('phone').matches(INDIAN_PHONE_REGEX).withMessage('Please enter a valid Indian mobile number.'),
+    body('city').trim().notEmpty(),
+    body('category').trim().notEmpty(),
+    body('score').isInt({ min: 0, max: 720 }),
+  ],
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const { name, email, phone, city, category, score } = req.body;
+
+      const { predictNeetRank } = await import('../lib/neetRankPredictor');
+      const cat = String(category) as import('../lib/neetRankPredictor/types').NeetCategory;
+      const prediction = predictNeetRank(cat, Number(score));
+
+      if (await isDuplicateWebsiteLead(email, phone)) {
+        return res.status(409).json({ success: false, message: DUPLICATE_LEAD_MESSAGE });
+      }
+
+      await withPrismaRetry(() =>
+        prisma.neetRankPredictorSubmission.create({
+          data: {
+            name,
+            email,
+            phone,
+            city,
+            category: cat,
+            score: Number(score),
+            bestRank: prediction.bestRank,
+            expectedRank: prediction.expectedRank,
+            worstRank: prediction.worstRank,
+            percentile: prediction.percentile,
+            collegeChances: prediction.collegeChances,
+          },
+        })
+      );
+
+      const leadResult = await submitWebsiteLead({
+        source: 'neet-rank-predictor',
+        formName: 'NEET Rank Predictor',
+        fields: {
+          name,
+          email,
+          phone,
+          city,
+          category: cat,
+          score,
+          bestRank: prediction.bestRank,
+          expectedRank: prediction.expectedRank,
+          worstRank: prediction.worstRank,
+          percentile: prediction.percentileLabel,
+          collegeChances: prediction.collegeChances,
+        },
+        userAgent: req.get('user-agent') ?? undefined,
+      });
+
+      if (!leadResult.ok) {
+        return res.status(leadResult.status).json({ success: false, message: leadResult.message });
+      }
+
+      res.json({
+        success: true,
+        prediction,
+        message: 'Prediction saved. Our counsellors may reach out to help with admission planning.',
+      });
+    } catch (error) {
+      console.error('[neet-rank-predictor]', error);
+      res.status(500).json({ success: false, message: 'Error saving submission' });
+    }
+  }
+);
+
+export default router;

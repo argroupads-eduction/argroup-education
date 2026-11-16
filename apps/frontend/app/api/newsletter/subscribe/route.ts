@@ -1,0 +1,66 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { submitWebsiteLead } from '@backend/handlers/websiteLead';
+import { prisma, withPrismaRetry } from '@backend/lib/prisma';
+import { isDatabaseUnavailableError } from '@backend/lib/neonDatabaseUrl';
+import { deliverLeadEmailAfterSubmit } from '@/lib/scheduleLeadEmail';
+import { verifyEmailVerificationToken } from '@/lib/emailOtp/otpToken';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
+
+export async function POST(req: NextRequest) {
+  let body: { email?: string; pageUrl?: string; emailVerificationToken?: string };
+  try {
+    body = (await req.json()) as typeof body;
+  } catch {
+    return NextResponse.json({ success: false, message: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const email = body.email?.trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ success: false, message: 'Valid email is required' }, { status: 400 });
+  }
+
+  const verified = verifyEmailVerificationToken(email, body.emailVerificationToken);
+  if (!verified.ok) {
+    return NextResponse.json({ success: false, message: verified.message }, { status: 403 });
+  }
+
+  try {
+    try {
+      await withPrismaRetry(() =>
+        prisma.subscriber.upsert({
+          where: { email },
+          create: { email },
+          update: { active: true, unsubscribedAt: null },
+        })
+      );
+    } catch (err) {
+      if (!isDatabaseUnavailableError(err)) throw err;
+      console.warn('[newsletter] subscriber save skipped (DB unavailable)');
+    }
+
+    const result = await submitWebsiteLead(
+      {
+        source: 'newsletter',
+        formName: 'Newsletter subscription',
+        fields: { email },
+        pageUrl: body.pageUrl ?? req.headers.get('referer') ?? undefined,
+        userAgent: req.headers.get('user-agent') ?? undefined,
+      },
+      { deferEmail: true }
+    );
+
+    if (!result.ok) {
+      return NextResponse.json({ success: false, message: result.message }, { status: result.status });
+    }
+
+    deliverLeadEmailAfterSubmit(result);
+
+    return NextResponse.json({ success: true, message: 'Successfully subscribed to newsletter!' });
+  } catch (error) {
+    console.error('[newsletter/subscribe]', error);
+    return NextResponse.json({ success: false, message: 'Error subscribing' }, { status: 500 });
+  }
+}

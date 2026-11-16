@@ -1,0 +1,14 @@
+# Keep local secrets out of CLI uploads (Vercel project env is the source of truth).
+.env
+.env.*
+!.env.example
+
+# Never upload local build/deps (Hobby 100MB limit)
+.next
+node_modules
+.turbo
+.claude
+coverage
+playwright-report
+test-results
+public/media

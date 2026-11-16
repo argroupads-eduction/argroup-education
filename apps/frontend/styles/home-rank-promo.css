@@ -1,0 +1,415 @@
+/* Home — NEET Rank Predictor promo (site navy + gold) */
+
+.home-rank-promo {
+  --hrp-navy: #0c1f3f;
+  --hrp-navy-mid: #1a365d;
+  --hrp-navy-deep: #061628;
+  --hrp-gold: #ffa726;
+  --hrp-gold-bright: #ffb74d;
+  --hrp-gold-soft: #fff3e0;
+  position: relative;
+  overflow: hidden;
+  padding: 3.5rem 0 4rem;
+  background:
+    radial-gradient(ellipse 70% 60% at 8% 20%, rgb(255 167 38 / 0.12), transparent 55%),
+    radial-gradient(ellipse 50% 45% at 92% 85%, rgb(26 54 93 / 0.08), transparent 50%),
+    linear-gradient(180deg, #fff 0%, #f0f4f8 48%, #fffbf0 100%);
+}
+
+.home-rank-promo__shell {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  max-width: 72rem;
+  padding: 0 1rem;
+}
+
+.home-rank-promo__stage {
+  position: relative;
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  background: linear-gradient(
+    125deg,
+    var(--hrp-navy-deep) 0%,
+    var(--hrp-navy) 42%,
+    var(--hrp-navy-mid) 100%
+  );
+  box-shadow:
+    0 0 0 1px rgb(255 167 38 / 0.28),
+    0 28px 56px -18px rgb(6 22 40 / 0.55);
+}
+
+.home-rank-promo__stage::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, var(--hrp-gold-bright), var(--hrp-gold), #e65100);
+  z-index: 2;
+}
+
+.home-rank-promo__stage::after {
+  content: '';
+  position: absolute;
+  right: -12%;
+  top: -30%;
+  width: 55%;
+  height: 140%;
+  background: radial-gradient(circle, rgb(255 167 38 / 0.2) 0%, transparent 68%);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .home-rank-promo__stage {
+    grid-template-columns: 1.08fr 0.92fr;
+    align-items: stretch;
+  }
+}
+
+.home-rank-promo__copy {
+  position: relative;
+  z-index: 1;
+  padding: 1.75rem 1.5rem 2rem;
+  color: #fff;
+}
+
+@media (min-width: 768px) {
+  .home-rank-promo__copy {
+    padding: 2.25rem 2rem 2.5rem 2.25rem;
+  }
+}
+
+.home-rank-promo__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hrp-navy-deep);
+  background: linear-gradient(135deg, var(--hrp-gold-bright), var(--hrp-gold));
+  box-shadow: 0 8px 24px -6px rgb(255 167 38 / 0.55);
+}
+
+.home-rank-promo__live {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.home-rank-promo__live::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: rgb(255 255 255 / 0.55);
+  animation: home-rank-promo-ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes home-rank-promo-ping {
+  75%,
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.home-rank-promo__title {
+  margin: 1.15rem 0 0;
+  max-width: 22ch;
+  font-size: clamp(1.75rem, 3.4vw, 2.55rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.home-rank-promo__title em {
+  font-style: normal;
+  color: var(--hrp-gold-bright);
+}
+
+.home-rank-promo__lead {
+  margin: 1rem 0 0;
+  max-width: 36rem;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgb(226 232 240);
+}
+
+.home-rank-promo__list {
+  margin: 1.35rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.home-rank-promo__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #f8fafc;
+}
+
+.home-rank-promo__check {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  background: rgb(255 167 38 / 0.18);
+  border: 1px solid rgb(255 183 77 / 0.55);
+  color: var(--hrp-gold-bright);
+}
+
+.home-rank-promo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem 1.15rem;
+  margin-top: 1.75rem;
+}
+
+.home-rank-promo__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.85rem 1.35rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--hrp-navy-deep) !important;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--hrp-gold-bright), var(--hrp-gold));
+  box-shadow: 0 12px 28px -8px rgb(255 167 38 / 0.55);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.home-rank-promo__cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px -8px rgb(255 167 38 / 0.65);
+  color: var(--hrp-navy-deep) !important;
+}
+
+.home-rank-promo__note {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgb(148 163 184);
+}
+
+.home-rank-promo__visual {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.25rem 1.75rem;
+}
+
+@media (min-width: 1024px) {
+  .home-rank-promo__visual {
+    padding: 2rem 2rem 2rem 0.5rem;
+  }
+}
+
+.home-rank-promo__preview {
+  position: relative;
+  width: 100%;
+  max-width: 22.5rem;
+  border-radius: 1.35rem;
+  border: 1px solid rgb(226 232 240);
+  background: #fff;
+  padding: 1.15rem 1.2rem 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 22px 44px -16px rgb(0 0 0 / 0.45);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.home-rank-promo__preview:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 28px 52px -14px rgb(0 0 0 / 0.5);
+}
+
+.home-rank-promo__preview-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.home-rank-promo__preview-top span:first-child {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.home-rank-promo__tap {
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+  color: #e65100;
+  background: var(--hrp-gold-soft);
+}
+
+.home-rank-promo__meter {
+  display: grid;
+  place-items: center;
+  margin: 1rem auto 0.35rem;
+  width: 8.5rem;
+  height: 8.5rem;
+}
+
+.home-rank-promo__meter svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.home-rank-promo__meter-track {
+  fill: none;
+  stroke: #e2e8f0;
+  stroke-width: 10;
+}
+
+.home-rank-promo__meter-value {
+  fill: none;
+  stroke: url(#homeRankGold);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 220;
+  stroke-dashoffset: 72;
+  animation: home-rank-promo-draw 1.4s ease-out both;
+}
+
+@keyframes home-rank-promo-draw {
+  from {
+    stroke-dashoffset: 220;
+  }
+  to {
+    stroke-dashoffset: 72;
+  }
+}
+
+.home-rank-promo__meter-center {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+}
+
+.home-rank-promo__meter-center strong {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--hrp-navy);
+  line-height: 1.1;
+}
+
+.home-rank-promo__meter-center span {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.home-rank-promo__score-line {
+  margin: 0.35rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.home-rank-promo__air {
+  margin: 0.15rem 0 0;
+  text-align: center;
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--hrp-navy);
+}
+
+.home-rank-promo__air b {
+  color: #e65100;
+  font-weight: 800;
+}
+
+.home-rank-promo__bands {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+}
+
+.home-rank-promo__bands div {
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.35rem;
+  text-align: center;
+  background: #f0f4f8;
+  border: 1px solid #d9e2f0;
+}
+
+.home-rank-promo__bands p {
+  margin: 0;
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.home-rank-promo__bands strong {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--hrp-navy);
+}
+
+.home-rank-promo__chips {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+}
+
+.home-rank-promo__chips span {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--hrp-navy);
+  background: var(--hrp-gold-soft);
+}
+
+.home-rank-promo__chips span:last-child {
+  background: #f0f4f8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-rank-promo__live::before,
+  .home-rank-promo__meter-value {
+    animation: none;
+  }
+}
