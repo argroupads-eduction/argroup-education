@@ -133,8 +133,6 @@ NEXT_PUBLIC_CMS_URL=http://localhost:3002
 # Cloudinary
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
 
-# Payment
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_xxxxx
 ```
 
 ### Backend Environment (`.env`)

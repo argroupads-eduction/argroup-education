@@ -1468,7 +1468,8 @@
 .wp-content-root .elementor-icon-list-item {
   display: flex !important;
   flex-direction: row !important;
-  align-items: flex-start !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
   gap: 0.875rem;
   list-style: none !important;
   margin: 0;
@@ -1477,6 +1478,19 @@
   border: 1px solid var(--wp-border);
   background: linear-gradient(135deg, #f8fafc, #fff);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* WP/Elementor often injects <br> between icon + label — hide so row stays horizontal */
+.wp-content-root ul.elementor-icon-list-items > li > br,
+.wp-content-root .elementor-icon-list-item > br,
+.wp-content-root .elementor-icon-list-icon > br {
+  display: none !important;
+}
+
+/* Hide blank checklist rows (icon only / no label) */
+.wp-content-root ul.elementor-icon-list-items > li.elementor-icon-list-item:not(:has(.elementor-icon-list-text)),
+.wp-content-root ul.elementor-icon-list-items > li.elementor-icon-list-item:has(.elementor-icon-list-text:empty) {
+  display: none !important;
 }
 
 /* Never let admission step-list typography break icon rows */
@@ -1537,12 +1551,28 @@
   display: none !important;
 }
 
-.wp-content-root .elementor-icon-list-icon:has(i.jki)::after {
+.wp-content-root .elementor-icon-list-icon:has(i.jki)::after,
+.wp-content-root .elementor-icon-list-icon:empty::after,
+.wp-content-root .elementor-icon-list-icon:not(:has(svg, img, i:not(.jki)))::after {
   content: '✓';
   font-size: 0.8rem;
   font-weight: 800;
   color: #fff;
   line-height: 1;
+}
+
+.wp-content-root .elementor-icon-list-icon svg {
+  width: 1rem !important;
+  height: 1rem !important;
+  max-width: 1rem !important;
+  max-height: 1rem !important;
+  fill: #fff !important;
+  color: #fff !important;
+  display: block;
+}
+
+.wp-content-root .elementor-icon-list-icon svg path {
+  fill: #fff !important;
 }
 
 .wp-content-root .elementor-icon-list-text,
@@ -2478,14 +2508,50 @@
 
 .wp-content-root .wp-content-body .elementor-button,
 .wp-content-root .wp-content-body .wp-block-button__link {
-  display: inline-flex;
-  align-items: center;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center;
+  gap: 0.4rem;
   border-radius: 9999px;
-  padding: 0.65rem 1.25rem;
+  padding: 0.7rem 1.35rem !important;
+  min-height: 2.75rem;
+  max-width: 100%;
+  width: auto !important;
+  height: auto !important;
   background: var(--wp-navy) !important;
   color: #fff !important;
   text-decoration: none !important;
   font-weight: 600;
+  line-height: 1.25 !important;
+  white-space: normal;
+  overflow: visible !important;
+}
+
+/* WP often injects <br> inside Elementor buttons → broken circle / clipped label */
+.wp-content-root .wp-content-body .elementor-button br,
+.wp-content-root .wp-content-body .elementor-button-content-wrapper > br,
+.wp-content-root .wp-content-body .elementor-button-icon > br {
+  display: none !important;
+}
+
+.wp-content-root .wp-content-body .elementor-button-content-wrapper {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.4rem;
+  max-width: 100%;
+}
+
+.wp-content-root .wp-content-body .elementor-button-icon:empty {
+  display: none !important;
+}
+
+.wp-content-root .wp-content-body .elementor-button-text {
+  display: inline !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 .wp-content-root .wp-content-body blockquote {
@@ -3591,14 +3657,23 @@ html:has(.wp-content-affinity) {
     grid-template-columns: 1fr !important;
   }
 
+  /* Keep sideways scroll on wide tables — visible + parent clip was cutting them off */
   .wp-content-root .wp-content-body .eael-data-table-wrap,
   .wp-content-root .wp-content-body .wp-table-scroll,
   .wp-content-root .wp-content-body .elementor-widget-eael-data-table,
   .wp-content-root .eael-data-table-wrap,
   .wp-content-root .wp-table-scroll {
-    overflow-x: visible !important;
+    overflow-x: auto !important;
     max-width: 100% !important;
     min-width: 0 !important;
+  }
+
+  /* 2-col card restack still needs visible overflow on the wrapper */
+  .wp-content-root .wp-table-scroll:has(> table.wp-table-cols-2),
+  .wp-content-root .eael-data-table-wrap:has(> table.wp-table-cols-2),
+  .wp-content-root .wp-table-scroll:has(> table.wp-facts-kv-table),
+  .wp-content-root .eael-data-table-wrap:has(> table.wp-facts-kv-table) {
+    overflow-x: visible !important;
   }
 
   /* Match tagged tables OR any EAEL 2-column row layout (even without wp-table-cols-2) */
@@ -4197,8 +4272,12 @@ html:has(.wp-content-affinity) {
   .wp-content-root .eael-data-table-wrap:has(> table.wp-table-cols-many),
   .wp-content-root .wp-content-body .wp-table-scroll:has(table.wp-table-cols-3),
   .wp-content-root .wp-content-body .wp-table-scroll:has(table.wp-table-cols-4),
+  .wp-content-root .wp-content-body .wp-table-scroll:has(table.wp-table-cols-5),
+  .wp-content-root .wp-content-body .wp-table-scroll:has(table.wp-table-cols-many),
   .wp-content-root .wp-content-body .eael-data-table-wrap:has(table.wp-table-cols-3),
-  .wp-content-root .wp-content-body .eael-data-table-wrap:has(table.wp-table-cols-4) {
+  .wp-content-root .wp-content-body .eael-data-table-wrap:has(table.wp-table-cols-4),
+  .wp-content-root .wp-content-body .eael-data-table-wrap:has(table.wp-table-cols-5),
+  .wp-content-root .wp-content-body .eael-data-table-wrap:has(table.wp-table-cols-many) {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -4499,12 +4578,35 @@ html:has(.wp-content-affinity) {
 .wp-content-root .wp-content-body .wp-table-scroll.table-wrapper table.eael-data-table.wp-labeled-data-table {
   display: table !important;
   width: 100% !important;
-  min-width: 640px !important;
+  min-width: 0 !important;
   max-width: none !important;
   table-layout: auto !important;
   border-collapse: collapse !important;
   font-size: 15px !important;
   line-height: 1.5 !important;
+}
+
+/* Wide fee / comparison tables: keep a real grid and scroll inside the wrapper */
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table.wp-table-cols-3,
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table.wp-table-cols-4,
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table.wp-table-cols-5,
+.blog-post-root .blog-article.wp-content-root .wp-content-blog .wp-table-scroll.table-wrapper > table.wp-table-cols-many,
+.wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-table-cols-3,
+.wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-table-cols-4,
+.wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-table-cols-5,
+.wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-table-cols-many,
+.wp-content-root .wp-content-body .eael-data-table-wrap.table-wrapper > table.wp-table-cols-3,
+.wp-content-root .wp-content-body .eael-data-table-wrap.table-wrapper > table.wp-table-cols-4,
+.wp-content-root .wp-content-body .eael-data-table-wrap.table-wrapper > table.wp-table-cols-5,
+.wp-content-root .wp-content-body .eael-data-table-wrap.table-wrapper > table.wp-table-cols-many {
+  min-width: 36rem !important;
+}
+
+.wp-content-root .wp-content-body .wp-table-scroll.table-wrapper > table.wp-table-cols-2,
+.wp-content-root .wp-content-body .eael-data-table-wrap.table-wrapper > table.wp-table-cols-2 {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed !important;
 }
 
 .blog-post-root .blog-article.wp-content-root .wp-content-blog .table-wrapper table :is(thead, tbody),
@@ -4573,19 +4675,20 @@ html:has(.wp-content-affinity) {
   -webkit-text-fill-color: #fff !important;
 }
 
-.wp-content-root .table-wrapper th:nth-child(2),
-.wp-content-root .table-wrapper td:nth-child(2) {
-  min-width: 200px !important;
+/* Soft column floors — hard 200/260px floors made fee tables explode past the card */
+.wp-content-root .table-wrapper table:not(.wp-table-cols-2):not(.wp-facts-kv-table) th:nth-child(2),
+.wp-content-root .table-wrapper table:not(.wp-table-cols-2):not(.wp-facts-kv-table) td:nth-child(2) {
+  min-width: 7rem !important;
 }
 
-.wp-content-root .table-wrapper th:nth-child(3),
-.wp-content-root .table-wrapper td:nth-child(3) {
-  min-width: 150px !important;
+.wp-content-root .table-wrapper table:not(.wp-table-cols-2):not(.wp-facts-kv-table) th:nth-child(3),
+.wp-content-root .table-wrapper table:not(.wp-table-cols-2):not(.wp-facts-kv-table) td:nth-child(3) {
+  min-width: 6.5rem !important;
 }
 
-.wp-content-root .table-wrapper th:last-child,
-.wp-content-root .table-wrapper td:last-child {
-  min-width: 260px !important;
+.wp-content-root .table-wrapper table:not(.wp-table-cols-2):not(.wp-facts-kv-table) th:last-child,
+.wp-content-root .table-wrapper table:not(.wp-table-cols-2):not(.wp-facts-kv-table) td:last-child {
+  min-width: 6.5rem !important;
 }
 
 .wp-content-root .table-wrapper table.table-index-col th:first-child,

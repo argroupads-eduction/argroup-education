@@ -236,8 +236,56 @@ function injectDataLabels(table: string): string {
   });
 }
 
+/** WP fee tables sometimes repeat "4th-year" instead of "5th-year" before "6th-year". */
+function fixDuplicateYearHeaders(table: string): string {
+  if (!/<thead\b/i.test(table)) return table;
+
+  return table.replace(/<thead\b([^>]*)>([\s\S]*?)<\/thead>/i, (full, attrs: string, inner: string) => {
+    const cellRe = /<(th|td)\b([^>]*)>([\s\S]*?)<\/\1>/gi;
+    const cells = [...inner.matchAll(cellRe)];
+    if (cells.length < 3) return full;
+
+    const yearRe = /(\d+)(?:st|nd|rd|th)([-\s]?year)/i;
+    const plain = (html: string) =>
+      html
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    const years = cells.map((c) => {
+      const m = plain(c[3]).match(/^(\d+)(?:st|nd|rd|th)[-\s]?year$/i);
+      return m ? Number(m[1]) : null;
+    });
+
+    let changed = false;
+    const rebuilt = cells
+      .map((c, idx) => {
+        const cur = years[idx];
+        const prev = years[idx - 1];
+        const next = years[idx + 1];
+        let content = c[3];
+        if (cur != null && prev === cur && next === cur + 2) {
+          const fixedYear = cur + 1;
+          const suffix =
+            fixedYear === 1 ? 'st' : fixedYear === 2 ? 'nd' : fixedYear === 3 ? 'rd' : 'th';
+          content = content.replace(yearRe, `${fixedYear}${suffix}$2`);
+          years[idx] = fixedYear;
+          changed = true;
+        }
+        return `<${c[1]}${c[2]}>${content}</${c[1]}>`;
+      })
+      .join('');
+
+    // Preserve non-cell markup between cells (whitespace/newlines only in practice)
+    if (!changed) return full;
+    return `<thead${attrs}>${rebuilt}</thead>`;
+  });
+}
+
 function tagTableStructure(table: string): string {
   let tagged = promoteHeaderRowToThead(table);
+  tagged = fixDuplicateYearHeaders(tagged);
   const cols = countEaelTableColumns(tagged);
   tagged = addTableClass(tagged, eaelColumnClass(cols));
 

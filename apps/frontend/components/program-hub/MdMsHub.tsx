@@ -7,6 +7,7 @@ import { MD_MS_TRUST_ITEMS, ProgramHubTrustBar } from '@/components/program-hub/
 import type { SiteContent } from '@/lib/contentApi';
 import { MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 import { PROGRAM_HUB_SEO, PROGRAM_HUB_WP_SLUG } from '@/lib/programHubContent';
+import { stripMdMsHighlightsServicesHtml } from '@/lib/stripMdMsHighlightsServices';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 
 type MdMsHubProps = {
@@ -17,9 +18,16 @@ export function MdMsHub({ wpContent }: MdMsHubProps) {
   const seo = PROGRAM_HUB_SEO.mdms;
   const title = plainTitle(wpContent?.title || 'MD/MS Admission in India');
   const breadcrumbs = [{ label: 'MD / MS' }];
+  const pageHtml = wpContent?.content
+    ? stripMdMsHighlightsServicesHtml(wpContent.content)
+    : '';
+  const contentForPage =
+    wpContent && pageHtml && pageHtml !== wpContent.content
+      ? { ...wpContent, content: pageHtml }
+      : wpContent;
 
   const contentForJsonLd: SiteContent =
-    wpContent ??
+    contentForPage ??
     ({
       id: 'md-ms-hub',
       type: 'page',
@@ -59,7 +67,7 @@ export function MdMsHub({ wpContent }: MdMsHubProps) {
       <ProgramHubTrustBar items={MD_MS_TRUST_ITEMS} />
       <MdMsHubExplorer />
 
-      {wpContent?.content ? (
+      {contentForPage?.content ? (
         <section className="program-hub-section bg-white">
           <div className="mx-auto max-w-7xl px-4">
             <div className="program-hub-section-head">
@@ -69,10 +77,10 @@ export function MdMsHub({ wpContent }: MdMsHubProps) {
           </div>
           {/* Shell owns its own max-width grid — avoid nested max-w-7xl squeezing the article. */}
           <ContentPageShell
-            html={wpContent.content}
-            featuredImage={wpContent.featuredImage}
+            html={contentForPage.content}
+            featuredImage={contentForPage.featuredImage}
             title={title}
-            showFeaturedImage={Boolean(wpContent.featuredImage)}
+            showFeaturedImage={Boolean(contentForPage.featuredImage)}
             pageSlug={PROGRAM_HUB_WP_SLUG.mdms}
             articleClassName="wp-content-mbbs-india"
           />

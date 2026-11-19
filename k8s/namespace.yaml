@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ar-education
-  labels:
-    app.kubernetes.io/name: ar-education

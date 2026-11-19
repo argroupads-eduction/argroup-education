@@ -1,4 +1,3 @@
-/** Resolve with fallback if a server-side CMS/DB call hangs (e.g. mobile dev on slow Neon). */
 export function withServerTimeout<T>(
   promise: Promise<T>,
   ms: number,

@@ -37,6 +37,11 @@ export function sanitizeCmsHtml(html: string): string {
       'details',
       'summary',
       'button',
+      // Elementor / Font Awesome icon SVGs in checklist & benefit cards
+      'svg',
+      'path',
+      'g',
+      'use',
     ]),
     allowedAttributes: {
       ...sanitizeHtml.defaults.allowedAttributes,
@@ -47,6 +52,9 @@ export function sanitizeCmsHtml(html: string): string {
       iframe: ['src', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen', 'title'],
       td: ['colspan', 'rowspan', 'width', 'height', 'data-label', 'class'],
       th: ['colspan', 'rowspan', 'width', 'height', 'data-label', 'class'],
+      svg: ['viewBox', 'xmlns', 'width', 'height', 'fill', 'stroke', 'class', 'aria-hidden', 'role'],
+      path: ['d', 'fill', 'stroke', 'stroke-width', 'class'],
+      use: ['href', 'xlink:href'],
     },
     allowedSchemes: ['http', 'https', 'mailto', 'tel', 'data'],
     allowedSchemesByTag: {

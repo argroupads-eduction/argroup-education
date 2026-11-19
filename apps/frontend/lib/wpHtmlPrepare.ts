@@ -289,19 +289,24 @@ function extractElementorIconListText(inner: string): string | null {
 
 /** Elementor icon rows must keep icon + text spans separate (chip grid hides icon spans). */
 export function normalizeElementorIconListItems(html: string): string {
-  return html.replace(/<li(\b[^>]*elementor-icon-list-item[^>]*)>([\s\S]*?)<\/li>/gi, (match, attrs, inner) => {
-    if (/elementor-icon-list-text/i.test(inner)) return match;
+  return html.replace(/<li(\b[^>]*elementor-icon-list-item[^>]*)>([\s\S]*?)<\/li>/gi, (_match, attrs, inner) => {
+    // WP/CMS often injects <br> between icon + text → flex row collapses into a tall mess.
+    const text = extractElementorIconListText(inner)?.replace(/\s+/g, ' ').trim() || '';
+    const plain = text || stripHtml(inner).replace(/\s+/g, ' ').trim();
+    // Drop blank icon-only rows (layout glitch: empty white card with lone checkmark).
+    if (!plain) return '';
 
-    const text = extractElementorIconListText(inner);
-    if (!text) return match;
-
-    const iconMatch = inner.match(/(?:<i\b[^>]*>[\s\S]*?<\/i>|<svg\b[\s\S]*?<\/svg>)/i);
-    const iconHtml = iconMatch ? iconMatch[0] : '';
+    const iconMatch = inner.match(/(?:<svg\b[\s\S]*?<\/svg>|<i\b[^>]*>[\s\S]*?<\/i>)/i);
+    // Prefer SVG when present; otherwise JKit <i> so CSS checkmark (::after) still renders.
+    // (sanitize used to strip SVG — keep a fallback <i class="jki"> always if no svg/i.)
+    const iconHtml = iconMatch
+      ? iconMatch[0]
+      : '<i aria-hidden="true" class="jki jki-open-book1-light"></i>';
 
     return (
       `<li${attrs}>` +
-      (iconHtml ? `<span class="elementor-icon-list-icon">${iconHtml}</span>` : '') +
-      `<span class="elementor-icon-list-text">${text}</span></li>`
+      `<span class="elementor-icon-list-icon">${iconHtml}</span>` +
+      `<span class="elementor-icon-list-text">${text || escapeHtml(plain)}</span></li>`
     );
   });
 }
@@ -758,9 +763,45 @@ export function markUniversityProfileSections(html: string): string {
   return out;
 }
 
+/**
+ * Repair document checklists that were split into:
+ * empty icon row + fake h2 label + orphaned <li> outside </ul>.
+ */
+export function repairSplitIconListDocuments(html: string): string {
+  let out = html;
+
+  // Empty white cards (icon only, no label).
+  out = out.replace(/<li\b([^>]*elementor-icon-list-item[^>]*)>([\s\S]*?)<\/li>/gi, (full, _attrs, inner) => {
+    return stripHtml(inner).trim() ? full : '';
+  });
+
+  // Closed h2 mistakenly wrapping a document label.
+  out = out.replace(
+    /<h2\b[^>]*>\s*(<span\b[^>]*elementor-icon-list-text[^>]*>[\s\S]*?<\/span>)\s*<\/h2>/gi,
+    (_m, span: string) =>
+      `<li class="elementor-icon-list-item"><span class="elementor-icon-list-icon"><i aria-hidden="true" class="jki jki-open-book1-light"></i></span>${span}</li>`
+  );
+
+  // Unclosed h2 before the next icon-list row.
+  out = out.replace(
+    /<h2\b[^>]*>\s*(<span\b[^>]*elementor-icon-list-text[^>]*>[\s\S]*?<\/span>)\s*(?=<li\b[^>]*elementor-icon-list-item)/gi,
+    (_m, span: string) =>
+      `<li class="elementor-icon-list-item"><span class="elementor-icon-list-icon"><i aria-hidden="true" class="jki jki-open-book1-light"></i></span>${span}</li>`
+  );
+
+  // Pull orphaned icon-list rows back into the checklist before </ul> was closed early.
+  out = out.replace(
+    /<\/ul>(\s*<\/div>\s*<\/section>)\s*(?:<section\b[^>]*wp-lazy-section[^>]*>\s*)?((?:<li\b[^>]*elementor-icon-list-item[^>]*>[\s\S]*?<\/li>\s*)+)/gi,
+    (_m, closeBits: string, lis: string) => `${lis}</ul>${closeBits}`
+  );
+
+  return out;
+}
+
 /** Strip grid/step classes wrongly applied to Elementor icon rows; optional contact linkify. */
 export function fixElementorIconListLayout(html: string): string {
-  return html.replace(
+  const repaired = repairSplitIconListDocuments(html);
+  return repaired.replace(
     /<ul(\s+class=")([^"]*)("[^>]*>)([\s\S]*?)<\/ul>/gi,
     (full, clsOpen, cls, clsEnd, inner) => {
       if (!/elementor-icon-list-items/i.test(cls) && !/<li\b[^>]*elementor-icon-list-item/i.test(inner)) {
@@ -770,7 +811,7 @@ export function fixElementorIconListLayout(html: string): string {
       const plain = stripHtml(inner);
       const contactStrip =
         /Contact Us Now!/i.test(
-          html.slice(Math.max(0, html.indexOf(full) - 1200), html.indexOf(full))
+          repaired.slice(Math.max(0, repaired.indexOf(full) - 1200), repaired.indexOf(full))
         ) ||
         (/\b\d{10}\b/.test(plain) && /@/.test(plain));
 
@@ -818,6 +859,15 @@ export function enhanceContactIconLists(html: string): string {
 function isBrSeparatedHeadingLine(plain: string): boolean {
   const text = plain.replace(/\s+/g, ' ').trim();
   if (text.length < 4 || text.length > 110) return false;
+
+  // Document checklist labels (MD/MS / NEET PG docs) must stay list rows, not h2.
+  if (
+    /\b(?:certificate|mark\s*sheets?|admit\s*card|allotment\s+letter|percentile|photograph|domicile|passport|bonafide|relieving|migration|gap\s+certificate|fitness\s+certificate|identity\s+card)\b/i.test(
+      text
+    )
+  ) {
+    return false;
+  }
 
   if (
     /^(?:faqs?:?|frequently\s+asked\s+questions|conclusion|final\s+thoughts|introduction|summary)$/i.test(
@@ -931,6 +981,10 @@ export function extractBrArticleTailFromLastListItem(html: string): string {
   return html.replace(
     /<li\b([^>]*)>([\s\S]*?)<\/li>(\s*)(<\/(?:ol|ul)>)/gi,
     (full, attrs: string, inner: string, sp: string, listClose: string) => {
+      // Never split Elementor icon / document checklists into fake article headings.
+      if (/elementor-icon-list-item/i.test(attrs) || /elementor-icon-list-/i.test(inner)) {
+        return full;
+      }
       if (!/<br\s*\/?>/i.test(inner)) return full;
       if (/<(?:ul|ol|table|div)\b/i.test(inner)) return full;
 
@@ -978,6 +1032,23 @@ export function transformBlogLeadCtaLines(html: string): string {
       `<button type="button" class="wp-lead-cta" data-open-lead-capture="1">` +
       `${escapeHtml(label)}` +
       `</button></p>`
+    );
+  });
+}
+
+/**
+ * WP/Elementor buttons often contain dozens of <br> tags → pill becomes a broken circle.
+ * Normalize to a clean label wrapper (href handled separately).
+ */
+export function normalizeElementorButtons(html: string): string {
+  return html.replace(/<a\b([^>]*elementor-button[^>]*)>([\s\S]*?)<\/a>/gi, (full, attrs, inner) => {
+    const text = stripHtml(inner).replace(/\s+/g, ' ').trim();
+    if (!text) return full;
+    return (
+      `<a${attrs}>` +
+      `<span class="elementor-button-content-wrapper">` +
+      `<span class="elementor-button-text">${escapeHtml(text)}</span>` +
+      `</span></a>`
     );
   });
 }
@@ -2171,6 +2242,7 @@ export function prepareWpHtml(
   out = stripFaqSectionJunk(out);
   out = replaceBrokenEmbeddedForms(out);
   out = constrainInlineSvgs(out);
+  out = normalizeElementorButtons(out);
   out = wireCtaButtonsToContact(out);
   if (options?.leadCtaButtons) out = transformBlogLeadCtaLines(out);
   out = mergeCollegeCardGridSections(out);

@@ -1,6 +1,8 @@
 'use client';
 
+import Script from 'next/script';
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 const GA_ID =
   process.env.NEXT_PUBLIC_GA_ID?.trim() ||
@@ -10,67 +12,49 @@ const GA_ID =
 declare global {
   interface Window {
     dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
 /**
- * Load GA4 after first paint / idle so gtag does not compete with LCP/INP.
+ * Official GA4 snippet via next/script (loads even before React effects).
+ * Client page_view covers App Router navigations.
  */
 export function GoogleAnalytics() {
+  const pathname = usePathname();
+  const enabled = Boolean(GA_ID && GA_ID.startsWith('G-'));
+
   useEffect(() => {
-    if (!GA_ID || !GA_ID.startsWith('G-')) return undefined;
+    if (!enabled) return;
+    if (typeof window.gtag !== 'function') return;
 
-    let cancelled = false;
-    let idleId: number | undefined;
-    let timerId: number | undefined;
+    const query = window.location.search || '';
+    const pagePath = `${pathname || '/'}${query}`;
+    window.gtag('event', 'page_view', {
+      page_path: pagePath,
+      page_location: window.location.href,
+      page_title: document.title,
+    });
+  }, [pathname, enabled]);
 
-    const load = () => {
-      if (cancelled || document.getElementById('gtag-js')) return;
+  if (!enabled) return null;
 
-      window.dataLayer = window.dataLayer || [];
-      const gtag = (...args: unknown[]) => {
-        window.dataLayer?.push(args);
-      };
-      gtag('js', new Date());
-      gtag('config', GA_ID);
-
-      const script = document.createElement('script');
-      script.id = 'gtag-js';
-      script.async = true;
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-      document.head.appendChild(script);
-    };
-
-    const onInteract = () => {
-      load();
-      cleanupInteract();
-    };
-
-    const cleanupInteract = () => {
-      window.removeEventListener('pointerdown', onInteract);
-      window.removeEventListener('keydown', onInteract);
-      window.removeEventListener('scroll', onInteract, true);
-    };
-
-    window.addEventListener('pointerdown', onInteract, { once: true, passive: true });
-    window.addEventListener('keydown', onInteract, { once: true });
-    window.addEventListener('scroll', onInteract, { once: true, passive: true, capture: true });
-
-    if (typeof window.requestIdleCallback === 'function') {
-      idleId = window.requestIdleCallback(load, { timeout: 8000 });
-    } else {
-      timerId = window.setTimeout(load, 6000);
-    }
-
-    return () => {
-      cancelled = true;
-      cleanupInteract();
-      if (idleId != null && typeof window.cancelIdleCallback === 'function') {
-        window.cancelIdleCallback(idleId);
-      }
-      if (timerId != null) window.clearTimeout(timerId);
-    };
-  }, []);
-
-  return null;
+  return (
+    <>
+      <Script
+        id="gtag-js"
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script id="gtag-init" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', '${GA_ID}', { send_page_view: true });
+        `}
+      </Script>
+    </>
+  );
 }

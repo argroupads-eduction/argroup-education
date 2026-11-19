@@ -7,6 +7,7 @@ import { RelatedLinksPills } from '@/components/content/RelatedLinksPills';
 import { getPageContentBySlug } from '@/lib/contentApi';
 import { getMdMsNavItemById, MD_MS_NAV_ITEMS } from '@/lib/mdMsNav';
 import { getCuratedPageSeo } from '@/lib/curatedPageSeo';
+import { patchNeetPgRoundScheduleHtml } from '@/lib/patchNeetPgRoundSchedule';
 import { plainTitle } from '@/lib/wpHtmlPrepare';
 import { isLiveCmsMediaUrl, liveCmsMediaUrl } from '@/lib/wpMediaUrl';
 
@@ -62,11 +63,19 @@ export default async function MdMsStatePage({ params }: PageProps) {
   const featuredImage = isLiveCmsMediaUrl(wpContent?.featuredImage)
     ? liveCmsMediaUrl(wpContent!.featuredImage!)
     : item.coverImage || wpContent?.featuredImage || null;
+  const pageHtml =
+    item.wpSlug === 'md-ms-colleges-in-uttar-pradesh' && wpContent?.content
+      ? patchNeetPgRoundScheduleHtml(wpContent.content)
+      : wpContent?.content;
+  const contentForPage =
+    wpContent && pageHtml && pageHtml !== wpContent.content
+      ? { ...wpContent, content: pageHtml }
+      : wpContent;
 
   return (
     <>
-      {wpContent ? (
-        <ContentJsonLd content={{ ...wpContent, slug: item.wpSlug }} breadcrumbs={breadcrumbs} />
+      {contentForPage ? (
+        <ContentJsonLd content={{ ...contentForPage, slug: item.wpSlug }} breadcrumbs={breadcrumbs} />
       ) : null}
 
       <ProgramPageHero
@@ -78,9 +87,9 @@ export default async function MdMsStatePage({ params }: PageProps) {
         featuredImage={featuredImage}
       />
 
-      {wpContent ? (
+      {wpContent && pageHtml ? (
         <ContentPageShell
-          html={wpContent.content}
+          html={pageHtml}
           featuredImage={featuredImage}
           title={title}
           showFeaturedImage={false}

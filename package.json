@@ -58,10 +58,7 @@
     "payload:dedupe:pages": "npm run dedupe:pages --prefix ar-group-of-eductions",
     "wp:verify:migration": "node scripts/wp-migration/verify-migration.mjs",
     "wp:import:payload:batched": "node scripts/wp-migration/import-payload-batched.mjs",
-    "wp:import:payload:pages": "node scripts/wp-migration/import-payload-pages-batched.mjs",
-    "docker:build:frontend": "docker build -f docker/frontend.Dockerfile -t ar-education/frontend:latest .",
-    "docker:build:backend": "docker build -f docker/backend.Dockerfile -t ar-education/backend:latest .",
-    "k8s:apply": "kubectl apply -f k8s/namespace.yaml && kubectl apply -f k8s/configmap.example.yaml && kubectl apply -f k8s/backend-deployment.yaml && kubectl apply -f k8s/frontend-deployment.yaml && kubectl apply -f k8s/ingress.yaml && kubectl apply -f k8s/hpa-frontend.yaml"
+    "wp:import:payload:pages": "node scripts/wp-migration/import-payload-pages-batched.mjs"
   },
   "workspaces": [
     "apps/frontend",
