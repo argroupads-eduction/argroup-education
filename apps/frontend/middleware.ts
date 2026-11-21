@@ -85,6 +85,11 @@ function legacyWpRedirect(req: NextRequest): NextResponse | null {
   return null;
 }
 
+function wantsMarkdown(req: NextRequest): boolean {
+  const accept = req.headers.get('accept') || '';
+  return /\btext\/markdown\b/i.test(accept);
+}
+
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -99,6 +104,18 @@ export function middleware(req: NextRequest) {
     dest.protocol = 'https:';
     dest.host = 'www.argroupofeducation.com';
     return NextResponse.redirect(dest, 301);
+  }
+
+  // Agents requesting Markdown get a text/markdown response via /api/md.
+  if (
+    wantsMarkdown(req) &&
+    !pathname.startsWith('/api/') &&
+    !pathname.startsWith('/_next/')
+  ) {
+    const url = req.nextUrl.clone();
+    url.pathname = '/api/md';
+    url.searchParams.set('path', pathname || '/');
+    return NextResponse.rewrite(url);
   }
 
   const legacy = legacyWpRedirect(req);

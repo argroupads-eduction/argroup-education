@@ -142,6 +142,10 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'public, s-maxage=180, stale-while-revalidate=86400',
           },
+          {
+            key: 'Link',
+            value: '</llms.txt>; rel="describedby"; type="text/plain"',
+          },
         ],
       },
       {

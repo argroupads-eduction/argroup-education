@@ -1,0 +1,150 @@
+User-Agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+Allow: /wp-content/
+Allow: /uploads/
+Allow: /api/wp-media/
+Allow: /states/
+Allow: /mbbs-abroad-scroll/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: Googlebot
+Allow: /
+Allow: /wp-content/
+Allow: /uploads/
+Allow: /api/wp-media/
+Allow: /states/
+Allow: /mbbs-abroad-scroll/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: Googlebot-Image
+Allow: /
+Allow: /wp-content/
+Allow: /uploads/
+Allow: /api/wp-media/
+Allow: /states/
+Allow: /mbbs-abroad-scroll/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+
+User-Agent: Bingbot
+Allow: /
+Allow: /wp-content/
+Allow: /uploads/
+Allow: /api/wp-media/
+Allow: /states/
+Allow: /mbbs-abroad-scroll/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: GPTBot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: ChatGPT-User
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: OAI-SearchBot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: Claude-Web
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: anthropic-ai
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: Google-Extended
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: Applebot-Extended
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: cohere-ai
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: Bytespider
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: meta-externalagent
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+User-Agent: FacebookBot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /thank-you
+Disallow: /_next/
+
+Host: https://www.argroupofeducation.com
+Sitemap: https://www.argroupofeducation.com/sitemap.xml
+Sitemap: https://www.argroupofeducation.com/sitemap-images.xml
