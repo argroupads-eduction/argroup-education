@@ -58,10 +58,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug: segments } = await params;
   const decoded = slugFromBlogRouteSegments(segments ?? []);
   if (!decoded || BLOG_REMOVED_PUBLIC_SLUGS.has(decoded)) {
-    return { title: 'Not Found' };
+    notFound();
   }
   const { post } = await getBlogPostPageData(decoded);
-  if (!post) return { title: 'Not Found' };
+  if (!post) notFound();
   return buildSiteMetadata(toSiteContent(post), {
     canonicalPath: blogPostPath(post.slug),
   });

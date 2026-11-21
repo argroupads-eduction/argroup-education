@@ -268,6 +268,18 @@ function tryServeHtmlCache(req, res) {
   return true;
 }
 
+function looksLikeNotFoundHtml(body) {
+  if (!body || !body.length) return false;
+  const sample = body.toString('utf8', 0, Math.min(body.length, 200000));
+  if (!/404|Page not found|page not found/i.test(sample)) return false;
+  return (
+    /does not exist/i.test(sample) ||
+    /Error 404/i.test(sample) ||
+    /<title>[^<]*Not Found/i.test(sample) ||
+    /<title>[^<]*Page not found/i.test(sample)
+  );
+}
+
 function wrapHtmlCache(handle) {
   return (req, res) => {
     if (tryServeStatic(req, res)) return;
@@ -283,8 +295,8 @@ function wrapHtmlCache(handle) {
     const chunks = [];
     let statusCode = 200;
     const headerBag = {};
+    let headersSentByPatch = false;
     const origWriteHead = res.writeHead.bind(res);
-    const origWrite = res.write.bind(res);
     const origEnd = res.end.bind(res);
 
     res.writeHead = function patchedWriteHead(code, reasonOrHeaders, maybeHeaders) {
@@ -296,7 +308,8 @@ function wrapHtmlCache(handle) {
           headerBag[k.toLowerCase()] = Array.isArray(v) ? v.join(', ') : String(v);
         }
       }
-      return origWriteHead(code, reasonOrHeaders, maybeHeaders);
+      // Buffer HTML until end so we can correct soft-404 (200 + "not found" body) → real 404.
+      return res;
     };
 
     const origSetHeader = res.setHeader.bind(res);
@@ -307,7 +320,8 @@ function wrapHtmlCache(handle) {
 
     res.write = function patchedWrite(chunk, encoding, cb) {
       if (chunk) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding));
-      return origWrite(chunk, encoding, cb);
+      if (typeof cb === 'function') cb();
+      return true;
     };
 
     res.end = function patchedEnd(chunk, encoding, cb) {
@@ -315,15 +329,50 @@ function wrapHtmlCache(handle) {
       const body = Buffer.concat(chunks);
       const ct = headerBag['content-type'] || '';
       const contentEncoding = headerBag['content-encoding'] || '';
+      let finalStatus =
+        (typeof res.statusCode === 'number' && res.statusCode !== 200
+          ? res.statusCode
+          : statusCode) || 200;
+
       if (
         ct.includes('text/html') &&
-        statusCode === 200 &&
+        finalStatus === 200 &&
+        !isCompressedBody(body, contentEncoding) &&
+        looksLikeNotFoundHtml(body)
+      ) {
+        finalStatus = 404;
+        statusCode = 404;
+        try {
+          res.statusCode = 404;
+        } catch {
+          /* ignore */
+        }
+      }
+
+      if (!headersSentByPatch) {
+        headersSentByPatch = true;
+        const headers = {};
+        for (const [k, v] of Object.entries(headerBag)) {
+          if (k === 'content-length') continue;
+          headers[k] = v;
+        }
+        headers['content-length'] = String(Buffer.byteLength(body));
+        if (finalStatus === 404) {
+          headers['cache-control'] = 'private, no-cache, no-store, max-age=0, must-revalidate';
+          headers['x-robots-tag'] = headers['x-robots-tag'] || 'noindex';
+        }
+        origWriteHead(finalStatus, headers);
+      }
+
+      if (
+        ct.includes('text/html') &&
+        finalStatus === 200 &&
         !headerBag['set-cookie'] &&
         !isCompressedBody(body, contentEncoding)
       ) {
         rememberHtml(
           key,
-          statusCode,
+          finalStatus,
           {
             'Content-Type': ct || 'text/html; charset=utf-8',
             'Cache-Control':
@@ -332,7 +381,8 @@ function wrapHtmlCache(handle) {
           body
         );
       }
-      return origEnd(chunk, encoding, cb);
+
+      return origEnd(body, undefined, cb);
     };
 
     return handle(req, res, parse(req.url || '/', true));

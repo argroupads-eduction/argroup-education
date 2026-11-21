@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const content = await getContentBySlug(decoded);
   if (!content) {
-    return { title: 'Not Found' };
+    notFound();
   }
 
   const featuredImage = resolveCollegeFeaturedImage(decoded, content.featuredImage);
