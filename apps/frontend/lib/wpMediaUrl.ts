@@ -15,25 +15,27 @@ export function liveCmsMediaUrl(url: string): string {
   return url.trim().replace(/^http:\/\//i, 'https://');
 }
 
+/** Live WordPress media host — used when public/wp-content miss on Hostinger. */
+export const DEFAULT_WP_MEDIA_ORIGIN = 'https://cms.argroupofeducation.com';
+
 /**
- * Amplify omits most of public/wp-content. Prefer bundled colleges + /images + /mbbs-* heroes.
- * Do NOT hotlink Hostinger Node (returns HTML for /wp-content). Keep same-origin paths so
- * next.config can rewrite misses to /api/wp-media when a real origin is configured.
+ * Amplify/Hostinger omit most of public/wp-content. Prefer bundled colleges + /images.
+ * Misses rewrite to /api/wp-media which fetches from this origin (never self-proxy www).
  */
 export function getWpMediaOrigin(): string | null {
   const raw = (process.env.WP_MEDIA_ORIGIN || process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN || '')
     .trim()
     .replace(/\/$/, '');
-  if (!raw) return null;
+  const candidate = raw || DEFAULT_WP_MEDIA_ORIGIN;
   // Never treat this marketing Node app as a media CDN (self-proxy = slow).
-  if (/hostingersite\.com/i.test(raw)) return null;
+  if (/hostingersite\.com/i.test(candidate)) return DEFAULT_WP_MEDIA_ORIGIN;
   try {
-    const host = new URL(raw).hostname.replace(/^www\./i, '').toLowerCase();
-    if (host === 'argroupofeducation.com') return null;
+    const host = new URL(candidate).hostname.replace(/^www\./i, '').toLowerCase();
+    if (host === 'argroupofeducation.com') return DEFAULT_WP_MEDIA_ORIGIN;
   } catch {
-    return null;
+    return DEFAULT_WP_MEDIA_ORIGIN;
   }
-  return raw;
+  return candidate;
 }
 
 /** Bundled uploads in public/wp-content — static path for Next.js. */

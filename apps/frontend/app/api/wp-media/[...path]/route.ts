@@ -2,6 +2,7 @@ import path from 'node:path';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { NextResponse } from 'next/server';
+import { getWpMediaOrigin } from '@/lib/wpMediaUrl';
 
 const MIME: Record<string, string> = {
   '.webp': 'image/webp',
@@ -106,13 +107,9 @@ function isSelfOrBlockedMediaOrigin(origin: string): boolean {
  * Cap candidates + short timeout so misses fail fast on shared Hostinger CPU.
  */
 async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null> {
-  const origin = (
-    process.env.WP_MEDIA_ORIGIN ||
-    process.env.NEXT_PUBLIC_WP_MEDIA_ORIGIN ||
-    ''
-  ).replace(/\/$/, '');
+  const origin = (getWpMediaOrigin() || '').replace(/\/$/, '');
   // Never remote-fetch our own Node app (docs used to set WP_MEDIA_ORIGIN=www → 20–30s 404s).
-  if (isSelfOrBlockedMediaOrigin(origin)) return null;
+  if (!origin || isSelfOrBlockedMediaOrigin(origin)) return null;
 
   const safe = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
   const candidates: string[] = [safe];

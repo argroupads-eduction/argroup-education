@@ -358,6 +358,23 @@ async function loadPayloadContentDocs(): Promise<{ posts: ContentDoc[]; pages: C
   }
 }
 
+/** Live WordPress posts — featured images land in the image sitemap right after WP publish. */
+async function loadLiveWpBlogDocs(): Promise<ContentDoc[]> {
+  try {
+    const { getWpBlogCatalog } = await import('@/lib/wpApi');
+    const catalog = await withServerTimeout(getWpBlogCatalog(500), 12000, null);
+    if (!catalog?.length) return [];
+    return catalog.map((post) => ({
+      slug: post.slug,
+      title: post.title,
+      featuredImage: post.featuredImage,
+    }));
+  } catch (error) {
+    console.warn('[image-sitemap] Live WordPress posts skipped:', error);
+    return [];
+  }
+}
+
 function pageLocForContentSlug(baseUrl: string, slug: string): string {
   const base = baseUrl.replace(/\/$/, '');
   const path = resolveInternalPath(slug);
@@ -446,14 +463,16 @@ function addProgramHubImages(
  */
 export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSitemapPage[]> {
   const base = baseUrl.replace(/\/$/, '');
-  const [urlEntries, wpPages, wpPosts, blogPosts, databaseDocs, payloadDocs] = await Promise.all([
-    buildSitemapEntries(baseUrl),
-    loadWpBundlePages(),
-    loadWpBundlePosts(),
-    getAllWpExportBlogPosts(),
-    loadDatabaseContentDocs(),
-    loadPayloadContentDocs(),
-  ]);
+  const [urlEntries, wpPages, wpPosts, blogPosts, databaseDocs, payloadDocs, liveWpBlogs] =
+    await Promise.all([
+      buildSitemapEntries(baseUrl),
+      loadWpBundlePages(),
+      loadWpBundlePosts(),
+      getAllWpExportBlogPosts(),
+      loadDatabaseContentDocs(),
+      loadPayloadContentDocs(),
+      loadLiveWpBlogDocs(),
+    ]);
 
   const pageLastmod = new Map(urlEntries.map((e) => [e.loc, e.lastmod]));
   const bucket = new Map<string, Map<string, ImageSitemapImage>>();
@@ -548,6 +567,14 @@ export async function buildImageSitemapEntries(baseUrl: string): Promise<ImageSi
     payloadDocs.posts,
     (slug) => `${base}${blogPostPath(slug)}`,
     (slug, featured) => resolveBlogFeaturedImage(slug, featured),
+  );
+  addContentDocImages(
+    bucket,
+    baseUrl,
+    liveWpBlogs,
+    (slug) => `${base}${blogPostPath(slug)}`,
+    // Prefer live WP featured URL (cms.*) so Google Image Search can fetch a real 200.
+    (_slug, featured) => featured ?? null,
   );
 
   for (const [slug, src] of Object.entries(BY_SLUG)) {

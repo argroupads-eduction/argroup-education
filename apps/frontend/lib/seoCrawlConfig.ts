@@ -22,6 +22,7 @@ export const ROBOTS_IMAGE_ALLOW_PREFIXES = [
   '/wp-content/',
   '/uploads/',
   '/api/wp-media/',
+  '/api/cms/media/',
   '/states/',
   '/mbbs-abroad-scroll/',
 ] as const;

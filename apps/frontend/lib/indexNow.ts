@@ -1,5 +1,8 @@
 import { blogPostPath } from '@/lib/blogUtils';
+import { extractHtmlImageUrls } from '@/lib/extractHtmlImageUrls';
+import { IMAGE_SITEMAP_PATH } from '@/lib/seoCrawlConfig';
 import { getSiteUrl } from '@/lib/siteUrl';
+import { toAbsoluteMediaUrl } from '@/lib/toAbsoluteMediaUrl';
 
 /**
  * IndexNow — notify search engines when URLs change (Bing, Yandex, Seznam, Naver).
@@ -88,16 +91,84 @@ export async function notifyIndexNow(urls: string[]): Promise<{
   }
 }
 
+/** IndexNow requires URLs on www host — map cms WP media to same-origin /wp-content (proxied). */
+function toIndexNowImageUrl(src: string | null | undefined): string | null {
+  const abs = toAbsoluteMediaUrl(src);
+  if (!abs) return null;
+  try {
+    const u = new URL(abs);
+    const host = u.hostname.replace(/^www\./i, '').toLowerCase();
+    if (host === 'cms.argroupofeducation.com' && u.pathname.includes('/wp-content/')) {
+      return `https://www.argroupofeducation.com${u.pathname}${u.search}`;
+    }
+    if (host === 'argroupofeducation.com') {
+      return abs;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+async function collectPublishImageUrls(opts: {
+  slug: string;
+  type: 'post' | 'page';
+}): Promise<string[]> {
+  const out: string[] = [];
+  const pushAbs = (src: string | null | undefined) => {
+    const abs = toIndexNowImageUrl(src);
+    if (abs) out.push(abs);
+  };
+
+  try {
+    if (opts.type === 'post') {
+      const { getWpPostBySlug } = await import('@/lib/wpApi');
+      const post = await getWpPostBySlug(opts.slug);
+      if (post) {
+        pushAbs(post.featuredImage);
+        for (const src of extractHtmlImageUrls(post.content)) pushAbs(src);
+        return out;
+      }
+    } else {
+      const { getWpPageBySlug } = await import('@/lib/wpApi');
+      const page = await getWpPageBySlug(opts.slug);
+      if (page) {
+        pushAbs(page.featuredImage);
+        for (const src of extractHtmlImageUrls(page.content)) pushAbs(src);
+      }
+    }
+  } catch {
+    /* best-effort */
+  }
+
+  return out;
+}
+
+/** After WP/Payload publish: page URL + sitemaps + same-origin image URLs for Image Search. */
 export async function notifySearchEnginesAfterPublish(opts: {
   slug: string;
   type: 'post' | 'page';
   published: boolean;
+  imageUrls?: string[];
 }) {
   if (!opts.published) return { ok: false, submitted: 0, skipped: true, reason: 'unpublished' };
 
   const pageUrl = publicUrlForSyncedContent(opts);
   const { origin } = siteHostAndOrigin();
-  const urls = [pageUrl, `${origin}/sitemap.xml`, `${origin}/blog`];
+  const urls = [
+    pageUrl,
+    `${origin}/sitemap.xml`,
+    `${origin}${IMAGE_SITEMAP_PATH}`,
+    `${origin}/blog`,
+  ];
+
+  const fromOpts = (opts.imageUrls ?? [])
+    .map((u) => toIndexNowImageUrl(u))
+    .filter((u): u is string => Boolean(u));
+  urls.push(...fromOpts);
+
+  const fromWp = await collectPublishImageUrls(opts);
+  urls.push(...fromWp);
 
   return notifyIndexNow(urls);
 }
