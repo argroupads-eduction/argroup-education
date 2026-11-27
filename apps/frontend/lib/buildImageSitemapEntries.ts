@@ -151,6 +151,29 @@ function slugFromPagePath(pagePath: string): string | null {
   return trimmed;
 }
 
+/**
+ * Google Image sitemap can point at a different host than the page.
+ * Prefer live WordPress CMS for /wp-content/uploads (except bundled colleges),
+ * so image:loc returns HTTP 200 even when Hostinger public/ is incomplete.
+ */
+function toImageSitemapLoc(src: string | null | undefined, baseUrl?: string): string | null {
+  const absolute = toAbsoluteMediaUrl(src, baseUrl);
+  if (!absolute) return null;
+  try {
+    const u = new URL(absolute);
+    const path = u.pathname;
+    if (
+      path.includes('/wp-content/uploads/') &&
+      !/\/wp-content\/uploads\/colleges\//i.test(path)
+    ) {
+      return `https://cms.argroupofeducation.com${path}${u.search}`;
+    }
+  } catch {
+    /* keep absolute */
+  }
+  return absolute;
+}
+
 function addImage(
   bucket: Map<string, Map<string, ImageSitemapImage>>,
   pageLoc: string,
@@ -158,7 +181,7 @@ function addImage(
   title?: string,
   baseUrl?: string
 ) {
-  const absolute = toAbsoluteMediaUrl(src, baseUrl);
+  const absolute = toImageSitemapLoc(src, baseUrl);
   if (!absolute) return;
 
   let page = bucket.get(pageLoc);
