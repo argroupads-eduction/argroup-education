@@ -9,16 +9,13 @@ export function toAbsoluteMediaUrl(
   if (!url?.trim()) return null;
 
   const site = canonicalizePublicUrl((baseUrl ?? getSiteUrl()).replace(/\/$/, ''));
-  const trimmed = url.trim();
+  // Always rewrite cms|/wp-content → /api/wp-media first (incl. absolute cms OG URLs).
+  const resolved = resolveWpMediaUrl(url.trim()) ?? url.trim();
 
-  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('//')) {
-    const absolute = trimmed.startsWith('//') ? `https:${trimmed}` : trimmed.replace(/^http:\/\//i, 'https://');
-    return canonicalizePublicUrl(absolute);
-  }
-
-  const resolved = resolveWpMediaUrl(trimmed) ?? trimmed;
   if (/^https?:\/\//i.test(resolved) || resolved.startsWith('//')) {
-    const absolute = resolved.startsWith('//') ? `https:${resolved}` : resolved.replace(/^http:\/\//i, 'https://');
+    const absolute = resolved.startsWith('//')
+      ? `https:${resolved}`
+      : resolved.replace(/^http:\/\//i, 'https://');
     return canonicalizePublicUrl(absolute);
   }
 
