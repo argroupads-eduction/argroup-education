@@ -38,12 +38,6 @@ export function getWpMediaOrigin(): string | null {
   return candidate;
 }
 
-/** Bundled uploads in public/wp-content — static path for Next.js. */
-function toStaticWpContentPath(relativePath: string): string {
-  const safe = relativePath.replace(/^\/+/, '').replace(/^wp-content\//, '');
-  return `/wp-content/${safe}`;
-}
-
 /**
  * Cloudflare cached many /wp-content/* misses as immutable 404s.
  * Serve WP uploads via /api/wp-media (proxy to cms) except on-disk college packs.
