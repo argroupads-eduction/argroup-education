@@ -54,10 +54,6 @@ export function preferApiWpMediaPath(pathname: string): string {
   return pathname.replace(/^\/wp-content\//i, '/api/wp-media/');
 }
 
-function apiMediaToStatic(url: string): string {
-  return toStaticWpContentPath(url.replace(/^\/api\/wp-media\//, ''));
-}
-
 function normalizeWpContentRel(rel: string): string {
   return rel.startsWith('wp-content/') ? `/${rel}` : `/wp-content/${rel.replace(/^\/+/, '')}`;
 }
