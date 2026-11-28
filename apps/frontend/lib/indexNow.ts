@@ -91,18 +91,26 @@ export async function notifyIndexNow(urls: string[]): Promise<{
   }
 }
 
-/** IndexNow requires URLs on www host — map cms WP media to same-origin /wp-content (proxied). */
+/** IndexNow requires URLs on www host — map CMS/WP media to /api/wp-media (working 200). */
 function toIndexNowImageUrl(src: string | null | undefined): string | null {
   const abs = toAbsoluteMediaUrl(src);
   if (!abs) return null;
   try {
     const u = new URL(abs);
     const host = u.hostname.replace(/^www\./i, '').toLowerCase();
-    if (host === 'cms.argroupofeducation.com' && u.pathname.includes('/wp-content/')) {
-      return `https://www.argroupofeducation.com${u.pathname}${u.search}`;
+    let path = u.pathname;
+    if (
+      (host === 'cms.argroupofeducation.com' || host === 'argroupofeducation.com') &&
+      path.includes('/wp-content/')
+    ) {
+      path = path.replace(/^\/wp-content\//i, '/api/wp-media/');
+      return `https://www.argroupofeducation.com${path}${u.search}`;
     }
     if (host === 'argroupofeducation.com') {
-      return abs;
+      if (path.startsWith('/api/wp-media/') || path.startsWith('/images/') || path.startsWith('/wp-content/uploads/colleges/')) {
+        return `https://www.argroupofeducation.com${path}${u.search}`;
+      }
+      return abs.startsWith('https://www.') ? abs : abs.replace('https://argroupofeducation.com', 'https://www.argroupofeducation.com');
     }
   } catch {
     return null;

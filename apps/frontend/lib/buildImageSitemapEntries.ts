@@ -152,21 +152,29 @@ function slugFromPagePath(pagePath: string): string | null {
 }
 
 /**
- * Google Image sitemap can point at a different host than the page.
- * Prefer live WordPress CMS for /wp-content/uploads (except bundled colleges),
- * so image:loc returns HTTP 200 even when Hostinger public/ is incomplete.
+ * Image sitemap locs must return HTTP 200.
+ * Use /api/wp-media for WP uploads (proxies cms; bypasses Cloudflare poisoned /wp-content 404 cache).
+ * Keep college packs + local /images on www static paths.
  */
 function toImageSitemapLoc(src: string | null | undefined, baseUrl?: string): string | null {
   const absolute = toAbsoluteMediaUrl(src, baseUrl);
   if (!absolute) return null;
   try {
     const u = new URL(absolute);
-    const path = u.pathname;
+    let path = u.pathname;
+    if (/^\/api\/wp-media\//i.test(path)) {
+      return `https://www.argroupofeducation.com${path}${u.search}`;
+    }
+    if (u.hostname.replace(/^www\./i, '').toLowerCase() === 'cms.argroupofeducation.com') {
+      path = path.replace(/^\/wp-content\//i, '/api/wp-media/');
+      return `https://www.argroupofeducation.com${path}${u.search}`;
+    }
     if (
       path.includes('/wp-content/uploads/') &&
       !/\/wp-content\/uploads\/colleges\//i.test(path)
     ) {
-      return `https://cms.argroupofeducation.com${path}${u.search}`;
+      path = path.replace(/^\/wp-content\//i, '/api/wp-media/');
+      return `https://www.argroupofeducation.com${path}${u.search}`;
     }
   } catch {
     /* keep absolute */

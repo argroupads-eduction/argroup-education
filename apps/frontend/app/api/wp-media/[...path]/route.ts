@@ -125,8 +125,8 @@ async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null
     if (!candidates.includes(p)) candidates.push(p);
   }
 
-  // Hard cap — Elementor year/month fan-out used to spawn dozens of 8s fetches.
-  const limited = candidates.slice(0, 6);
+  // Hard cap — keep remote tries tiny to avoid Hostinger worker timeouts / 503 under bots.
+  const limited = candidates.slice(0, 3);
 
   for (const candidate of limited) {
     const urls = [encodeWpContentUrl(origin, candidate)];
@@ -141,7 +141,7 @@ async function fetchRemoteWpMedia(relativePath: string): Promise<Response | null
             'User-Agent': 'ARGroupMediaProxy/1.0',
             Accept: 'image/*,*/*',
           },
-          signal: AbortSignal.timeout(2_500),
+          signal: AbortSignal.timeout(1_800),
           redirect: 'follow',
         });
         if (res.ok && res.body && isImageResponse(res)) return res;
@@ -163,7 +163,11 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const relativePath = segments.map((s) => path.basename(s)).join('/');
+  const relativePath = segments
+    .map((s) => decodeURIComponent(s))
+    .join('/')
+    .replace(/^\/+/, '')
+    .replace(/^wp-content\//i, '');
 
   const serveBuffer = (buf: Buffer) =>
     new NextResponse(new Uint8Array(buf), {
@@ -177,8 +181,8 @@ export async function GET(
   const bundled = await readBundledStatic(relativePath);
   if (bundled) return serveBuffer(bundled);
 
-  // Cap disk alternate probes (full Elementor year/month grid is expensive on miss).
-  for (const alt of elementorThumbAlternates(relativePath).slice(0, 12)) {
+  // Few disk probes — heavy Elementor grids caused Hostinger 503s under bot crawl.
+  for (const alt of elementorThumbAlternates(relativePath).slice(0, 4)) {
     const altBundled = await readBundledStatic(alt);
     if (altBundled) return serveBuffer(altBundled);
   }
@@ -203,8 +207,10 @@ export async function GET(
     {
       status: 404,
       headers: {
-        // Short negative cache so browsers/CDN do not hammer Node on missing media.
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
+        // Never let CDNs cache misses as immutable (Cloudflare poisoned /wp-content 404s).
+        'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
+        'CDN-Cache-Control': 'no-store',
+        'Cloudflare-CDN-Cache-Control': 'no-store',
       },
     }
   );

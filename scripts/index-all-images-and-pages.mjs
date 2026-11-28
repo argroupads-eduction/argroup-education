@@ -34,10 +34,17 @@ function imageLocsFromXml(xml) {
 function toIndexNowUrl(url) {
   try {
     const u = new URL(url);
-    if (u.origin.replace(/\/$/, '') === SITE) return u.href;
-    if (u.hostname.replace(/^www\./i, '') === 'cms.argroupofeducation.com') {
-      // Same path on www (served via wp-media proxy after deploy; still notify discovery)
-      return `${SITE}${u.pathname}${u.search}`;
+    const host = u.hostname.replace(/^www\./i, '').toLowerCase();
+    let path = u.pathname;
+    if (host === 'cms.argroupofeducation.com' && path.includes('/wp-content/')) {
+      path = path.replace(/^\/wp-content\//i, '/api/wp-media/');
+      return `${SITE}${path}${u.search}`;
+    }
+    if (host === 'argroupofeducation.com') {
+      if (path.includes('/wp-content/uploads/') && !path.includes('/uploads/colleges/')) {
+        path = path.replace(/^\/wp-content\//i, '/api/wp-media/');
+      }
+      return `${SITE}${path}${u.search}`;
     }
   } catch {
     return null;

@@ -44,6 +44,16 @@ function toStaticWpContentPath(relativePath: string): string {
   return `/wp-content/${safe}`;
 }
 
+/**
+ * Cloudflare cached many /wp-content/* misses as immutable 404s.
+ * Serve WP uploads via /api/wp-media (proxy to cms) except on-disk college packs.
+ */
+export function preferApiWpMediaPath(pathname: string): string {
+  if (!/^\/wp-content\/uploads\//i.test(pathname)) return pathname;
+  if (/\/wp-content\/uploads\/colleges\//i.test(pathname)) return pathname;
+  return pathname.replace(/^\/wp-content\//i, '/api/wp-media/');
+}
+
 function apiMediaToStatic(url: string): string {
   return toStaticWpContentPath(url.replace(/^\/api\/wp-media\//, ''));
 }
@@ -94,10 +104,10 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
 
   const trimmed = url.trim();
   if (trimmed.startsWith('/api/wp-media/')) {
-    return apiMediaToStatic(trimmed);
+    return trimmed;
   }
   if (trimmed.startsWith('/wp-content/')) {
-    return toLocalWpContentPath(trimmed);
+    return preferApiWpMediaPath(toLocalWpContentPath(trimmed));
   }
   if (
     trimmed.startsWith('/images/') ||
@@ -122,8 +132,19 @@ export function resolveWpMediaUrl(url: string | null | undefined): string | null
       if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
         return null;
       }
-      // WordPress (headless CMS) media: keep the absolute https URL as-is.
-      if (host === 'cms.argroupofeducation.com') return trimmed.replace(/^http:\/\//i, 'https://');
+      // WordPress CMS media → same-origin /api/wp-media (CDN-safe, indexable on www).
+      if (host === 'cms.argroupofeducation.com') {
+        try {
+          const u = new URL(trimmed.replace(/^http:\/\//i, 'https://'));
+          if (u.pathname.includes('/wp-content/')) {
+            return preferApiWpMediaPath(
+              toLocalWpContentPath(u.pathname)
+            );
+          }
+        } catch {
+          return trimmed.replace(/^http:\/\//i, 'https://');
+        }
+      }
       if (host === 'argroupofeducation.com' || host.endsWith('hostingersite.com')) {
         const u = new URL(trimmed.replace(/^http:\/\//i, 'https://'));
         if (u.pathname.includes('/wp-content/')) {
@@ -163,21 +184,35 @@ export function rewriteSingleWpMediaUrl(url: string): string {
   const trimmed = url.trim();
   if (!trimmed || trimmed.startsWith('data:')) return trimmed;
   if (trimmed.startsWith('/api/wp-media/')) {
-    return apiMediaToStatic(trimmed);
+    return trimmed;
   }
 
   const resolved = resolveWpMediaUrl(trimmed);
-  if (resolved && resolved !== trimmed) return resolved;
+  if (resolved && resolved !== trimmed) return preferApiWpMediaPath(resolved);
 
   const hostMatch = trimmed.match(
     /^https?:\/\/(?:www\.)?(?:argroupofeducation\.com|[^/]*hostingersite\.com)\/wp-content\/(.+)$/i
   );
   if (hostMatch) {
-    return toLocalWpContentPath(normalizeWpContentRel(`wp-content/${hostMatch[1]}`));
+    return preferApiWpMediaPath(
+      toLocalWpContentPath(normalizeWpContentRel(`wp-content/${hostMatch[1]}`))
+    );
+  }
+
+  // Live WordPress CMS media → same-origin API proxy (indexable on www, bypasses CF 404 poison)
+  const cmsMatch = trimmed.match(
+    /^https?:\/\/cms\.argroupofeducation\.com\/wp-content\/(.+)$/i
+  );
+  if (cmsMatch) {
+    return preferApiWpMediaPath(
+      toLocalWpContentPath(normalizeWpContentRel(`wp-content/${cmsMatch[1]}`))
+    );
   }
 
   if (trimmed.startsWith('/wp-content/')) {
-    return toLocalWpContentPath(normalizeWpContentRel(trimmed.replace(/^\/+/, '')));
+    return preferApiWpMediaPath(
+      toLocalWpContentPath(normalizeWpContentRel(trimmed.replace(/^\/+/, '')))
+    );
   }
 
   return trimmed;

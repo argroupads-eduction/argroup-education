@@ -274,6 +274,27 @@ const nextConfig = {
         destination: 'https://www.argroupofeducation.com/:path*',
         permanent: true,
       },
+      // Legacy WordPress sitemaps → Next sitemap (stops soft-HTML 200 + bot timeouts/503).
+      {
+        source: '/post-sitemap.xml',
+        destination: '/sitemap.xml',
+        permanent: true,
+      },
+      {
+        source: '/page-sitemap.xml',
+        destination: '/sitemap.xml',
+        permanent: true,
+      },
+      {
+        source: '/sitemap_index.xml',
+        destination: '/sitemap.xml',
+        permanent: true,
+      },
+      {
+        source: '/:name-sitemap.xml',
+        destination: '/sitemap.xml',
+        permanent: true,
+      },
       {
         source: '/index',
         destination: '/',

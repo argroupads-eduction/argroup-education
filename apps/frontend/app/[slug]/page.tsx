@@ -65,6 +65,14 @@ export default async function WpSlugPage({ params }: PageProps) {
   const { slug } = await params;
   const decoded = decodeURIComponent(slug);
 
+  // Never render HTML for asset/sitemap-looking slugs (bot load / soft-200 risk).
+  if (
+    /\.(xml|txt|json|css|js|map|png|jpe?g|webp|gif|svg|ico|woff2?)$/i.test(decoded) ||
+    /sitemap/i.test(decoded)
+  ) {
+    notFound();
+  }
+
   if (MODERN_HUB_SLUGS.has(decoded)) {
     notFound();
   }
